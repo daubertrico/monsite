@@ -1,0 +1,42 @@
+[
+  {
+    "section": "head",
+    "champ": "site_title",
+    "valeur": "La Voix Libre – École de chant à Rennes"
+  },
+  {
+    "section": "head",
+    "champ": "logo_url",
+    "valeur": "assets/images/logo.png"
+  },
+  {
+    "section": "head",
+    "champ": "main_title",
+    "valeur": "La Voix Libre"
+  },
+  {
+    "section": "head",
+    "champ": "sub_title",
+    "valeur": "École de chant – Chorales – Rennes"
+  },
+  {
+    "section": "footer",
+    "champ": "email",
+    "valeur": "lavoixlibrerennes@gmail.com"
+  },
+  {
+    "section": "footer",
+    "champ": "facebook",
+    "valeur": "https://www.facebook.com/chanterlavoixlibre/"
+  },
+  {
+    "section": "footer",
+    "champ": "instagram",
+    "valeur": "https://www.instagram.com/chanterlavoixlibre/"
+  },
+  {
+    "section": "footer",
+    "champ": "youtube",
+    "valeur": "https://www.youtube.com/channel/UC5xRWArmPqnh_OdfvubC38Q"
+  }
+]

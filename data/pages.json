@@ -1,0 +1,139 @@
+[
+  {
+    "id": "chorale-pop",
+    "image": "choralepop.jpg",
+    "tile_overlay_title": "Chorale Pop",
+    "tile_overlay_subtitle": "Rejoignez notre chœur !",
+    "page_title": "La Voix Libre",
+    "page_subtitle": "Chorale pop, mais pas que…",
+    "page_content": [
+      "\"La Voix Libre\" est un chœur rennais né en mars 2017. Il est composé d’une cinquantaine de membres, hommes et femmes, tous passionnés et motivés.",
+      "Le chœur explore joyeusement un répertoire varié : gospel, chants du monde, chanson française, pop, classique...",
+      "Chaque nouvelle saison est un voyage unique aux mille sonorités.",
+      "Par ailleurs, l'accent est mis sur la précision rythmique à travers la percussion corporelle et le clapping.",
+      "L'exploration et l'improvisation collective sont régulièrement abordées sous forme d'exercices.",
+      "Débutants bienvenus.",
+      "Répétitions : lundi 20h–22h – 21 rue Papu, Rennes – 30€/mois"
+    ],
+    "tags": ["chorale_pop"],
+    "display_posts": true
+  },
+  {
+    "id": "comedie-musicale",
+    "image": "comediemusicale.jpg",
+    "tile_overlay_title": "Comédie Musicale",
+    "tile_overlay_subtitle": "La Furie des Mers",
+    "page_title": "Comédie Musicale",
+    "page_subtitle": "La Furie des Mers",
+    "page_content": [
+      "Adaptée librement des Pirates de Penzance de Gilbert & Sullivan, cette comédie musicale déjantée raconte l'histoire de Mado et Frédéric, rencontrant les filles du Major Général.",
+      "Un spectacle pop, féministe, drôle et flamboyant, avec 14 interprètes et un pianiste bouillonnant."
+    ],
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Équipe artistique :",
+        "items": [
+          "Vincent T-Dauberlieu (musique)",
+          "Claude Morin (mise en scène)",
+          "Nino Deram (piano)"
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Distribution : intégrée ou en lien"
+      },
+      {
+        "type": "video",
+        "title": "Teaser vidéo 🎬 :",
+        "url": "https://youtu.be/UZv7l4vnReo"
+      }
+    ],
+    "tags": ["comedie"],
+    "display_posts": true
+  },
+  {
+    "id": "cours-de-chant",
+    "image": "courschant.jpg",
+    "tile_overlay_title": "Cours de chant",
+    "tile_overlay_subtitle": "Développez votre voix !",
+    "page_title": "Cours de chant lyrique",
+    "page_subtitle": "entre autres styles !",
+    "page_content": [
+      "Vincent est chanteur d’opéra et de jazz, professeur de chant, et chef de chœur.",
+      "Il a étudié la voix et la pédagogie vocale pendant plus de 10 ans, en France, en Allemagne, dans des conservatoires, des maisons d'opéra, des cabarets…",
+      "En 2017 il crée à Rennes \"La Voix Libre\", une école de chant pour tous.",
+      "Son approche : allier anatomie, souffle, conscience corporelle et expression artistique."
+    ],
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Cours :",
+        "items": [
+          "Cours de 45 min – 40 à 50 € selon régularité",
+          "À la carte possible",
+          "Pas de cours pendant les vacances scolaires"
+        ]
+      },
+      {
+        "type": "audio",
+        "title": "Portrait audio 🎧 :",
+        "url": "https://soundcloud.com/saint-senoux/vincent-tricotel-le-jardinier-de-la-voix"
+      }
+    ],
+    "tags": ["cours_de_chant"],
+    "display_posts": false
+  },
+  {
+    "id": "soul",
+    "image": "soul.jpg",
+    "tile_overlay_title": "SOUL",
+    "tile_overlay_subtitle": "Ensemble a cappella",
+    "page_title": "SOUL",
+    "page_subtitle": "Ensemble polyphonique a cappella",
+    "page_content": [
+      "SOUL est un groupe vocal a cappella explorant un répertoire varié : soul, R&B, gospel, jazz, pop. Le groupe se produit régulièrement en concert, apportant une énergie unique à chaque performance. Nos arrangements sont originaux et mettent en valeur les harmonies vocales."
+    ],
+    "tags": ["soul", "a_cappella"],
+    "display_posts": true
+  },
+  {
+    "id": "evenements",
+    "image": "concerts.jpg",
+    "tile_overlay_title": "Événements",
+    "tile_overlay_subtitle": "Où et quand nous rencontrer ou nous écouter",
+    "page_title": "Événements",
+    "page_subtitle": "Où et quand nous rencontrer ou nous écouter",
+    "page_content": [],
+    "tags": ["evenements"],
+    "display_posts": true,
+    "objective": "Liste automatique des concerts"
+  },
+  {
+    "id": "videos",
+    "image": "videosbackground.jpg",
+    "tile_overlay_title": "Vidéos",
+    "tile_overlay_subtitle": "Nos performances et concerts",
+    "page_title": "Vidéos",
+    "page_subtitle": "Les performances et concerts de la Voix Libre",
+    "page_content": [],
+    "tags": ["videos"],
+    "display_posts": true,
+    "objective": "Liste automatique des extraits vidéos"
+  },
+  {
+    "id": "partitions",
+    "image": "stagemic.jpg",
+    "tile_overlay_title": "Partitions",
+    "tile_overlay_subtitle": "Espace choristes",
+    "page_title": "Espace choristes",
+    "page_subtitle": "Téléchargement de partitions (accès restreint)",
+    "page_content": [
+      "Bienvenue dans l'espace choristes ! Ici vous trouverez les partitions et les supports audio pour vos ateliers. Cet espace est protégé par mot de passe."
+    ],
+    "tags": ["partitions"],
+    "display_posts": false,
+    "is_protected": true,
+    "password": "chanter2025"
+  }
+]
