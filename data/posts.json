@@ -4,8 +4,8 @@
     "title": "Concert d'été 2024 - Rétrospective",
     "date": "2024-07-05",
     "content": "Notre chorale pop a enchanté le public avec son concert annuel d'été. Un moment magique rempli de reprises énergiques et d'émotion partagée. Bravo à tous les choristes !",
-    "image": "concert_ete_2024.jpg",
-    "video_url": "https://www.youtube.com/watch?v=VId_Du5v_4o",
+    "video_url": "https://www.youtube.com/embed/O8zn_xM1b18",
+    "video_url": "https://www.youtube.com/embed/O8zn_xM1b18",
     "tags": ["chorale_pop", "evenements", "videos"]
   },
   {
@@ -13,13 +13,14 @@
     "title": "Découvrez notre nouvel atelier d'improvisation vocale",
     "date": "2024-09-10",
     "content": "Venez explorer votre créativité et libérer votre voix lors de nos ateliers d'improvisation collective. Ouvert à tous les niveaux !",
-    "image": "atelier_impro.jpg",
+    "image": "soul.jpg",
     "tags": ["chorale_pop", "cours_de_chant"]
   },
   {
     "id": "repetition-speciale-noel",
     "title": "Préparatifs intenses pour le concert de Noël",
     "date": "2024-11-20",
+    "image": "soul.jpg",
     "content": "Les répétitions s'intensifient pour notre grand concert de Noël. Au programme, des chants traditionnels revisités et quelques surprises pop pour les fêtes !",
     "tags": ["chorale_pop", "evenements"]
   },
