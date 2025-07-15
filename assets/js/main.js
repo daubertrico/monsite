@@ -113,29 +113,100 @@ document.addEventListener('DOMContentLoaded', () => {
     pageSubtitle.textContent = page.page_subtitle;
     contentContainer.innerHTML = '';
 
-    if (page.page_content && page.page_content.length > 0) {
-      const descriptionContainer = document.createElement('div');
-      descriptionContainer.classList.add('image-and-text-container');
-
-      if (page.image) {
-        const pageImage = document.createElement('img');
-        pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
-        pageImage.alt = `Image principale de la page ${page.page_title}`;
-        pageImage.classList.add('page-hero-image');
-        descriptionContainer.appendChild(pageImage);
+      if (page.page_content && page.page_content.length > 0) {
+        let descriptionContainer;
+        if (pageId === 'soul') {
+          // Pour la page Soul, image au-dessus, texte en dessous
+          descriptionContainer = document.createElement('div');
+          descriptionContainer.classList.add('image-and-text-container');
+          if (page.image) {
+            const pageImage = document.createElement('img');
+            pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
+            pageImage.alt = `Image principale de la page ${page.page_title}`;
+            pageImage.classList.add('page-hero-image');
+            descriptionContainer.appendChild(pageImage);
+          }
+          const textDiv = document.createElement('div');
+          textDiv.classList.add('description-text');
+          textDiv.style.width = '100%';
+          textDiv.style.margin = '0 auto';
+          textDiv.style.textAlign = 'justify';
+          page.page_content.forEach(pText => {
+            const pElement = document.createElement('p');
+            pElement.textContent = pText;
+            textDiv.appendChild(pElement);
+          });
+          descriptionContainer.appendChild(textDiv);
+          descriptionContainer.style.flexDirection = 'column';
+          contentContainer.appendChild(descriptionContainer);
+        } else if (pageId === 'cours-de-chant') {
+          // Pour la page Cours de chant, image et texte côte à côte
+          descriptionContainer = document.createElement('div');
+          descriptionContainer.classList.add('image-and-text-container');
+          descriptionContainer.style.display = 'flex';
+          descriptionContainer.style.flexDirection = 'row';
+          descriptionContainer.style.alignItems = 'center';
+          descriptionContainer.style.gap = '20px';
+          if (page.image) {
+            const pageImage = document.createElement('img');
+            pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
+            pageImage.alt = `Image principale de la page ${page.page_title}`;
+            pageImage.classList.add('page-hero-image');
+            pageImage.style.width = '50%';
+            pageImage.style.height = 'auto';
+            pageImage.style.objectFit = 'cover';
+            descriptionContainer.appendChild(pageImage);
+          }
+          const textDiv = document.createElement('div');
+          textDiv.classList.add('description-text');
+          textDiv.style.width = '50%';
+          textDiv.style.textAlign = 'justify';
+          page.page_content.forEach(pText => {
+            const pElement = document.createElement('p');
+            pElement.textContent = pText;
+            textDiv.appendChild(pElement);
+          });
+          descriptionContainer.appendChild(textDiv);
+          contentContainer.appendChild(descriptionContainer);
+        } else if (pageId === 'videos') {
+          // Ne pas afficher d'image d'illustration sur la page vidéos
+          descriptionContainer = document.createElement('div');
+          descriptionContainer.classList.add('image-and-text-container');
+          const textDiv = document.createElement('div');
+          textDiv.classList.add('description-text');
+          textDiv.style.width = '100%';
+          textDiv.style.margin = '0 auto';
+          textDiv.style.textAlign = 'justify';
+          page.page_content.forEach(pText => {
+            const pElement = document.createElement('p');
+            pElement.textContent = pText;
+            textDiv.appendChild(pElement);
+          });
+          descriptionContainer.appendChild(textDiv);
+          descriptionContainer.style.flexDirection = 'column';
+          contentContainer.appendChild(descriptionContainer);
+        } else {
+          // Pour les autres pages, image et texte côte à côte
+          descriptionContainer = document.createElement('div');
+          descriptionContainer.classList.add('image-and-text-container');
+          if (page.image) {
+            const pageImage = document.createElement('img');
+            pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
+            pageImage.alt = `Image principale de la page ${page.page_title}`;
+            pageImage.classList.add('page-hero-image');
+            descriptionContainer.appendChild(pageImage);
+          }
+          const textDiv = document.createElement('div');
+          textDiv.classList.add('description-text');
+          page.page_content.forEach(pText => {
+            const pElement = document.createElement('p');
+            pElement.textContent = pText;
+            textDiv.appendChild(pElement);
+          });
+          descriptionContainer.appendChild(textDiv);
+          contentContainer.appendChild(descriptionContainer);
+        }
       }
-
-      const textDiv = document.createElement('div');
-      textDiv.classList.add('description-text');
-
-      page.page_content.forEach(pText => {
-        const pElement = document.createElement('p');
-        pElement.textContent = pText;
-        textDiv.appendChild(pElement);
-      });
-      descriptionContainer.appendChild(textDiv);
-      contentContainer.appendChild(descriptionContainer);
-    }
 
     if (page.display_posts) {
       const postsSection = document.createElement('section');

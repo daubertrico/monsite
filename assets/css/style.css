@@ -337,8 +337,8 @@ body {
 }
 
 #posts-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Pour avoir plusieurs colonnes de posts */
+    display: flex;
+    flex-direction: column;
     gap: 2rem; /* Espacement entre les posts */
 }
 
@@ -362,16 +362,20 @@ body {
 /* Styles pour le wrapper interne du post, pour la disposition média/texte */
 .blog-post .post-wrapper {
     display: flex;
-    flex-direction: column; /* Par défaut, les médias au-dessus du texte */
-    gap: 1rem;
+    flex-direction: row; /* Média et texte côte à côte */
+    gap: 1.5rem;
     padding: 1.5rem; /* Padding interne pour le contenu du post */
 }
 
 .blog-post .media {
-    flex-shrink: 0; /* Empêche le média de rétrécir */
-    width: 100%; /* Le média prend toute la largeur sur une colonne */
-    max-height: 250px; /* Hauteur maximale pour les images/vidéos des posts */
-    overflow: hidden; /* Cache ce qui dépasse */
+    flex-shrink: 0;
+    width: 250px;
+    height: 250px;
+    background: var(--accent-color-primary); /* Couleur d'un côté */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     border-radius: var(--border-radius);
 }
 
@@ -379,16 +383,19 @@ body {
 .blog-post .media iframe {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Assure que l'image/vidéo couvre la zone */
+    object-fit: cover;
     display: block;
-    border: none; /* Retire la bordure par défaut des iframes */
+    border: none;
+    filter: saturate(1.2) contrast(1.05) brightness(1.08); /* Filtre léger pour rehausser les couleurs */
 }
 
 .blog-post .text-content {
-    flex-grow: 1; /* Le texte prend l'espace restant */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Pour pousser la date en bas si nécessaire */
+    justify-content: space-between;
+    text-align: justify;
+    padding-left: 1.5rem;
 }
 
 .blog-post h3 {
@@ -578,6 +585,7 @@ body {
 
 .image-and-text-container .description-text { /* Ajout de cette classe */
     width: 50%;
+    text-align: justify;
 }
 
 .image-and-text-container .description-text p { /* Style pour les paragraphes dans le div */
