@@ -60,25 +60,27 @@
     "page_title": "Cours de chant lyrique",
     "page_subtitle": "entre autres styles !",
     "page_content": [
-      "Vincent est chanteur d’opéra et de jazz, professeur de chant, et chef de chœur.",
-      "Il a étudié la voix et la pédagogie vocale pendant plus de 10 ans, en France, en Allemagne, dans des conservatoires, des maisons d'opéra, des cabarets…",
-      "En 2017 il crée à Rennes \"La Voix Libre\", une école de chant pour tous.",
-      "Son approche : allier anatomie, souffle, conscience corporelle et expression artistique."
+      "Chanteur d'opéra et de jazz, professeur de chant, et chef de choeur, Vincent est le professeur attitré de La Voix Libre. Il a étudié la voix et la pédagogie vocale pendant plus de 10 ans, en France, en Allemagne, dans des conservatoires, des maisons d'opéra, des cabarets, auprès de pédagogues de renom mais aussi sur scène, avec ses collègues... En 2017 il créé à Rennes une école de chant : la Voix Libre. Le but de son enseignement est de trouver un point d’union entre l’ouverture du corps, la résonance de la voix et la tranquillité de l’esprit afin que le chanteur puisse devenir l’artiste.",
+      "Passionné par la pédagogie et le fonctionnement de la voix, il développe sa méthode, en dialogue avec ses élèves, et en se basant sur l'AFCM (physiologie et anatomie du chant), sur les méthodes éprouvées par les siècles des grands pédagogues lyriques italiens, sur ses incursions vers d'autres disciplines musicales et corporelles (telles les percussions corporelles), mais aussi sur le yoga, source d'inspiration infinie pour le travail du corps et de la voix.",
+      "Que ce soit pour chanter du jazz, de la pop ou bien de la musique classique, mon cours a un but principal : libérer la voix, afin de pouvoir chanter dans la joie, en toute conscience de son corps, et avec un esprit détendu.",
+      "Chaque cours est un dialogue avec l'élève, afin de trouver 'ce qui marche' pour chacun-e. La prise de conscience de la voix, parlée et chantée, se fait au travers d'exercices de chant classiques, mais aussi de techniques de respiration et de mouvement empruntés au yoga et à l’ostéopathie. Ces différentes disciplines permettent d'ouvrir et de développer sa voix en douceur dans un corps fort et détendu. Le cours dure 45 minutes.",
+      "Le travail du répertoire choisi permet à l'élève de développer sa personnalité musicale, son sens du rythme et sa confiance en soi !"
     ],
     "specific_content": [
       {
         "type": "list",
-        "title": "Cours :",
+        "title": "Infos pratiques :",
         "items": [
-          "Cours de 45 min – 40 à 50 € selon régularité",
-          "À la carte possible",
-          "Pas de cours pendant les vacances scolaires"
+          "Les cours durent 45 minutes et leur coût varie en fonction de leur régularité (de 40 à 50 euros la séance).",
+          "Il est possible de faire les cours 'à la carte', sans régularité, sur les créneaux qui restent disponibles.",
+          "Il n'y a pas de cours pendant les vacances scolaires."
         ]
       },
       {
         "type": "audio",
         "title": "Portrait audio 🎧 :",
-        "url": "https://soundcloud.com/saint-senoux/vincent-tricotel-le-jardinier-de-la-voix"
+        "url": "https://m.soundcloud.com/saint-senoux/sets/podcasts"
+     
       }
     ],
     "tags": ["cours_de_chant"],
@@ -134,6 +136,6 @@
     "tags": ["partitions"],
     "display_posts": false,
     "is_protected": true,
-    "password": "chanter2025"
+    "password": "lavoixlibre2026"
   }
 ]

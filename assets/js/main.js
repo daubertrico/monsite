@@ -140,32 +140,105 @@ document.addEventListener('DOMContentLoaded', () => {
           descriptionContainer.style.flexDirection = 'column';
           contentContainer.appendChild(descriptionContainer);
         } else if (pageId === 'cours-de-chant') {
-          // Pour la page Cours de chant, image et texte côte à côte
+          // Pour la page Cours de chant, image et texte côte à côte + infos pratiques + audio + contacts
           descriptionContainer = document.createElement('div');
           descriptionContainer.classList.add('image-and-text-container');
           descriptionContainer.style.display = 'flex';
           descriptionContainer.style.flexDirection = 'row';
-          descriptionContainer.style.alignItems = 'center';
-          descriptionContainer.style.gap = '20px';
+          descriptionContainer.style.alignItems = 'flex-start';
+          descriptionContainer.style.gap = '30px';
           if (page.image) {
             const pageImage = document.createElement('img');
             pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
             pageImage.alt = `Image principale de la page ${page.page_title}`;
             pageImage.classList.add('page-hero-image');
-            pageImage.style.width = '50%';
+            pageImage.style.width = '380px';
             pageImage.style.height = 'auto';
             pageImage.style.objectFit = 'cover';
+            pageImage.style.borderRadius = '12px';
             descriptionContainer.appendChild(pageImage);
           }
           const textDiv = document.createElement('div');
           textDiv.classList.add('description-text');
-          textDiv.style.width = '50%';
+          textDiv.style.width = '100%';
           textDiv.style.textAlign = 'justify';
           page.page_content.forEach(pText => {
             const pElement = document.createElement('p');
             pElement.textContent = pText;
             textDiv.appendChild(pElement);
           });
+
+          // Ajout des infos pratiques (list)
+          if (page.specific_content) {
+            const listBlock = page.specific_content.find(sc => sc.type === 'list');
+            if (listBlock) {
+              const ul = document.createElement('ul');
+              ul.style.marginTop = '20px';
+              ul.style.marginBottom = '20px';
+              ul.style.fontWeight = 'bold';
+              if (listBlock.title) {
+                const listTitle = document.createElement('h4');
+                listTitle.textContent = listBlock.title;
+                ul.appendChild(listTitle);
+              }
+              listBlock.items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                ul.appendChild(li);
+              });
+              textDiv.appendChild(ul);
+            }
+
+            // Ajout du portrait audio avec bande colorée et texte explicatif
+            const audioBlock = page.specific_content.find(sc => sc.type === 'audio');
+            if (audioBlock && audioBlock.url) {
+              const audioDiv = document.createElement('div');
+              audioDiv.style.margin = '30px 0';
+              audioDiv.style.background = 'linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%)';
+              audioDiv.style.borderRadius = '16px';
+              audioDiv.style.padding = '24px';
+              audioDiv.style.display = 'flex';
+              audioDiv.style.alignItems = 'center';
+              audioDiv.style.boxShadow = '0 2px 12px rgba(0,0,0,0.10)';
+              audioDiv.style.gap = '24px';
+
+              // Texte explicatif
+              const audioText = document.createElement('div');
+              audioText.style.flex = '1';
+              audioText.innerHTML = `<h4 style="margin:0 0 10px 0;">${audioBlock.title || 'Portrait audio'}</h4>
+                <p style="margin:0;">Découvrez la pratique et les méthodes de Vincent à travers ce portrait radiophonique réalisé en 2023 par Marion Lecointre et diffusé sur radio Laser.</p>`;
+
+              // Lien audio
+              const audioLink = document.createElement('a');
+              audioLink.href = audioBlock.url;
+              audioLink.target = '_blank';
+              audioLink.style.display = 'inline-block';
+              audioLink.style.background = '#6a82fb';
+              audioLink.style.color = '#fff';
+              audioLink.style.fontWeight = 'bold';
+              audioLink.style.padding = '12px 24px';
+              audioLink.style.borderRadius = '8px';
+              audioLink.style.textDecoration = 'none';
+              audioLink.style.boxShadow = '0 1px 6px rgba(0,0,0,0.08)';
+              audioLink.textContent = 'Écouter sur SoundCloud';
+
+              audioDiv.appendChild(audioText);
+              audioDiv.appendChild(audioLink);
+              textDiv.appendChild(audioDiv);
+            }
+
+            // Ajout des contacts
+            const contactBlock = page.specific_content.find(sc => sc.type === 'contact');
+            if (contactBlock) {
+              const contactDiv = document.createElement('div');
+              contactDiv.style.margin = '20px 0';
+              contactDiv.innerHTML = `<strong>Contact :</strong> <a href="mailto:${contactBlock.email}">${contactBlock.email}</a><br>
+                <a href="${contactBlock.facebook}" target="_blank">Facebook</a> |
+                <a href="${contactBlock.youtube}" target="_blank">YouTube</a>`;
+              textDiv.appendChild(contactDiv);
+            }
+          }
+
           descriptionContainer.appendChild(textDiv);
           contentContainer.appendChild(descriptionContainer);
         } else if (pageId === 'videos') {
