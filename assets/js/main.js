@@ -339,30 +339,34 @@ document.addEventListener('DOMContentLoaded', () => {
       const postElement = document.createElement('article');
       postElement.classList.add('blog-post');
 
-      let mediaContent = '';
+      // Illustrations : image d'abord, puis vidéos
+      let illustrations = [];
       if (post.image) {
-        if (/^https?:\/\//.test(post.image)) {
-          mediaContent = `<img src="${post.image}" alt="${post.title}">`;
-        } else {
-          mediaContent = `<img src="${ASSETS_BASE_URL}images/${post.image}" alt="${post.title}">`;
-        }
+        illustrations.push({ type: 'image', src: /^https?:\/\//.test(post.image) ? post.image : `${ASSETS_BASE_URL}images/${post.image}` });
       }
-      // Affiche toutes les vidéos du tableau 'videos' (nouveau format)
       if (Array.isArray(post.videos) && post.videos.length > 0) {
-        post.videos.forEach(function(videoUrl) {
-          const embedUrl = convertToEmbedUrl(videoUrl);
-          mediaContent += `<iframe width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
+        post.videos.forEach(function(videoObj) {
+          let url = typeof videoObj === 'string' ? videoObj : videoObj.url;
+          illustrations.push({ type: 'video', src: convertToEmbedUrl(url) });
         });
       } else if (post.video_url) {
-        // Compatibilité ancienne clé
-        const embedUrl = convertToEmbedUrl(post.video_url);
-        mediaContent += `<iframe width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
+        illustrations.push({ type: 'video', src: convertToEmbedUrl(post.video_url) });
       }
 
-      const postHTML = `
-        <h3>${post.title}</h3>
+      // Build the illustrations column (stacked vertically)
+      let illustrationsHTML = illustrations.map(ill =>
+        ill.type === 'image'
+          ? `<img src="${ill.src}" alt="${post.title}" class="media-illustration">`
+          : `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration"></iframe>`
+      ).join('');
+
+      // Build the post HTML
+      let postHTML = `<h3>${post.title}</h3>`;
+      postHTML += `
         <div class="post-wrapper">
-          <div class="media">${mediaContent}</div>
+          <div class="media media-vertical">
+            ${illustrationsHTML}
+          </div>
           <div class="text-content">
             <p class="post-date">${new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             <p>${post.content}</p>
@@ -412,19 +416,29 @@ styleSheet.innerText = `
   display: flex;
   align-items: stretch;
 }
-.blog-post .media {
-  flex: 1;
+.blog-post .media.media-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 33%;
+  min-width: 180px;
+  max-width: 260px;
 }
 .blog-post .text-content {
-  flex: 2;
+  flex: 1;
   padding-left: 20px;
   text-align: justify;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 .blog-post img,
 .blog-post iframe {
   max-width: 100%;
+  width: 100%;
   height: auto;
-  filter: grayscale(100%);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 .blog-post h3 {
   margin: 0 0 10px 0;
@@ -433,6 +447,20 @@ styleSheet.innerText = `
   font-size: 0.85rem;
   color: #777;
   margin-bottom: 15px;
+}
+@media (max-width: 700px) {
+  .blog-post .post-wrapper {
+    flex-direction: column;
+  }
+  .blog-post .media.media-vertical {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-bottom: 12px;
+  }
+  .blog-post .text-content {
+    padding-left: 0;
+  }
 }
 `;
 document.head.appendChild(styleSheet);
