@@ -1,44 +1,22 @@
 [
-  {
-    "id": "concert-chorale-ete-2024",
-    "title": "Concert d'été 2024 - Rétrospective",
-    "date": "2024-07-05",
-    "content": "Notre chorale pop a enchanté le public avec son concert annuel d'été. Un moment magique rempli de reprises énergiques et d'émotion partagée. Bravo à tous les choristes !",
-    "video_url": "https://www.youtube.com/embed/O8zn_xM1b18",
-    "video_url": "https://www.youtube.com/embed/O8zn_xM1b18",
-    "tags": ["chorale_pop", "evenements", "videos"]
-  },
-  {
-    "id": "nouvel-atelier-impro",
-    "title": "Découvrez notre nouvel atelier d'improvisation vocale",
-    "date": "2024-09-10",
-    "content": "Venez explorer votre créativité et libérer votre voix lors de nos ateliers d'improvisation collective. Ouvert à tous les niveaux !",
-    "image": "soul.jpg",
-    "tags": ["chorale_pop", "cours_de_chant"]
-  },
-  {
-    "id": "repetition-speciale-noel",
-    "title": "Préparatifs intenses pour le concert de Noël",
-    "date": "2024-11-20",
-    "image": "soul.jpg",
-    "content": "Les répétitions s'intensifient pour notre grand concert de Noël. Au programme, des chants traditionnels revisités et quelques surprises pop pour les fêtes !",
-    "tags": ["chorale_pop", "evenements"]
-  },
-  {
-    "id": "teaser-furie-des-mers",
-    "title": "La Furie des Mers - Le Teaser Officiel est là !",
-    "date": "2024-03-15",
-    "content": "Découvrez les premières images de notre comédie musicale déjantée, adaptée des Pirates de Penzance. Préparez-vous à rire et à chanter !",
-    "video_url": "https://www.youtube.com/watch?v=0",
-    "image": "comediemusicale_small.jpg",
-    "tags": ["comedie", "videos"]
-  },
-  {
-    "id": "spectacle-soul-cafe",
-    "title": "Performance de SOUL au Café Concert",
-    "date": "2024-05-22",
-    "content": "Notre ensemble a cappella SOUL a livré une performance inoubliable hier soir au Café Concert. Une ambiance chaleureuse et des harmonies envoûtantes.",
-    "image": "soul_concert.jpg",
-    "tags": ["soul", "evenements", "videos"]
-  }
+  {"id":"6867da2f02e2c0b5efe962f3","title":"Un concert plein de chaleur et de joie – La Voix Libre + SOUL à l’ABE","date":"2025-07-04","content":"Le 29 juin, La Voix Libre a offert son concert de fin d’année à l’ABE. Malgré la canicule, l’énergie des choristes était au rendez-vous,...","image":"https://static.wixstatic.com/media/9f1f72_cd9d539265624af3a08e98f8ef58cdfa~mv2.jpg/v1/fit/w_1000,h_992,al_c,q_80/file.png","videos":[],"tags":["chorale_pop","soul","evenements"],"author":"Vincent T-Dauberlieu"},
+  {"id":"686568ab899d64621e78f468","title":"concert itinérant centre ville de Rennes","date":"2025-07-02","content":"Lundi dernier, nos choristes ont eu le plaisir de chanter dans le centre-ville de Rennes. De la place Saint Michel en passant par la...","image":"https://static.wixstatic.com/media/9f1f72_7e329bd8b39946638eedd577483f353f~mv2.jpg/v1/fit/w_1000,h_592,al_c,q_80/file.png","videos":[],"tags":["evenements","chorale_pop"],"author":"Vincent T-Dauberlieu"},
+  {"id":"6863e60e4983e8e660a0017d","title":"S.O.U.L à Jazz sous les Pommiers 2025 : émotions et soul en Normandie","date":"2025-07-01","content":"Cette année, Chanter la Voix Libre  a eu l’immense plaisir de se produire au mythique festival Jazz sous les Pommiers , à Coutances. Une...","image":null,"videos":["http://youtu.be/Co6lesdfIiY"],"tags":["evenements","soul","videos"],"author":"Vincent T-Dauberlieu"},
+  {"id":"673e317e62d82a3a02ec4c74","title":"15 décembre 16h le grand concert de Noël !","date":"2024-11-20","content":"Un Noël en Musique : Concert Gratuit et Ouvert à Tous La magie de Noël s’installe à Rennes avec un concert exceptionnel et...","image":"https://static.wixstatic.com/media/9f1f72_f88a4ce279824a5b95ef0b1eda8e8cfa~mv2.webp/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["evenements","chorale_pop"],"author":"Vincent T-Dauberlieu"},
+  {"id":"673e304d62d82a3a02ec488c","title":"8 décembre 19h : concert de Noël SOUL et VIBRATIONS","date":"2024-11-20","content":"Le 8 décembre, les chorales S.O.U.L et Rennes Vibrations (direction Mathilde Bobot) vous invitent à un concert a cappella unique au...","image":"https://static.wixstatic.com/media/9f1f72_e6158919c4604489b07869f939f33c84~mv2.webp/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["evenements","soul"],"author":"Vincent T-Dauberlieu"},
+  {"id":"648ccc71c6730be5f524b2c4","title":"La Furie des Mers ‍☠️ - dernière chance de voir la comédie musicale qui a enthousiasmé Rennes !","date":"2024-10-20","content":"Le Spectacle La Voix libre - Rennes présente La Furie des mers, une comédie musicale adaptée très librement des Pirates de Penzance,...","image":"https://static.wixstatic.com/media/9f1f72_1e1e5bd323444787b8359f9fae1ac70d~mv2.jpg/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["comedie","evenements"],"author":"Vincent T-Dauberlieu"},
+  {"id":"66c71f12af7c9ba1ed4f82c3","title":"répétition porte-ouverte rentrée 2024 : le 09 septembre","date":"2024-08-22","content":"· La Voix Libre, chorale pop, mais pas que ! recrute cette année. Si tu aimes chanter en polyphonie, dans des langues étrangères, de la...","image":"https://static.wixstatic.com/media/9f1f72_d463f2b8e27c4563b208911ff85a88ef~mv2.jpg/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["chorale_pop"],"author":"Vincent T-Dauberlieu"},
+  {"id":"66549a60311a3aa1ebc15333","title":"Concerts et spectacles juin 2024","date":"2024-05-27","content":"Concerts et Spectacles cet été 16 juin 16h30 Le MeM - S.O.U.L Chœur a capella : de Otis Redding à Lauryn Hill 21 juin 20h30 Les Petits...","image":"https://static.wixstatic.com/media/9f1f72_3fa6ccd0af1a4e779dad6d10033072bd~mv2.png/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["evenements"],"author":"Vincent T-Dauberlieu"},
+  {"id":"6603fb5eb65840193d36d827","title":"Célebrez le printemps avec S.O.U.L à\"Jazz sous les Pommiers\" !","date":"2024-04-30","content":"La Voix Libre au prestigieux festival Jazz sous les Pommiers ! Où ? Place Saint Nicolas, Coutance Quand ? De 18h30 à 19h30 Nous...","image":"https://static.wixstatic.com/media/9f1f72_60337a3020b94501b18188505870f6fb~mv2.jpg/v1/fit/w_700,h_500,al_c,q_80/file.png","videos":[],"tags":["evenements","soul"],"author":"Vincent T-Dauberlieu"},
+  {"id":"662389540a4cdf4ee400b770","title":"Concert La Voix Libre Saint-Senoux","date":"2024-04-20","content":"Venez célébrer le printemps en musique avec la Chorale Rennaise La Voix Libre et S.O.U.L !Après un stage inspirant à Saint-Senoux, nous...","image":"https://static.wixstatic.com/media/9f1f72_0c9fe8cc76dc4af09cdb917e3cce9270~mv2.jpg/v1/fit/w_617,h_617,al_c,q_80/file.png","videos":[],"tags":["evenements","chorale_pop","soul"],"author":"Vincent T-Dauberlieu"},
+  {"id":"65df4987920344f742106caf","title":"Stage de Printemps - Deuxième Édition !","date":"2024-02-28","content":"22 - 25 AVRIL 2024 à SAINT-SENOUX Exploration Vocale et Corporelle pour Tous les Passionnés de Chant Rejoignez-nous lors de notre...","image":"https://static.wixstatic.com/media/9f1f72_b5241f50aa054c84a70c32d12f876d23~mv2.jpg/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["evenements"],"author":"Vincent T-Dauberlieu"},
+  {"id":"64e7a3ae94f8191e4eeb3fc1","title":"La Voix Libre Nantes vous ouvre grand ses portes pour la rentrée 2024 !","date":"2023-08-24","content":"La Voix Libre Nantes vous ouvre grand ses portes pour la rentrée 2024 ! Grandes nouvelles : Lieu flambant neuf ! Retrouvez-nous...","image":"https://static.wixstatic.com/media/9f1f72_4682ad110d4343bfb06022f191bf205f~mv2.jpg/v1/fit/w_414,h_414,al_c,q_80/file.png","videos":[],"tags":["evenements","chorale_pop"],"author":"Vincent T-Dauberlieu"},
+  {"id":"64e79d864f8bf837fe80a23c","title":"️ Auditions Ouvertes : Ensemble S.O.U.L Polyphonique - Rennes ️","date":"2023-08-24","content":"Vous vibrez au son d'Otis Redding, Sam Cook, Fontella Bass, Sister Rosetta Tharpe ? Vous êtes captivé par la polyphonie et la richesse...","image":"https://static.wixstatic.com/media/9f1f72_970b7cbe029c40168f3097149ab629c5~mv2.jpg/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["soul","evenements"],"author":"Vincent T-Dauberlieu"},
+  {"id":"64e7956adc518c4131b875be","title":"\"La Voix Libre\" : Portes Ouvertes pour les Répétitions de Chorale 2023-2024 !","date":"2023-08-24","content":"Embarquez pour une aventure musicale hors du commun ! Depuis 2017, la chorale \"La Voix Libre\" n'est pas seulement un ensemble vocal :...","image":"https://static.wixstatic.com/media/9f1f72_b1b097a8c5b341849e7bbf6164af0bca~mv2.png/v1/fit/w_1000,h_924,al_c,q_80/file.png","videos":[],"tags":["chorale_pop","evenements"],"author":"Vincent T-Dauberlieu"},
+  {"id":"649725e5aab9fa1a99a91a12","title":"27 juin - concert SOUL et BODY PERCU","date":"2023-06-24","content":"Venez nous écouter à 20:00 devant l'église Saint-Etienne, en plein centre de Rennes ce mardi ! Au programme, de la soul, du gospel, et...","image":null,"videos":["http://www.youtube.com/watch?v=yAprlQHEh14"],"tags":["soul","evenements","videos"],"author":"Vincent T-Dauberlieu"},
+  {"id":"6491c6407eb998d9899ef38c","title":"Sittin' on the dock of the Bay !","date":"2023-06-20","content":"La chanson la plus belle, et peut être la plus triste de Otis Redding, arrangée ici par Gary Eckert. Cet arrangement illsutre bien notre...","image":null,"videos":["http://youtu.be/aDAkEPC-c-E"],"tags":["soul","videos"],"author":"Vincent T-Dauberlieu"},
+  {"id":"64905bd90ea1c2eb3e56f8b5","title":"25 Juin 2023 - grand concert de la Voix Libre","date":"2023-06-19","content":"Concert exceptionnel de la Chorale La Voix Libre et de l'ensemble vocal S.O.U.L. C'est l'occasion de nous entendre, mais aussi de nous...","image":null,"videos":["http://youtu.be/jRPr0wGqtso"],"tags":["chorale_pop","soul","evenements","videos"],"author":"Vincent T-Dauberlieu"},
+  {"id":"64905791957196f03ce96847","title":"Simply the Best, La Voix Libre, Chorale équestre :)","date":"2023-06-19","content":"Voici un petit arrangement de Simply the Best que j'ai fait pour mon ensemble S.O.U.L. en hommage à la grande Tina qui me fait encore et...","image":null,"videos":["http://www.youtube.com/watch?v=jRPr0wGqtso"],"tags":["soul","videos"],"author":"Vincent T-Dauberlieu"},
+  {"id":"648f6cb1331fd0735e816f66","title":"Marche des fiertés - Rennes - juin 2023","date":"2023-06-18","content":"La Voix libre a participé cette année à la marche des fiertés en lançant le discours d'inauguration de la marche des fiertés ! Nous avons...","image":null,"videos":["http://www.youtube.com/watch?v=cxaHzUFujAM"],"tags":["chorale_pop","evenements"],"author":"Vincent T-Dauberlieu"},
+  {"id":"648cca3e5eed593b5aae3d74","title":"La Voix Libre - Chorale pop, mais pas que...","date":"2023-06-17","content":"\" La voix libre \" est un chœur rennais né en mars 2017. Il est composé d’une cinquantaine de membres, hommes et femmes, tous passionnés...","image":"https://static.wixstatic.com/media/9f1f72_d463f2b8e27c4563b208911ff85a88ef~mv2.jpg/v1/fit/w_1000,h_1000,al_c,q_80/file.png","videos":[],"tags":["chorale_pop"],"author":"Vincent T-Dauberlieu"}
 ]

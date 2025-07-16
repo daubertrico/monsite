@@ -311,16 +311,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!postsContainer) return;
 
     if (!postsData || postsData.length === 0) {
-      postsContainer.innerHTML = '<p>Aucun post disponible pour le moment.</p>';
+      postsContainer.innerHTML = '';
       return;
     }
 
-    const filteredPosts = postsData.filter(post =>
-      post.tags && pageTags.some(tag => post.tags.includes(tag))
-    );
+    let filteredPosts;
+    if (!Array.isArray(pageTags) || pageTags.length === 0) {
+      // Si aucun tag fourni, afficher tous les posts
+      console.warn('[DEBUG] Aucun tag de page fourni à loadAndDisplayPosts, affichage de tous les posts.');
+      filteredPosts = postsData;
+    } else {
+      filteredPosts = postsData.filter(post =>
+        post.tags && post.tags.some(tag => pageTags.includes(tag))
+      );
+      console.log(`[DEBUG] Filtrage des posts avec tags: ${JSON.stringify(pageTags)}. Nombre de posts trouvés: ${filteredPosts.length}`);
+    }
 
     if (filteredPosts.length === 0) {
-      postsContainer.innerHTML = '<p>Aucun post pertinent pour cette section pour le moment.</p>';
+      postsContainer.innerHTML = '<p style="color:red;">Aucun post à afficher pour ces tags.</p>';
       return;
     }
 
@@ -333,10 +341,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let mediaContent = '';
       if (post.image) {
-        mediaContent = `<img src="${ASSETS_BASE_URL}images/${post.image}" alt="${post.title}">`;
+        if (/^https?:\/\//.test(post.image)) {
+          mediaContent = `<img src="${post.image}" alt="${post.title}">`;
+        } else {
+          mediaContent = `<img src="${ASSETS_BASE_URL}images/${post.image}" alt="${post.title}">`;
+        }
+      }
+      // Affiche toutes les vidéos du tableau 'videos' (nouveau format)
+      if (Array.isArray(post.videos) && post.videos.length > 0) {
+        post.videos.forEach(function(videoUrl) {
+          const embedUrl = convertToEmbedUrl(videoUrl);
+          mediaContent += `<iframe width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
+        });
       } else if (post.video_url) {
+        // Compatibilité ancienne clé
         const embedUrl = convertToEmbedUrl(post.video_url);
-        mediaContent = `<iframe width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
+        mediaContent += `<iframe width="100%" height="315" src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
       }
 
       const postHTML = `

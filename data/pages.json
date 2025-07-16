@@ -8,12 +8,57 @@
     "page_subtitle": "Chorale pop, mais pas que…",
     "page_content": [
       "\"La Voix Libre\" est un chœur rennais né en mars 2017. Il est composé d’une cinquantaine de membres, hommes et femmes, tous passionnés et motivés.",
-      "Le chœur explore joyeusement un répertoire varié : gospel, chants du monde, chanson française, pop, classique...",
-      "Chaque nouvelle saison est un voyage unique aux mille sonorités.",
-      "Par ailleurs, l'accent est mis sur la précision rythmique à travers la percussion corporelle et le clapping.",
-      "L'exploration et l'improvisation collective sont régulièrement abordées sous forme d'exercices.",
-      "Débutants bienvenus.",
-      "Répétitions : lundi 20h–22h – 21 rue Papu, Rennes – 30€/mois"
+      "Le chœur explore joyeusement un répertoire varié : gospel, chants du monde, chanson française, pop, classique... Chaque nouvelle saison est un voyage unique aux mille sonorités.",
+      "L'accent est mis sur la précision rythmique à travers la percussion corporelle et le clapping. L'exploration et l'improvisation collective sont régulièrement abordées sous forme d'exercices au cours des séances.",
+      "La Voix Libre accepte les chanteuses et les chanteurs débutant.e.s, le but est de progresser ensemble dans la joie du chant et dans la bienveillance.",
+      "La Voix Libre organise des concerts tout au long de l'année, et accompagne des événements, tels que la marche des fiertés en 2023. La joie de chanter ensemble est toujours couplée au désir d'excellence musicale !",
+      "Tous niveaux - débutant-e-s accepté-e-s / répétitions le lundi 20:00-22:00 / 21 rue Papu, l'avenir de Rennes - métro Mabillais - Rennes. (2h00 - 30€/mois sur 1 an)."
+    ],
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Infos pratiques :",
+        "items": [
+          "Tous niveaux - débutant-e-s accepté-e-s",
+          "Répétitions le lundi 20:00-22:00",
+          "21 rue Papu, Rennes (métro Mabillais)",
+          "2h00 - 30€/mois sur 1 an"
+        ]
+      },
+      {
+        "type": "gallery",
+        "title": "Galerie de concerts :",
+        "images": [
+          "choralepop.jpg",
+          "concerts.jpg",
+          "f88a4ce279824a5b95ef0b1eda8e8cfa~mv2.webp",
+          "d463f2b8e27c4563b208911ff85a88ef~mv2.jpg"
+        ],
+        "links": [
+          {
+            "title": "Un concert plein de chaleur et de joie",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/un-concert-plein-de-chaleur-et-de-joie-la-voix-libre-soul-%C3%A0-l-abe"
+          },
+          {
+            "title": "Concert itinérant centre ville de Rennes",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/concert-itin%C3%A9rant-centre-ville-de-rennes"
+          },
+          {
+            "title": "Le grand concert de Noël !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/15-d%C3%A9cembre-16h-le-grand-concert-de-no%C3%ABl"
+          },
+          {
+            "title": "Répétition porte-ouverte rentrée 2024",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/r%C3%A9p%C3%A9tition-porte-ouverte-rentr%C3%A9e-2024-le-09-septembre"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
     ],
     "tags": ["chorale_pop"],
     "display_posts": true
@@ -26,27 +71,67 @@
     "page_title": "Comédie Musicale",
     "page_subtitle": "La Furie des Mers",
     "page_content": [
-      "Adaptée librement des Pirates de Penzance de Gilbert & Sullivan, cette comédie musicale déjantée raconte l'histoire de Mado et Frédéric, rencontrant les filles du Major Général.",
-      "Un spectacle pop, féministe, drôle et flamboyant, avec 14 interprètes et un pianiste bouillonnant."
+      "La Voix libre - Rennes présente La Furie des mers, une comédie musicale adaptée très librement des Pirates de Penzance, célèbre opérette anglaise du 19e siècle de Gilbert et Sullivan.",
+      "Quatorze interprètes prêt-e-s à tout et emmené-e-s par un pianiste bouillonnant offrent une comédie musicale enlevée, pleine de verve et de rebondissements, pour tous les spectateurs et spectatrices prêt-e-s à se laisser consumer au feu dévorant de la passion et de la liberté.",
+      "Suivez les péripéties hilarantes de Mado et de Frédéric, lors de leur rencontre avec les filles du Major Général et laissez vous embarquer par ce conte pop et féministe."
     ],
     "specific_content": [
       {
         "type": "list",
         "title": "Équipe artistique :",
         "items": [
-          "Vincent T-Dauberlieu (musique)",
-          "Claude Morin (mise en scène)",
+          "Vincent T-Dauberlieu (direction musicale, chant et adaptation)",
+          "Claude Morin (mise en scène et adaptation)",
           "Nino Deram (piano)"
         ]
       },
       {
-        "type": "paragraph",
-        "text": "Distribution : intégrée ou en lien"
+        "type": "list",
+        "title": "Distribution :",
+        "items": [
+          "Mado : Leila El Azhari / Alia Méliani",
+          "Frédéric : Arthur Noone",
+          "Le Major Général : Olivier Bourdon",
+          "Kate : Camille Barnique",
+          "Mirabelle : Nine Léna",
+          "Joanna : Emmanuelle Audrain",
+          "Garance : Florence Bérésina",
+          "Lise : Laure Floutier / Lila Noone",
+          "Le Roi des Pirates : Yann Le Cornec",
+          "Samuel : Thomas Veys",
+          "Rodriguez : Thibaut Tardieu",
+          "Niels : Christophe Floutier",
+          "Ralf : Bachir El Atlas"
+        ]
       },
       {
-        "type": "video",
-        "title": "Teaser vidéo 🎬 :",
-        "url": "https://youtu.be/UZv7l4vnReo"
+        "type": "list",
+        "title": "Costumes et décors :",
+        "items": [
+          "Costumes : Mathilde Lepage, Marie-Claire Laborde",
+          "Décors : Olivier Bourdon et Florence Bignon",
+          "Accessoires : Wendy Coffi"
+        ]
+      },
+      {
+        "type": "gallery",
+        "title": "Galerie du spectacle :",
+        "images": [
+          "comediemusicale.jpg",
+          "1e1e5bd323444787b8359f9fae1ac70d~mv2.jpg"
+        ],
+        "links": [
+          {
+            "title": "La Furie des Mers - dernière chance de voir la comédie musicale qui a enthousiasmé Rennes !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/atelier-com%C3%A9die-musicale-rennes"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
       }
     ],
     "tags": ["comedie"],
@@ -91,12 +176,59 @@
     "image": "soul.jpg",
     "tile_overlay_title": "SOUL",
     "tile_overlay_subtitle": "Ensemble a cappella",
-    "page_title": "SOUL",
-    "page_subtitle": "Ensemble polyphonique a cappella",
+    "page_title": "S.O.U.L.",
+    "page_subtitle": "Ensemble vocal soul/gospel/funk - Rennes",
     "page_content": [
-      "SOUL est un groupe vocal a cappella explorant un répertoire varié : soul, R&B, gospel, jazz, pop. Le groupe se produit régulièrement en concert, apportant une énergie unique à chaque performance. Nos arrangements sont originaux et mettent en valeur les harmonies vocales."
+      "S.O.U.L. est un ensemble vocal a capella qui reprend des standards soul/funk/gospel et parfois pop, constitué d'amateur.rices enthousiastes qui ont un goût pour les harmonies complexes et le body percu.",
+      "L'accent est mis sur l'énergie du groove et du rythme afin de servir les textes au mieux et de rendre hommage à des artistes tels que Otis Redding, Etta James, Aretha Franklin, Fontella Bass, the Temptation, mais aussi Lauryn Hill, ou Stevie Wonder.",
+      "Sous la direction de Vincent T-Dauberlieu, le groupe existe depuis 2019 et répète tous les mardis soirs à Rennes. Chaque année nous faisons des auditions en septembre afin d'accueillir de nouveaux membres. Si vous vous sentez capables d'assumer des solos, que la polyphonie ne vous fait pas peur et qu'en plus vous êtes amoureux d'Aretha F. et de Marvin G., n'hésitez pas à nous contacter !"
     ],
-    "tags": ["soul", "a_cappella"],
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Infos pratiques :",
+        "items": [
+          "Répétitions tous les mardis soirs à Rennes",
+          "Auditions chaque année en septembre",
+          "Solistes et amateurs de polyphonie bienvenus"
+        ]
+      },
+      {
+        "type": "gallery",
+        "title": "Galerie de concerts :",
+        "images": [
+          "soul.jpg",
+          "cd9d539265624af3a08e98f8ef58cdfa~mv2.jpg",
+          "60337a3020b94501b18188505870f6fb~mv2.jpg",
+          "aDAkEPC-c-E_maxresdefault.jpg"
+        ],
+        "links": [
+          {
+            "title": "Un concert plein de chaleur et de joie",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/un-concert-plein-de-chaleur-et-de-joie-la-voix-libre-soul-%C3%A0-l-abe"
+          },
+          {
+            "title": "S.O.U.L à Jazz sous les Pommiers 2025",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/s-o-u-l-%C3%A0-jazz-sous-les-pommiers-2025-%C3%A9motions-et-soul-en-normandie"
+          },
+          {
+            "title": "Sittin' on the dock of the Bay !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/sittin-on-the-dock-of-the-bay"
+          },
+          {
+            "title": "Célébrez le printemps avec S.O.U.L à Jazz sous les Pommiers !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/c%C3%A9lebrez-le-printemps-avec-s-o-u-l-%C3%A0-jazz-sous-les-pommiers"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
+    ],
+    "tags": ["soul"],
     "display_posts": true
   },
   {
@@ -106,10 +238,44 @@
     "tile_overlay_subtitle": "Où et quand nous rencontrer ou nous écouter",
     "page_title": "Événements",
     "page_subtitle": "Où et quand nous rencontrer ou nous écouter",
-    "page_content": [],
+    "page_content": [
+      "Retrouvez ici tous les événements, concerts et rencontres de La Voix Libre et S.O.U.L à Rennes et ailleurs.",
+      "La Voix Libre organise des concerts tout au long de l'année, et accompagne des événements, tels que la marche des fiertés, le grand concert de Noël, et des concerts itinérants dans le centre-ville de Rennes."
+    ],
+    "specific_content": [
+      {
+        "type": "gallery",
+        "title": "Galerie des événements :",
+        "images": [
+          "concerts.jpg",
+          "cd9d539265624af3a08e98f8ef58cdfa~mv2.jpg",
+          "7e329bd8b39946638eedd577483f353f~mv2.jpg",
+          "f88a4ce279824a5b95ef0b1eda8e8cfa~mv2.webp"
+        ],
+        "links": [
+          {
+            "title": "Un concert plein de chaleur et de joie",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/un-concert-plein-de-chaleur-et-de-joie-la-voix-libre-soul-%C3%A0-l-abe"
+          },
+          {
+            "title": "Concert itinérant centre ville de Rennes",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/concert-itin%C3%A9rant-centre-ville-de-rennes"
+          },
+          {
+            "title": "Le grand concert de Noël !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/15-d%C3%A9cembre-16h-le-grand-concert-de-no%C3%ABl"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
+    ],
     "tags": ["evenements"],
-    "display_posts": true,
-    "objective": "Liste automatique des concerts"
+    "display_posts": true
   },
   {
     "id": "videos",
@@ -118,10 +284,44 @@
     "tile_overlay_subtitle": "Nos performances et concerts",
     "page_title": "Vidéos",
     "page_subtitle": "Les performances et concerts de la Voix Libre",
-    "page_content": [],
+    "page_content": [
+      "Découvrez nos performances et concerts en vidéo : La Voix Libre et S.O.U.L sur scène, en répétition et lors des grands événements.",
+      "Retrouvez les extraits marquants, les arrangements originaux et les moments forts de nos ensembles vocaux."
+    ],
+    "specific_content": [
+      {
+        "type": "gallery",
+        "title": "Galerie vidéos :",
+        "images": [
+          "videosbackground.jpg",
+          "Co6lesdfIiY_maxresdefault.jpg",
+          "aDAkEPC-c-E_maxresdefault.jpg",
+          "jRPr0wGqtso_hqdefault.jpg"
+        ],
+        "links": [
+          {
+            "title": "S.O.U.L à Jazz sous les Pommiers 2025",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/s-o-u-l-%C3%A0-jazz-sous-les-pommiers-2025-%C3%A9motions-et-soul-en-normandie"
+          },
+          {
+            "title": "Sittin' on the dock of the Bay !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/sittin-on-the-dock-of-the-bay"
+          },
+          {
+            "title": "Simply the Best, La Voix Libre, Chorale équestre :)",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/_tina"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
+    ],
     "tags": ["videos"],
-    "display_posts": true,
-    "objective": "Liste automatique des extraits vidéos"
+    "display_posts": true
   },
   {
     "id": "partitions",
