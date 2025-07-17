@@ -115,8 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (page.page_content && page.page_content.length > 0) {
         let descriptionContainer;
-        if (pageId === 'soul') {
-          // Pour la page Soul, image au-dessus, texte en dessous
+        if (pageId === 'soul' || pageId === 'chorale-pop') {
+          // Pour la page Soul et Chorale Pop, image au-dessus, texte en dessous
           descriptionContainer = document.createElement('div');
           descriptionContainer.classList.add('image-and-text-container');
           if (page.image) {
@@ -124,6 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
             pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
             pageImage.alt = `Image principale de la page ${page.page_title}`;
             pageImage.classList.add('page-hero-image');
+            pageImage.style.width = '100%';
+            pageImage.style.maxWidth = '600px';
+            pageImage.style.objectFit = 'cover';
+            pageImage.style.borderRadius = '18px';
+            pageImage.style.boxShadow = '0 4px 24px rgba(0,0,0,0.13)';
+            pageImage.style.transition = 'transform 0.3s';
+            pageImage.onmouseover = function() { this.style.transform = 'scale(1.04)'; };
+            pageImage.onmouseout = function() { this.style.transform = 'scale(1)'; };
             descriptionContainer.appendChild(pageImage);
           }
           const textDiv = document.createElement('div');
@@ -432,9 +440,16 @@ styleSheet.innerText = `
   flex-direction: column;
   justify-content: flex-start;
 }
-.blog-post img,
+.blog-post img {
+  max-width: 500px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  object-fit: cover;
+}
 .blog-post iframe {
-  max-width: 100%;
+  max-width: 500px;
   width: 100%;
   height: auto;
   border-radius: 8px;
