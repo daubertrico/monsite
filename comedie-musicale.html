@@ -39,9 +39,9 @@
             <p>Contact : <a href="mailto:contact@lavoixlibre.fr">contact@lavoixlibre.fr</a></p>
         </div>
         <div class="social-links">
-            <a href="#" aria-label="Facebook"><img src="assets/images/icons/facebook-icon.png" alt="Facebook"></a>
-            <a href="#" aria-label="Instagram"><img src="assets/images/icons/instagram-icon.png" alt="Instagram"></a>
-            <a href="#" aria-label="YouTube"><img src="assets/images/icons/youtube-icon.png" alt="YouTube"></a>
+            <a href="https://facebook.com/" aria-label="Facebook" target="_blank">Facebook</a>
+            <a href="https://instagram.com/" aria-label="Instagram" target="_blank">Instagram</a>
+            <a href="https://youtube.com/" aria-label="YouTube" target="_blank">YouTube</a>
         </div>
     </footer>
     <script src="assets/js/main.js"></script>
@@ -61,104 +61,3 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Comédie Musicale – La Voix Libre</title>
   <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header>
-    <img id="logo" alt="logo" />
-    <h1 id="site-title"></h1>
-  </header>
-
-  <main id="comedie-musicale-content">
-    <section class="hero">
-      <img src="assets/images/comediemusicale.jpg" alt="La Furie des Mers" />
-      <h2 id="comedie-titre"></h2>
-    </section>
-
-    <section class="description">
-      <p id="comedie-description"></p>
-    </section>
-
-    <section class="teaser">
-      <h3>Teaser vidéo</h3>
-      <div id="teaser-video"></div>
-    </section>
-
-    <section class="posts">
-      <h3>Actualités comédie musicale</h3>
-      <div id="comedie-posts"></div>
-    </section>
-  </main>
-
-  <footer>
-    <p>Contact : <span id="email"></span></p>
-    <p>
-      <a id="facebook" href="#">Facebook</a> |
-      <a id="instagram" href="#">Instagram</a> |
-      <a id="youtube" href="#">YouTube</a>
-    </p>
-  </footer>
-
-  <script>
-    const CONFIG_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRkJ42kW7oEyfNgrVq0i1sINnPjzcXxnYrmMUqUK-RQj3sM4_DxxXVUgu9NJrSm1Cke6stqQWNFoj41/pub?output=csv";
-
-    async function loadConfig() {
-      const res = await fetch(CONFIG_URL);
-      const text = await res.text();
-      const rows = text.split("\n").map(r => r.split(","));
-      rows.forEach(([section, champ, valeur]) => {
-        if (section === "head" && champ === "site_title") {
-          document.title = "Comédie Musicale – " + valeur;
-          document.getElementById("site-title").innerText = valeur;
-        } else if (section === "head" && champ === "logo_url") {
-          document.getElementById("logo").src = valeur;
-        } else if (section === "footer") {
-          const el = document.getElementById(champ);
-          if (el) el.href = valeur;
-          if (champ === "email") document.getElementById("email").innerText = valeur;
-        }
-      });
-    }
-
-    async function loadPageContent() {
-      const res = await fetch(CONFIG_URL);
-      const text = await res.text();
-      const rows = text.split("\n").map(r => r.split(","));
-      rows.forEach(([page_id, section, champ, valeur]) => {
-        if (page_id === "comedie_musicale") {
-          if (champ === "titre") document.getElementById("comedie-titre").innerText = valeur;
-          if (champ === "texte" && section === "description") document.getElementById("comedie-description").innerText = valeur;
-          if (champ === "youtube" && section === "teaser") {
-            document.getElementById("teaser-video").innerHTML = `<iframe src="${valeur.replace("watch?v=", "embed/")}" frameborder="0" allowfullscreen></iframe>`;
-          }
-        }
-      });
-    }
-
-    async function loadPosts() {
-      const POST_URL = CONFIG_URL;
-      const res = await fetch(POST_URL);
-      const text = await res.text();
-      const rows = text.split("\n").slice(1).map(r => r.split(","));
-      const container = document.getElementById("comedie-posts");
-      rows.forEach(([id, title, date, description, imageUrl, youtubeLink, categories]) => {
-        if (categories && categories.includes("comedie")) {
-          const div = document.createElement("div");
-          div.className = "post";
-          div.innerHTML = `
-            <h4>${title}</h4>
-            <p><em>${date}</em></p>
-            <p>${description}</p>
-            ${imageUrl ? `<img src="${imageUrl}" alt="${title}" />` : ""}
-            ${youtubeLink ? `<iframe src="${youtubeLink.replace("watch?v=", "embed/")}" frameborder="0" allowfullscreen></iframe>` : ""}
-          `;
-          container.appendChild(div);
-        }
-      });
-    }
-
-    loadConfig();
-    loadPageContent();
-    loadPosts();
-  </script>
-</body>
-</html>
