@@ -63,6 +63,45 @@
         }
       }
 
+      function generatePageContent(pageId) {
+        if (pageId !== 'partitions') return;
+        const container = document.getElementById('page-content-container');
+        container.innerHTML = `
+          <h2>Partitions et ressources choristes</h2>
+          <table id="partitions-table" style="width:100%;border-collapse:collapse;margin:2em 0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;box-shadow:0 2px 8px #0002;">
+            <thead>
+              <tr>
+                <th>Morceau</th>
+                <th>Texte</th>
+                <th>Partition en ligne</th>
+                <th>Enregistrements</th>
+                <th>Youtube (original)</th>
+                <th>Youtube (notre version)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        `;
+        fetch('data/partitions.json')
+          .then(res => res.json())
+          .then(data => {
+            const tbody = document.querySelector('#partitions-table tbody');
+            data.forEach(partition => {
+              let musescorePage = partition.musescore_link ? partition.musescore_link.replace(/\/embed$/, '') : '';
+              tbody.innerHTML += `
+                <tr>
+                  <td>${partition.title || ''}</td>
+                  <td>${partition.drive_link ? `<a href="${partition.drive_link}" target="_blank">texte</a>` : ''}</td>
+                  <td>${musescorePage ? `<a href="${musescorePage}" target="_blank">partition en ligne</a>` : ''}</td>
+                  <td>${partition.recordings_link ? `<a href="${partition.recordings_link}" target="_blank">Enregistrements</a>` : ''}</td>
+                  <td>${partition.youtube_original ? `<a href="${partition.youtube_original}" target="_blank">Original</a>` : ''}</td>
+                  <td>${partition.youtube_link ? `<a href="${partition.youtube_link}" target="_blank">Notre version</a>` : ''}</td>
+                </tr>
+              `;
+            });
+          });
+      }
+
       document.addEventListener('DOMContentLoaded', function() {
         const passwordContainer = document.getElementById('password-container');
         const pageContentContainer = document.getElementById('page-content-container');
@@ -76,9 +115,7 @@
           if (entered === correct) {
             passwordContainer.style.display = 'none';
             pageContentContainer.style.display = '';
-            if (typeof generatePageContent === 'function') {
-              generatePageContent('partitions');
-            }
+            generatePageContent('partitions');
           } else {
             errorMsg.style.display = 'block';
           }
