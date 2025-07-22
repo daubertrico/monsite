@@ -368,6 +368,14 @@ document.addEventListener('DOMContentLoaded', () => {
           : `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration"></iframe>`
       ).join('');
 
+      // Fonction utilitaire pour transformer les URLs en liens cliquables
+      function linkify(text) {
+        const urlRegex = /(https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/gi;
+        return text.replace(urlRegex, function(url) {
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+        });
+      }
+
       // Build the post HTML
       let postHTML = `<h3>${post.title}</h3>`;
       postHTML += `
@@ -377,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="text-content">
             <p class="post-date">${new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-            <p>${post.content}</p>
+            <p>${linkify(post.content)}</p>
           </div>
         </div>
       `;

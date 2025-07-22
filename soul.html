@@ -24,9 +24,9 @@
                 <li><a href="cours-de-chant.html">Cours de chant</a></li>
                 <li><a href="soul.html" class="active">SOUL</a></li>
                 <li><a href="evenements.html">Événements</a></li>
-                <li><a href="videos.html">Vidéos</a></li>
+                <li><a href="videos.html">Nous entendre</a></li>
                 <li><a href="partitions.html">Partitions</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="#footer">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -49,6 +49,17 @@
       document.addEventListener('DOMContentLoaded', function() {
         if (typeof generatePageContent === 'function') {
           generatePageContent('soul');
+        }
+        // Scroll to footer on Contact click
+        var contactLink = document.querySelector('.nav-links a[href="#footer"]');
+        if (contactLink) {
+          contactLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            var footer = document.querySelector('footer');
+            if (footer) {
+              footer.scrollIntoView({ behavior: 'smooth' });
+            }
+          });
         }
       });
     </script>
