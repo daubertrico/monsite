@@ -3,7 +3,7 @@
   "id": "6867da2f02e2c0b5efe962f3",
   "title": "Un concert plein de chaleur et de joie – La Voix Libre + SOUL à l’ABE",
   "date": "2025-07-04",
-  "content": "Le 29 juin, La Voix Libre a offert son concert de fin d’année à l’ABE. Malgré la canicule, l’énergie des choristes était au rendez-vous, portée par un public chaleureux et un accueil toujours aussi bienveillant.\n\nUne journée pleine de belles émotions, de musique vivante et de partage dans ce lieu magique qu’est cette ancienne école historique, au coeur du centre-ville de Rennes, devenue un lieu culturel incontournable.\n\nMerci à toutes et à tous pour cette belle fête !\n\n🎵 Quelques extraits à revivre en vidéo ci-dessous ! 👇\nglory glory !\nRollin' on the river\nstand by me\nLVLR\nS.O.U.L.\n\névenement\n127 vues\n0 commentaire\nVous n'aimez plus ce post",
+  "content": "Le 29 juin, La Voix Libre a offert son concert de fin d’année à l’ABE. Malgré la canicule, l’énergie des choristes était au rendez-vous, portée par un public chaleureux et un accueil toujours aussi bienveillant.\n\nUne journée pleine de belles émotions, de musique vivante et de partage dans ce lieu magique qu’est cette ancienne école historique, au coeur du centre-ville de Rennes, devenue un lieu culturel incontournable.\n\nMerci à toutes et à tous pour cette belle fête !\n\n🎵 Quelques extraits à revivre en vidéo ci-dessous ! 👇\nglory glory !\nRollin' on the river\nstand by me\nLVLR\nS.O.U.L.\n\névenement",
   "image": "https://static.wixstatic.com/media/9f1f72_cd9d539265624af3a08e98f8ef58cdfa~mv2.jpg/v1/fit/w_1000,h_992,al_c,q_80/file.png",
   "videos": [
     {
@@ -17,7 +17,7 @@
     "id": "686568ab899d64621e78f468",
     "title": "concert itinérant centre ville de Rennes",
     "date": "2025-07-02",
-    "content": "Lundi dernier, nos choristes ont eu le plaisir de chanter dans le centre-ville de Rennes. De la place Saint Michel en passant par la place du Champ Jacquet; la déambulation s'est terminée en face du Oan's Pub. On a déclenché un enthousiasme incroyable, regardez ici ! https://www.facebook.com/reel/1027646439572381\n\nEncore merci à tous et à toutes pour cet accueil très sympathique. On vous donne rdv dimanche 29 juin à 14h pour notre grand concert avec l'ensemble SOUL dans la cour de l'Association du Bourg L'évêque 16 rue Papu, Rennes\n\névenement\nLVLR\n20 vues\n0 commentaire\nVous n'aimez plus ce post",
+    "content": "Lundi dernier, nos choristes ont eu le plaisir de chanter dans le centre-ville de Rennes. De la place Saint Michel en passant par la place du Champ Jacquet; la déambulation s'est terminée en face du Oan's Pub. On a déclenché un enthousiasme incroyable, regardez ici ! https://www.facebook.com/reel/1027646439572381\n\nEncore merci à tous et à toutes pour cet accueil très sympathique. On vous donne rdv dimanche 29 juin à 14h pour notre grand concert avec l'ensemble SOUL dans la cour de l'Association du Bourg L'évêque 16 rue Papu, Rennes\n\névenement\nLVLR",
     "image": "https://static.wixstatic.com/media/9f1f72_7e329bd8b39946638eedd577483f353f~mv2.jpg/v1/fit/w_1000,h_592,al_c,q_80/file.png",
     "videos": [],
     "tags": ["evenements", "chorale_pop"],
@@ -61,6 +61,43 @@
     "image": "https://static.wixstatic.com/media/9f1f72_1e1e5bd323444787b8359f9fae1ac70d~mv2.jpg/v1/fit/w_1000,h_1000,al_c,q_80/file.png",
     "videos": [],
     "tags": ["comedie", "evenements"],
+    "author": "Vincent T-Dauberlieu"
+  }
+  ,
+  {
+    "id": "post-sittin-bay",
+    "title": "Sittin' on the dock of the Bay !",
+    "date": "2023-06-01",
+    "content": "La chanson la plus belle, et peut-être la plus triste de Otis Redding, arrangée ici par Gary Eckert. Cet arrangement illustre bien notre projet, avec le groupe S.O.U.L., de reprendre les standards de la soul, dans des arrangements à cappella, et de groover avec amour :) !",
+    "image": null,
+    "videos": [
+      { "url": "https://youtu.be/aDAkEPC-c-E" }
+    ],
+    "tags": ["soul", "videos"],
+    "author": "Vincent T-Dauberlieu"
+  },
+  {
+    "id": "post-simply-best",
+    "title": "Simply the Best, La Voix Libre, Chorale équestre :)",
+    "date": "2023-05-15",
+    "content": "Voici un petit arrangement de Simply the Best que j'ai fait pour mon ensemble S.O.U.L. en hommage à la grande Tina qui me fait encore et toujours vibrer. L'expérience de chanter avec des chevaux était absolument incroyable, ce fut un moment inoubliable pour notre petit groupe ! Merci à la ferme équestre du Tréglodé à Landujan de nous avoir supportés et merci à Yann de nous avoir filmés !",
+    "image": null,
+    "videos": [
+      { "url": "https://youtu.be/jRPr0wGqtso" }
+    ],
+    "tags": ["soul", "videos"],
+    "author": "Vincent T-Dauberlieu"
+  },
+  {
+    "id": "post-marche-fiertes-2023",
+    "title": "Marche des fiertés - Rennes - juin 2023",
+    "date": "2023-06-20",
+    "content": "La Voix libre a participé cette année à la marche des fiertés en lançant le discours d'inauguration de la marche des fiertés ! Nous avons mis le feu avec une performance originale de Dancing Queen. On a chanté, dansé, et beaucoup rit ! Des ami.e.s nous ont rejoint.e.s et notamment des choristes de Michelle-Michel !",
+    "image": null,
+    "videos": [
+      { "url": "https://youtu.be/cxaHzUFujAM" }
+    ],
+    "tags": ["evenements", "chorale_pop", "videos"],
     "author": "Vincent T-Dauberlieu"
   }
 ]

@@ -81,20 +81,16 @@ body {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
 
+
 .site-titles .subtitle {
     font-size: 1.4rem;
     color: var(--primary-color);
     margin-top: 0;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.3s ease;
 }
 
-.site-titles:hover .subtitle,
-.site-titles:focus .subtitle,
-.main-title:hover + .subtitle,
-.main-title:focus + .subtitle {
-    opacity: 1;
-}
+
 
 /* Styles pour le menu de navigation (pour les pages internes) */
 .main-nav {

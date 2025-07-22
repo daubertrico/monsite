@@ -83,17 +83,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     tilesGrid.innerHTML = '';
     pagesData.forEach(page => {
-      if (!page.id || !page.image || !page.tile_overlay_title || !page.tile_overlay_subtitle) return;
+      if (!page.id || !page.image || !page.page_title || !page.page_subtitle) return;
 
       const tileLink = document.createElement('a');
       tileLink.href = `${page.id}.html`;
       tileLink.classList.add('tile');
 
       tileLink.innerHTML = `
-        <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.tile_overlay_title}">
+        <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
         <div class="overlay">
-          <p class="overlay-title">${page.tile_overlay_title}</p>
-          <p class="overlay-subtitle">${page.tile_overlay_subtitle}</p>
+          <p class="overlay-title">${page.page_title}</p>
+          <p class="overlay-subtitle">${page.page_subtitle}</p>
         </div>
       `;
 

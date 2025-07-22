@@ -71,12 +71,8 @@
           <table id="partitions-table" style="width:100%;border-collapse:collapse;margin:2em 0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;box-shadow:0 2px 8px #0002;">
             <thead>
               <tr>
-                <th>Morceau</th>
-                <th>Texte</th>
-                <th>Partition en ligne</th>
-                <th>Enregistrements</th>
-                <th>Youtube (original)</th>
-                <th>Youtube (notre version)</th>
+                <th style="text-align:left;">Morceau</th>
+                <th style="text-align:left;">Ressource</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -87,17 +83,37 @@
           .then(data => {
             const tbody = document.querySelector('#partitions-table tbody');
             data.forEach(partition => {
-              let musescorePage = partition.musescore_link ? partition.musescore_link.replace(/\/embed$/, '') : '';
-              tbody.innerHTML += `
-                <tr>
-                  <td>${partition.title || ''}</td>
-                  <td>${partition.drive_link ? `<a href="${partition.drive_link}" target="_blank">texte</a>` : ''}</td>
-                  <td>${musescorePage ? `<a href="${musescorePage}" target="_blank">partition en ligne</a>` : ''}</td>
-                  <td>${partition.recordings_link ? `<a href="${partition.recordings_link}" target="_blank">Enregistrements</a>` : ''}</td>
-                  <td>${partition.youtube_original ? `<a href="${partition.youtube_original}" target="_blank">Original</a>` : ''}</td>
-                  <td>${partition.youtube_link ? `<a href="${partition.youtube_link}" target="_blank">Notre version</a>` : ''}</td>
-                </tr>
-              `;
+              const rows = [];
+              // Cas particulier pour 'Because' : un seul lien texte/partition, pas de YouTube
+              if (partition.title && partition.title.trim().toLowerCase() === 'because') {
+                if (partition.drive_link) {
+                  rows.push({ type: 'Texte/Partition', url: partition.drive_link });
+                } else if (partition.musescore_link) {
+                  rows.push({ type: 'Texte/Partition', url: partition.musescore_link.replace(/\/embed$/, '') });
+                }
+                if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
+                // Pas de YouTube pour Because
+              } else {
+                // Fusionne texte et partition en ligne pour les autres morceaux
+                if (partition.drive_link && partition.musescore_link) {
+                  rows.push({ type: 'Texte/Partition', url: partition.drive_link });
+                  rows.push({ type: 'Texte/Partition', url: partition.musescore_link.replace(/\/embed$/, '') });
+                } else if (partition.drive_link) {
+                  rows.push({ type: 'Texte/Partition', url: partition.drive_link });
+                } else if (partition.musescore_link) {
+                  rows.push({ type: 'Texte/Partition', url: partition.musescore_link.replace(/\/embed$/, '') });
+                }
+                if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
+                if (partition.youtube_original) rows.push({ type: 'Youtube (original)', url: partition.youtube_original });
+                if (partition.youtube_link) rows.push({ type: 'Youtube (notre version)', url: partition.youtube_link });
+              }
+              if (rows.length === 0) {
+                tbody.innerHTML += `<tr><td>${partition.title || ''}</td><td></td></tr>`;
+              } else {
+                rows.forEach((r, i) => {
+                  tbody.innerHTML += `<tr><td>${i === 0 ? (partition.title || '') : ''}</td><td><a href="${r.url}" target="_blank">${r.type}</a></td></tr>`;
+                });
+              }
             });
           });
       }
