@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Harmonisation des titres dynamiques
+  function harmoniseTitles() {
+    const mainTitle = document.querySelector('.site-titles h1, h1.main-title, #site-title, #page-main-title');
+    if (mainTitle && !mainTitle.classList.contains('main-title')) {
+      mainTitle.classList.add('main-title');
+    }
+  }
+
+  harmoniseTitles();
   const ASSETS_BASE_URL = 'assets/';
   const DATA_BASE_URL = 'data/';
   let globalConfig = null;
@@ -82,13 +91,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!tilesGrid || !pagesData) return;
 
     tilesGrid.innerHTML = '';
-    pagesData.forEach(page => {
-      if (!page.id || !page.image || !page.page_title || !page.page_subtitle) return;
-
+    // Nouvel ordre : Chorale Pop, Soul, Comédie Musicale, Cours de chant, puis le reste
+    const desiredOrder = [
+      'chorale-pop',
+      'soul',
+      'comedie-musicale',
+      'cours-de-chant'
+    ];
+    // Ajoute les tuiles principales dans l'ordre
+    desiredOrder.forEach(pageId => {
+      const page = pagesData.find(p => p.id === pageId);
+      if (!page || !page.image || !page.page_title || !page.page_subtitle) return;
       const tileLink = document.createElement('a');
       tileLink.href = `${page.id}.html`;
       tileLink.classList.add('tile');
-
       tileLink.innerHTML = `
         <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
         <div class="overlay">
@@ -96,7 +112,22 @@ document.addEventListener('DOMContentLoaded', () => {
           <p class="overlay-subtitle">${page.page_subtitle}</p>
         </div>
       `;
-
+      tilesGrid.appendChild(tileLink);
+    });
+    // Ajoute les autres tuiles (événements, vidéos, partitions, etc.) dans l'ordre du JSON
+    pagesData.forEach(page => {
+      if (desiredOrder.includes(page.id)) return; // déjà affiché
+      if (!page.id || !page.image || !page.page_title || !page.page_subtitle) return;
+      const tileLink = document.createElement('a');
+      tileLink.href = `${page.id}.html`;
+      tileLink.classList.add('tile');
+      tileLink.innerHTML = `
+        <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
+        <div class="overlay">
+          <p class="overlay-title">${page.page_title}</p>
+          <p class="overlay-subtitle">${page.page_subtitle}</p>
+        </div>
+      `;
       tilesGrid.appendChild(tileLink);
     });
   }
@@ -119,13 +150,17 @@ document.addEventListener('DOMContentLoaded', () => {
           // Pour la page Soul et Chorale Pop, image au-dessus, texte en dessous
           descriptionContainer = document.createElement('div');
           descriptionContainer.classList.add('image-and-text-container');
+          descriptionContainer.style.display = 'flex';
+          descriptionContainer.style.flexDirection = 'column';
+          descriptionContainer.style.alignItems = 'stretch';
+          descriptionContainer.style.width = '100%';
           if (page.image) {
             const pageImage = document.createElement('img');
             pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
             pageImage.alt = `Image principale de la page ${page.page_title}`;
             pageImage.classList.add('page-hero-image');
             pageImage.style.width = '100%';
-            pageImage.style.maxWidth = '600px';
+            pageImage.style.maxWidth = '100%';
             pageImage.style.objectFit = 'cover';
             pageImage.style.borderRadius = '18px';
             pageImage.style.boxShadow = '0 4px 24px rgba(0,0,0,0.13)';
@@ -145,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
             textDiv.appendChild(pElement);
           });
           descriptionContainer.appendChild(textDiv);
-          descriptionContainer.style.flexDirection = 'column';
           contentContainer.appendChild(descriptionContainer);
         } else if (pageId === 'cours-de-chant') {
           // Pour la page Cours de chant, image et texte côte à côte + infos pratiques + audio + contacts
@@ -153,6 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
           descriptionContainer.classList.add('image-and-text-container');
           descriptionContainer.style.display = 'flex';
           descriptionContainer.style.flexDirection = 'row';
+        // Sur mobile, forcer l'empilement vertical
+        if (window.innerWidth <= 700) {
+          descriptionContainer.style.flexDirection = 'column';
+          descriptionContainer.style.alignItems = 'stretch';
+        }
           descriptionContainer.style.alignItems = 'flex-start';
           descriptionContainer.style.gap = '30px';
           if (page.image) {
