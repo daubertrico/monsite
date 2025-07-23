@@ -201,38 +201,83 @@ document.addEventListener('DOMContentLoaded', () => {
             const audioBlock = page.specific_content.find(sc => sc.type === 'audio');
             if (audioBlock && audioBlock.url) {
               const audioDiv = document.createElement('div');
-              audioDiv.style.margin = '30px 0';
+              audioDiv.style.margin = '32px 0';
               audioDiv.style.background = 'linear-gradient(90deg, #e0c3fc 0%, #8ec5fc 100%)';
-              audioDiv.style.borderRadius = '16px';
-              audioDiv.style.padding = '24px';
+              audioDiv.style.borderRadius = '18px';
+              audioDiv.style.padding = '32px 28px';
               audioDiv.style.display = 'flex';
-              audioDiv.style.alignItems = 'center';
-              audioDiv.style.boxShadow = '0 2px 12px rgba(0,0,0,0.10)';
-              audioDiv.style.gap = '24px';
+              audioDiv.style.flexDirection = 'column';
+              audioDiv.style.alignItems = 'flex-start';
+              audioDiv.style.boxShadow = '0 4px 18px rgba(0,0,0,0.12)';
+              audioDiv.style.maxWidth = '540px';
+              audioDiv.style.width = '100%';
+              audioDiv.style.gap = '18px';
 
               // Texte explicatif
               const audioText = document.createElement('div');
-              audioText.style.flex = '1';
-              audioText.innerHTML = `<h4 style="margin:0 0 10px 0;">${audioBlock.title || 'Portrait audio'}</h4>
-                <p style="margin:0;">Découvrez la pratique et les méthodes de Vincent à travers ce portrait radiophonique réalisé en 2023 par Marion Lecointre et diffusé sur radio Laser.</p>`;
+              audioText.style.width = '100%';
+              audioText.style.fontSize = '1.08rem';
+              audioText.style.lineHeight = '1.6';
+              audioText.style.color = '#222';
+              audioText.style.marginBottom = '8px';
+              audioText.innerHTML = `<h4 style="margin:0 0 10px 0;font-size:1.18rem;color:#222;">${audioBlock.title || 'Portrait audio'}</h4>
+                <p style="margin:0;font-size:1.08rem;line-height:1.6;color:#222;">Découvrez la pratique et les méthodes de Vincent à travers ce portrait radiophonique réalisé en 2023 par Marion Lecointre et diffusé sur radio Laser.</p>`;
 
               // Lien audio
-              const audioLink = document.createElement('a');
-              audioLink.href = audioBlock.url;
-              audioLink.target = '_blank';
-              audioLink.style.display = 'inline-block';
-              audioLink.style.background = '#6a82fb';
-              audioLink.style.color = '#fff';
-              audioLink.style.fontWeight = 'bold';
-              audioLink.style.padding = '12px 24px';
-              audioLink.style.borderRadius = '8px';
-              audioLink.style.textDecoration = 'none';
-              audioLink.style.boxShadow = '0 1px 6px rgba(0,0,0,0.08)';
-              audioLink.textContent = 'Écouter sur SoundCloud';
+              const audioPlayer = document.createElement('audio');
+              audioPlayer.controls = true;
+              audioPlayer.src = audioBlock.url;
+              audioPlayer.autoplay = true;
+              audioPlayer.style.width = '100%';
+              audioPlayer.style.marginTop = '8px';
+              audioPlayer.style.background = '#fff';
+              audioPlayer.style.borderRadius = '12px';
+              audioPlayer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+
+              // Diagnostic avancé
+              audioPlayer.onerror = function(e) {
+                const errorMsg = document.createElement('div');
+                errorMsg.textContent = "Le fichier audio n'a pas pu être chargé. Vérifiez le chemin, le format ou le serveur.";
+                errorMsg.style.color = 'red';
+                errorMsg.style.marginTop = '12px';
+                audioDiv.appendChild(errorMsg);
+                console.error('[AUDIO] Erreur de chargement audio:', e, audioPlayer.src);
+              };
+
+              audioPlayer.onplay = function() {
+                console.log('[AUDIO] Lecture démarrée avec succès:', audioPlayer.src);
+              };
+
+              audioPlayer.oncanplay = function() {
+                console.log('[AUDIO] Peut jouer:', audioPlayer.src);
+              };
+
+              // Test autoplay avec mute
+              setTimeout(() => {
+                if (audioPlayer.paused) {
+                  audioPlayer.muted = true;
+                  audioPlayer.play().then(() => {
+                    console.log('[AUDIO] Lecture démarrée en mode mute.');
+                    setTimeout(() => {
+                      audioPlayer.muted = false;
+                      console.log('[AUDIO] Son réactivé.');
+                    }, 1000);
+                  }).catch((err) => {
+                    console.error('[AUDIO] Impossible de démarrer la lecture:', err);
+                  });
+                }
+              }, 500);
 
               audioDiv.appendChild(audioText);
-              audioDiv.appendChild(audioLink);
+              audioDiv.appendChild(audioPlayer);
               textDiv.appendChild(audioDiv);
+
+              // Force la lecture audio après le rendu (si autorisé par le navigateur)
+              setTimeout(() => {
+                if (audioPlayer.paused) {
+                  audioPlayer.play().catch(() => {});
+                }
+              }, 500);
             }
 
             // Ajout des contacts

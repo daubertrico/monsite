@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Vérifie la présence et le nom du fichier audio",
+			"command": "dir \"assets\\enregistrements\\Vincent Tricotel, le jardinier de la voix.mp3\"",
+			"args": [],
+			"group": "check",
+			"isBackground": false
+		}
+	]
+}
