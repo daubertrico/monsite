@@ -1,67 +1,157 @@
+  
 [
+  {
+    "title": "Wade",
+    "recordings": [
+      { "label": "Tutti", "file": "materielchansons/Wade/wade-tutti.mp3" }
+    ]
+  },
+  {
+    "title": "Onissa",
+    "recordings": [
+      { "label": "Voix principale et tutti", "file": "materielchansons/onissa/voix principale et tutti.m4a" },
+      { "label": "Femmes aigues et tutti", "file": "materielchansons/onissa/onissa-femmes aigues et tutti.m4a" },
+      { "label": "Femmes graves et tutti", "file": "materielchansons/onissa/onissa-femmes graves et tutti.m4a" }
+    ],
+    "documents": [
+      { "label": "Canto de candomblé 1 (PDF)", "file": "materielchansons/onissa/Canto de candomblé 1.pdf" },
+      { "label": "Canto de candomblé 2 (PDF)", "file": "materielchansons/onissa/canto de candomblé 2.pdf" }
+    ],
+    "recordings_link": ""
+  },
   {
     "title": "Evening Rise",
     "recordings": [
-      { "label": "Tutti", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/TUTTI Evening Rise TUTTI.mp3" },
-      { "label": "Sopranes", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/SOPRANES Evening Rise Voix Principale -Sopranes-.mp3" },
-      { "label": "Altis", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/ALTI Evening Rise Alti.mp3" },
-      { "label": "Mezzos", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/MEZZO Evening Rise Mezzo.mp3" },
-      { "label": "Ténors", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/TÉNORS Evening Rise Tenors.mp3" }
+      { "label": "Tutti", "file": "materielchansons/evening rise-20250724T101249Z-1-001/evening rise/TUTTI Evening Rise TUTTI.mp3" },
+      { "label": "Sopranes", "file": "materielchansons/evening rise-20250724T101249Z-1-001/evening rise/SOPRANES Evening Rise Voix Principale -Sopranes-.mp3" },
+      { "label": "Altis", "file": "materielchansons/evening rise-20250724T101249Z-1-001/evening rise/ALTI Evening Rise Alti.mp3" },
+      { "label": "Mezzos", "file": "materielchansons/evening rise-20250724T101249Z-1-001/evening rise/MEZZO Evening Rise Mezzo.mp3" },
+      { "label": "Ténors", "file": "materielchansons/evening rise-20250724T101249Z-1-001/evening rise/TÉNORS Evening Rise Tenors.mp3" }
     ],
     "documents": [
-      { "label": "Partition PDF", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/Evening Rise-3.pdf" }
+      { "label": "Partition PDF", "file": "materielchansons/evening rise-20250724T101249Z-1-001/evening rise/Evening Rise-3.pdf" }
     ]
   },
   {
     "title": "Hashivenu",
     "recordings": [
-      { "label": "Paroles et voix", "file": "assets/enregistrements/hashivenu-20250724T101306Z-1-001/hashivenu/hashivenu paroles et voix.mp3" }
+      { "label": "Paroles et voix", "file": "materielchansons/hashivenu-20250724T101306Z-1-001/hashivenu/hashivenu paroles et voix.mp3" }
     ],
     "documents": [
-      { "label": "Paroles et prononciation", "file": "assets/enregistrements/hashivenu-20250724T101306Z-1-001/hashivenu/hashivenu paroles et prononciation.jpg" }
+      { "label": "Paroles et prononciation", "file": "materielchansons/hashivenu-20250724T101306Z-1-001/hashivenu/hashivenu paroles et prononciation.jpg" }
     ]
   },
   {
     "title": "Les histoires d'a",
     "recordings": [
-      { "label": "Alti", "file": "assets/enregistrements/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a alti.mp3" },
-      { "label": "Hommes", "file": "assets/enregistrements/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a hommes.mp3" },
-      { "label": "Sopranes", "file": "assets/enregistrements/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a sopranes.mp3" }
-    ]
+      { "label": "Alti", "file": "materielchansons/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a alti.mp3" },
+      { "label": "Hommes", "file": "materielchansons/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a hommes.mp3" },
+      { "label": "Sopranes", "file": "materielchansons/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a sopranes.mp3" }
+    ],
+    "interactive_link": "materielchansons/Les histoires d'a-20250724T101329Z-1-001/partition-les-histoires-da.html"
   },
   {
-    "title": "Mo Li Hua (audio)",
+    "title": "Mo Li Hua",
     "recordings": [
-      { "label": "Voix aigües", "file": "assets/enregistrements/molihua-20250724T110231Z-1-001/molihua/mo li hua voix aigues.mp3" },
-      { "label": "Voix graves", "file": "assets/enregistrements/molihua-20250724T110231Z-1-001/molihua/mo li hua voix graves .mp3" }
-    ]
+      { "label": "Voix aigües", "file": "materielchansons/molihua-20250724T110231Z-1-001/molihua/mo li hua voix aigues.mp3" },
+      { "label": "Voix graves", "file": "materielchansons/molihua-20250724T110231Z-1-001/molihua/mo li hua voix graves .mp3" }
+    ],
+    "paroles_prononciation_image": "materielchansons/mo li hua/mo li hua paroles et prononciation.png"
   },
   {
     "title": "Spondo",
     "recordings": [
-      { "label": "Couplet soprane", "file": "assets/enregistrements/spondo-20250724T101430Z-1-001/spondo/couplet soprane.ogg" },
-      { "label": "Refrain voix par voix", "file": "assets/enregistrements/spondo-20250724T101430Z-1-001/spondo/refrain voix par voix.ogg" }
+      { "label": "Couplet soprane", "file": "materielchansons/spondo-20250724T101430Z-1-001/spondo/couplet soprane.ogg" },
+      { "label": "Refrain voix par voix", "file": "materielchansons/spondo-20250724T101430Z-1-001/spondo/refrain voix par voix.ogg" }
     ],
     "documents": [
-      { "label": "Paroles, trad & explications", "file": "assets/enregistrements/spondo-20250724T101430Z-1-001/spondo/spondo paroles trad et explications.docx" }
+      { "label": "Paroles, trad & explications", "file": "materielchansons/spondo-20250724T101430Z-1-001/spondo/spondo paroles trad et explications.docx" }
     ]
-  },
-  {
-    "title": "Mo Li Hua",
-    "paroles_prononciation_image": "materielchansons/mo li hua/mo li hua paroles et prononciation.png"
   },
   {
     "title": "Because",
     "drive_link": "https://drive.google.com/uc?export=download&id=EXEMPLE_ID_DRIVE",
-    "musescore_link": "https://flat.io/score/66f40791008b41dd872beb93-quem-t-insenhou-a-nadar?sharingKey=72bca10828fcf94af07ef0e6c1080cfbaab7b1092395fe6914e6",
     "interactive_link": "materielchansons/because/partition-because.html",
     "youtube_link": "https://youtube.com/watch?v=EXEMPLE_ID",
-    "recordings_link": "https://drive.google.com/drive/folders/1NKvGwfQt2Pvz5nYcCAhLqSKSL2llN_Lf?usp=drive_link",
     "youtube_original": "https://youtube.com/watch?v=EXEMPLE_ID_ORIGINAL"
   },
   {
     "title": "Simply the Best",
     "interactive_link": "materielchansons/simply the best/partition-simplythebest.html",
     "recordings_link": ""
+  },
+  {
+    "title": "Dock of the Bay",
+    "recordings": [
+      { "label": "Alti", "file": "materielchansons/dock of the bay/dock of the bay alti.m4a" },
+      { "label": "Hommes", "file": "materielchansons/dock of the bay/dock of the bay hommes.m4a" },
+      { "label": "Sopranes", "file": "materielchansons/dock of the bay/dock of the bay sopranes.m4a" },
+      { "label": "Tutti", "file": "materielchansons/dock of the bay/dock of the bay tutti.m4a" }
+    ]
+  },
+  {
+    "title": "Elijah",
+    "recordings": [
+      { "label": "Aide mémoire différentes voix", "file": "materielchansons/elijah/elijah aide memoire différentes voix.mp3" },
+      { "label": "Phrases solo", "file": "materielchansons/elijah/phrases solo elijah.mp3" }
+    ],
+    "documents": [
+      { "label": "Aide mémoire synoptique (PDF)", "file": "materielchansons/elijah/aide mémoire synoptique elijah.pdf" }
+    ]
+  },
+  {
+    "title": "Rescue Me",
+    "recordings": [
+      { "label": "Alti", "file": "materielchansons/rescue me/alti.aac" },
+      { "label": "Basses", "file": "materielchansons/rescue me/basses.m4a" },
+      { "label": "Soprani", "file": "materielchansons/rescue me/soprani.mp3" },
+      { "label": "Ténors", "file": "materielchansons/rescue me/ténors.mp3" },
+      { "label": "Tutti", "file": "materielchansons/rescue me/tutti - rescue me.m4a" }
+    ],
+    "documents": [
+      { "label": "Partition PDF", "file": "materielchansons/rescue me/rescue me.pdf" }
+    ]
+  },
+  {
+    "title": "Rise Up",
+    "recordings": [
+      { "label": "Alti 1", "file": "materielchansons/Rise up/alti 1- i rise up tutti.m4a" },
+      { "label": "Alti 2 (aigues)", "file": "materielchansons/Rise up/alti 2 (aigues) - I rise up tutti.m4a" },
+      { "label": "Basses", "file": "materielchansons/Rise up/basses - i rise up tutti.m4a" },
+      { "label": "Sopranes", "file": "materielchansons/Rise up/sopranes - i rise up tutti.m4a" },
+      { "label": "Ténors", "file": "materielchansons/Rise up/ténors - i rise up tutti.m4a" },
+      { "label": "Tutti", "file": "materielchansons/Rise up/tutti - i rise up tutti.m4a" }
+    ],
+    "documents": [
+      { "label": "Partition (image)", "file": "materielchansons/Rise up/I rise up partition_.jpg" }
+    ]
+  },
+  {
+    "title": "I Idolize You",
+    "interactive_link": "materielchansons/I Idolize You-partition.html"
+  },
+  {
+    "title": "Ain't No Sunshine",
+    "interactive_link": "materielchansons/Ain't No Sunshine-partition.html"
+  },
+  {
+    "title": "Proud Mary",
+    "interactive_link": "materielchansons/Proud Mary-partition.html"
+  },
+  {
+    "title": "When I'm Gone",
+    "interactive_link": "materielchansons/When I'm Gone-partition.html"
+  },
+  {
+    "title": "Nobody Knows",
+    "interactive_link": "materielchansons/Nobody Knows-partition.html"
+  },
+  {
+    "title": "Day Dreaming",
+    "interactive_link": "materielchansons/Day Dreaming-partition.html"
+  },
+  {
+    "title": "My Girl",
+    "interactive_link": "materielchansons/My Girl-partition.html"
   }
 ]

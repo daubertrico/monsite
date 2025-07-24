@@ -89,7 +89,9 @@
             <thead>
               <tr>
                 <th style="text-align:left;">Morceau</th>
-                <th style="text-align:left;">Ressource</th>
+                <th style="text-align:left;">Enregistrements</th>
+                <th style="text-align:left;">Ressources</th>
+                <th style="text-align:left;">Partitions interactives</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -106,68 +108,74 @@
               return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' });
             });
             data.forEach(partition => {
-              const rows = [];
-              // Affiche "Partition interactive" si interactive_link existe
-              if (partition.interactive_link) {
-                rows.push({ type: 'Partition interactive', url: partition.interactive_link });
-              }
-              if (partition.paroles_prononciation_image) {
-                rows.push({ type: 'Paroles & prononciation', url: partition.paroles_prononciation_image });
-              }
-              if (partition.documents) {
-                partition.documents.forEach(doc => {
-                  rows.push({ type: doc.label, url: doc.file });
-                });
-              }
+              // Préparer les liens pour chaque colonne
+              let recordingsLinks = [];
+              let ressourcesLinks = [];
+              let interactiveLinks = [];
+              // Enregistrements (audio)
               if (partition.recordings) {
                 partition.recordings.forEach(rec => {
-                  rows.push({ type: rec.label, url: rec.file, isAudio: true });
+                  recordingsLinks.push(`<a href="#" class="audio-link" data-src="${rec.file}">${rec.label}</a>`);
                 });
               }
-              if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
-              if (rows.length === 0) {
-                tbody.innerHTML += `<tr><td>${partition.title || ''}</td><td></td></tr>`;
-              } else {
-                rows.forEach((r, i) => {
-                  if (r.isAudio) {
-                    tbody.innerHTML += `<tr><td>${i === 0 ? (partition.title || '') : ''}</td><td><a href="#" class="audio-link" data-src="${r.url}">${r.type}</a></td></tr>`;
-                  } else {
-                    tbody.innerHTML += `<tr><td>${i === 0 ? (partition.title || '') : ''}</td><td><a href="${r.url}" target="_blank">${r.type}</a></td></tr>`;
-                  }
-                });
-      // Gestion du lecteur audio pop-up
-      document.addEventListener('click', function(e) {
-        if (e.target.classList && e.target.classList.contains('audio-link')) {
-          e.preventDefault();
-          const src = e.target.getAttribute('data-src');
-          let player = document.getElementById('popup-audio-player');
-          if (!player) {
-            player = document.createElement('div');
-            player.id = 'popup-audio-player';
-            player.style.position = 'fixed';
-            player.style.bottom = '30px';
-            player.style.left = '50%';
-            player.style.transform = 'translateX(-50%)';
-            player.style.background = '#fff';
-            player.style.border = '1.5px solid #3981FF';
-            player.style.borderRadius = '12px';
-            player.style.boxShadow = '0 4px 24px rgba(0,0,0,0.12)';
-            player.style.padding = '16px 24px 12px 24px';
-            player.style.zIndex = '9999';
-            player.innerHTML = '<audio id="audio-player" controls style="width:320px;"></audio><button id="close-audio" style="margin-left:16px;font-size:1.2em;cursor:pointer;background:none;border:none;color:#3981FF;">✖</button>';
-            document.body.appendChild(player);
-            document.getElementById('close-audio').onclick = function() {
-              player.remove();
-            };
-          }
-          const audio = document.getElementById('audio-player');
-          audio.src = src;
-          audio.play();
-        }
-      });
+              if (partition.recordings_link) {
+                recordingsLinks.push(`<a href="${partition.recordings_link}" target="_blank">Enregistrements</a>`);
               }
-              // Ligne séparatrice après chaque morceau
-              tbody.innerHTML += `<tr><td colspan='2' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0 0 0 0;'></td></tr>`;
+              // Ressources (pdf, jpg, png, docx, paroles)
+              if (partition.documents) {
+                partition.documents.forEach(doc => {
+                  ressourcesLinks.push(`<a href="${doc.file}" target="_blank">${doc.label}</a>`);
+                });
+              }
+              if (partition.paroles_prononciation_image) {
+                ressourcesLinks.push(`<a href="${partition.paroles_prononciation_image}" target="_blank">Paroles & prononciation</a>`);
+              }
+              // Partitions interactives (flat.io, html)
+              if (partition.interactive_link) {
+                interactiveLinks.push(`<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>`);
+              } else if (partition.flatio_link) {
+                interactiveLinks.push(`<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>`);
+              }
+              // Affichage de la ligne
+              tbody.innerHTML += `
+                <tr>
+                  <td>${partition.title || ''}</td>
+                  <td>${recordingsLinks.join('<br>')}</td>
+                  <td>${ressourcesLinks.join('<br>')}</td>
+                  <td>${interactiveLinks.join('<br>')}</td>
+                </tr>
+                <tr><td colspan='4' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0 0 0 0;'></td></tr>
+              `;
+            });
+            // Gestion du lecteur audio pop-up
+            document.addEventListener('click', function(e) {
+              if (e.target.classList && e.target.classList.contains('audio-link')) {
+                e.preventDefault();
+                const src = e.target.getAttribute('data-src');
+                let player = document.getElementById('popup-audio-player');
+                if (!player) {
+                  player = document.createElement('div');
+                  player.id = 'popup-audio-player';
+                  player.style.position = 'fixed';
+                  player.style.bottom = '30px';
+                  player.style.left = '50%';
+                  player.style.transform = 'translateX(-50%)';
+                  player.style.background = '#fff';
+                  player.style.border = '1.5px solid #3981FF';
+                  player.style.borderRadius = '12px';
+                  player.style.boxShadow = '0 4px 24px rgba(0,0,0,0.12)';
+                  player.style.padding = '16px 24px 12px 24px';
+                  player.style.zIndex = '9999';
+                  player.innerHTML = '<audio id="audio-player" controls style="width:320px;"></audio><button id="close-audio" style="margin-left:16px;font-size:1.2em;cursor:pointer;background:none;border:none;color:#3981FF;">✖</button>';
+                  document.body.appendChild(player);
+                  document.getElementById('close-audio').onclick = function() {
+                    player.remove();
+                  };
+                }
+                const audio = document.getElementById('audio-player');
+                audio.src = src;
+                audio.play();
+              }
             });
           });
       }
