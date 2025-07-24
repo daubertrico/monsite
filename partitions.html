@@ -81,6 +81,9 @@
         if (pageId !== 'partitions') return;
         const container = document.getElementById('page-content-container');
         container.innerHTML = `
+          <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:12px 18px;margin-bottom:18px;border-radius:8px;font-size:1.05em;">
+            <strong>Attention :</strong> Ces partitions sont des arrangements réalisés pour la chorale La Voix Libre. Elles sont protégées par le droit d’auteur et strictement réservées à un usage interne. Merci de ne pas les diffuser, partager ou utiliser en dehors du cadre de la chorale.
+          </div>
           <h2>Partitions et ressources choristes</h2>
           <table id="partitions-table" style="width:100%;border-collapse:collapse;margin:2em 0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;box-shadow:0 2px 8px #0002;">
             <thead>
@@ -96,27 +99,19 @@
           .then(res => res.json())
           .then(data => {
             const tbody = document.querySelector('#partitions-table tbody');
+            // Tri alphabétique sur le titre
+            data.sort((a, b) => {
+              if (!a.title) return 1;
+              if (!b.title) return -1;
+              return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' });
+            });
             data.forEach(partition => {
               const rows = [];
-              // Cas particulier pour 'Because' : lien interne partition interactive
-              if (partition.title && partition.title.trim().toLowerCase() === 'because') {
-                rows.push({ type: 'Partition interactive', url: 'partitions/partition-because.html' });
-                if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
-                // Pas de YouTube pour Because
-              } else {
-                // Fusionne texte et partition en ligne pour les autres morceaux
-                if (partition.drive_link && partition.musescore_link) {
-                  rows.push({ type: 'Texte/Partition', url: partition.drive_link });
-                  rows.push({ type: 'Texte/Partition', url: partition.musescore_link.replace(/\/embed$/, '') });
-                } else if (partition.drive_link) {
-                  rows.push({ type: 'Texte/Partition', url: partition.drive_link });
-                } else if (partition.musescore_link) {
-                  rows.push({ type: 'Texte/Partition', url: partition.musescore_link.replace(/\/embed$/, '') });
-                }
-                if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
-                if (partition.youtube_original) rows.push({ type: 'Youtube (original)', url: partition.youtube_original });
-                if (partition.youtube_link) rows.push({ type: 'Youtube (notre version)', url: partition.youtube_link });
+              // Affiche "Partition interactive" si interactive_link existe
+              if (partition.interactive_link) {
+                rows.push({ type: 'Partition interactive', url: partition.interactive_link });
               }
+              if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
               if (rows.length === 0) {
                 tbody.innerHTML += `<tr><td>${partition.title || ''}</td><td></td></tr>`;
               } else {
