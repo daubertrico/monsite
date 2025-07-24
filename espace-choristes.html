@@ -38,7 +38,43 @@
           <button id="partition-submit">Valider</button>
           <div id="partition-error" style="color:red;margin-top:10px;display:none;">Mot de passe incorrect.</div>
         </div>
-        <div id="page-content-container" style="display:none;"></div>
+        <div id="tabs-container" style="display:none;max-width:1100px;margin:0 auto;">
+          <div class="choristes-tabs" style="display:flex;gap:18px;margin-bottom:32px;background:#f3f6fa;padding:18px 0 18px 0;border-radius:18px;box-shadow:0 2px 12px #3981FF22;">
+            <button class="choristes-tab active" data-tab="chansons" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #3981FF;background:#3981FF;color:#fff;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF33;outline:none;transition:all 0.2s;position:relative;">Chansons</button>
+            <button class="choristes-tab" data-tab="liens" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Liens d'inscription et cours</button>
+            <button class="choristes-tab" data-tab="calendrier" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Calendrier et présences</button>
+          </div>
+          <div id="tab-content-chansons" class="choristes-tab-content"></div>
+          <div id="tab-content-liens" class="choristes-tab-content" style="display:none;">
+            <h2>Liens d'inscription et cours</h2>
+            <ul style="font-size:1.1em;line-height:2;">
+              <li><a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/grande-chorale-de-la-voix-libre-2025-2026" target="_blank">Inscription chorale La Voix Libre</a></li>
+              <li><a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/soul-2025-2026" target="_blank">Inscription SOUL</a></li>
+              <li><a href="https://calendly.com/vincenttricotel/cours-individuel" target="_blank">Prendre RDV pour un cours de chant avec Vincent</a></li>
+            </ul>
+          </div>
+          <div id="tab-content-calendrier" class="choristes-tab-content" style="display:none;">
+            <h2>Calendrier et présences</h2>
+            <div style="background:#eaf6ff;border:1px solid #b6e0fe;padding:14px 20px;border-radius:8px;margin-bottom:18px;">
+              <strong>Organisation annuelle :</strong><br>
+              Les activités suivent le calendrier scolaire de la zone B. L'année chorale débute la deuxième semaine de septembre et se termine à la fin du mois de juin. Il n'y a pas de répétitions pendant les jours fériés ni pendant les vacances scolaires.
+            </div>
+            <div class="calendrier-sous-onglets" style="display:flex;gap:18px;margin-bottom:24px;background:#f3f6fa;padding:14px 0 14px 0;border-radius:14px;box-shadow:0 2px 8px #3981FF22;">
+              <button class="calendrier-sous-onglet active" data-sousonglet="grandechorale" style="padding:14px 38px;font-size:1.15em;border-radius:12px;border:2.5px solid #3981FF;background:#3981FF;color:#fff;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF33;outline:none;transition:all 0.2s;position:relative;">Grande Chorale de La Voix Libre</button>
+              <button class="calendrier-sous-onglet" data-sousonglet="soul" style="padding:14px 38px;font-size:1.15em;border-radius:12px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">SOUL</button>
+            </div>
+            <div id="sousonglet-grandechorale" class="calendrier-sousonglet-content">
+              <p>Pour indiquer votre présence aux concerts et stages de la Grande Chorale, remplissez directement le sondage ci-dessous :</p>
+              <iframe src="https://framadate.org/PQQH3ffEpZwplOUs" style="width:100%;min-height:700px;border:1.5px solid #3981FF;border-radius:10px;background:#fff;" allowfullscreen loading="lazy"></iframe>
+              <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/PQQH3ffEpZwplOUs" target="_blank">https://framadate.org/PQQH3ffEpZwplOUs</a></p>
+            </div>
+            <div id="sousonglet-soul" class="calendrier-sousonglet-content" style="display:none;">
+              <p>Pour indiquer votre présence aux concerts et stages de SOUL, remplissez directement le sondage ci-dessous :</p>
+              <iframe src="https://framadate.org/5jMb5k4sL795WTyp" style="width:100%;min-height:700px;border:1.5px solid #3981FF;border-radius:10px;background:#fff;" allowfullscreen loading="lazy"></iframe>
+              <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/5jMb5k4sL795WTyp" target="_blank">https://framadate.org/5jMb5k4sL795WTyp</a></p>
+            </div>
+          </div>
+        </div>
     </main>
     <footer class="main-footer">
         <div class="footer-content">
@@ -65,7 +101,44 @@
             }
           });
         }
+
+        // Gestion des sous-onglets calendrier avec style dynamique
+        const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
+        const sousOngletContents = {
+          grandechorale: document.getElementById('sousonglet-grandechorale'),
+          soul: document.getElementById('sousonglet-soul')
+        };
+        function updateSousOngletStyles() {
+          sousOnglets.forEach(btn => {
+            if (btn.classList.contains('active')) {
+              btn.style.background = '#3981FF';
+              btn.style.color = '#fff';
+              btn.style.border = '2.5px solid #3981FF';
+              btn.style.boxShadow = '0 2px 8px #3981FF33';
+              btn.style.textDecoration = 'underline';
+              btn.style.textUnderlineOffset = '6px';
+            } else {
+              btn.style.background = '#e0e0e0';
+              btn.style.color = '#222';
+              btn.style.border = '2.5px solid #e0e0e0';
+              btn.style.boxShadow = '0 2px 8px #3981FF11';
+              btn.style.textDecoration = 'none';
+            }
+          });
+        }
+        sousOnglets.forEach(btn => {
+          btn.addEventListener('click', function() {
+            sousOnglets.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            Object.keys(sousOngletContents).forEach(key => {
+              sousOngletContents[key].style.display = (this.dataset.sousonglet === key) ? '' : 'none';
+            });
+            updateSousOngletStyles();
+          });
+        });
+        updateSousOngletStyles();
       });
+
       async function getPartitionPassword() {
         try {
           const response = await fetch('data/pages.json');
@@ -182,7 +255,7 @@
 
       document.addEventListener('DOMContentLoaded', function() {
         const passwordContainer = document.getElementById('password-container');
-        const pageContentContainer = document.getElementById('page-content-container');
+        const tabsContainer = document.getElementById('tabs-container');
         const passwordInput = document.getElementById('partition-password');
         const submitBtn = document.getElementById('partition-submit');
         const errorMsg = document.getElementById('partition-error');
@@ -192,12 +265,145 @@
           const correct = await getPartitionPassword();
           if (entered === correct) {
             passwordContainer.style.display = 'none';
-            pageContentContainer.style.display = '';
-            generatePageContent('partitions');
+            tabsContainer.style.display = '';
+            showTab('chansons');
+            generateChansonsContent();
           } else {
             errorMsg.style.display = 'block';
           }
         });
+
+        // Onglets gestion avec style dynamique
+        function updateTabStyles() {
+          document.querySelectorAll('.choristes-tab').forEach(btn => {
+            if (btn.classList.contains('active')) {
+              btn.style.background = '#3981FF';
+              btn.style.color = '#fff';
+              btn.style.border = '2.5px solid #3981FF';
+              btn.style.boxShadow = '0 2px 8px #3981FF33';
+              btn.style.textDecoration = 'underline';
+              btn.style.textUnderlineOffset = '6px';
+            } else {
+              btn.style.background = '#e0e0e0';
+              btn.style.color = '#222';
+              btn.style.border = '2.5px solid #e0e0e0';
+              btn.style.boxShadow = '0 2px 8px #3981FF11';
+              btn.style.textDecoration = 'none';
+            }
+          });
+        }
+        function showTab(tab) {
+          document.querySelectorAll('.choristes-tab').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.tab === tab) btn.classList.add('active');
+          });
+          document.querySelectorAll('.choristes-tab-content').forEach(div => div.style.display = 'none');
+          document.getElementById('tab-content-' + tab).style.display = '';
+          updateTabStyles();
+        }
+        document.querySelectorAll('.choristes-tab').forEach(btn => {
+          btn.addEventListener('click', function() {
+            showTab(this.dataset.tab);
+            if (this.dataset.tab === 'chansons') generateChansonsContent();
+          });
+        });
+        updateTabStyles();
+
+        // Génère le contenu de l'onglet chansons (tableau)
+        function generateChansonsContent() {
+          const container = document.getElementById('tab-content-chansons');
+          container.innerHTML = `
+            <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:12px 18px;margin-bottom:18px;border-radius:8px;font-size:1.05em;">
+              <strong>Attention :</strong> Ces partitions sont des arrangements réalisés pour la chorale La Voix Libre. Elles sont protégées par le droit d’auteur et strictement réservées à un usage interne. Merci de ne pas les diffuser, partager ou utiliser en dehors du cadre de la chorale.
+            </div>
+            <h2>Espace choristes : partitions et ressources</h2>
+            <table id="partitions-table" style="width:100%;border-collapse:collapse;margin:2em 0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;box-shadow:0 2px 8px #0002;">
+              <thead>
+                <tr>
+                  <th style="text-align:left;">Morceau</th>
+                  <th style="text-align:left;">Enregistrements</th>
+                  <th style="text-align:left;">Ressources</th>
+                  <th style="text-align:left;">Partitions interactives</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          `;
+          fetch('data/partitions.json')
+            .then(res => res.json())
+            .then(data => {
+              const tbody = document.querySelector('#partitions-table tbody');
+              data.sort((a, b) => {
+                if (!a.title) return 1;
+                if (!b.title) return -1;
+                return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' });
+              });
+              data.forEach(partition => {
+                let recordingsLinks = [];
+                let ressourcesLinks = [];
+                let interactiveLinks = [];
+                if (partition.recordings) {
+                  partition.recordings.forEach(rec => {
+                    recordingsLinks.push(`<a href="#" class="audio-link" data-src="${rec.file}">${rec.label}</a>`);
+                  });
+                }
+                if (partition.recordings_link) {
+                  recordingsLinks.push(`<a href="${partition.recordings_link}" target="_blank">Enregistrements</a>`);
+                }
+                if (partition.documents) {
+                  partition.documents.forEach(doc => {
+                    ressourcesLinks.push(`<a href="${doc.file}" target="_blank">${doc.label}</a>`);
+                  });
+                }
+                if (partition.paroles_prononciation_image) {
+                  ressourcesLinks.push(`<a href="${partition.paroles_prononciation_image}" target="_blank">Paroles & prononciation</a>`);
+                }
+                if (partition.interactive_link) {
+                  interactiveLinks.push(`<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>`);
+                } else if (partition.flatio_link) {
+                  interactiveLinks.push(`<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>`);
+                }
+                tbody.innerHTML += `
+                  <tr>
+                    <td>${partition.title || ''}</td>
+                    <td>${recordingsLinks.join('<br>')}</td>
+                    <td>${ressourcesLinks.join('<br>')}</td>
+                    <td>${interactiveLinks.join('<br>')}</td>
+                  </tr>
+                  <tr><td colspan='4' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0 0 0 0;'></td></tr>
+                `;
+              });
+              document.addEventListener('click', function(e) {
+                if (e.target.classList && e.target.classList.contains('audio-link')) {
+                  e.preventDefault();
+                  const src = e.target.getAttribute('data-src');
+                  let player = document.getElementById('popup-audio-player');
+                  if (!player) {
+                    player = document.createElement('div');
+                    player.id = 'popup-audio-player';
+                    player.style.position = 'fixed';
+                    player.style.bottom = '30px';
+                    player.style.left = '50%';
+                    player.style.transform = 'translateX(-50%)';
+                    player.style.background = '#fff';
+                    player.style.border = '1.5px solid #3981FF';
+                    player.style.borderRadius = '12px';
+                    player.style.boxShadow = '0 4px 24px rgba(0,0,0,0.12)';
+                    player.style.padding = '16px 24px 12px 24px';
+                    player.style.zIndex = '9999';
+                    player.innerHTML = '<audio id="audio-player" controls style="width:320px;"></audio><button id="close-audio" style="margin-left:16px;font-size:1.2em;cursor:pointer;background:none;border:none;color:#3981FF;">✖</button>';
+                    document.body.appendChild(player);
+                    document.getElementById('close-audio').onclick = function() {
+                      player.remove();
+                    };
+                  }
+                  const audio = document.getElementById('audio-player');
+                  audio.src = src;
+                  audio.play();
+                }
+              });
+            });
+        }
       });
     </script>
 </body>
