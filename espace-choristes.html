@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Voix Libre - Espace Choristes</title>
+    <title id="dynamic-title">La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -14,8 +14,8 @@
                 <img src="" alt="Logo La Voix Libre" class="site-logo">
             </a>
             <div class="site-titles">
-                <h1 id="page-main-title"></h1>
-                <p id="page-subtitle" class="subtitle"></p>
+                <h1 id="page-main-title">Espace choristes</h1>
+                <p id="page-subtitle" class="subtitle">Ressources et liens</p>
             </div>
         </div>
         <nav class="main-nav">
@@ -88,6 +88,28 @@
         </div>
     </footer>
     <script src="assets/js/main.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // On attend que pagesData soit chargé par main.js
+        function setDynamicTitleAndSubtitle() {
+          if (window.pagesData) {
+            const page = window.pagesData.find(p => p.id === 'partitions');
+            if (page) {
+              // Met à jour le <title> du head
+              document.title = page.page_title + ' - ' + (page.page_subtitle || '');
+              // Met à jour le h1 et le sous-titre
+              const h1 = document.getElementById('page-main-title');
+              const subtitle = document.getElementById('page-subtitle');
+              if (h1) h1.textContent = page.page_title;
+              if (subtitle) subtitle.textContent = page.page_subtitle || '';
+            }
+          } else {
+            setTimeout(setDynamicTitleAndSubtitle, 100);
+          }
+        }
+        setDynamicTitleAndSubtitle();
+      });
+    </script>
     <script>
       // Scroll to footer on Contact click
       document.addEventListener('DOMContentLoaded', function() {
