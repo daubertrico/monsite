@@ -111,6 +111,9 @@
               if (partition.interactive_link) {
                 rows.push({ type: 'Partition interactive', url: partition.interactive_link });
               }
+              if (partition.paroles_prononciation_image) {
+                rows.push({ type: 'Paroles & prononciation', url: partition.paroles_prononciation_image, isImage: true });
+              }
               if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
               if (rows.length === 0) {
                 tbody.innerHTML += `<tr><td>${partition.title || ''}</td><td></td></tr>`;
@@ -119,6 +122,8 @@
                   tbody.innerHTML += `<tr><td>${i === 0 ? (partition.title || '') : ''}</td><td><a href="${r.url}" target="_blank">${r.type}</a></td></tr>`;
                 });
               }
+              // Ligne séparatrice après chaque morceau
+              tbody.innerHTML += `<tr><td colspan='2' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0 0 0 0;'></td></tr>`;
             });
           });
       }
