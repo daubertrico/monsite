@@ -1,20 +1,67 @@
 [
   {
+    "title": "Evening Rise",
+    "recordings": [
+      { "label": "Tutti", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/TUTTI Evening Rise TUTTI.mp3" },
+      { "label": "Sopranes", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/SOPRANES Evening Rise Voix Principale -Sopranes-.mp3" },
+      { "label": "Altis", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/ALTI Evening Rise Alti.mp3" },
+      { "label": "Mezzos", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/MEZZO Evening Rise Mezzo.mp3" },
+      { "label": "Ténors", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/TÉNORS Evening Rise Tenors.mp3" }
+    ],
+    "documents": [
+      { "label": "Partition PDF", "file": "assets/enregistrements/evening rise-20250724T101249Z-1-001/evening rise/Evening Rise-3.pdf" }
+    ]
+  },
+  {
+    "title": "Hashivenu",
+    "recordings": [
+      { "label": "Paroles et voix", "file": "assets/enregistrements/hashivenu-20250724T101306Z-1-001/hashivenu/hashivenu paroles et voix.mp3" }
+    ],
+    "documents": [
+      { "label": "Paroles et prononciation", "file": "assets/enregistrements/hashivenu-20250724T101306Z-1-001/hashivenu/hashivenu paroles et prononciation.jpg" }
+    ]
+  },
+  {
+    "title": "Les histoires d'a",
+    "recordings": [
+      { "label": "Alti", "file": "assets/enregistrements/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a alti.mp3" },
+      { "label": "Hommes", "file": "assets/enregistrements/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a hommes.mp3" },
+      { "label": "Sopranes", "file": "assets/enregistrements/Les histoires d'a-20250724T101329Z-1-001/Les histoires d_a/les histoires d_a sopranes.mp3" }
+    ]
+  },
+  {
+    "title": "Mo Li Hua (audio)",
+    "recordings": [
+      { "label": "Voix aigües", "file": "assets/enregistrements/molihua-20250724T110231Z-1-001/molihua/mo li hua voix aigues.mp3" },
+      { "label": "Voix graves", "file": "assets/enregistrements/molihua-20250724T110231Z-1-001/molihua/mo li hua voix graves .mp3" }
+    ]
+  },
+  {
+    "title": "Spondo",
+    "recordings": [
+      { "label": "Couplet soprane", "file": "assets/enregistrements/spondo-20250724T101430Z-1-001/spondo/couplet soprane.ogg" },
+      { "label": "Refrain voix par voix", "file": "assets/enregistrements/spondo-20250724T101430Z-1-001/spondo/refrain voix par voix.ogg" }
+    ],
+    "documents": [
+      { "label": "Paroles, trad & explications", "file": "assets/enregistrements/spondo-20250724T101430Z-1-001/spondo/spondo paroles trad et explications.docx" }
+    ]
+  },
+  {
     "title": "Mo Li Hua",
-    "paroles_prononciation_image": "assets/images/mo li hua paroles et prononciation.png"
+    "paroles_prononciation_image": "materielchansons/mo li hua/mo li hua paroles et prononciation.png"
   },
   {
     "title": "Because",
     "drive_link": "https://drive.google.com/uc?export=download&id=EXEMPLE_ID_DRIVE",
     "musescore_link": "https://flat.io/score/66f40791008b41dd872beb93-quem-t-insenhou-a-nadar?sharingKey=72bca10828fcf94af07ef0e6c1080cfbaab7b1092395fe6914e6",
-    "interactive_link": "partitions/partition-because.html",
+    "interactive_link": "materielchansons/because/partition-because.html",
     "youtube_link": "https://youtube.com/watch?v=EXEMPLE_ID",
     "recordings_link": "https://drive.google.com/drive/folders/1NKvGwfQt2Pvz5nYcCAhLqSKSL2llN_Lf?usp=drive_link",
     "youtube_original": "https://youtube.com/watch?v=EXEMPLE_ID_ORIGINAL"
   },
   {
     "title": "Simply the Best",
-    "interactive_link": "partitions/partition-simplythebest.html",
+    "interactive_link": "materielchansons/simply the best/partition-simplythebest.html",
     "recordings_link": ""
   }
 ]
