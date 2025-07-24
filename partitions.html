@@ -98,13 +98,9 @@
             const tbody = document.querySelector('#partitions-table tbody');
             data.forEach(partition => {
               const rows = [];
-              // Cas particulier pour 'Because' : un seul lien texte/partition, pas de YouTube
+              // Cas particulier pour 'Because' : lien interne partition interactive
               if (partition.title && partition.title.trim().toLowerCase() === 'because') {
-                if (partition.drive_link) {
-                  rows.push({ type: 'Texte/Partition', url: partition.drive_link });
-                } else if (partition.musescore_link) {
-                  rows.push({ type: 'Texte/Partition', url: partition.musescore_link.replace(/\/embed$/, '') });
-                }
+                rows.push({ type: 'Partition interactive', url: 'partitions/partition-because.html' });
                 if (partition.recordings_link) rows.push({ type: 'Enregistrements', url: partition.recordings_link });
                 // Pas de YouTube pour Because
               } else {

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partition interactive : Because</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="internal-page">
+  <header class="main-header">
+    <div class="header-content">
+      <a href="../index.html" class="site-logo-link">
+        <img src="../assets/images/logo.png" alt="Logo La Voix Libre" class="site-logo">
+      </a>
+      <div class="site-titles">
+        <h1 id="page-main-title">Partition interactive</h1>
+        <p id="page-subtitle" class="subtitle">Because</p>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <ul class="nav-links">
+        <li><a href="../chorale-pop.html">Chorale Pop</a></li>
+        <li><a href="../soul.html">SOUL</a></li>
+        <li><a href="../comedie-musicale.html">Comédie Musicale</a></li>
+        <li><a href="../cours-de-chant.html">Cours de chant</a></li>
+        <li><a href="../evenements.html">Événements</a></li>
+        <li><a href="../videos.html">Nous entendre</a></li>
+        <li><a href="../partitions.html">Partitions</a></li>
+        <li><a href="#footer">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="main-content" style="max-width:900px;margin:40px auto 0 auto;padding:24px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+    <h2 style="text-align:center;">Partition : Because</h2>
+    <iframe src="https://flat.io/embed/6881f86b31e6c40659ca76e7?_l=true&layout=responsive&parts=ee96755c-54ae-bf0d-bc26-ee0cfa27fa25,8c432b94-6ebc-e431-e0b4-800403fa811b,d3849261-1edd-759d-d13f-16384514e715,4b80d9bf-d559-dfb7-835c-a23b68bb647d" height="480" width="100%" frameBorder="0" allowfullscreen allow="autoplay; midi"></iframe>
+    <div style="font-size: 11px; color: #3981FF;line-break: anywhere;word-break: normal;overflow: hidden;white-space: nowrap;text-overflow: ellipsis; font-family: Inter, Helvetica Neue, Helvetica, Arial, sans-serif,sans-serif;margin-top: 4px">
+      View on <a href="https://flat.io" target="_blank" style="color: #3981FF; text-decoration: none;" title="Music notation software">Flat</a> :
+      <a href="https://flat.io/score/6881f86b31e6c40659ca76e7" target="_blank" style="color: #3981FF; text-decoration: none;">Simply the Best</a>
+      by <a href="https://flat.io/@vtdlavoixlibre" target="_blank" style="color: #3981FF; text-decoration: none;">Vincent T-Dauberlieu</a>
+    </div>
+  </main>
+  <footer class="main-footer" id="footer">
+    <div class="footer-content">
+      <p>&copy; 2024 La Voix Libre. Tous droits réservés.</p>
+      <p>Contact : <a href="mailto:contact@lavoixlibre.fr">contact@lavoixlibre.fr</a></p>
+    </div>
+    <div class="social-links">
+      <a href="https://facebook.com/" aria-label="Facebook" target="_blank">Facebook</a>
+      <a href="https://instagram.com/" aria-label="Instagram" target="_blank">Instagram</a>
+      <a href="https://youtube.com/" aria-label="YouTube" target="_blank">YouTube</a>
+    </div>
+  </footer>
+  <script>
+    // Scroll to footer on Contact click
+    document.addEventListener('DOMContentLoaded', function() {
+      var contactLink = document.querySelector('.nav-links a[href="#footer"]');
+      if (contactLink) {
+        contactLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          var footer = document.querySelector('footer');
+          if (footer) {
+            footer.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
