@@ -45,7 +45,108 @@
             <a href="https://instagram.com/" aria-label="Instagram" target="_blank">Instagram</a>
             <a href="https://youtube.com/" aria-label="YouTube" target="_blank">YouTube</a>
         </div>
+        <div class="newsletter-link" style="margin-top:10px;">
+            <a href="#newsletter" id="newsletter-btn" aria-label="Newsletter La Voix Libre" style="display:inline-flex;align-items:center;text-decoration:none;vertical-align:middle;background:#ff6699;color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;font-weight:bold;border-radius:6px;padding:8px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,box-shadow 0.2s;cursor:pointer;margin:0 auto;min-height:40px;" onclick="event.preventDefault();document.getElementById('newsletter-popup').style.display='flex';">
+                <span style="display:inline-block;vertical-align:middle;height:24px;width:24px;margin-right:8px;">
+                    <!-- Icône SVG newsletter -->
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:24px;width:24px;">
+                      <rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/>
+                      <path d="M3 7l9 6 9-6" stroke="#ff6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <span style="color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;vertical-align:middle;">S'inscrire à la newsletter</span>
+            </a>
+            <style>
+            #newsletter-btn {
+                border: 2px solid #ff6699;
+            }
+            #newsletter-btn:hover {
+                background:#ff3366;
+                border-color:#ff3366;
+                box-shadow:0 4px 16px rgba(0,0,0,0.18);
+                text-decoration:none;
+            }
+            </style>
+        </div>
+        </div>
     </footer>
+    <!-- Popup Newsletter -->
+    <div id="newsletter-popup" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;">
+      <div style="background:#fff;padding:32px 24px;border-radius:8px;max-width:420px;width:90%;position:relative;box-shadow:0 4px 24px rgba(0,0,0,0.2);">
+        <button id="close-newsletter-popup" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
+        <!-- Formulaire MailerLite -->
+        <style type="text/css">@import url('https://assets.mlcdn.com/fonts.css?version=1753253');</style>
+        <style type="text/css">
+        /* Ajoute ici le CSS minimal pour le formulaire, ou laisse le style MailerLite gérer */
+        </style>
+        <div id="mlb2-15645157" class="ml-form-embedContainer ml-subscribe-form ml-subscribe-form-15645157">
+          <div class="ml-form-align-center ">
+            <div class="ml-form-embedWrapper embedForm">
+              <div class="ml-form-embedBody ml-form-embedBodyDefault row-form">
+                <div class="ml-form-embedContent">
+                    <h4>Restez informés !</h4>
+                    <p>Pour connaître les dates de nos concerts et spectacles, et dates d'inscriptions chorales, inscrivez-vous à notre newsletter !</p>
+                </div>
+                <form class="ml-block-form" action="https://assets.mailerlite.com/jsonp/978136/forms/124127218209130047/subscribe" method="post" target="_blank">
+                  <div class="ml-form-formContent">
+                    <div class="ml-form-fieldRow ">
+                      <div class="ml-field-group ml-field-email ml-validate-email ml-validate-required">
+                        <input aria-label="email" aria-required="true" type="email" class="form-control" name="fields[email]" placeholder="Email" autocomplete="email">
+                      </div>
+                    </div>
+                    <div class="ml-form-fieldRow ml-last-item">
+                      <div class="ml-field-group ml-field-name">
+                        <input aria-label="name" type="text" class="form-control" name="fields[name]" placeholder="Nom" autocomplete="given-name">
+                      </div>
+                    </div>
+                  </div>
+                  <input type="hidden" name="ml-submit" value="1">
+                  <div class="ml-form-embedSubmit">
+                      <button type="submit" class="primary">S'inscrire</button>
+                      <button disabled="disabled" style="display: none;" type="button" class="loading">
+                        <div class="ml-form-embedSubmitLoad"></div>
+                        <span class="sr-only">Loading...</span>
+                      </button>
+                  </div>
+                  <input type="hidden" name="anticsrf" value="true">
+                </form>
+              </div>
+              <div class="ml-form-successBody row-success" style="display: none">
+                <div class="ml-form-successContent">
+                    <h4>Merci !</h4>
+                    <p>Vous êtes maintenant ajouté.e à notre mailing liste et vous serez tenu.e au courant de nos prochaines activités :) !</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <script>
+          function ml_webform_success_15645157() {
+            var $ = ml_jQuery || jQuery;
+            $('.ml-subscribe-form-15645157 .row-success').show();
+            $('.ml-subscribe-form-15645157 .row-form').hide();
+          }
+        </script>
+        <script src="https://groot.mailerlite.com/js/w/webforms.min.js?v176e10baa5e7ed80d35ae235be3d5024" type="text/javascript"></script>
+        <script>
+            fetch("https://assets.mailerlite.com/jsonp/978136/forms/124127218209130047/takel")
+        </script>
+      </div>
+    </div>
+    <script>
+      // Affiche le popup au clic sur le bouton
+      document.getElementById('newsletter-btn').onclick = function() {
+        document.getElementById('newsletter-popup').style.display = 'flex';
+      };
+      // Ferme le popup au clic sur la croix
+      document.getElementById('close-newsletter-popup').onclick = function() {
+        document.getElementById('newsletter-popup').style.display = 'none';
+      };
+      // Ferme le popup si on clique en dehors du contenu
+      document.getElementById('newsletter-popup').onclick = function(e) {
+        if (e.target === this) this.style.display = 'none';
+      };
+    </script>
     <script src="assets/js/main.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
