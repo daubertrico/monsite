@@ -103,7 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const page = pagesData.find(p => p.id === pageId);
       if (!page || !page.image || !page.page_title || !page.page_subtitle) return;
       const tileLink = document.createElement('a');
-      tileLink.href = `${page.id}.html`;
+      // Correction pour la tuile Espace choristes
+      if (page.id === 'partitions') {
+        tileLink.href = 'espace-choristes.html';
+      } else {
+        tileLink.href = `${page.id}.html`;
+      }
       tileLink.classList.add('tile');
       tileLink.innerHTML = `
         <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
@@ -119,7 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (desiredOrder.includes(page.id)) return; // déjà affiché
       if (!page.id || !page.image || !page.page_title || !page.page_subtitle) return;
       const tileLink = document.createElement('a');
-      tileLink.href = `${page.id}.html`;
+      if (page.id === 'partitions') {
+        tileLink.href = 'espace-choristes.html';
+      } else {
+        tileLink.href = `${page.id}.html`;
+      }
       tileLink.classList.add('tile');
       tileLink.innerHTML = `
         <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">

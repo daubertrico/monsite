@@ -1,6 +1,43 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <style>
+      @media (max-width: 700px) {
+        .choristes-tabs {
+          flex-direction: column !important;
+          gap: 0 !important;
+        }
+        .choristes-tab {
+          width: 100%;
+          margin-bottom: 8px;
+          border-radius: 14px;
+          font-size: 1.15em !important;
+        }
+        .choristes-tab-content {
+          display: none !important;
+          padding: 0 0 0 0;
+        }
+        .choristes-tab-content.active {
+          display: block !important;
+        }
+        .calendrier-sous-onglets {
+          flex-direction: column !important;
+          gap: 0 !important;
+        }
+        .calendrier-sous-onglet {
+          width: 100%;
+          margin-bottom: 8px;
+          border-radius: 12px;
+          font-size: 1em !important;
+        }
+        .calendrier-sousonglet-content {
+          display: none !important;
+        }
+        .calendrier-sousonglet-content.active {
+          display: block !important;
+        }
+      }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="dynamic-title">La Voix Libre - Espace Choristes</title>
@@ -88,6 +125,42 @@
         </div>
     </footer>
     <script src="assets/js/main.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Onglets principaux responsive
+        var tabs = document.querySelectorAll('.choristes-tab');
+        var tabContents = document.querySelectorAll('.choristes-tab-content');
+        tabs.forEach(function(tab, idx) {
+          tab.addEventListener('click', function() {
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            tabContents.forEach(function(content, cidx) {
+              if (cidx === idx) {
+                content.classList.add('active');
+              } else {
+                content.classList.remove('active');
+              }
+            });
+          });
+        });
+        // Sous-onglets calendrier responsive
+        var sousTabs = document.querySelectorAll('.calendrier-sous-onglet');
+        var sousTabContents = document.querySelectorAll('.calendrier-sousonglet-content');
+        sousTabs.forEach(function(tab, idx) {
+          tab.addEventListener('click', function() {
+            sousTabs.forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            sousTabContents.forEach(function(content, cidx) {
+              if (cidx === idx) {
+                content.classList.add('active');
+              } else {
+                content.classList.remove('active');
+              }
+            });
+          });
+        });
+      });
+    </script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         // On attend que pagesData soit chargé par main.js
