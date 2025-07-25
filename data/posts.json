@@ -1,18 +1,26 @@
 [
- {
-  "id": "6867da2f02e2c0b5efe962f3",
-  "title": "Un concert plein de chaleur et de joie – La Voix Libre + SOUL à l’ABE",
-  "date": "2025-07-04",
-  "content": "Le 29 juin, La Voix Libre a offert son concert de fin d’année à l’ABE. Malgré la canicule, l’énergie des choristes était au rendez-vous, portée par un public chaleureux et un accueil toujours aussi bienveillant.\n\nUne journée pleine de belles émotions, de musique vivante et de partage dans ce lieu magique qu’est cette ancienne école historique, au coeur du centre-ville de Rennes, devenue un lieu culturel incontournable.\n\nMerci à toutes et à tous pour cette belle fête !\n\n🎵 Quelques extraits à revivre en vidéo ci-dessous ! 👇\nglory glory !\nRollin' on the river\nstand by me\nLVLR\nS.O.U.L.\n\névenement",
-  "image": null,
-  "videos": [
-    {
-      "url": "https://youtu.be/8kfPPyShWvs"
-    }
-  ],
+  {
+    "id": "6867da2f02e2c0b5efe962f3",
+    "title": "Un concert plein de chaleur et de joie – La Voix Libre + SOUL à l’ABE",
+    "date": "2025-07-04",
+    "content": "Le 29 juin, La Voix Libre a offert son concert de fin d’année à l’ABE. Malgré la canicule, l’énergie des choristes était au rendez-vous, portée par un public chaleureux et un accueil toujours aussi bienveillant.\n\nUne journée pleine de belles émotions, de musique vivante et de partage dans ce lieu magique qu’est cette ancienne école historique, au coeur du centre-ville de Rennes, devenue un lieu culturel incontournable.\n\nMerci à toutes et à tous pour cette belle fête !\n\n🎵 Quelques extraits à revivre en vidéo ci-dessous ! 👇\nglory glory !\nRollin' on the river\nstand by me\nLVLR\nS.O.U.L.\n\névenement",
+    "image": null,
+    "videos": [
+      {
+        "url": "https://youtu.be/8kfPPyShWvs"
+      }
+    ],
     "tags": ["chorale_pop", "soul", "evenements", "videos"],
-  "author": "Vincent T-Dauberlieu"
-},
+    "author": "Vincent T-Dauberlieu"
+  },
+  {
+    "id": "essai-20260730",
+    "title": "essai",
+    "date": "2026-07-30",
+    "content": "je fais un essai",
+    "tags": ["evenements"],
+    "author": "Vincent T-Dauberlieu"
+  },
   {
     "id": "686568ab899d64621e78f468",
     "title": "concert itinérant centre ville de Rennes",
