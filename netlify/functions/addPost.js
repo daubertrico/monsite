@@ -1,5 +1,4 @@
-const fs = require('fs');
-const path = require('path');
+const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -7,13 +6,33 @@ exports.handler = async (event) => {
   }
 
   const data = JSON.parse(event.body);
+  const repo = 'daubertrico/monsite';
+  const branch = 'ma-nouvelle-branche';
+  const filePath = 'data/posts.json';
+  const githubToken = process.env.GITHUB_TOKEN;
 
-  // Chemin vers posts.json (adapter si besoin)
-  const postsPath = path.join(__dirname, '../../data/posts.json');
+  if (!githubToken) {
+    return { statusCode: 500, body: 'Missing GITHUB_TOKEN env variable' };
+  }
+
+  // 1. Get the current file (posts.json) from GitHub
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${filePath}?ref=${branch}`;
+  const headers = {
+    'Authorization': `token ${githubToken}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'NetlifyFunction'
+  };
+
   let posts = [];
+  let sha = null;
 
   try {
-    posts = JSON.parse(fs.readFileSync(postsPath, 'utf8'));
+    const res = await fetch(apiUrl, { headers });
+    if (!res.ok) throw new Error('Failed to fetch posts.json');
+    const fileData = await res.json();
+    const content = Buffer.from(fileData.content, 'base64').toString('utf8');
+    posts = JSON.parse(content);
+    sha = fileData.sha;
   } catch (e) {
     // Si le fichier n'existe pas ou est vide
     posts = [];
@@ -29,10 +48,26 @@ exports.handler = async (event) => {
     lien_fb: data.lien_fb
   });
 
-  fs.writeFileSync(postsPath, JSON.stringify(posts, null, 2), 'utf8');
+  // 2. Commit the new file to GitHub
+  const newContent = Buffer.from(JSON.stringify(posts, null, 2)).toString('base64');
+  const commitRes = await fetch(apiUrl, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify({
+      message: 'Ajout automatique d’un post via Cloudflare Pages',
+      content: newContent,
+      branch,
+      sha
+    })
+  });
+
+  if (!commitRes.ok) {
+    const errorText = await commitRes.text();
+    return { statusCode: 500, body: `GitHub commit failed: ${errorText}` };
+  }
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: 'Post ajouté !' })
+    body: JSON.stringify({ message: 'Post ajouté et commit GitHub effectué (Cloudflare Pages) !' })
   };
 };
