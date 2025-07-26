@@ -45,7 +45,8 @@ exports.handler = async (event) => {
     date: data.date,
     lieu: data.lieu,
     description: data.description,
-    lien_fb: data.lien_fb
+    lien_fb: data.lien_fb,
+    tags: data.tags // Ajout du champ tags pour affichage sur le site
   });
 
   // 2. Commit the new file to GitHub
