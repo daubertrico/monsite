@@ -178,7 +178,7 @@
     "tile_overlay_title": "SOUL",
     "tile_overlay_subtitle": "Ensemble a cappella",
     "page_title": "S.O.U.L.",
-    "page_subtitle": "Ensemble vocal soul/gospel/funk - Rennes",
+    "page_subtitle": "Ensemble vocal Soul a cappella",
     "page_content": [
       "S.O.U.L. est un ensemble vocal a capella qui reprend des standards soul/funk/gospel et parfois pop, constitué d'amateur.rices enthousiastes qui ont un goût pour les harmonies complexes et le body percu.",
       "L'accent est mis sur l'énergie du groove et du rythme afin de servir les textes au mieux et de rendre hommage à des artistes tels que Otis Redding, Etta James, Aretha Franklin, Fontella Bass, the Temptation, mais aussi Lauryn Hill, ou Stevie Wonder.",
@@ -236,9 +236,9 @@
     "id": "evenements",
     "image": "Design sans titre.png",
     "tile_overlay_title": "Événements",
-    "tile_overlay_subtitle": "Où et quand nous rencontrer ou nous écouter",
+    "tile_overlay_subtitle": "Où et quand nous écouter",
     "page_title": "Événements",
-    "page_subtitle": "Où et quand nous rencontrer ou nous écouter",
+    "page_subtitle": "Où et quand nous écouter",
     "page_content": [
       "Retrouvez ici tous les événements, concerts et rencontres de La Voix Libre et S.O.U.L à Rennes et ailleurs.",
       "La Voix Libre organise des concerts tout au long de l'année, et accompagne des événements, tels que la marche des fiertés, le grand concert de Noël, et des concerts itinérants dans le centre-ville de Rennes."
@@ -284,7 +284,7 @@
     "tile_overlay_title": "Vidéos",
     "tile_overlay_subtitle": "Nos performances et concerts",
     "page_title": "Vidéos",
-    "page_subtitle": "Les performances et concerts de la Voix Libre",
+    "page_subtitle": "Souvenirs de nos concerts",
     "page_content": [
       "Découvrez nos performances et concerts en vidéo : La Voix Libre et S.O.U.L sur scène, en répétition et lors des grands événements.",
       "Retrouvez les extraits marquants, les arrangements originaux et les moments forts de nos ensembles vocaux."
