@@ -1,36 +1,82 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // Harmonisation des titres dynamiques
-  function harmoniseTitles() {
-    const mainTitle = document.querySelector('.site-titles h1, h1.main-title, #site-title, #page-main-title');
-    if (mainTitle && !mainTitle.classList.contains('main-title')) {
-      mainTitle.classList.add('main-title');
-    }
-  }
 
-  harmoniseTitles();
-  const ASSETS_BASE_URL = 'assets/';
-  const DATA_BASE_URL = 'data/';
-  let globalConfig = null;
-  let pagesData = null;
-  let partitionsData = null;
-  let postsData = null;
-
-  async function fetchJson(filename) {
-    console.log(`[DEBUG] Tentative de chargement de ${DATA_BASE_URL}${filename}`);
-    try {
-      const response = await fetch(`${DATA_BASE_URL}${filename}`);
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur HTTP ${response.status} lors du chargement de ${filename}: ${errorText}`);
-      }
-      const data = await response.json();
-      console.log(`[DEBUG] ${filename} chargé avec succès. Données:`, data);
-      return data;
-    } catch (error) {
-      console.error(`[ERREUR FATALE] Impossible de charger le fichier ${filename}:`, error);
-      return null;
-    }
+// Harmonisation des titres dynamiques
+function harmoniseTitles() {
+  const mainTitle = document.querySelector('.site-titles h1, h1.main-title, #site-title, #page-main-title');
+  if (mainTitle && !mainTitle.classList.contains('main-title')) {
+    mainTitle.classList.add('main-title');
   }
+}
+
+harmoniseTitles();
+const ASSETS_BASE_URL = 'assets/';
+const DATA_BASE_URL = 'data/';
+let globalConfig = null;
+let pagesData = null;
+let partitionsData = null;
+let postsData = null;
+
+async function fetchJson(filename) {
+  console.log(`[DEBUG] Tentative de chargement de ${DATA_BASE_URL}${filename}`);
+  try {
+    const response = await fetch(`${DATA_BASE_URL}${filename}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erreur HTTP ${response.status} lors du chargement de ${filename}: ${errorText}`);
+    }
+    const data = await response.json();
+    console.log(`[DEBUG] ${filename} chargé avec succès. Données:`, data);
+    return data;
+  } catch (error) {
+    console.error(`[ERREUR FATALE] Impossible de charger le fichier ${filename}:`, error);
+    return null;
+  }
+}
+
+// Utilise PapaParse pour parser correctement le CSV Google Sheets
+function loadPapaParse(callback) {
+  if (window.Papa) {
+    callback();
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js';
+  script.onload = callback;
+  document.head.appendChild(script);
+}
+
+async function fetchPostsFromCSV(csvUrl) {
+  return new Promise((resolve, reject) => {
+    loadPapaParse(() => {
+      window.Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          // Nettoyage et conversion des champs
+          const posts = results.data.map(post => {
+            // Conversion du champ tags en tableau si présent
+            if (post.tags) {
+              post.tags = post.tags.split(',').map(tag => tag.trim());
+            }
+            // Conversion du champ videos en tableau si présent
+            if (post.videos) {
+              try {
+                post.videos = JSON.parse(post.videos);
+              } catch {
+                post.videos = post.videos.split(',').map(v => v.trim()).filter(Boolean);
+              }
+            }
+            return post;
+          });
+          resolve(posts);
+        },
+        error: function(err) {
+          reject(err);
+        }
+      });
+    });
+  });
+}
 
   function applyGlobalConfig() {
     if (!globalConfig || globalConfig.length === 0) {
@@ -488,30 +534,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  async function init() {
-    globalConfig = await fetchJson('global_config.json');
-    pagesData = await fetchJson('pages.json');
-    partitionsData = await fetchJson('partitions.json');
-    postsData = await fetchJson('posts.json');
 
-    if (!globalConfig || !pagesData || !postsData) {
-      document.body.innerHTML = '<p style="color: red;">Erreur lors du chargement des données du site.</p>';
-      return;
-    }
+async function init() {
+  globalConfig = await fetchJson('global_config.json');
+  pagesData = await fetchJson('pages.json');
+  partitionsData = await fetchJson('partitions.json');
+  // Remplacer le chargement local par le chargement depuis la Google Sheet (CSV)
+  postsData = await fetchPostsFromCSV('https://docs.google.com/spreadsheets/d/e/2PACX-1vROQBU3QffdHqtL93jVZOPjcuD0GHs2icQ13rx3-U7xvjASaQQILjk4pbVG7fk1ucFJQJMUI1GwKEy6/pub?output=csv');
 
-    applyGlobalConfig();
-
-    const currentPagePath = window.location.pathname.split('/').pop();
-    if (currentPagePath === '' || currentPagePath === 'index.html') {
-      generateHomeTiles();
-    } else {
-      const pageId = currentPagePath.replace('.html', '');
-      generatePageContent(pageId);
-    }
+  if (!globalConfig || !pagesData || !postsData) {
+    document.body.innerHTML = '<p style="color: red;">Erreur lors du chargement des données du site.</p>';
+    return;
   }
 
-  init();
-});
+  applyGlobalConfig();
+
+  const currentPagePath = window.location.pathname.split('/').pop();
+  if (currentPagePath === '' || currentPagePath === 'index.html') {
+    generateHomeTiles();
+  } else {
+    const pageId = currentPagePath.replace('.html', '');
+    generatePageContent(pageId);
+  }
+}
+
+init();
 
 const styleSheet = document.createElement("style")
 styleSheet.innerText = `

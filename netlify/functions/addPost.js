@@ -40,13 +40,14 @@ exports.handler = async (event) => {
 
   // Ajoute le nouveau post
   posts.push({
-    id: Date.now().toString(),
+    id: Date.now().toString(16),
     title: data.title,
     date: data.date,
-    lieu: data.lieu,
-    description: data.description,
-    lien_fb: data.lien_fb,
-    tags: data.tags // Ajout du champ tags pour affichage sur le site
+    content: data.content || data.description || '',
+    image: data.image || null,
+    videos: data.videos || [],
+    tags: data.tags || [],
+    author: data.author || 'Vincent T-Dauberlieu'
   });
 
   // 2. Commit the new file to GitHub
