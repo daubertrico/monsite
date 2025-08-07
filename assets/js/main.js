@@ -479,7 +479,7 @@ async function fetchPostsFromCSV(csvUrl) {
       return;
     }
 
-    filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date)); // du plus récent au plus ancien
     postsContainer.innerHTML = '';
 
     filteredPosts.forEach(post => {
@@ -523,7 +523,7 @@ async function fetchPostsFromCSV(csvUrl) {
             ${illustrationsHTML}
           </div>
           <div class="text-content">
-            <p class="post-date">${new Date(post.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <!-- Date de publication supprimée -->
             <p>${linkify(post.content)}</p>
           </div>
         </div>

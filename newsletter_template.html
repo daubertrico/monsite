@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter - La Voix Libre</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'Lobster';
+      src: url('data:font/woff2;charset=utf-8;base64,d09GMgABAAAAAA...') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+    .encart-titre {
+      font-family: 'Raleway', Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #8844aa;
+      margin-top: 0;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+    .encart-shadow {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+      border-radius: 12px;
+      background: #fff;
+      margin-bottom: 32px;
+    }
+    .chant-ensemble {
+      font-family: 'Raleway', Arial, sans-serif;
+      font-size: 1.15em;
+      color: #8844aa;
+      margin: 24px 0 0 0;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    .encart-separator {
+      width: 80%;
+      margin: 0 auto 32px auto;
+      border: none;
+      border-top: 2px solid #eee;
+      height: 0;
+      display: block;
+    }
+  </style>
+</head>
+<body style="font-family: Arial, sans-serif; background: #f9f9f9; color: #333; margin: 0; padding: 0;">
+  <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); overflow: hidden;">
+    <div style="background: #ff6699; color: #fff; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 20px;">
+      <img src="https://chanterlavoixlibre.fr/assets/images/entete.png" alt="La Voix Libre - École de chant et Chorales à Rennes" style="width:100%; max-width:560px; border-radius:12px; display:block; margin:auto;">
+    </div>
+    <div style="padding: 20px; text-align: center;">
+      <p>Nous sommes ravi·e·s et fier·e·s de vous inviter à nos prochains événements&nbsp;! Venez partager avec nous la joie du chant et l’énergie collective de La Voix Libre. Votre présence rend chaque moment plus vibrant et chaleureux&nbsp;: rejoignez-nous pour célébrer la musique et l’amitié&nbsp;!</p>
+      <?!= encarts_evenements ?>
+    </div>
+    <div style="text-align:center; color:#8844aa; font-family:Raleway, Arial, sans-serif; font-size:18px; font-weight:bold; margin-top:24px;">Au plaisir de chanter pour et avec vous :) !</div>
+    <div style="background: #8844aa; color: #fff; text-align: center; padding: 10px; font-size: 0.9rem;">
+      <p>Suivez-nous : <a href="https://www.facebook.com/chanterlavoixlibre/" style="color: #ffcccc; text-decoration: none;">Facebook</a> | <a href="https://www.instagram.com/chanterlavoixlibre/" style="color: #ffcccc; text-decoration: none;">Instagram</a> | <a href="https://www.youtube.com/channel/UC5xRWArmPqnh_OdfvubC38Q" style="color: #ffcccc; text-decoration: none;">YouTube</a></p>
+      <p><a href="https://chanterlavoixlibre.fr" style="color: #ffcccc; text-decoration: none;">chanterlavoixlibre.fr</a></p>
+    </div>
+    <div style="text-align:center; margin:18px 0 0 0;">
+      <a href="https://chanterlavoixlibre.fr/desinscription-newsletter" style="color:#8844aa; font-size:14px; text-decoration:underline;">Se désinscrire de la newsletter</a>
+    </div>
+  </div>
+</body>
+</html>
