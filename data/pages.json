@@ -338,5 +338,18 @@
     "display_posts": false,
     "is_protected": true,
     "password": "lavoixlibre2026"
+  },
+  {
+    "id": "nous-rejoindre",
+    "tile_overlay_title": "Nous rejoindre",
+    "tile_overlay_subtitle": "Rejoignez l’aventure !",
+    "page_title": "Nous rejoindre",
+    "page_subtitle": "Rejoignez l’aventure La Voix Libre",
+    "page_content": [
+      "Envie de chanter, de découvrir la polyphonie, le gospel, la soul ou la comédie musicale ? Rejoignez l’un de nos ensembles ou nos ateliers !",
+      "La Voix Libre accueille tous les niveaux, dans une ambiance conviviale et inclusive. Contactez-nous pour plus d’informations ou pour participer à une séance découverte."
+    ],
+    "tags": [],
+    "display_posts": false
   }
 ]

@@ -1,4 +1,3 @@
-
 // Harmonisation des titres dynamiques
 function harmoniseTitles() {
   const mainTitle = document.querySelector('.site-titles h1, h1.main-title, #site-title, #page-main-title');
@@ -168,7 +167,7 @@ async function fetchPostsFromCSV(csvUrl) {
     // Ajoute les autres tuiles (événements, vidéos, partitions, etc.) dans l'ordre du JSON
     pagesData.forEach(page => {
       if (desiredOrder.includes(page.id)) return; // déjà affiché
-      if (!page.id || !page.image || !page.page_title || !page.page_subtitle) return;
+      if (!page.id || (!page.image && page.id !== 'nous-rejoindre') || !page.page_title || !page.page_subtitle) return;
       const tileLink = document.createElement('a');
       if (page.id === 'partitions') {
         tileLink.href = 'espace-choristes.html';
@@ -176,18 +175,56 @@ async function fetchPostsFromCSV(csvUrl) {
         tileLink.href = `${page.id}.html`;
       }
       tileLink.classList.add('tile');
-      tileLink.innerHTML = `
-        <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
-        <div class="overlay">
-          <p class="overlay-title">${page.page_title}</p>
-          <p class="overlay-subtitle">${page.page_subtitle}</p>
-        </div>
-      `;
+      if (page.id === 'nous-rejoindre') {
+        tileLink.style.background = 'var(--background-light)';
+        tileLink.style.display = 'flex';
+        tileLink.style.flexDirection = 'column';
+        tileLink.style.justifyContent = 'flex-end';
+        tileLink.style.alignItems = 'center';
+        tileLink.style.position = 'relative';
+        tileLink.style.height = '300px';
+        tileLink.style.borderRadius = '18px';
+        tileLink.style.boxShadow = '0 8px 24px rgba(255,102,153,0.18), 0 2px 12px rgba(0,0,0,0.10)';
+        tileLink.style.margin = '0';
+        tileLink.style.border = '4px solid var(--accent-color-primary)';
+        tileLink.style.transition = 'transform 0.2s, box-shadow 0.2s';
+        tileLink.innerHTML = `
+          <div class="overlay" style="background:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;height:100%;">
+            <p class="overlay-title" style="color:var(--accent-color-complementary);font-size:2.6rem;font-family:'Lobster',cursive;font-weight:bold;margin-bottom:0.5rem;letter-spacing:1px;text-shadow:2px 4px 12px rgba(255,102,153,0.18),0 2px 8px rgba(0,0,0,0.10);">${page.tile_overlay_title}! </p>
+            <p class="overlay-subtitle" style="opacity:0;transition:opacity 0.3s ease;font-size:1.35rem;color:var(--accent-color-primary);font-weight:bold;text-align:center;">${page.page_subtitle}</p>
+          </div>
+        `;
+        // Effet 3D au survol
+        tileLink.addEventListener('mouseenter', function() {
+          const subtitle = tileLink.querySelector('.overlay-subtitle');
+          if (subtitle) subtitle.style.opacity = '0.9';
+          tileLink.style.transform = 'scale(1.04) translateY(-8px)';
+          tileLink.style.boxShadow = '0 16px 32px rgba(255,102,153,0.22), 0 4px 16px rgba(0,0,0,0.14)';
+        });
+        tileLink.addEventListener('mouseleave', function() {
+          const subtitle = tileLink.querySelector('.overlay-subtitle');
+          if (subtitle) subtitle.style.opacity = '0';
+          tileLink.style.transform = 'scale(1)';
+          tileLink.style.boxShadow = '0 8px 24px rgba(255,102,153,0.18), 0 2px 12px rgba(0,0,0,0.10)';
+        });
+      } else {
+        tileLink.innerHTML = `
+          <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
+          <div class="overlay">
+            <p class="overlay-title">${page.page_title}</p>
+            <p class="overlay-subtitle">${page.page_subtitle}</p>
+          </div>
+        `;
+      }
       tilesGrid.appendChild(tileLink);
     });
   }
 
   function generatePageContent(pageId) {
+    // Correction : ne pas écraser le contenu statique de la page nous-rejoindre
+    if (pageId === 'nous-rejoindre') {
+      return;
+    }
     const page = pagesData.find(p => p.id === pageId);
     const contentContainer = document.getElementById('page-content-container');
     const pageMainTitle = document.getElementById('page-main-title');
