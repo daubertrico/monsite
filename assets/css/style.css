@@ -520,12 +520,6 @@ body {
     line-height: 1.2;
 }
 
-.blog-post .post-date {
-    font-size: 0.9rem;
-    color: var(--subtitle-color);
-    margin-bottom: 1rem;
-    align-self: flex-start; /* Aligne la date à gauche */
-}
 
 .blog-post p {
     font-size: 1rem;

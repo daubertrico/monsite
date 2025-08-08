@@ -516,14 +516,55 @@ async function fetchPostsFromCSV(csvUrl) {
       }
 
       // Build the post HTML
+      // Affiche date/heure/lieu événement sous le titre si renseigné
+      let eventInfo = '';
+      if (post.date || post.heure || post.lieu) {
+        let dateStr = '';
+        if (post.date) {
+          // Tente de parser la date, sinon affiche tel quel
+          let d = new Date(post.date);
+          if (!isNaN(d)) {
+            const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+            const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+            dateStr = `${jours[d.getDay()]} ${d.getDate()} ${mois[d.getMonth()]} ${d.getFullYear()}`;
+          } else {
+            // Si le format est type 24/06/2025, le parser manuellement
+            const match = post.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+            if (match) {
+              const d2 = new Date(`${match[3]}-${match[2]}-${match[1]}`);
+              if (!isNaN(d2)) {
+                const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+                const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+                dateStr = `${jours[d2.getDay()]} ${d2.getDate()} ${mois[d2.getMonth()]} ${d2.getFullYear()}`;
+              } else {
+                dateStr = post.date;
+              }
+            } else {
+              dateStr = post.date;
+            }
+          }
+        }
+        let heureStr = '';
+        if (post.heure) {
+          // Ajoute "h" si non présent
+          let heure = post.heure.trim();
+          if (!heure.endsWith('h')) {
+            heure += 'h';
+          }
+          heureStr = `à ${heure}`;
+        }
+        let lieuStr = post.lieu ? `- ${post.lieu}` : '';
+        eventInfo = `<div class="event-info" style="font-size:1.08rem;color:var(--accent-color-complementary);font-family:'Montserrat',sans-serif;font-weight:500;margin-bottom:8px;">${[dateStr, heureStr, lieuStr].filter(Boolean).join(' ')}</div>`;
+      }
+
       let postHTML = `<h3>${post.title}</h3>`;
+      postHTML += eventInfo;
       postHTML += `
         <div class="post-wrapper">
           <div class="media media-vertical">
             ${illustrationsHTML}
           </div>
           <div class="text-content">
-            <!-- Date de publication supprimée -->
             <p>${linkify(post.content)}</p>
           </div>
         </div>
@@ -607,6 +648,7 @@ styleSheet.innerText = `
   margin: 0 0 10px 0;
 }
 // .post-date supprimé : la date d'édition ne s'affiche plus
+@media (max-width: 700px) {
   .blog-post .post-wrapper {
     flex-direction: column;
   }
@@ -619,6 +661,7 @@ styleSheet.innerText = `
   .blog-post .text-content {
     padding-left: 0;
   }
+}
 }
 `;
 document.head.appendChild(styleSheet);
