@@ -167,7 +167,7 @@ async function fetchPostsFromCSV(csvUrl) {
     // Ajoute les autres tuiles (événements, vidéos, partitions, etc.) dans l'ordre du JSON
     pagesData.forEach(page => {
       if (desiredOrder.includes(page.id)) return; // déjà affiché
-      if (!page.id || (!page.image && page.id !== 'nous-rejoindre') || !page.page_title || !page.page_subtitle) return;
+      if (!page.id || !page.page_title || !page.page_subtitle) return;
       const tileLink = document.createElement('a');
       if (page.id === 'partitions') {
         tileLink.href = 'espace-choristes.html';
@@ -191,7 +191,7 @@ async function fetchPostsFromCSV(csvUrl) {
         tileLink.innerHTML = `
           <div class="overlay" style="background:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;height:100%;">
             <p class="overlay-title" style="color:var(--accent-color-complementary);font-size:2.6rem;font-family:'Lobster',cursive;font-weight:bold;margin-bottom:0.5rem;letter-spacing:1px;text-shadow:2px 4px 12px rgba(255,102,153,0.18),0 2px 8px rgba(0,0,0,0.10);">${page.tile_overlay_title}! </p>
-            <p class="overlay-subtitle" style="opacity:0;transition:opacity 0.3s ease;font-size:1.35rem;color:var(--accent-color-primary);font-weight:bold;text-align:center;">${page.page_subtitle}</p>
+            <p class="overlay-subtitle" style="opacity:0;transition:opacity 0.3s ease;font-size:1.35rem;color:var(--accent-color-primary);font-weight:bold;text-align:center;">${page.tile_overlay_subtitle}</p>
           </div>
         `;
         // Effet 3D au survol
@@ -207,7 +207,7 @@ async function fetchPostsFromCSV(csvUrl) {
           tileLink.style.transform = 'scale(1)';
           tileLink.style.boxShadow = '0 8px 24px rgba(255,102,153,0.18), 0 2px 12px rgba(0,0,0,0.10)';
         });
-      } else {
+      } else if (page.image) {
         tileLink.innerHTML = `
           <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
           <div class="overlay">
