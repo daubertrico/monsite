@@ -635,10 +635,10 @@ async function init() {
   applyGlobalConfig();
 
   const currentPagePath = window.location.pathname.split('/').pop();
-  if (currentPagePath === '' || currentPagePath === 'index.html') {
+  if (currentPagePath === '' || currentPagePath.toLowerCase() === 'index.html') {
     generateHomeTiles();
   } else {
-    const pageId = currentPagePath.replace('.html', '');
+    const pageId = currentPagePath.replace('.html', '').toLowerCase();
     generatePageContent(pageId);
   }
 }
