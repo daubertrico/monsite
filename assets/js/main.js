@@ -230,7 +230,18 @@ async function fetchPostsFromCSV(csvUrl) {
     const pageMainTitle = document.getElementById('page-main-title');
     const pageSubtitle = document.getElementById('page-subtitle');
 
-    if (!page || !contentContainer || !pageMainTitle || !pageSubtitle) return;
+    if (!page) {
+      if (contentContainer) {
+        contentContainer.innerHTML = '<div style="color:red;font-weight:bold;padding:24px;">Erreur : la page demandée n\'existe pas dans pages.json.<br>Id recherché : <b>' + pageId + '</b></div>';
+      }
+      console.error('[ERREUR] Objet page non trouvé dans pages.json pour id :', pageId);
+      return;
+    }
+    if (!contentContainer || !pageMainTitle || !pageSubtitle) {
+      document.body.innerHTML = '<div style="color:red;font-weight:bold;padding:24px;">Erreur critique : éléments HTML manquants pour l\'affichage dynamique.<br>Vérifiez la présence de #page-content-container, #page-main-title, #page-subtitle dans le HTML.</div>';
+      console.error('[ERREUR] Eléments HTML manquants pour affichage dynamique.');
+      return;
+    }
 
     pageMainTitle.textContent = page.page_title;
     pageSubtitle.textContent = page.page_subtitle;
