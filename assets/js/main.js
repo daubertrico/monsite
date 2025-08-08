@@ -230,6 +230,7 @@ async function fetchPostsFromCSV(csvUrl) {
     const pageMainTitle = document.getElementById('page-main-title');
     const pageSubtitle = document.getElementById('page-subtitle');
 
+    console.log('[DEBUG] Appel de generatePageContent pour id :', pageId);
     if (!page) {
       if (contentContainer) {
         contentContainer.innerHTML = '<div style="color:red;font-weight:bold;padding:24px;">Erreur : la page demandée n\'existe pas dans pages.json.<br>Id recherché : <b>' + pageId + '</b></div>';
@@ -237,11 +238,13 @@ async function fetchPostsFromCSV(csvUrl) {
       console.error('[ERREUR] Objet page non trouvé dans pages.json pour id :', pageId);
       return;
     }
+    console.log('[DEBUG] Objet page trouvé :', page);
     if (!contentContainer || !pageMainTitle || !pageSubtitle) {
       document.body.innerHTML = '<div style="color:red;font-weight:bold;padding:24px;">Erreur critique : éléments HTML manquants pour l\'affichage dynamique.<br>Vérifiez la présence de #page-content-container, #page-main-title, #page-subtitle dans le HTML.</div>';
       console.error('[ERREUR] Eléments HTML manquants pour affichage dynamique.');
       return;
     }
+    console.log('[DEBUG] Eléments HTML trouvés, injection du contenu...');
 
     pageMainTitle.textContent = page.page_title;
     pageSubtitle.textContent = page.page_subtitle;
