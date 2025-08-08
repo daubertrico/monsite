@@ -221,8 +221,8 @@ async function fetchPostsFromCSV(csvUrl) {
   }
 
   function generatePageContent(pageId) {
-    // Correction : ne pas écraser le contenu statique de la page nous-rejoindre
-    if (pageId === 'nous-rejoindre') {
+    // Correction : ne pas écraser le contenu statique de la page nous-rejoindre (casse et espaces ignorés)
+    if (pageId.trim().toLowerCase() === 'nous-rejoindre') {
       return;
     }
     const page = pagesData.find(p => p.id === pageId);
