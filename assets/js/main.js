@@ -618,11 +618,18 @@ async function init() {
   pagesData = await fetchJson('pages.json');
   partitionsData = await fetchJson('partitions.json');
   // Remplacer le chargement local par le chargement depuis la Google Sheet (CSV)
+
   postsData = await fetchPostsFromCSV('https://docs.google.com/spreadsheets/d/e/2PACX-1vROQBU3QffdHqtL93jVZOPjcuD0GHs2icQ13rx3-U7xvjASaQQILjk4pbVG7fk1ucFJQJMUI1GwKEy6/pub?output=csv');
 
-  if (!globalConfig || !pagesData || !postsData) {
+  if (!globalConfig || !pagesData) {
     document.body.innerHTML = '<p style="color: red;">Erreur lors du chargement des données du site.</p>';
     return;
+  }
+
+  // postsData n'est utilisé que pour l'affichage des posts, ne jamais bloquer le site si absent
+  if (!postsData) {
+    console.error('[ERREUR POSTS] Impossible de charger les posts depuis le CSV Google Sheets. Les posts ne seront pas affichés.');
+    postsData = [];
   }
 
   applyGlobalConfig();
