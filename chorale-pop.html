@@ -37,7 +37,7 @@
             </div>
     </main>
 
-    <footer class="main-footer">
+    <footer class="main-footer" id="footer">
         <div class="footer-content">
             <p>&copy; 2024 La Voix Libre. Tous droits réservés.</p>
             <p>Contact : <a href="mailto:contact@lavoixlibre.fr">contact@lavoixlibre.fr</a></p>
@@ -92,11 +92,15 @@
       document.getElementById('newsletter-popup').onclick = function(e) {
         if (e.target === this) this.style.display = 'none';
       };
-    </script>
-
-    <script src="assets/js/main.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
+        // ...existing code...
+        document.querySelectorAll('.nav-links a[href="#footer"]').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('footer').scrollIntoView({ behavior: 'smooth' });
+          });
+        });
         var contactLink = document.querySelector('.nav-links a[href="#footer"]');
         if (contactLink) {
           contactLink.addEventListener('click', function(e) {

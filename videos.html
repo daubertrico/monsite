@@ -36,7 +36,7 @@
     <main class="main-content">
         <div id="page-content-container"></div>
     </main>
-    <footer class="main-footer">
+    <footer class="main-footer" id="footer">
         <div class="footer-content">
             <p>&copy; 2024 La Voix Libre. Tous droits réservés.</p>
             <p>Contact : <a href="mailto:contact@lavoixlibre.fr">contact@lavoixlibre.fr</a></p>
@@ -91,11 +91,15 @@
       document.getElementById('newsletter-popup').onclick = function(e) {
         if (e.target === this) this.style.display = 'none';
       };
-    </script>
     <script>
-      // Affiche le popup au clic sur le bouton
-      document.getElementById('newsletter-btn').onclick = function() {
-        document.getElementById('newsletter-popup').style.display = 'flex';
+      document.addEventListener('DOMContentLoaded', function() {
+        // ...existing code...
+        document.querySelectorAll('.nav-links a[href="#footer"]').forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('footer').scrollIntoView({ behavior: 'smooth' });
+          });
+        });
       };
       // Ferme le popup au clic sur la croix
       document.getElementById('close-newsletter-popup').onclick = function() {
