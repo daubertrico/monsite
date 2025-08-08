@@ -606,12 +606,7 @@ styleSheet.innerText = `
 .blog-post h3 {
   margin: 0 0 10px 0;
 }
-.post-date {
-  font-size: 0.85rem;
-  color: #777;
-  margin-bottom: 15px;
-}
-@media (max-width: 700px) {
+// .post-date supprimé : la date d'édition ne s'affiche plus
   .blog-post .post-wrapper {
     flex-direction: column;
   }
