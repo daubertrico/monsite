@@ -4,7 +4,7 @@
 		{
 			"type": "shell",
 			"label": "Vérifie la présence et le nom du fichier audio",
-			"command": "dir \"materielchansons\\vincent-tricotel-le-jardinier-de-la-voix.mp3\"; dir \"assets\\enregistrements\"",
+			"command": "dir \"materielchansons\\vincent-tricotel-le-jardinier-de-la-voix.mp3\"",
 			"args": [],
 			"group": "none",
 			"isBackground": false
