@@ -349,6 +349,73 @@
       "Envie de chanter, de découvrir la polyphonie, le gospel, la soul ou la comédie musicale ? Rejoignez l’un de nos ensembles ou nos ateliers !",
       "La Voix Libre accueille tous les niveaux, dans une ambiance conviviale et inclusive. Contactez-nous pour plus d’informations ou pour participer à une séance découverte."
     ],
+    "specific_content": [
+      {
+        "type": "sections",
+        "items": [
+          {
+            "title": "Chorale Pop",
+            "image": "choralepop.jpg",
+            "description": "La grande chorale pop de La Voix Libre est ouverte à tou·te·s, sans audition, tous âges. Nous chantons de la pop, mais aussi des chants du monde, de la soul, du gospel, de la chanson française, du disco... avec pour seule limite notre imagination !",
+            "details": [
+              "Lieu : Rue Papu, Rennes",
+              "Horaires : Lundi soir 19h30-22h30",
+              "Tarif : 360€ l’année, mensualisable (30€/mois)",
+              "Inscription : Séance d’essai gratuite avant inscription"
+            ],
+            "newsletter": true,
+            "cta": { "text": "En savoir plus", "url": "chorale-pop.html" }
+          },
+          {
+            "title": "SOUL",
+            "image": "soul.jpg",
+            "description": "SOUL est un ensemble vocal réservé à des chanteur·se·s confirmé·e·s, sur audition, dédié aux polyphonies soul à cappella.",
+            "details": [
+              "Lieu : Campus The Land, Rennes",
+              "Horaires : Mardi soir 20h-22h",
+              "Tarif : 550€ l’année, mensualisable (45,83€/mois)",
+              "Inscription : Audition à la rentrée de septembre"
+            ],
+            "newsletter": true,
+            "cta": { "text": "En savoir plus", "url": "soul.html" }
+          },
+          {
+            "title": "Comédie Musicale",
+            "image": "comediemusicale.jpg",
+            "description": "Des projets uniques et parfois sur plusieurs années (ex : La Furie des Mers), ouverts aux amateur·rice·s motivé·e·s qui souhaitent s’investir dans une expérience humaine et théâtrale intense.",
+            "details": [
+              "Lieu : ABE, rue Papu, Rennes",
+              "Horaires : Un week-end par mois sur un an",
+              "Inscription : Sur audition"
+            ],
+            "newsletter": true,
+            "cta": { "text": "En savoir plus", "url": "comedie-musicale.html" }
+          },
+          {
+            "title": "Cours de chant",
+            "image": "courschant.jpg",
+            "description": "Cours individuels de 45 minutes à ABE, rue Papu, Rennes.",
+            "details": [
+              "Tarifs :",
+              "50€ le cours unique",
+              "45€ le cours bi-mensuel",
+              "40€ le cours hebdomadaire"
+            ],
+            "contactEmail": "lavoixlibrerennes@gmail.com",
+            "cta": { "text": "En savoir plus", "url": "cours-de-chant.html" }
+          }
+        ]
+      },
+      {
+        "type": "faq",
+        "title": "Questions fréquentes",
+        "items": [
+          "Je ne sais pas lire la musique, est-ce un problème ? Pas du tout ! On apprend ensemble, dans la bonne humeur.",
+          "Faut-il auditionner ? La grande chorale pop est ouverte à tou·te·s, sans audition ! Pour SOUL et les projets comédie musicale, une audition est demandée pour garantir l’équilibre des voix.",
+          "Peut-on essayer avant de s’inscrire ? Bien sûr ! Des séances d’essai sont proposées pour la grande chorale pop et pour SOUL avant toute inscription. Venez tester l’ambiance et voir si ça vous plaît !"
+        ]
+      }
+    ],
     "tags": [],
     "display_posts": false
   }

@@ -4,9 +4,9 @@
 		{
 			"type": "shell",
 			"label": "Vérifie la présence et le nom du fichier audio",
-			"command": "dir \"assets\\enregistrements\\Vincent Tricotel, le jardinier de la voix.mp3\"",
+			"command": "dir \"materielchansons\\vincent-tricotel-le-jardinier-de-la-voix.mp3\"; dir \"assets\\enregistrements\"",
 			"args": [],
-			"group": "check",
+			"group": "none",
 			"isBackground": false
 		}
 	]

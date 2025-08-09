@@ -9,98 +9,11 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header class="main-header">
-        <div class="header-content">
-            <img src="assets/images/logo.webp" alt="Logo La Voix Libre" class="site-logo">
-            <div class="site-titles">
-                <h1 class="main-title">La Voix Libre</h1>
-                <p class="subtitle">École de chant et Chorales à Rennes</p>
-            </div>
-        </div>
-    </header>
     <main class="main-content">
-        <section class="intro-section" style="width:100%;margin:0 0 24px 0;padding:0 0.5em;text-align:center;font-size:1.15em;color:#222;">
-            <p style="margin-bottom:0.7em;">Bienvenue sur le site de <strong>La Voix Libre</strong>, école de chant et <strong>ensembles vocaux</strong> à Rennes. Découvrez nos chorales, nos stages et nos cours pour tous les passionnés de chant, dans une ambiance conviviale et créative.</p>
-            <p style="margin-bottom:0.7em;">Gospel, polyphonie, chant collectif, ateliers vocaux, concerts et stages&nbsp;: La Voix Libre propose un répertoire varié et harmonieux pour adultes débutants ou avancés, dans un esprit de partage et de bienveillance.</p>
-            <p style="margin-bottom:0.7em;">Explorez les différentes activités ci-dessous et rejoignez une communauté où la voix et le plaisir de chanter sont au cœur de tout.</p>
-        </section>
         <section class="grid-section">
-            <div class="tiles-grid" id="main-tiles-grid">
-                <!-- Menu order: Chorale Pop, Soul, Comédie Musicale, Cours de chant -->
-                <!-- The actual menu is likely generated dynamically, but if static, update here. -->
-                <!-- If menu is dynamic, this comment will help guide JS update. -->
-            </div>
+            <div class="tiles-grid" id="main-tiles-grid"></div>
         </section>
     </main>
-    <footer class="main-footer" id="footer">
-        <div class="footer-content">
-            <p>© 2024 La Voix Libre. Tous droits réservés.</p>
-            <p>Contact : <a href="mailto:contact@lavoixlibre.fr">contact@lavoixlibre.fr</a></p>
-            <div class="social-links">
-                <a href="https://www.facebook.com/lavoixlibre.rennes" target="_blank" aria-label="Facebook La Voix Libre">
-                    <img src="assets/images/icons/facebook-icon.svg" alt="Facebook" style="height:24px;vertical-align:middle;"> Facebook
-                </a>
-                <a href="https://www.instagram.com/lavoixlibre.rennes" target="_blank" aria-label="Instagram La Voix Libre">
-                    <img src="assets/images/icons/instagram-icon.svg" alt="Instagram" style="height:24px;vertical-align:middle;"> Instagram
-                </a>
-                <a href="https://www.youtube.com/@lavoixlibre" target="_blank" aria-label="YouTube La Voix Libre">
-                    <img src="assets/images/icons/youtube-icon.svg" alt="YouTube" style="height:24px;vertical-align:middle;"> YouTube
-                </a>
-            </div>
-            <div class="newsletter-link" style="margin-top:10px;">
-                <a href="#newsletter" id="newsletter-btn" aria-label="Newsletter La Voix Libre" style="display:inline-flex;align-items:center;text-decoration:none;vertical-align:middle;background:#ff6699;color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;font-weight:bold;border-radius:6px;padding:8px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,box-shadow 0.2s;cursor:pointer;margin:0 auto;min-height:40px;" onclick="event.preventDefault();document.getElementById('newsletter-popup').style.display='flex';">
-                    <span style="display:inline-block;vertical-align:middle;height:24px;width:24px;margin-right:8px;">
-                        <!-- Icône SVG newsletter -->
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:24px;width:24px;">
-                          <rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/>
-                          <path d="M3 7l9 6 9-6" stroke="#ff6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
-                    <span style="color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;vertical-align:middle;">S'inscrire à la newsletter</span>
-                </a>
-                <style>
-                #newsletter-btn {
-                    border: 2px solid #ff6699;
-                }
-                #newsletter-btn:hover {
-                    background:#ff3366;
-                    border-color:#ff3366;
-                    box-shadow:0 4px 16px rgba(0,0,0,0.18);
-                    text-decoration:none;
-                }
-                </style>
-            </div>
-            </div>
-        </div>
-    </footer>
-    <!-- Popup Newsletter -->
-    <div id="newsletter-popup" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;">
-      <div style="background:#fff;padding:32px 24px;border-radius:8px;max-width:420px;width:90%;position:relative;box-shadow:0 4px 24px rgba(0,0,0,0.2);">
-        <button id="close-newsletter-popup" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd-z95vEaCKjSXvC3auiEApXopyl3zpRfLEpcS7M5Ktr6Zamw/viewform?embedded=true" width="100%" height="520" frameborder="0" marginheight="0" marginwidth="0" style="border:none;">Chargement…</iframe>
-      </div>
-    </div>
     <script src="assets/js/main.js"></script>
-    <script>
-      // Affiche le popup au clic sur le bouton
-      document.getElementById('newsletter-btn').onclick = function() {
-        document.getElementById('newsletter-popup').style.display = 'flex';
-      };
-      // Ferme le popup au clic sur la croix
-      document.getElementById('close-newsletter-popup').onclick = function() {
-        document.getElementById('newsletter-popup').style.display = 'none';
-      };
-      // Ferme le popup si on clique en dehors du contenu
-      document.getElementById('newsletter-popup').onclick = function(e) {
-        if (e.target === this) this.style.display = 'none';
-      };
-      // Scroll fluide vers le footer si lien #footer cliqué
-      document.querySelectorAll('a[href="#footer"]').forEach(function(link) {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          document.getElementById('footer').scrollIntoView({ behavior: 'smooth' });
-        });
-      });
-    </script>
-</body>
-</html>
+  </body>
+  </html>

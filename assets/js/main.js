@@ -14,6 +14,201 @@ let pagesData = null;
 let partitionsData = null;
 let postsData = null;
 
+// Helpers: current page id and utility mapping
+function getCurrentPageId() {
+  const currentPagePath = window.location.pathname.split('/').pop();
+  if (currentPagePath === '' || currentPagePath.toLowerCase() === 'index.html') return 'index';
+  const id = currentPagePath.replace('.html', '').toLowerCase();
+  // Normalise l'espace choristes vers l'ID logique 'partitions' (pour nav active et titres dynamiques)
+  if (id === 'espace-choristes') return 'partitions';
+  return id;
+}
+
+function mapPageIdToHref(id) {
+  // Special routing rules
+  if (id === 'partitions') return 'espace-choristes.html';
+  if (id === 'index') return 'index.html';
+  return `${id}.html`;
+}
+
+function navLabelForPage(page) {
+  // Default to page_title from JSON; apply small overrides to keep legacy labels
+  if (!page) return '';
+  if (page.id === 'videos') return 'Nous entendre';
+  if (page.id === 'evenements') return 'Événements/Concerts';
+  if (page.page_title) return page.page_title;
+  return page.id;
+}
+
+function computeNavOrder(pages) {
+  // Desired primary order, then the rest as found in JSON
+  const desiredOrder = ['chorale-pop', 'soul', 'comedie-musicale', 'cours-de-chant', 'nous-rejoindre', 'evenements', 'videos', 'partitions'];
+  const byId = Object.fromEntries(pages.map(p => [p.id, p]));
+  const ordered = desiredOrder.filter(id => byId[id]).map(id => byId[id]);
+  const remaining = pages.filter(p => !desiredOrder.includes(p.id));
+  return [...ordered, ...remaining];
+}
+
+// Dynamic header/nav/footer rendering
+function renderHeader(currentPageId) {
+  // Ensure header element exists
+  let header = document.querySelector('header.main-header');
+  if (!header) {
+    header = document.createElement('header');
+    header.className = 'main-header';
+    document.body.insertBefore(header, document.body.firstChild);
+  }
+
+  // Build header content with logo and titles placeholders
+  const siteTitleCfg = globalConfig?.find(i => i.section === 'head' && i.champ === 'site_title');
+  const subTitleCfg = globalConfig?.find(i => i.section === 'head' && i.champ === 'sub_title');
+  const logoUrlCfg = globalConfig?.find(i => i.section === 'head' && i.champ === 'logo_url');
+
+  const isHome = currentPageId === 'index';
+  const h1Text = isHome ? (siteTitleCfg?.valeur || '') : '';
+  const subText = isHome ? (subTitleCfg?.valeur || '') : '';
+
+  const navHTML = isHome ? '' : '<nav class="main-nav"><ul class="nav-links"></ul></nav>';
+  header.innerHTML = `
+    <div class="header-content">
+      <a href="${mapPageIdToHref('index')}" class="site-logo-link">
+        <img src="${logoUrlCfg ? logoUrlCfg.valeur : ''}" alt="Logo ${siteTitleCfg ? siteTitleCfg.valeur : 'La Voix Libre'}" class="site-logo">
+      </a>
+      <div class="site-titles">
+        <h1 id="page-main-title" class="${isHome ? 'main-title' : ''}">${h1Text}</h1>
+        <p id="page-subtitle" class="subtitle">${subText}</p>
+      </div>
+    </div>
+    ${navHTML}
+  `;
+}
+
+function renderNav(currentPageId) {
+  const navList = document.querySelector('.main-nav .nav-links');
+  if (!navList || !Array.isArray(pagesData)) return;
+  navList.innerHTML = '';
+  const items = computeNavOrder(pagesData);
+  items.forEach(page => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = mapPageIdToHref(page.id);
+    a.textContent = navLabelForPage(page);
+    // Active state
+    const isActive = (currentPageId === page.id) || (currentPageId === 'index' && page.id === 'index');
+    // Ne pas afficher l'onglet de la page courante
+    if (isActive) {
+      return; // skip
+    }
+    li.appendChild(a);
+    navList.appendChild(li);
+  });
+  // Contact anchor
+  const contactLi = document.createElement('li');
+  const contactA = document.createElement('a');
+  contactA.href = '#footer';
+  contactA.textContent = 'Contact';
+  contactLi.appendChild(contactA);
+  navList.appendChild(contactLi);
+
+  // Smooth scroll for #footer links
+  document.querySelectorAll('a[href="#footer"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const footer = document.getElementById('footer');
+      if (footer) footer.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+}
+
+function renderFooter() {
+  let footer = document.querySelector('footer.main-footer');
+  if (!footer) {
+    footer = document.createElement('footer');
+    footer.className = 'main-footer';
+    footer.id = 'footer';
+    document.body.appendChild(footer);
+  }
+  const emailCfg = globalConfig?.find(i => i.section === 'footer' && i.champ === 'email');
+  const fbCfg = globalConfig?.find(i => i.section === 'footer' && i.champ === 'facebook');
+  const igCfg = globalConfig?.find(i => i.section === 'footer' && i.champ === 'instagram');
+  const ytCfg = globalConfig?.find(i => i.section === 'footer' && i.champ === 'youtube');
+
+  const year = new Date().getFullYear();
+  const email = emailCfg?.valeur || 'contact@lavoixlibre.fr';
+  footer.innerHTML = `
+    <div class="footer-content">
+      <p>&copy; ${year} La Voix Libre. Tous droits réservés.</p>
+      <p>Contact : <a href="mailto:${email}">${email}</a></p>
+      <div class="social-links">
+        <a href="${fbCfg?.valeur || '#'}" target="_blank" aria-label="Facebook La Voix Libre">Facebook</a>
+        <a href="${igCfg?.valeur || '#'}" target="_blank" aria-label="Instagram La Voix Libre">Instagram</a>
+        <a href="${ytCfg?.valeur || '#'}" target="_blank" aria-label="YouTube La Voix Libre">YouTube</a>
+      </div>
+      <div class="newsletter-link" style="margin-top:10px;">
+        <a href="#newsletter" id="newsletter-btn" aria-label="Newsletter La Voix Libre" style="display:inline-flex;align-items:center;text-decoration:none;vertical-align:middle;background:#ff6699;color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;font-weight:bold;border-radius:6px;padding:8px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,box-shadow 0.2s;cursor:pointer;margin:0 auto;min-height:40px;">
+          <span style="display:inline-block;vertical-align:middle;height:24px;width:24px;margin-right:8px;">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:24px;width:24px;"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 7l9 6 9-6" stroke="#ff6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span style="color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;vertical-align:middle;">S'inscrire à la newsletter</span>
+        </a>
+      </div>
+    </div>
+  `;
+
+  // Inject popup if not present
+  if (!document.getElementById('newsletter-popup')) {
+    const popup = document.createElement('div');
+    popup.id = 'newsletter-popup';
+    popup.style.display = 'none';
+    popup.style.position = 'fixed';
+    popup.style.top = '0';
+    popup.style.left = '0';
+    popup.style.width = '100vw';
+    popup.style.height = '100vh';
+    popup.style.background = 'rgba(0,0,0,0.6)';
+    popup.style.zIndex = '9999';
+    popup.style.justifyContent = 'center';
+    popup.style.alignItems = 'center';
+    popup.innerHTML = `
+      <div style="background:#fff;padding:32px 24px;border-radius:8px;max-width:420px;width:90%;position:relative;box-shadow:0 4px 24px rgba(0,0,0,0.2);">
+        <button id="close-newsletter-popup" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd-z95vEaCKjSXvC3auiEApXopyl3zpRfLEpcS7M5Ktr6Zamw/viewform?embedded=true" width="100%" height="520" frameborder="0" marginheight="0" marginwidth="0" style="border:none;">Chargement…</iframe>
+      </div>`;
+    document.body.appendChild(popup);
+  }
+
+  // Wire up open/close handlers (idempotent)
+  const btn = document.getElementById('newsletter-btn');
+  const popupEl = document.getElementById('newsletter-popup');
+  const closeBtn = document.getElementById('close-newsletter-popup');
+  if (btn && popupEl) {
+    btn.onclick = function(e) { e.preventDefault(); popupEl.style.display = 'flex'; };
+  }
+  if (closeBtn && popupEl) {
+    closeBtn.onclick = function() { popupEl.style.display = 'none'; };
+  }
+  if (popupEl) {
+    popupEl.onclick = function(e) { if (e.target === popupEl) popupEl.style.display = 'none'; };
+  }
+}
+
+// Ensure header titles reflect the current page (non-index)
+function setHeaderTitles(currentPageId) {
+  if (!pagesData || currentPageId === 'index') return;
+  const page = pagesData.find(p => p.id === currentPageId);
+  if (!page) return;
+  const h1 = document.getElementById('page-main-title');
+  const sub = document.getElementById('page-subtitle');
+  if (h1) h1.textContent = page.page_title || '';
+  if (sub) sub.textContent = page.page_subtitle || '';
+  // Update document.title to include site title if available
+  const siteTitleCfg = globalConfig?.find(i => i.section === 'head' && i.champ === 'site_title');
+  const siteTitle = siteTitleCfg?.valeur || '';
+  if (page.page_title) {
+    document.title = siteTitle ? `${page.page_title} – ${siteTitle}` : page.page_title;
+  }
+}
+
 async function fetchJson(filename) {
   console.log(`[DEBUG] Tentative de chargement de ${DATA_BASE_URL}${filename}`);
   try {
@@ -221,8 +416,9 @@ async function fetchPostsFromCSV(csvUrl) {
   }
 
   function generatePageContent(pageId) {
-    // Correction : ne pas écraser le contenu statique de la page nous-rejoindre (casse et espaces ignorés)
-    if (pageId.trim().toLowerCase() === 'nous-rejoindre') {
+    // L'espace choristes (partitions) a un contenu spécifique géré dans sa page dédiée
+    if (pageId === 'partitions') {
+      // Assure les titres dynamiques; le reste est géré par espace-choristes.html
       return;
     }
     const page = pagesData.find(p => p.id === pageId);
@@ -252,42 +448,7 @@ async function fetchPostsFromCSV(csvUrl) {
 
       if (page.page_content && page.page_content.length > 0) {
         let descriptionContainer;
-        if (pageId === 'soul' || pageId === 'chorale-pop') {
-          // Pour la page Soul et Chorale Pop, image au-dessus, texte en dessous
-          descriptionContainer = document.createElement('div');
-          descriptionContainer.classList.add('image-and-text-container');
-          descriptionContainer.style.display = 'flex';
-          descriptionContainer.style.flexDirection = 'column';
-          descriptionContainer.style.alignItems = 'stretch';
-          descriptionContainer.style.width = '100%';
-          if (page.image) {
-            const pageImage = document.createElement('img');
-            pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
-            pageImage.alt = `Image principale de la page ${page.page_title}`;
-            pageImage.classList.add('page-hero-image');
-            pageImage.style.width = '100%';
-            pageImage.style.maxWidth = '100%';
-            pageImage.style.objectFit = 'cover';
-            pageImage.style.borderRadius = '18px';
-            pageImage.style.boxShadow = '0 4px 24px rgba(0,0,0,0.13)';
-            pageImage.style.transition = 'transform 0.3s';
-            pageImage.onmouseover = function() { this.style.transform = 'scale(1.04)'; };
-            pageImage.onmouseout = function() { this.style.transform = 'scale(1)'; };
-            descriptionContainer.appendChild(pageImage);
-          }
-          const textDiv = document.createElement('div');
-          textDiv.classList.add('description-text');
-          textDiv.style.width = '100%';
-          textDiv.style.margin = '0 auto';
-          textDiv.style.textAlign = 'justify';
-          page.page_content.forEach(pText => {
-            const pElement = document.createElement('p');
-            pElement.textContent = pText;
-            textDiv.appendChild(pElement);
-          });
-          descriptionContainer.appendChild(textDiv);
-          contentContainer.appendChild(descriptionContainer);
-        } else if (pageId === 'cours-de-chant') {
+  if (pageId === 'cours-de-chant') {
           // Pour la page Cours de chant, image et texte côte à côte + infos pratiques + audio + contacts
           descriptionContainer = document.createElement('div');
           descriptionContainer.classList.add('image-and-text-container');
@@ -372,7 +533,7 @@ async function fetchPostsFromCSV(csvUrl) {
               const audioPlayer = document.createElement('audio');
               audioPlayer.controls = true;
               audioPlayer.src = audioBlock.url;
-              audioPlayer.autoplay = true;
+              audioPlayer.autoplay = false;
               audioPlayer.style.width = '100%';
               audioPlayer.style.marginTop = '8px';
               audioPlayer.style.background = '#fff';
@@ -417,12 +578,7 @@ async function fetchPostsFromCSV(csvUrl) {
               audioDiv.appendChild(audioPlayer);
               textDiv.appendChild(audioDiv);
 
-              // Force la lecture audio après le rendu (si autorisé par le navigateur)
-              setTimeout(() => {
-                if (audioPlayer.paused) {
-                  audioPlayer.play().catch(() => {});
-                }
-              }, 500);
+              // (Autoplay direct retiré pour compatibilité navigateurs; la relance muette ci-dessus suffit.)
             }
 
             // Ajout des contacts
@@ -443,11 +599,15 @@ async function fetchPostsFromCSV(csvUrl) {
           // Ne pas afficher d'image d'illustration sur la page vidéos
           descriptionContainer = document.createElement('div');
           descriptionContainer.classList.add('image-and-text-container');
+          // Centrage du texte de présentation en l'absence d'illustration
+          descriptionContainer.style.display = 'flex';
+          descriptionContainer.style.justifyContent = 'center';
           const textDiv = document.createElement('div');
           textDiv.classList.add('description-text');
           textDiv.style.width = '100%';
+          textDiv.style.maxWidth = '900px';
           textDiv.style.margin = '0 auto';
-          textDiv.style.textAlign = 'justify';
+          textDiv.style.textAlign = 'center';
           page.page_content.forEach(pText => {
             const pElement = document.createElement('p');
             pElement.textContent = pText;
@@ -456,8 +616,138 @@ async function fetchPostsFromCSV(csvUrl) {
           descriptionContainer.appendChild(textDiv);
           descriptionContainer.style.flexDirection = 'column';
           contentContainer.appendChild(descriptionContainer);
+  } else if (pageId === 'nous-rejoindre') {
+          // Rendu spécifique type "sections" + "faq" pour reproduire l'ancienne page
+          descriptionContainer = document.createElement('div');
+          descriptionContainer.classList.add('image-and-text-container');
+          // Centrage du texte d'introduction en l'absence d'illustration
+          descriptionContainer.style.display = 'flex';
+          descriptionContainer.style.justifyContent = 'center';
+          const textDiv = document.createElement('div');
+          textDiv.classList.add('description-text');
+          textDiv.style.width = '100%';
+          textDiv.style.maxWidth = '900px';
+          textDiv.style.margin = '0 auto';
+          textDiv.style.textAlign = 'center';
+          // Texte d'intro
+          if (Array.isArray(page.page_content)) {
+            page.page_content.forEach(pText => {
+              const pElement = document.createElement('p');
+              pElement.textContent = pText;
+              textDiv.appendChild(pElement);
+            });
+          }
+          descriptionContainer.appendChild(textDiv);
+          contentContainer.appendChild(descriptionContainer);
+
+          // Blocs sections
+          const sectionsBlock = page.specific_content && page.specific_content.find(sc => sc.type === 'sections');
+          if (sectionsBlock && Array.isArray(sectionsBlock.items)) {
+            sectionsBlock.items.forEach(section => {
+              const sec = document.createElement('section');
+              sec.className = 'section';
+              sec.style.display = 'flex';
+              sec.style.alignItems = 'center';
+              sec.style.gap = '32px';
+              sec.style.marginBottom = '48px';
+
+              const imgWrap = document.createElement('div');
+              imgWrap.style.flex = '1';
+              imgWrap.style.minWidth = '220px';
+              imgWrap.style.maxWidth = '220px';
+              imgWrap.style.background = '#f9f9f9';
+              imgWrap.style.borderRadius = '12px';
+              imgWrap.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+              imgWrap.style.padding = '16px';
+              imgWrap.style.textAlign = 'center';
+              if (section.image) {
+                const img = document.createElement('img');
+                img.src = `${ASSETS_BASE_URL}images/${section.image}`;
+                img.alt = section.title || '';
+                img.style.width = '220px';
+                img.style.height = '160px';
+                img.style.borderRadius = '8px';
+                img.style.objectFit = 'cover';
+                img.style.display = 'block';
+                img.style.margin = '0 auto';
+                imgWrap.appendChild(img);
+              }
+
+              const right = document.createElement('div');
+              right.style.flex = '2';
+              const h2 = document.createElement('h2');
+              h2.textContent = section.title || '';
+              h2.style.color = '#8844aa';
+              h2.style.fontFamily = "'Lobster',cursive";
+              h2.style.fontSize = '2em';
+              right.appendChild(h2);
+
+              if (section.description) {
+                const p = document.createElement('p');
+                p.textContent = section.description;
+                right.appendChild(p);
+              }
+
+              if (Array.isArray(section.details) && section.details.length) {
+                const list = document.createElement('p');
+                list.innerHTML = section.details.map(d => `<strong>${d.split(':')[0]}:</strong> ${d.split(':').slice(1).join(':').trim()}`).join('<br>');
+                right.appendChild(list);
+              }
+
+              if (section.newsletter) {
+                const nl = document.createElement('p');
+                nl.innerHTML = `<a href="#newsletter" style="color:#8844aa;text-decoration:underline;">Abonnez-vous à la newsletter</a> pour être tenu·e au courant.`;
+                right.appendChild(nl);
+              }
+
+              if (section.contactEmail) {
+                const ctaMail = document.createElement('p');
+                ctaMail.innerHTML = `Contact : <a href="mailto:${section.contactEmail}" style="color:#8844aa;text-decoration:underline;">${section.contactEmail}</a>`;
+                right.appendChild(ctaMail);
+              }
+
+              if (section.cta && section.cta.url) {
+                const more = document.createElement('a');
+                more.href = section.cta.url;
+                more.textContent = section.cta.text || 'En savoir plus';
+                more.style.color = '#8844aa';
+                more.style.textDecoration = 'underline';
+                right.appendChild(more);
+              }
+
+              sec.appendChild(imgWrap);
+              sec.appendChild(right);
+              contentContainer.appendChild(sec);
+            });
+          }
+
+          // FAQ
+          const faqBlock = page.specific_content && page.specific_content.find(sc => sc.type === 'faq');
+          if (faqBlock && Array.isArray(faqBlock.items) && faqBlock.items.length) {
+            const faq = document.createElement('section');
+            faq.className = 'faq';
+            faq.style.marginTop = '48px';
+            faq.style.textAlign = 'center';
+            const h2 = document.createElement('h2');
+            h2.textContent = faqBlock.title || 'Questions fréquentes';
+            h2.style.color = '#8844aa';
+            h2.style.fontFamily = "'Lobster',cursive";
+            h2.style.fontSize = '2em';
+            faq.appendChild(h2);
+            const ul = document.createElement('ul');
+            ul.style.display = 'inline-block';
+            ul.style.textAlign = 'left';
+            faqBlock.items.forEach(item => {
+              const li = document.createElement('li');
+              li.textContent = item;
+              ul.appendChild(li);
+            });
+            faq.appendChild(ul);
+            contentContainer.appendChild(faq);
+          }
+
         } else {
-          // Pour les autres pages, image et texte côte à côte
+          // Pour Soul, Chorale Pop et autres pages, image et texte côte à côte
           descriptionContainer = document.createElement('div');
           descriptionContainer.classList.add('image-and-text-container');
           if (page.image) {
@@ -646,14 +936,23 @@ async function init() {
     postsData = [];
   }
 
+  // Render unified header/nav/footer
+  const currentPageId = getCurrentPageId();
+  renderHeader(currentPageId);
+  if (currentPageId !== 'index') {
+    renderNav(currentPageId);
+  }
+  renderFooter();
+  
+  // Apply global config (sets document.title, logo fallback, social links if present)
   applyGlobalConfig();
 
-  const currentPagePath = window.location.pathname.split('/').pop();
-  if (currentPagePath === '' || currentPagePath.toLowerCase() === 'index.html') {
+  if (currentPageId === 'index') {
     generateHomeTiles();
   } else {
-    const pageId = currentPagePath.replace('.html', '').toLowerCase();
-    generatePageContent(pageId);
+  // Set header titles before generating content (covers pages with custom static bodies)
+  setHeaderTitles(currentPageId);
+    generatePageContent(currentPageId);
   }
 }
 
@@ -719,7 +1018,6 @@ styleSheet.innerText = `
   .blog-post .text-content {
     padding-left: 0;
   }
-}
 }
 `;
 document.head.appendChild(styleSheet);
