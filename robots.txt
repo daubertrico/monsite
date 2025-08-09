@@ -1,0 +1,7 @@
+# robots.txt for La Voix Libre
+# Update the Sitemap URL after setting your production domain
+User-agent: *
+Disallow: /espace-choristes.html
+
+# Point crawlers to the XML sitemap
+Sitemap: https://chanterlavoixlibre.fr/sitemap.xml

@@ -960,6 +960,107 @@ async function fetchPostsFromCSV(csvUrl) {
     });
   }
 
+// SEO meta, Open Graph, Twitter cards, and JSON-LD
+function ensureSeoMeta(currentPageId) {
+  // Site base URL (update if known)
+  const origin = window.location.origin || '';
+  const path = window.location.pathname;
+  const canonicalUrl = origin ? origin + path : path;
+  const siteTitleCfg = globalConfig?.find(i => i.section === 'head' && i.champ === 'site_title');
+  const siteTitle = siteTitleCfg?.valeur || 'La Voix Libre';
+  const page = pagesData?.find(p => p.id === currentPageId);
+  const pageTitle = page?.page_title || document.title || siteTitle;
+  const pageDesc = document.querySelector('meta[name="description"]')?.getAttribute('content') || 'Chant, chorales et cours à Rennes.';
+  const ogImage = (page?.image ? `${ASSETS_BASE_URL}images/${page.image}` : (globalConfig?.find(i => i.section==='head' && i.champ==='logo_url')?.valeur)) || '';
+
+  function upsert(name, content) {
+    if (!content) return;
+    let el = document.querySelector(`meta[name="${name}"]`);
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute('name', name);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', content);
+  }
+  function upsertProperty(property, content) {
+    if (!content) return;
+    let el = document.querySelector(`meta[property="${property}"]`);
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute('property', property);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', content);
+  }
+  function upsertLink(rel, href) {
+    if (!href) return;
+    let el = document.querySelector(`link[rel="${rel}"]`);
+    if (!el) {
+      el = document.createElement('link');
+      el.setAttribute('rel', rel);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('href', href);
+  }
+
+  // Canonical
+  upsertLink('canonical', canonicalUrl);
+
+  // Open Graph
+  upsertProperty('og:type', currentPageId === 'index' ? 'website' : 'article');
+  upsertProperty('og:site_name', siteTitle);
+  upsertProperty('og:title', pageTitle);
+  upsertProperty('og:description', pageDesc);
+  if (ogImage) upsertProperty('og:image', ogImage);
+  upsertProperty('og:url', canonicalUrl);
+
+  // Twitter Cards
+  upsert('twitter:card', 'summary_large_image');
+  upsert('twitter:title', pageTitle);
+  upsert('twitter:description', pageDesc);
+  if (ogImage) upsert('twitter:image', ogImage);
+
+  // Robots: noindex for Espace choristes (privé)
+  if (currentPageId === 'partitions') {
+    upsert('robots', 'noindex, nofollow');
+  }
+
+  // JSON-LD: WebSite + optional Breadcrumb
+  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+  scripts.forEach(s => s.remove());
+  const ldWebsite = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteTitle,
+    url: origin || undefined,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${origin}/?q={search_term_string}`,
+      'query-input': 'required name=search_term_string'
+    }
+  };
+  const s1 = document.createElement('script');
+  s1.type = 'application/ld+json';
+  s1.textContent = JSON.stringify(ldWebsite);
+  document.head.appendChild(s1);
+
+  if (currentPageId && currentPageId !== 'index') {
+    const ldBreadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: origin || '/' },
+        { '@type': 'ListItem', position: 2, name: pageTitle, item: canonicalUrl }
+      ]
+    };
+    const s2 = document.createElement('script');
+    s2.type = 'application/ld+json';
+    s2.textContent = JSON.stringify(ldBreadcrumb);
+    document.head.appendChild(s2);
+  }
+}
+
 
 async function init() {
   globalConfig = await fetchJson('global_config.json');
@@ -998,6 +1099,9 @@ async function init() {
   setHeaderTitles(currentPageId);
     generatePageContent(currentPageId);
   }
+
+  // Ensure SEO meta tags and structured data are present
+  ensureSeoMeta(currentPageId);
 }
 
 init();
