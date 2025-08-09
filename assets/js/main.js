@@ -390,8 +390,13 @@ async function fetchPostsFromCSV(csvUrl) {
         tileLink.href = `${page.id}.html`;
       }
       tileLink.classList.add('tile');
+      const imgJpg = `${ASSETS_BASE_URL}images/${page.image}`;
+      const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
       tileLink.innerHTML = `
-  <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}" loading="lazy" decoding="async">
+        <picture>
+          <source srcset="${imgWebp}" type="image/webp">
+          <img src="${imgJpg}" alt="${page.page_title}" loading="lazy" decoding="async">
+        </picture>
         <div class="overlay">
           <p class="overlay-title">${page.page_title}</p>
           <p class="overlay-subtitle">${page.page_subtitle}</p>
@@ -411,7 +416,7 @@ async function fetchPostsFromCSV(csvUrl) {
         tileLink.href = `${page.id}.html`;
       }
       tileLink.classList.add('tile');
-      if (page.id === 'nous-rejoindre') {
+  if (page.id === 'nous-rejoindre') {
         tileLink.style.background = 'var(--background-light)';
         tileLink.style.display = 'flex';
         tileLink.style.flexDirection = 'column';
@@ -444,8 +449,13 @@ async function fetchPostsFromCSV(csvUrl) {
           tileLink.style.boxShadow = '0 8px 24px rgba(255,102,153,0.18), 0 2px 12px rgba(0,0,0,0.10)';
         });
       } else if (page.image) {
+        const imgJpg2 = `${ASSETS_BASE_URL}images/${page.image}`;
+        const imgWebp2 = imgJpg2.replace(/\.[a-zA-Z0-9]+$/, '.webp');
         tileLink.innerHTML = `
-          <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}" loading="lazy" decoding="async">
+          <picture>
+            <source srcset="${imgWebp2}" type="image/webp">
+            <img src="${imgJpg2}" alt="${page.page_title}" loading="lazy" decoding="async">
+          </picture>
           <div class="overlay">
             <p class="overlay-title">${page.page_title}</p>
             <p class="overlay-subtitle">${page.page_subtitle}</p>
@@ -503,17 +513,14 @@ async function fetchPostsFromCSV(csvUrl) {
           descriptionContainer.style.alignItems = 'flex-start';
           descriptionContainer.style.gap = '30px';
           if (page.image) {
-            const pageImage = document.createElement('img');
-            pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
-            pageImage.alt = `Image principale de la page ${page.page_title}`;
-            pageImage.classList.add('page-hero-image');
-            pageImage.loading = 'lazy';
-            pageImage.decoding = 'async';
-            pageImage.style.width = '380px';
-            pageImage.style.height = 'auto';
-            pageImage.style.objectFit = 'cover';
-            pageImage.style.borderRadius = '12px';
-            descriptionContainer.appendChild(pageImage);
+            const imgJpg = `${ASSETS_BASE_URL}images/${page.image}`;
+            const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
+            const pic = document.createElement('picture');
+            pic.innerHTML = `
+              <source srcset="${imgWebp}" type="image/webp">
+              <img src="${imgJpg}" alt="Image principale de la page ${page.page_title}" class="page-hero-image" loading="lazy" decoding="async" style="width:380px;height:auto;object-fit:cover;border-radius:12px;">
+            `;
+            descriptionContainer.appendChild(pic);
           }
           const textDiv = document.createElement('div');
           textDiv.classList.add('description-text');
@@ -710,18 +717,14 @@ async function fetchPostsFromCSV(csvUrl) {
               imgWrap.style.padding = '16px';
               imgWrap.style.textAlign = 'center';
               if (section.image) {
-                const img = document.createElement('img');
-                img.src = `${ASSETS_BASE_URL}images/${section.image}`;
-                img.alt = section.title || '';
-                img.loading = 'lazy';
-                img.decoding = 'async';
-                img.style.width = '220px';
-                img.style.height = '160px';
-                img.style.borderRadius = '8px';
-                img.style.objectFit = 'cover';
-                img.style.display = 'block';
-                img.style.margin = '0 auto';
-                imgWrap.appendChild(img);
+                const imgJpg = `${ASSETS_BASE_URL}images/${section.image}`;
+                const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
+                const pic = document.createElement('picture');
+                pic.innerHTML = `
+                  <source srcset="${imgWebp}" type="image/webp">
+                  <img src="${imgJpg}" alt="${section.title || ''}" loading="lazy" decoding="async" style="width:220px;height:160px;border-radius:8px;object-fit:cover;display:block;margin:0 auto;">
+                `;
+                imgWrap.appendChild(pic);
               }
 
               const right = document.createElement('div');
@@ -802,13 +805,14 @@ async function fetchPostsFromCSV(csvUrl) {
           descriptionContainer = document.createElement('div');
           descriptionContainer.classList.add('image-and-text-container');
           if (page.image) {
-            const pageImage = document.createElement('img');
-            pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
-            pageImage.alt = `Image principale de la page ${page.page_title}`;
-            pageImage.classList.add('page-hero-image');
-            pageImage.loading = 'lazy';
-            pageImage.decoding = 'async';
-            descriptionContainer.appendChild(pageImage);
+            const imgJpg = `${ASSETS_BASE_URL}images/${page.image}`;
+            const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
+            const pic = document.createElement('picture');
+            pic.innerHTML = `
+              <source srcset="${imgWebp}" type="image/webp">
+              <img src="${imgJpg}" alt="Image principale de la page ${page.page_title}" class="page-hero-image" loading="lazy" decoding="async">
+            `;
+            descriptionContainer.appendChild(pic);
           }
           const textDiv = document.createElement('div');
           textDiv.classList.add('description-text');
