@@ -238,6 +238,71 @@ body {
     color: var(--primary-color); /* Couleur claire au survol */
 }
 
+/* Mobile hamburger menu */
+.mobile-menu-toggle {
+    display: none; /* hidden by default (desktop) */
+    background: var(--accent-color-complementary);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 10px;
+    padding: 0.4rem 0.7rem;
+    font-size: 1.15rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 768px) {
+    .main-nav {
+        position: relative;
+        padding-top: 0.5rem;
+    }
+    .mobile-menu-toggle {
+        display: inline-block;
+        position: absolute;
+        right: 0.5rem;
+        top: -2.2rem; /* raise closer to header */
+        z-index: 3;
+    }
+    .main-nav .nav-links {
+        position: absolute;
+        right: 0.5rem;
+        top: 0.2rem;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        background: linear-gradient(180deg, rgba(136,68,170,0.96), rgba(136,68,170,0.92));
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 12px;
+        padding: 0.5rem;
+        width: min(88vw, 360px);
+        max-height: 72vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+        z-index: 2;
+        backdrop-filter: blur(4px);
+    }
+    .main-nav.open .nav-links {
+        display: flex;
+        animation: menuFadeIn 150ms ease-out;
+    }
+    .main-nav .nav-links li a {
+        display: block;
+        padding: 0.7rem 0.9rem;
+        border-radius: 10px;
+        font-size: 1rem;
+        color: #fff;
+    }
+    .main-nav .nav-links li a:hover {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+    }
+    @keyframes menuFadeIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
 
 /* Styles pour le contenu principal (la grille de tuiles et le contenu des pages) */
 .main-content {
@@ -829,6 +894,38 @@ body {
 
 /* Pour les petits écrans (smartphones) */
 @media (max-width: 768px) {
+    /* Nous rejoindre: sur mobile, empiler l'image au-dessus du texte */
+    #page-content-container .section {
+        display: flex;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+    #page-content-container .section > div:first-child { /* imgWrap */
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        border-radius: 12px !important;
+        margin: 0 0 8px 0 !important;
+    }
+    #page-content-container .section > div:first-child img {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        border-radius: 12px !important;
+        object-fit: cover !important;
+        margin: 0 !important;
+    }
+    #page-content-container .section > div:last-child {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        text-align: left !important;
+    }
     .main-header {
         padding: 1rem 0.5rem;
     }
@@ -883,11 +980,41 @@ body {
     }
     .blog-post .media {
         width: 100%;
-        max-height: 200px;
+        max-height: none;
     }
     .blog-post .text-content {
         width: 100%;
         padding-left: 0; /* Pas de padding latéral quand c'est en colonne */
+    }
+
+    /* Illustrations plein écran (images + iframes) */
+    .blog-post .media img,
+    .blog-post .media iframe,
+    .blog-post .media.media-vertical img,
+    .blog-post .media.media-vertical iframe,
+    .blog-post img.media-illustration,
+    .blog-post iframe.media-illustration {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        border-radius: var(--border-radius) !important;
+    }
+    /* Assurer le ratio 16:9 pour les vidéos YouTube sur mobile */
+    .blog-post .media iframe {
+        aspect-ratio: 16 / 9;
+        border: none;
+    }
+
+    /* Forcer l'empilement et la pleine largeur du texte et des images sur mobile */
+    .image-and-text-container {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+    .image-and-text-container .page-hero-image,
+    .image-and-text-container .description-text {
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
 
@@ -915,15 +1042,5 @@ body {
         min-width: 600px; /* Largeur minimale pour éviter un trop grand rétrécissement */
     }
 
-    /* Navigation: rester sur une seule ligne avec défilement horizontal sur mobile */
-    .main-nav .nav-links {
-    flex-direction: row;
-    gap: 0.5rem;
-    }
-    .main-nav .nav-links li a {
-    width: auto;
-    text-align: left;
-    font-size: 0.9rem;
-    padding: 0.25rem 0.45rem;
-    }
+    /* Navigation mobile: gérée par le menu hamburger (vertical dropdown) */
 }

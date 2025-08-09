@@ -68,11 +68,14 @@ function renderHeader(currentPageId) {
   const h1Text = isHome ? (siteTitleCfg?.valeur || '') : '';
   const subText = isHome ? (subTitleCfg?.valeur || '') : '';
 
-  const navHTML = isHome ? '' : '<nav class="main-nav"><ul class="nav-links"></ul></nav>';
+  const navHTML = isHome ? '' : '<nav class="main-nav" aria-label="Navigation principale">\
+    <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Ouvrir le menu">☰</button>\
+    <ul class="nav-links" id="main-menu"></ul>\
+  </nav>';
   header.innerHTML = `
     <div class="header-content">
       <a href="${mapPageIdToHref('index')}" class="site-logo-link">
-        <img src="${logoUrlCfg ? logoUrlCfg.valeur : ''}" alt="Logo ${siteTitleCfg ? siteTitleCfg.valeur : 'La Voix Libre'}" class="site-logo">
+  <img src="${logoUrlCfg ? logoUrlCfg.valeur : ''}" alt="Logo ${siteTitleCfg ? siteTitleCfg.valeur : 'La Voix Libre'}" class="site-logo" decoding="async">
       </a>
       <div class="site-titles">
         <h1 id="page-main-title" class="${isHome ? 'main-title' : ''}">${h1Text}</h1>
@@ -84,7 +87,8 @@ function renderHeader(currentPageId) {
 }
 
 function renderNav(currentPageId) {
-  const navList = document.querySelector('.main-nav .nav-links');
+  const nav = document.querySelector('.main-nav');
+  const navList = nav ? nav.querySelector('.nav-links') : null;
   if (!navList || !Array.isArray(pagesData)) return;
   navList.innerHTML = '';
   const items = computeNavOrder(pagesData);
@@ -118,6 +122,40 @@ function renderNav(currentPageId) {
       if (footer) footer.scrollIntoView({ behavior: 'smooth' });
     });
   });
+
+  // Mobile menu toggle behavior
+  const toggleBtn = nav ? nav.querySelector('.mobile-menu-toggle') : null;
+  if (toggleBtn && nav) {
+    const closeMenu = () => {
+      nav.classList.remove('open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+    };
+    const openMenu = () => {
+      nav.classList.add('open');
+      toggleBtn.setAttribute('aria-expanded', 'true');
+    };
+    const toggleMenu = () => {
+      if (nav.classList.contains('open')) closeMenu(); else openMenu();
+    };
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+    // Close when clicking a link (for mobile UX)
+    navList.querySelectorAll('a').forEach(a => a.addEventListener('click', () => closeMenu()));
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!nav.contains(e.target)) closeMenu();
+    });
+    // Close on ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
+    // Reset on resize to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) closeMenu();
+    });
+  }
 }
 
 function renderFooter() {
@@ -172,7 +210,7 @@ function renderFooter() {
     popup.innerHTML = `
       <div style="background:#fff;padding:32px 24px;border-radius:8px;max-width:420px;width:90%;position:relative;box-shadow:0 4px 24px rgba(0,0,0,0.2);">
         <button id="close-newsletter-popup" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
-        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd-z95vEaCKjSXvC3auiEApXopyl3zpRfLEpcS7M5Ktr6Zamw/viewform?embedded=true" width="100%" height="520" frameborder="0" marginheight="0" marginwidth="0" style="border:none;">Chargement…</iframe>
+        <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd-z95vEaCKjSXvC3auiEApXopyl3zpRfLEpcS7M5Ktr6Zamw/viewform?embedded=true" width="100%" height="520" frameborder="0" marginheight="0" marginwidth="0" style="border:none;" loading="lazy" referrerpolicy="strict-origin-when-cross-origin">Chargement…</iframe>
       </div>`;
     document.body.appendChild(popup);
   }
@@ -351,7 +389,7 @@ async function fetchPostsFromCSV(csvUrl) {
       }
       tileLink.classList.add('tile');
       tileLink.innerHTML = `
-        <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
+  <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}" loading="lazy" decoding="async">
         <div class="overlay">
           <p class="overlay-title">${page.page_title}</p>
           <p class="overlay-subtitle">${page.page_subtitle}</p>
@@ -404,7 +442,7 @@ async function fetchPostsFromCSV(csvUrl) {
         });
       } else if (page.image) {
         tileLink.innerHTML = `
-          <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}">
+          <img src="${ASSETS_BASE_URL}images/${page.image}" alt="${page.page_title}" loading="lazy" decoding="async">
           <div class="overlay">
             <p class="overlay-title">${page.page_title}</p>
             <p class="overlay-subtitle">${page.page_subtitle}</p>
@@ -466,6 +504,8 @@ async function fetchPostsFromCSV(csvUrl) {
             pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
             pageImage.alt = `Image principale de la page ${page.page_title}`;
             pageImage.classList.add('page-hero-image');
+            pageImage.loading = 'lazy';
+            pageImage.decoding = 'async';
             pageImage.style.width = '380px';
             pageImage.style.height = 'auto';
             pageImage.style.objectFit = 'cover';
@@ -664,6 +704,8 @@ async function fetchPostsFromCSV(csvUrl) {
                 const img = document.createElement('img');
                 img.src = `${ASSETS_BASE_URL}images/${section.image}`;
                 img.alt = section.title || '';
+                img.loading = 'lazy';
+                img.decoding = 'async';
                 img.style.width = '220px';
                 img.style.height = '160px';
                 img.style.borderRadius = '8px';
@@ -755,6 +797,8 @@ async function fetchPostsFromCSV(csvUrl) {
             pageImage.src = `${ASSETS_BASE_URL}images/${page.image}`;
             pageImage.alt = `Image principale de la page ${page.page_title}`;
             pageImage.classList.add('page-hero-image');
+            pageImage.loading = 'lazy';
+            pageImage.decoding = 'async';
             descriptionContainer.appendChild(pageImage);
           }
           const textDiv = document.createElement('div');
@@ -844,8 +888,8 @@ async function fetchPostsFromCSV(csvUrl) {
       // Build the illustrations column (stacked vertically)
       let illustrationsHTML = illustrations.map(ill =>
         ill.type === 'image'
-          ? `<img src="${ill.src}" alt="${post.title}" class="media-illustration">`
-          : `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration"></iframe>`
+          ? `<img src="${ill.src}" alt="${post.title}" class="media-illustration" loading="lazy" decoding="async">`
+          : `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`
       ).join('');
 
       // Fonction utilitaire pour transformer les URLs en liens cliquables
@@ -957,67 +1001,3 @@ async function init() {
 }
 
 init();
-
-const styleSheet = document.createElement("style")
-styleSheet.innerText = `
-.blog-post {
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  padding: 10px;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-}
-.blog-post .post-wrapper {
-  display: flex;
-  align-items: stretch;
-}
-.blog-post .media.media-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 33%;
-  min-width: 180px;
-  max-width: 260px;
-}
-.blog-post .text-content {
-  flex: 1;
-  padding-left: 20px;
-  text-align: justify;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-.blog-post img {
-  max-width: 500px;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  object-fit: cover;
-}
-.blog-post iframe {
-  max-width: 500px;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-}
-.blog-post h3 {
-  margin: 0 0 10px 0;
-}
-// .post-date supprimé : la date d'édition ne s'affiche plus
-@media (max-width: 700px) {
-  .blog-post .post-wrapper {
-    flex-direction: column;
-  }
-  .blog-post .media.media-vertical {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    margin-bottom: 12px;
-  }
-  .blog-post .text-content {
-    padding-left: 0;
-  }
-}
-`;
-document.head.appendChild(styleSheet);
