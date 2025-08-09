@@ -65,6 +65,36 @@
     "display_posts": true
   },
   {
+    "id": "cours-de-chant-lyrique-rennes",
+    "image": "courschant.jpg",
+    "tile_overlay_title": "Cours de chant lyrique",
+    "tile_overlay_subtitle": "à Rennes",
+    "page_title": "Cours de chant lyrique à Rennes",
+    "page_subtitle": "Technique vocale et interprétation",
+    "page_content": [
+      "Cours individuels à Rennes : respiration, soutien, résonance, diction, musicalité.",
+      "Débutants et avancés bienvenus."
+    ],
+    "tags": ["cours_de_chant"],
+    "display_posts": false,
+    "hidden": true
+  },
+  {
+    "id": "chorale-rennes",
+    "image": "choralepop.jpg",
+    "tile_overlay_title": "Chorale à Rennes",
+    "tile_overlay_subtitle": "conviviale et inclusive",
+    "page_title": "Chorale à Rennes",
+    "page_subtitle": "Polyphonie pop, soul et gospel",
+    "page_content": [
+      "Répétitions le lundi 20h–22h, 21 rue Papu à Rennes.",
+      "Tous niveaux, sans audition."
+    ],
+    "tags": ["chorale_pop"],
+    "display_posts": false,
+    "hidden": true
+  },
+  {
     "id": "comedie-musicale",
     "image": "comediemusicale.jpg",
     "tile_overlay_title": "Comédie Musicale",
@@ -164,9 +194,8 @@
       },
       {
         "type": "audio",
-        "title": "Portrait audio 🎧 :",
+        "title": "Portrait audio :",
         "url": "materielchansons/vincent-tricotel-le-jardinier-de-la-voix.mp3"
-     
       }
     ],
     "tags": ["cours_de_chant"],

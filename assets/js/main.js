@@ -43,9 +43,11 @@ function navLabelForPage(page) {
 function computeNavOrder(pages) {
   // Desired primary order, then the rest as found in JSON
   const desiredOrder = ['chorale-pop', 'soul', 'comedie-musicale', 'cours-de-chant', 'nous-rejoindre', 'evenements', 'videos', 'partitions'];
-  const byId = Object.fromEntries(pages.map(p => [p.id, p]));
+  // Exclude hidden pages from navigation
+  const visiblePages = pages.filter(p => !p.hidden);
+  const byId = Object.fromEntries(visiblePages.map(p => [p.id, p]));
   const ordered = desiredOrder.filter(id => byId[id]).map(id => byId[id]);
-  const remaining = pages.filter(p => !desiredOrder.includes(p.id));
+  const remaining = visiblePages.filter(p => !desiredOrder.includes(p.id));
   return [...ordered, ...remaining];
 }
 
@@ -399,6 +401,7 @@ async function fetchPostsFromCSV(csvUrl) {
     });
     // Ajoute les autres tuiles (événements, vidéos, partitions, etc.) dans l'ordre du JSON
     pagesData.forEach(page => {
+      if (page.hidden) return; // skip hidden pages from home tiles
       if (desiredOrder.includes(page.id)) return; // déjà affiché
       if (!page.id || !page.page_title || !page.page_subtitle) return;
       const tileLink = document.createElement('a');
@@ -621,6 +624,12 @@ async function fetchPostsFromCSV(csvUrl) {
               // (Autoplay direct retiré pour compatibilité navigateurs; la relance muette ci-dessus suffit.)
             }
 
+            // Lien interne vers page dédiée "cours de chant lyrique à Rennes"
+            const internalLink = document.createElement('p');
+            internalLink.style.marginTop = '8px';
+            internalLink.innerHTML = 'Vous cherchez spécifiquement des <a href="/cours-de-chant-lyrique-rennes.html">cours de chant lyrique à Rennes</a> ? Consultez notre page dédiée.';
+            textDiv.appendChild(internalLink);
+
             // Ajout des contacts
             const contactBlock = page.specific_content.find(sc => sc.type === 'contact');
             if (contactBlock) {
@@ -808,6 +817,12 @@ async function fetchPostsFromCSV(csvUrl) {
             pElement.textContent = pText;
             textDiv.appendChild(pElement);
           });
+          // Ajout de liens SEO contextuels
+          if (pageId === 'chorale-pop') {
+            const pLink = document.createElement('p');
+            pLink.innerHTML = 'Vous cherchez une <a href="/chorale-rennes.html">chorale à Rennes</a> ? Découvrez notre page dédiée.';
+            textDiv.appendChild(pLink);
+          }
           descriptionContainer.appendChild(textDiv);
           contentContainer.appendChild(descriptionContainer);
         }
@@ -1026,9 +1041,17 @@ function ensureSeoMeta(currentPageId) {
     upsert('robots', 'noindex, nofollow');
   }
 
-  // JSON-LD: WebSite + optional Breadcrumb
-  const scripts = document.querySelectorAll('script[type="application/ld+json"]');
-  scripts.forEach(s => s.remove());
+  // JSON-LD: WebSite + optional Breadcrumb (préserver les autres scripts LD existants)
+  function upsertJsonLd(id, data) {
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement('script');
+      el.type = 'application/ld+json';
+      el.id = id;
+      document.head.appendChild(el);
+    }
+    el.textContent = JSON.stringify(data);
+  }
   const ldWebsite = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -1040,10 +1063,7 @@ function ensureSeoMeta(currentPageId) {
       'query-input': 'required name=search_term_string'
     }
   };
-  const s1 = document.createElement('script');
-  s1.type = 'application/ld+json';
-  s1.textContent = JSON.stringify(ldWebsite);
-  document.head.appendChild(s1);
+  upsertJsonLd('ld-website', ldWebsite);
 
   if (currentPageId && currentPageId !== 'index') {
     const ldBreadcrumb = {
@@ -1054,10 +1074,35 @@ function ensureSeoMeta(currentPageId) {
         { '@type': 'ListItem', position: 2, name: pageTitle, item: canonicalUrl }
       ]
     };
-    const s2 = document.createElement('script');
-    s2.type = 'application/ld+json';
-    s2.textContent = JSON.stringify(ldBreadcrumb);
-    document.head.appendChild(s2);
+    upsertJsonLd('ld-breadcrumb', ldBreadcrumb);
+  }
+
+  // Inject LocalBusiness on homepage to renforcer le SEO local (éviter doublons sur les pages dédiées)
+  if (currentPageId === 'index') {
+    const logoUrl = (globalConfig?.find(i => i.section==='head' && i.champ==='logo_url')?.valeur) || '';
+    const email = (globalConfig?.find(i => i.section==='footer' && i.champ==='email')?.valeur) || '';
+    const sameAs = [];
+    const fb = globalConfig?.find(i => i.section==='footer' && i.champ==='facebook')?.valeur; if (fb) sameAs.push(fb);
+    const ig = globalConfig?.find(i => i.section==='footer' && i.champ==='instagram')?.valeur; if (ig) sameAs.push(ig);
+    const yt = globalConfig?.find(i => i.section==='footer' && i.champ==='youtube')?.valeur; if (yt) sameAs.push(yt);
+    const ldLocal = {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: siteTitle,
+      url: origin || undefined,
+      image: logoUrl || undefined,
+      email: email || undefined,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: '21 rue Papu',
+        addressLocality: 'Rennes',
+        postalCode: '35000',
+        addressCountry: 'FR'
+      },
+      areaServed: 'Rennes',
+      sameAs: sameAs.length ? sameAs : undefined
+    };
+    upsertJsonLd('ld-localbusiness', ldLocal);
   }
 }
 
