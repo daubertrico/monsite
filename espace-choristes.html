@@ -43,6 +43,13 @@
   .presence-profile label { font-size:0.95em; color:#234; }
   .presence-profile input, .presence-profile select { padding:8px 10px; border:1px solid #cfe3ff; border-radius:8px; min-width:200px; }
   .presence-profile .save { padding:10px 14px; border:2px solid #3981FF; background:#3981FF; color:#fff; font-weight:700; border-radius:10px; cursor:pointer; box-shadow:0 2px 6px #3981FF33; }
+  .presence-profile .edit { padding:10px 14px; border:2px solid #9ca3af; background:#f3f4f6; color:#111827; font-weight:600; border-radius:10px; cursor:pointer; box-shadow:0 2px 6px #11182711; display:none; }
+  /* Saved/disabled state */
+  .presence-profile.saved { background:#e8f7ee; border-color:#8fd5a6; }
+  .presence-profile input:disabled, .presence-profile select:disabled { background:#f1f5f9; color:#6b7280; border-color:#d1d5db; cursor:not-allowed; }
+  .presence-profile .save:disabled { background:#a7f3d0; border-color:#6ee7b7; color:#064e3b; cursor:not-allowed; opacity:0.9; }
+  .presence-profile.saved .edit { display:inline-block; }
+  .presence-profile .input-error { border-color:#ef4444 !important; }
   .att-controls { display:inline-flex; gap:10px; align-items:center; margin-left:10px; }
   .att-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid #d1e4ff; border-radius:999px; background:#eef5ff; font-size:0.92em; cursor:pointer; }
   .att-chip input { accent-color:#3981FF; }
@@ -65,6 +72,7 @@
   .event-stats { display:none; margin-top:6px; background:#f6fbff; border:1px solid #b6e0fe; padding:8px 10px; border-radius:8px; }
   .event-stats .count { font-weight:700; margin-right:12px; }
   .event-stats ul { margin:6px 0 0 18px; }
+  .event-stats .by-pupitre { margin:4px 0 6px 0; color:#234; font-size:0.95em; }
   /* Admin panel (chef only) */
   #admin-panel { display:none; position:fixed; right:18px; bottom:18px; width:320px; z-index:9999; background:#ffffff; border:1.5px solid #b6e0fe; border-radius:12px; box-shadow:0 6px 24px #3981FF33; padding:14px; }
   #admin-panel h4 { margin:0 0 8px 0; font-size:1.05em; color:#134; }
@@ -387,6 +395,7 @@
                 </select>
               </div>
               <button class="save" id="choriste-save">Enregistrer mon profil</button>
+              <button class="edit" id="choriste-edit" type="button">Modifier mon profil</button>
             </div>
             <p style="margin:-8px 0 16px 0;color:#355;font-size:0.95em;">Astuce&nbsp;: d’abord <strong>enregistrez votre profil</strong> (Prénom, Nom, Pupitre), puis cochez <em>Présent·e</em> ou <em>Absent·e</em> à côté de chaque concert/événement. Une mention <em style='color:#2c7a2c;'>Enregistré</em> s’affichera en vert une fois pris en compte.</p>
             <div style="margin-bottom:32px;">
@@ -468,6 +477,7 @@
                 </select>
               </div>
               <button class="save" id="choriste-save-soul">Enregistrer mon profil</button>
+              <button class="edit" id="choriste-edit-soul" type="button">Modifier mon profil</button>
             </div>
             <p style="margin:-8px 0 16px 0;color:#355;font-size:0.95em;">Astuce&nbsp;: d’abord <strong>enregistrez votre profil</strong> (Prénom, Nom, Pupitre), puis cochez <em>Présent·e</em> ou <em>Absent·e</em> à côté de chaque concert/événement. Une mention <em style='color:#2c7a2c;'>Enregistré</em> s’affichera en vert une fois pris en compte.</p>
             <div style="margin-bottom:32px;">
@@ -557,6 +567,24 @@
   const ATTENDANCE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
   const PROFILE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
   function isGASEndpoint(u){ return /script\.google\.com|googleusercontent\.com\/macros/.test(u||''); }
+      function markProfileSaved(){
+        const bars = [document.getElementById('presence-profile-bar'), document.getElementById('presence-profile-bar-soul')];
+        bars.forEach(bar => {
+          if (!bar) return;
+          bar.classList.add('saved');
+          const inputs = bar.querySelectorAll('input, select, button.save');
+          inputs.forEach(el => { el.disabled = true; });
+        });
+      }
+      function unlockProfileEditing(){
+        const bars = [document.getElementById('presence-profile-bar'), document.getElementById('presence-profile-bar-soul')];
+        bars.forEach(bar => {
+          if (!bar) return;
+          bar.classList.remove('saved');
+          const inputs = bar.querySelectorAll('input, select, button.save');
+          inputs.forEach(el => { el.disabled = false; });
+        });
+      }
       function getChoristeProfile() {
         try { return JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch { return {}; }
       }
@@ -577,21 +605,46 @@
           delete p.name; delete p.email;
           setChoristeProfile(p);
         }
+        // Si profil déjà complet, afficher l'état "enregistré"
+        if (p && p.prenom && p.nom && p.pupitre) {
+          // Pré-remplir valeurs visibles
+          const fields = [
+            { prenom: 'choriste-prenom', nom: 'choriste-nom', pup: 'choriste-pupitre' },
+            { prenom: 'choriste-prenom-soul', nom: 'choriste-nom-soul', pup: 'choriste-pupitre-soul' }
+          ];
+          fields.forEach(s => {
+            const p2 = document.getElementById(s.prenom);
+            const n2 = document.getElementById(s.nom);
+            const pv = document.getElementById(s.pup);
+            if (p2) p2.value = p.prenom;
+            if (n2) n2.value = p.nom;
+            if (pv) pv.value = p.pupitre;
+          });
+          markProfileSaved();
+        }
         function bindSet(ids) {
           const prenom = document.getElementById(ids.prenom);
           const nom = document.getElementById(ids.nom);
           const pup = document.getElementById(ids.pup);
           const btn = document.getElementById(ids.btn);
+          const editBtn = document.getElementById(ids.editBtn || '');
           if (prenom && p.prenom) prenom.value = p.prenom;
           if (nom && p.nom) nom.value = p.nom;
           if (pup && p.pupitre) pup.value = p.pupitre;
           if (btn) btn.onclick = () => {
+            // Validation minimale: toutes les valeurs requises
+            [prenom, nom].forEach(el => { if (el) el.classList.remove('input-error'); });
+            if (!prenom?.value.trim()) { if (prenom){ prenom.classList.add('input-error'); prenom.focus(); } return; }
+            if (!nom?.value.trim()) { if (nom){ nom.classList.add('input-error'); nom.focus(); } return; }
+            if (!pup?.value) { if (pup){ pup.classList.add('input-error'); pup.focus(); } return; }
             const np = {
               prenom: (prenom ? prenom.value.trim() : ''),
               nom: (nom ? nom.value.trim() : ''),
               pupitre: (pup ? pup.value : '')
             };
             setChoristeProfile(np);
+            // Appliquer immédiatement l'état enregistré côté UI (désactivation + encart vert)
+            markProfileSaved();
             // Tentative d'enregistrement serveur (optionnel)
             (async () => {
               try {
@@ -606,13 +659,11 @@
                     res = await fetch(PROFILE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(np) });
                   }
                   if (!res.ok) throw new Error('HTTP ' + res.status);
-                  alert('Profil enregistré (serveur).');
                 } else {
-                  alert('Profil enregistré (local).');
+                  // Pas d'endpoint: enregistré localement
                 }
               } catch (e) {
                 console.warn('Enregistrement profil serveur échoué:', e);
-                alert('Profil enregistré (local).');
               }
             })();
             // Repropager vers l'autre encart
@@ -629,9 +680,16 @@
               if (pv) pv.value = np.pupitre;
             });
           };
+          if (editBtn) {
+            editBtn.onclick = () => {
+              unlockProfileEditing();
+              // Optional: focus first field
+              if (prenom) prenom.focus();
+            };
+          }
         }
-        bindSet({ prenom: 'choriste-prenom', nom: 'choriste-nom', pup: 'choriste-pupitre', btn: 'choriste-save' });
-        bindSet({ prenom: 'choriste-prenom-soul', nom: 'choriste-nom-soul', pup: 'choriste-pupitre-soul', btn: 'choriste-save-soul' });
+        bindSet({ prenom: 'choriste-prenom', nom: 'choriste-nom', pup: 'choriste-pupitre', btn: 'choriste-save', editBtn: 'choriste-edit' });
+        bindSet({ prenom: 'choriste-prenom-soul', nom: 'choriste-nom-soul', pup: 'choriste-pupitre-soul', btn: 'choriste-save-soul', editBtn: 'choriste-edit-soul' });
       }
       async function submitAttendance(inputEl) {
         const wrap = inputEl.closest('.att-controls');
@@ -716,9 +774,22 @@
       function renderStats(statsDiv, stats){
         const presents = Array.isArray(stats.present) ? stats.present : [];
         const absents = Array.isArray(stats.absent) ? stats.absent : [];
+        // Comptage par pupitre (case-insensitive, normalisé visuellement)
+        const pupCount = {};
+        presents.forEach(p => {
+          const label = (p.pupitre || '').toString().trim();
+          const key = label.toLowerCase();
+          if (!key) return;
+          pupCount[key] = (pupCount[key] || 0) + 1;
+        });
+        const order = ['soprane','alto','ténor','tenor','basse'];
+        const labelMap = { soprane: 'Soprane', alto: 'Alto', ténor: 'Ténor', tenor: 'Ténor', basse: 'Basse' };
+        const byPup = Object.keys(pupCount).sort((a,b) => (order.indexOf(a)+99) - (order.indexOf(b)+99))
+          .map(k => (labelMap[k] || (k.charAt(0).toUpperCase()+k.slice(1))) + ': ' + pupCount[k]).join(' · ');
         const counts = '<span class="count">Présents: ' + presents.length + '</span><span class="count">Absents: ' + absents.length + '</span>';
+        const byP = byPup ? '<div class="by-pupitre">Présents par pupitre — ' + byPup + '</div>' : '';
         const list = presents.length ? ('<ul>' + presents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>') : '<em>Aucun présent pour le moment.</em>';
-        statsDiv.innerHTML = counts + '<div>' + list + '</div>';
+        statsDiv.innerHTML = counts + byP + '<div>' + list + '</div>';
       }
       async function fetchEventStats(calendar, eventId){
         if (!ATTENDANCE_ENDPOINT) throw new Error('backend absent');

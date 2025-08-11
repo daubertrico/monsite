@@ -439,6 +439,7 @@ body {
 /* --- NOUVEAUX STYLES POUR LE CONTENU DES PAGES SPÉCIFIQUES --- */
 
 /* Image principale de la page (hero image) */
+/* Règles générales pour l'image principale hors mise en page en colonnes */
 .page-hero-image {
     width: 100%;
     max-width: 800px; /* Ajustez selon le design souhaité */
@@ -448,6 +449,10 @@ body {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow-light);
     object-fit: cover;
+}
+/* Quand l'image est dans le conteneur image+texte, on neutralise la grande marge */
+.image-and-text-container .page-hero-image {
+    margin: 0;
 }
 
 /* Conteneur pour les sections de contenu spécifique (listes, embeds, etc.) */
@@ -809,20 +814,31 @@ body {
 }
 
 .image-and-text-container {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+    display: block; /* permet l'enroulement du texte autour d'un float */
     margin-bottom: 20px;
 }
+.image-and-text-container::after { /* clearfix pour contenir le float */
+    content: "";
+    display: block;
+    clear: both;
+}
 
+/* Le visuel est dans un <picture>; on fait flotter ce bloc à gauche */
+.image-and-text-container picture {
+    float: left;
+    width: 45%;
+    max-width: 560px;
+    margin: 0 20px 10px 0; /* espace entre image et texte */
+}
 .image-and-text-container .page-hero-image {
-    width: 50%;
+    width: 100%; /* l'image remplit son picture */
     height: auto;
     object-fit: cover;
+    margin: 0;
 }
 
 .image-and-text-container .description-text { /* Ajout de cette classe */
-    width: 50%;
+    width: auto; /* laisse le texte occuper l'espace restant puis toute la largeur sous la photo */
     text-align: justify;
 }
 
@@ -1007,9 +1023,11 @@ body {
     }
 
     /* Forcer l'empilement et la pleine largeur du texte et des images sur mobile */
-    .image-and-text-container {
-        flex-direction: column !important;
-        align-items: stretch !important;
+    .image-and-text-container picture {
+        float: none !important;
+        width: 100% !important;
+        margin: 0 0 12px 0 !important;
+        max-width: 100% !important;
     }
     .image-and-text-container .page-hero-image,
     .image-and-text-container .description-text {
