@@ -198,10 +198,22 @@
       generateChansonsContent();
     }
 
+    // Utilitaire de normalisation (trim, lowercase, supprime accents/diacritiques et espaces)
+    function normalizeInput(s) {
+      if (!s) return '';
+      try {
+        return s.toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,'').trim().toLowerCase();
+      } catch {
+        return s.toString().trim().toLowerCase();
+      }
+    }
+
     if (submitBtn) {
       submitBtn.addEventListener('click', async function() {
-        const entered = passwordInput ? passwordInput.value : '';
-        const correct = await getPartitionPassword();
+        const enteredRaw = passwordInput ? passwordInput.value : '';
+        const entered = normalizeInput(enteredRaw);
+        const correctRaw = await getPartitionPassword();
+        const correct = correctRaw ? normalizeInput(correctRaw) : null;
         let role = null;
         if (entered === 'chefdechoeur') {
           role = 'chef';
