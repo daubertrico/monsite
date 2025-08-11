@@ -46,21 +46,9 @@
   .att-controls { display:inline-flex; gap:10px; align-items:center; margin-left:10px; }
   .att-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid #d1e4ff; border-radius:999px; background:#eef5ff; font-size:0.92em; cursor:pointer; }
   .att-chip input { accent-color:#3981FF; }
-  .att-status { margin-left:8px; font-size:0.85em; color:#2c7a2c; display:none; }
+  .att-status { margin-left:8px; font-size:0.9em; color:#2c7a2c; font-style: italic; display:none; }
   .att-status.error { color:#b00020; }
-      /* Framadate UI helpers */
-      .framadate-wrapper { position: relative; border: 1.5px solid #3981FF44; border-radius: 10px; padding: 10px; background: #fff; box-shadow: 0 2px 8px #3981FF22; overflow: hidden; }
-      .framadate-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-      .framadate-toolbar .hint { color: #355; font-size: 0.95em; }
-      .framadate-actions { display: flex; align-items: center; gap: 8px; }
-      .btn-zoom { padding: 8px 12px; border: 2px solid #3981FF; background: #3981FF; color: #fff; font-weight: 600; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 6px #3981FF33; }
-      .btn-zoom.secondary { background: #eef5ff; color: #135; border-color: #98bfff; }
-      .framadate-iframe { width: 100%; min-height: 780px; border: 1.5px solid #3981FF; border-radius: 8px; background: #fff; transform-origin: 0 0; transition: transform 0.2s ease, height 0.2s ease; }
-      .framadate-wrapper.zoom .framadate-iframe { transform: scale(1.2); height: 1100px; }
-      @media (max-width: 900px) {
-        .framadate-wrapper.zoom .framadate-iframe { transform: none; height: 900px; }
-        .framadate-actions { flex-wrap: wrap; }
-      }
+      
   /* Events list scroll + past styling */
   .events-scroll { max-height: 360px; overflow-y: auto; padding-right: 6px; margin-top: 10px; }
   .events-scroll ul { margin: 0; padding-left: 18px; }
@@ -172,7 +160,7 @@
                   <li>planning & calendrier</li>
                   <li>informations pratiques sur les concerts et événements</li>
                 </ul>
-                <p>Pour une meilleure organisation, les choristes sont invités à confirmer ou infirmer leur présence aux événements via les formulaires Framadate intégrés au site.<br>
+                <p>Pour une meilleure organisation, les choristes sont invité·es à indiquer leur présence directement dans l’onglet “Calendrier et présences”, à côté de chaque concert/événement (après avoir enregistré leur profil).<br>
                 Cette anticipation permet d’adapter au mieux les répertoires, la répartition des voix et la logistique.</p>
                 <h3>Rôle du chef de chœur</h3>
                 <ul>
@@ -295,7 +283,7 @@
                   <li>planning & calendrier</li>
                   <li>informations pratiques sur les concerts et événements</li>
                 </ul>
-                <p>Pour une meilleure organisation, les choristes sont invités à confirmer ou infirmer leur présence aux événements via les formulaires Framadate intégrés au site.<br>
+                <p>Pour une meilleure organisation, les choristes sont invité·es à indiquer leur présence directement dans l’onglet “Calendrier et présences”, à côté de chaque concert/événement (après avoir enregistré leur profil).<br>
                 Cette anticipation permet d’adapter au mieux les répertoires, la répartition des voix et la logistique.</p>
                 <h3>Rôle du chef de chœur</h3>
                 <ul>
@@ -400,6 +388,7 @@
               </div>
               <button class="save" id="choriste-save">Enregistrer mon profil</button>
             </div>
+            <p style="margin:-8px 0 16px 0;color:#355;font-size:0.95em;">Astuce&nbsp;: d’abord <strong>enregistrez votre profil</strong> (Prénom, Nom, Pupitre), puis cochez <em>Présent·e</em> ou <em>Absent·e</em> à côté de chaque concert/événement. Une mention <em style='color:#2c7a2c;'>Enregistré</em> s’affichera en vert une fois pris en compte.</p>
             <div style="margin-bottom:32px;">
               <h3 style="margin-bottom:12px;">Agenda annuel Grande Chorale</h3>
               <div id="events-lists" style="display:flex;gap:16px;flex-wrap:wrap;max-width:900px;margin:0 auto 18px auto;">
@@ -439,8 +428,8 @@
                       const eid = (ev.id || (ev.summary + '-' + start)).replace(/[^a-zA-Z0-9_-]/g,'');
                       const att = withAtt ? `
                         <span class="att-controls" data-calendar="grandechorale" data-eventid="${eid}" data-title="${(ev.summary || '').replace(/"/g,'&quot;')}" data-start="${start}" data-end="${end}" data-location="${(ev.location||'').replace(/"/g,'&quot;')}">
-                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="present" ${disabled} onclick="submitAttendance(this)"> Présent</label>
-                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="absent" ${disabled} onclick="submitAttendance(this)"> Absent</label>
+                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="present" ${disabled} onclick="submitAttendance(this)"> Présent·e</label>
+                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="absent" ${disabled} onclick="submitAttendance(this)"> Absent·e</label>
                           <span class="att-status">Enregistré</span>
                         </span>` : '';
                       return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="grandechorale" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=\'color:#888;\'>(' + ev.location + ')</span>' : ''}${att}
@@ -456,20 +445,7 @@
                   });
               </script>
             </div>
-            <p>Pour indiquer votre présence aux concerts et stages de la Grande Chorale, utilisez le sondage ci-dessous :</p>
-            <div id="framadate-grandechorale" class="framadate-wrapper" data-default-zoom="desktop">
-              <div class="framadate-toolbar">
-                <div class="hint">
-                  <strong>Présences</strong> — cochez la colonne sous votre prénom pour chaque date.
-                </div>
-                <div class="framadate-actions">
-                  <button type="button" class="btn-zoom" data-target="framadate-grandechorale">Zoom cases à cocher</button>
-                  <a class="btn-zoom secondary" href="https://framadate.org/PQQH3ffEpZwplOUs" target="_blank" rel="noopener">Plein écran</a>
-                </div>
-              </div>
-              <iframe class="framadate-iframe" src="https://framadate.org/PQQH3ffEpZwplOUs" title="Présences Grande Chorale" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-            </div>
-            <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/PQQH3ffEpZwplOUs" target="_blank" rel="noopener">https://framadate.org/PQQH3ffEpZwplOUs</a></p>
+            
           </div>
           <div id="sousonglet-soul" class="calendrier-sousonglet-content" style="display:none;">
             <div id="presence-profile-bar-soul" class="presence-profile">
@@ -493,6 +469,7 @@
               </div>
               <button class="save" id="choriste-save-soul">Enregistrer mon profil</button>
             </div>
+            <p style="margin:-8px 0 16px 0;color:#355;font-size:0.95em;">Astuce&nbsp;: d’abord <strong>enregistrez votre profil</strong> (Prénom, Nom, Pupitre), puis cochez <em>Présent·e</em> ou <em>Absent·e</em> à côté de chaque concert/événement. Une mention <em style='color:#2c7a2c;'>Enregistré</em> s’affichera en vert une fois pris en compte.</p>
             <div style="margin-bottom:32px;">
               <h3 style="margin-bottom:12px;">Agenda annuel SOUL</h3>
               <div id="events-lists-soul" style="display:flex;gap:16px;flex-wrap:wrap;max-width:900px;margin:0 auto 18px auto;">
@@ -532,8 +509,8 @@
                       const eid = (ev.id || (ev.summary + '-' + start)).replace(/[^a-zA-Z0-9_-]/g,'');
                       const att = withAtt ? `
                         <span class=\"att-controls\" data-calendar=\"soul\" data-eventid=\"${eid}\" data-title=\"${(ev.summary || '').replace(/\"/g,'&quot;')}\" data-start=\"${start}\" data-end=\"${end}\" data-location=\"${(ev.location||'').replace(/\"/g,'&quot;')}\">
-                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"present\" ${disabled} onclick=\"submitAttendance(this)\"> Présent</label>
-                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"absent\" ${disabled} onclick=\"submitAttendance(this)\"> Absent</label>
+                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"present\" ${disabled} onclick=\"submitAttendance(this)\"> Présent·e</label>
+                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"absent\" ${disabled} onclick=\"submitAttendance(this)\"> Absent·e</label>
                           <span class=\"att-status\">Enregistré</span>
                         </span>` : '';
                       return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="soul" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=' + "'color:#888;'" + '>(' + ev.location + ')</span>' : ''}${att}
@@ -549,20 +526,7 @@
                   });
               </script>
             </div>
-            <p>Pour indiquer votre présence aux concerts et stages de SOUL, utilisez le sondage ci-dessous :</p>
-            <div id="framadate-soul" class="framadate-wrapper" data-default-zoom="desktop">
-              <div class="framadate-toolbar">
-                <div class="hint">
-                  <strong>Présences</strong> — cochez la colonne sous votre prénom pour chaque date.
-                </div>
-                <div class="framadate-actions">
-                  <button type="button" class="btn-zoom" data-target="framadate-soul">Zoom cases à cocher</button>
-                  <a class="btn-zoom secondary" href="https://framadate.org/5jMb5k4sL795WTyp" target="_blank" rel="noopener">Plein écran</a>
-                </div>
-              </div>
-              <iframe class="framadate-iframe" src="https://framadate.org/5jMb5k4sL795WTyp" title="Présences SOUL" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-            </div>
-            <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/5jMb5k4sL795WTyp" target="_blank" rel="noopener">https://framadate.org/5jMb5k4sL795WTyp</a></p>
+            
           </div>
         </div>
       </div>
@@ -587,38 +551,7 @@
       </div>
       <div id="admin-hint" style="font-size:0.85em;color:#456;margin-top:6px;">Astuce: cliquez un événement pour préremplir.</div>
     </div>
-    <script>
-      // Framadate zoom toggles
-      (function() {
-        function setDefaultZoom() {
-          const isDesktop = window.innerWidth >= 900;
-          document.querySelectorAll('.framadate-wrapper[data-default-zoom="desktop"]').forEach(wrap => {
-            wrap.classList.toggle('zoom', isDesktop);
-            const btn = document.querySelector('.btn-zoom[data-target="' + wrap.id + '"]');
-            if (btn) btn.textContent = wrap.classList.contains('zoom') ? 'Vue standard' : 'Zoom cases à cocher';
-          });
-        }
-        function initZoomButtons() {
-          document.querySelectorAll('.btn-zoom').forEach(btn => {
-            btn.addEventListener('click', function() {
-              const targetId = this.getAttribute('data-target');
-              const wrap = document.getElementById(targetId);
-              if (!wrap) return;
-              wrap.classList.toggle('zoom');
-              this.textContent = wrap.classList.contains('zoom') ? 'Vue standard' : 'Zoom cases à cocher';
-            });
-          });
-        }
-        window.addEventListener('resize', function() {
-          // Re-apply default on resize only if no manual toggle happened
-          // We detect manual toggles by data-manual flag (set on first click)
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-          setDefaultZoom();
-          initZoomButtons();
-        });
-      })();
-    </script>
+    
     <script>
       // Configurer ci-dessous l'URL du Web App Google Apps Script (à déployer) pour l'enregistrement des présences
   const ATTENDANCE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
@@ -738,10 +671,9 @@
           if (!ATTENDANCE_ENDPOINT) {
             // Enregistrement local (fallback sans backend)
             saveLocalAttendance(payload);
-            statusEl.textContent = 'Enregistré (local)';
+            statusEl.textContent = 'Enregistré';
             statusEl.classList.remove('error');
             statusEl.style.display = 'inline';
-            setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
             return;
           }
           let res;
@@ -758,7 +690,6 @@
           statusEl.textContent = 'Enregistré';
           statusEl.classList.remove('error');
           statusEl.style.display = 'inline';
-          setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
           // Si un encart stats est ouvert pour cet event et que l'utilisateur est chef, on rafraîchit
           if (window.IS_CHEF) {
             const li = wrap.closest('.event-item');
@@ -774,7 +705,6 @@
           statusEl.textContent = 'Erreur d\'enregistrement';
           statusEl.classList.add('error');
           statusEl.style.display = 'inline';
-          setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
         }
       }
       document.addEventListener('DOMContentLoaded', ensureProfileInputs);
