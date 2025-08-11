@@ -821,12 +821,7 @@ async function fetchPostsFromCSV(csvUrl) {
             pElement.textContent = pText;
             textDiv.appendChild(pElement);
           });
-          // Ajout de liens SEO contextuels
-          if (pageId === 'chorale-pop') {
-            const pLink = document.createElement('p');
-            pLink.innerHTML = 'Vous cherchez une <a href="/chorale-rennes.html">chorale à Rennes</a> ? Découvrez notre page dédiée.';
-            textDiv.appendChild(pLink);
-          }
+          // (Suppression du lien SEO contextuel sur la page Chorale Pop)
           descriptionContainer.appendChild(textDiv);
           contentContainer.appendChild(descriptionContainer);
         }

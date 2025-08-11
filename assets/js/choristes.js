@@ -185,11 +185,35 @@
     const submitBtn = document.getElementById('partition-submit');
     const errorMsg = document.getElementById('partition-error');
 
+    // Auto-ouverture si rôle en session (member ou chef)
+    const storedRole = sessionStorage.getItem('choristesRole');
+    if (storedRole === 'member' || storedRole === 'chef') {
+      if (passwordContainer) passwordContainer.style.display = 'none';
+      if (tabsWrap) tabsWrap.style.display = '';
+      window.IS_CHEF = (storedRole === 'chef');
+      if (document && document.body) {
+        document.body.classList.toggle('role-chef', window.IS_CHEF);
+      }
+      showTab('chansons');
+      generateChansonsContent();
+    }
+
     if (submitBtn) {
       submitBtn.addEventListener('click', async function() {
         const entered = passwordInput ? passwordInput.value : '';
         const correct = await getPartitionPassword();
-        if (!correct || entered === correct) {
+        let role = null;
+        if (entered === 'chefdechoeur') {
+          role = 'chef';
+        } else if (!correct || entered === correct) {
+          role = 'member';
+        }
+        if (role) {
+          sessionStorage.setItem('choristesRole', role);
+          window.IS_CHEF = (role === 'chef');
+          if (document && document.body) {
+            document.body.classList.toggle('role-chef', window.IS_CHEF);
+          }
           if (passwordContainer) passwordContainer.style.display = 'none';
           if (tabsWrap) tabsWrap.style.display = '';
           showTab('chansons');

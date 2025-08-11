@@ -37,6 +37,57 @@
           display: block !important;
         }
       }
+  /* Presence profile + controls */
+  .presence-profile { display:flex; flex-wrap:wrap; gap:10px 14px; align-items:flex-end; background:#f8faff; border:1px solid #b6e0fe; padding:12px 14px; border-radius:10px; margin:14px 0 18px 0; }
+  .presence-profile .field { display:flex; flex-direction:column; gap:6px; }
+  .presence-profile label { font-size:0.95em; color:#234; }
+  .presence-profile input, .presence-profile select { padding:8px 10px; border:1px solid #cfe3ff; border-radius:8px; min-width:200px; }
+  .presence-profile .save { padding:10px 14px; border:2px solid #3981FF; background:#3981FF; color:#fff; font-weight:700; border-radius:10px; cursor:pointer; box-shadow:0 2px 6px #3981FF33; }
+  .att-controls { display:inline-flex; gap:10px; align-items:center; margin-left:10px; }
+  .att-chip { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid #d1e4ff; border-radius:999px; background:#eef5ff; font-size:0.92em; cursor:pointer; }
+  .att-chip input { accent-color:#3981FF; }
+  .att-status { margin-left:8px; font-size:0.85em; color:#2c7a2c; display:none; }
+  .att-status.error { color:#b00020; }
+      /* Framadate UI helpers */
+      .framadate-wrapper { position: relative; border: 1.5px solid #3981FF44; border-radius: 10px; padding: 10px; background: #fff; box-shadow: 0 2px 8px #3981FF22; overflow: hidden; }
+      .framadate-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+      .framadate-toolbar .hint { color: #355; font-size: 0.95em; }
+      .framadate-actions { display: flex; align-items: center; gap: 8px; }
+      .btn-zoom { padding: 8px 12px; border: 2px solid #3981FF; background: #3981FF; color: #fff; font-weight: 600; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 6px #3981FF33; }
+      .btn-zoom.secondary { background: #eef5ff; color: #135; border-color: #98bfff; }
+      .framadate-iframe { width: 100%; min-height: 780px; border: 1.5px solid #3981FF; border-radius: 8px; background: #fff; transform-origin: 0 0; transition: transform 0.2s ease, height 0.2s ease; }
+      .framadate-wrapper.zoom .framadate-iframe { transform: scale(1.2); height: 1100px; }
+      @media (max-width: 900px) {
+        .framadate-wrapper.zoom .framadate-iframe { transform: none; height: 900px; }
+        .framadate-actions { flex-wrap: wrap; }
+      }
+  /* Events list scroll + past styling */
+  .events-scroll { max-height: 360px; overflow-y: auto; padding-right: 6px; margin-top: 10px; }
+  .events-scroll ul { margin: 0; padding-left: 18px; }
+  .event-past { color: #888; text-decoration: line-through; }
+  /* subtle scrollbar for Windows */
+  .events-scroll::-webkit-scrollbar { width: 10px; }
+  .events-scroll::-webkit-scrollbar-thumb { background: #d3e4ff; border-radius: 6px; }
+  .events-scroll::-webkit-scrollbar-track { background: transparent; }
+  /* Chef-only UI */
+  .chef-only { display: none; }
+  body.role-chef .chef-only { display: inline; }
+  .event-item { cursor: default; }
+  body.role-chef .event-item { cursor: pointer; }
+  .event-stats { display:none; margin-top:6px; background:#f6fbff; border:1px solid #b6e0fe; padding:8px 10px; border-radius:8px; }
+  .event-stats .count { font-weight:700; margin-right:12px; }
+  .event-stats ul { margin:6px 0 0 18px; }
+  /* Admin panel (chef only) */
+  #admin-panel { display:none; position:fixed; right:18px; bottom:18px; width:320px; z-index:9999; background:#ffffff; border:1.5px solid #b6e0fe; border-radius:12px; box-shadow:0 6px 24px #3981FF33; padding:14px; }
+  #admin-panel h4 { margin:0 0 8px 0; font-size:1.05em; color:#134; }
+  #admin-panel .row { display:flex; gap:8px; align-items:center; margin:6px 0; }
+  #admin-panel label { font-size:0.9em; color:#345; min-width:72px; }
+  #admin-panel input, #admin-panel select { flex:1; padding:6px 8px; border:1px solid #cfe3ff; border-radius:8px; }
+  #admin-panel .actions { display:flex; gap:8px; margin-top:8px; }
+  #admin-panel button { padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:600; }
+  #btn-download-att { background:#eef5ff; color:#134; border:2px solid #98bfff; }
+  #btn-purge-event { background:#ffecec; color:#511; border:2px solid #feb6b6; }
+  body.role-chef #admin-panel { display:block; }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,17 +109,264 @@
       <div id="tabs-container" style="display:none;max-width:1100px;margin:0 auto;">
         <div class="choristes-tabs" style="display:flex;gap:18px;margin-bottom:32px;background:#f3f6fa;padding:18px 0 18px 0;border-radius:18px;box-shadow:0 2px 12px #3981FF22;">
           <button class="choristes-tab active" data-tab="chansons" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #3981FF;background:#3981FF;color:#fff;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF33;outline:none;transition:all 0.2s;position:relative;">Chansons</button>
-          <button class="choristes-tab" data-tab="liens" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Liens d'inscription et cours</button>
+          <button class="choristes-tab" data-tab="liens" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Inscriptions & engagements</button>
           <button class="choristes-tab" data-tab="calendrier" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Calendrier et présences</button>
         </div>
         <div id="tab-content-chansons" class="choristes-tab-content"></div>
         <div id="tab-content-liens" class="choristes-tab-content" style="display:none;">
-          <h2>Liens d'inscription et cours</h2>
-          <ul style="font-size:1.1em;line-height:2;">
-            <li><a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/grande-chorale-de-la-voix-libre-2025-2026" target="_blank">Inscription chorale La Voix Libre</a></li>
-            <li><a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/soul-2025-2026" target="_blank">Inscription SOUL</a></li>
-            <li><a href="https://calendly.com/vincenttricotel/cours-individuel" target="_blank">Prendre RDV pour un cours de chant avec Vincent</a></li>
-          </ul>
+          <h2>Inscriptions & engagements</h2>
+
+          <section style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
+            <h3 style="margin-top:0;">SOUL – Inscription & feuille d'engagement</h3>
+            <p style="font-size:1.05em;">
+              Inscription SOUL :
+              <a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/soul-2025-2026" target="_blank" rel="noopener">formulaire HelloAsso</a>
+            </p>
+            <details style="margin-top:10px;">
+              <summary style="cursor:pointer;font-weight:600;color:#3981FF;">Feuille d'engagement 2025–2026 (SOUL)</summary>
+              <div style="margin-top:12px;line-height:1.6;">
+                <h2>Engagement annuel – Chorale Soul de La Voix Libre<br><small>Saison 2025–2026</small></h2>
+                <h3>Horaire & lieu des répétitions</h3>
+                <p>Les répétitions ont lieu chaque mardi soir de 20h00 à 22h00, hors vacances scolaires de la Zone B et jours fériés.<br>
+                Lieu actuel : Campus The Land.<br>
+                Ce lieu peut changer en cours d’année sur décision du bureau. Les choristes seront averti·es par e-mail. Tout nouveau lieu sera situé à Rennes ou à proximité.</p>
+                <h3>Calendrier des répétitions</h3>
+                <p>Période : du mardi 16 septembre 2025 au mardi 30 juin 2026</p>
+                <ul>
+                  <li><strong>Pas de répétition :</strong>
+                    <ul>
+                      <li>Vacances de la Toussaint : 21, 28 octobre 2025</li>
+                      <li>Vacances de Noël : 23, 30 décembre 2025</li>
+                      <li>Vacances d’Hiver : 17, 24 février 2026</li>
+                      <li>Vacances de Printemps : 14, 21 avril 2026</li>
+                      <li>Armistice : mardi 11 novembre 2025</li>
+                    </ul>
+                  </li>
+                  <li><strong>Répétitions prévues (33 séances) :</strong>
+                    <ul>
+                      <li>Septembre 2025 : 16, 23, 30</li>
+                      <li>Octobre 2025 : 7, 14</li>
+                      <li>Novembre 2025 : 4, 18, 25</li>
+                      <li>Décembre 2025 : 2, 9, 16</li>
+                      <li>Janvier 2026 : 6, 13, 20, 27</li>
+                      <li>Février 2026 : 3, 10</li>
+                      <li>Mars 2026 : 3, 10, 17, 24, 31</li>
+                      <li>Avril 2026 : 28</li>
+                      <li>Mai 2026 : 5, 12, 19, 26</li>
+                      <li>Juin 2026 : 2, 9, 16, 23, 30</li>
+                    </ul>
+                  </li>
+                </ul>
+                <p>Des répétitions supplémentaires peuvent être ajoutées en cours d’année pour préparer les concerts ou événements, généralement dans les jours précédant ces rendez-vous.</p>
+                <h3>Calendrier des représentations</h3>
+                <p>Le calendrier des représentations est élaboré durant le premier mois de la rentrée scolaire (septembre) et reste consultable à tout moment sur le site internet, espace choriste → onglet “Calendrier”.<br>
+                Plusieurs concerts et événements jalonnent l’année : déambulations chantées dans Rennes, pique-niques chantés, flash mobs, collaborations avec d’autres structures et chorales.<br>
+                Ces moments rendent la chorale particulièrement dynamique, joyeuse et attractive, et demandent donc implication et engagement de la part de chacun·e.<br>
+                Nous savons que tout le monde ne peut pas être disponible à chaque date, mais nous faisons en sorte de fixer ces rendez-vous le plus tôt possible afin que chacun·e puisse s’organiser et se libérer dans la mesure du possible.<br>
+                Ce calendrier peut évoluer au cours de l’année en fonction des propositions, des occasions et des nouvelles collaborations.</p>
+                <h3>Nouveauté 2025–2026 : un site pour tout centraliser</h3>
+                <p>Toutes les ressources sont désormais regroupées sur notre site internet chanterlavoixlibre.fr, dans l’espace choriste :</p>
+                <ul>
+                  <li>partitions</li>
+                  <li>enregistrements</li>
+                  <li>planning & calendrier</li>
+                  <li>informations pratiques sur les concerts et événements</li>
+                </ul>
+                <p>Pour une meilleure organisation, les choristes sont invités à confirmer ou infirmer leur présence aux événements via les formulaires Framadate intégrés au site.<br>
+                Cette anticipation permet d’adapter au mieux les répertoires, la répartition des voix et la logistique.</p>
+                <h3>Rôle du chef de chœur</h3>
+                <ul>
+                  <li>choisit le répertoire</li>
+                  <li>dirige les répétitions</li>
+                  <li>propose échauffements vocaux et corporels</li>
+                  <li>transmet les outils techniques et musicaux nécessaires</li>
+                  <li>incarne les valeurs humaines et musicales du groupe</li>
+                </ul>
+                <p>En accord avec le bureau, il peut exclure temporairement ou définitivement un·e choriste dont le comportement nuit au groupe, notamment en cas :</p>
+                <ul>
+                  <li>de propos ou attitudes déplacés</li>
+                  <li>de comportements irrespectueux ou dangereux</li>
+                </ul>
+                <h3>Comportement des choristes</h3>
+                <ul>
+                  <li>respecter le cadre bienveillant et collectif</li>
+                  <li>respecter les autres membres</li>
+                  <li>s’abstenir de tout propos déplacé en dehors du cadre du chant et de la chorale</li>
+                  <li>veiller à ce que la chorale reste un espace sûr (safe), exempt de propos ou comportements pouvant heurter (harcèlement, sexisme, homophobie, discrimination…)</li>
+                  <li>contribuer à un environnement respectueux de l’égalité des sexes et de la diversité</li>
+                </ul>
+                <p>L’association décline toute responsabilité en cas d’incident ou de comportement inapproprié.<br>
+                Le bureau se réserve le droit de décider de la poursuite ou non de la participation d’un·e membre.</p>
+                <h3>Cotisation – Inscription définitive</h3>
+                <p>L’inscription est définitive une fois la cotisation réglée (via HelloAsso ou autre moyen convenu).<br>
+                Elle comprend :</p>
+                <ul>
+                  <li>l’adhésion à l’association</li>
+                  <li>la participation à l’activité chorale</li>
+                </ul>
+                <h3>Pourquoi aucun remboursement ?</h3>
+                <p>Les frais engagés (chef de chœur, location des salles, organisation des concerts) sont calculés sur l’ensemble de l’année. Une place libérée en cours de saison ne peut pas être réattribuée et ces frais restent dus, ce qui rend tout remboursement impossible, sauf cas de force majeure validé par le bureau.</p>
+                <h3>Paiement mensualisé via HelloAsso</h3>
+                <p>La mensualisation est une facilité de paiement, et non un abonnement.<br>
+                En choisissant cette option, vous vous engagez à régler l’intégralité de la somme sur la durée prévue, même en cas d’arrêt en cours d’année.</p>
+                <h3>Cas exceptionnels</h3>
+                <p>En cas d’annulation des répétitions (crise sanitaire, fermeture administrative…), les choristes seront prévenu·es.<br>
+                Au-delà de 2 semaines consécutives sans remplacement, un remboursement proratisé pourra être proposé, sur décision du bureau.</p>
+                <h3>Image & captations</h3>
+                <p>Les photos/vidéos captées lors des répétitions ou concerts ne peuvent être diffusées sans accord du chef de chœur.<br>
+                En validant votre inscription, vous autorisez l’association et le chef de chœur à utiliser ces images/sons pour la communication du chœur (aucune exploitation commerciale).<br>
+                Vous pouvez retirer votre consentement à tout moment sur simple demande écrite.</p>
+                <h3>Données personnelles</h3>
+                <p>Les données recueillies sont utilisées pour :</p>
+                <ul>
+                  <li>vous informer des activités</li>
+                  <li>gérer l’association</li>
+                </ul>
+                <p>Responsable du traitement : le président du bureau<br>
+                Conservation : 2 ans<br>
+                Consultation/modification/suppression sur demande à :<br>
+                📧 lavoixlibrerennes@gmail.com</p>
+                <h3>Référence aux statuts</h3>
+                <p>Ce document complète les statuts et/ou le règlement intérieur de l’association.<br>
+                En cas de contradiction, ce sont ces derniers qui prévalent.</p>
+                <h3>Communication officielle</h3>
+                <p>L’e-mail est le canal officiel de communication.<br>
+                Il est de la responsabilité de chaque choriste de consulter régulièrement sa messagerie et de maintenir ses coordonnées à jour.</p>
+                <h3>Validation de l'engagement</h3>
+                <p>En validant votre inscription, vous reconnaissez avoir lu et accepté ce document, et vous vous engagez pour toute la saison 2025–2026.</p>
+              </div>
+            </details>
+          </section>
+
+          <section style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
+            <h3 style="margin-top:0;">Grande Chorale – Inscription & feuille d'engagement</h3>
+            <p style="font-size:1.05em;">
+              Inscription Grande Chorale :
+              <a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/grande-chorale-de-la-voix-libre-2025-2026" target="_blank" rel="noopener">formulaire HelloAsso</a>
+            </p>
+            <details style="margin-top:10px;">
+              <summary style="cursor:pointer;font-weight:600;color:#3981FF;">Feuille d'engagement 2025–2026 (Grande Chorale)</summary>
+              <div style="margin-top:12px;line-height:1.6;">
+                <h2>Engagement annuel – La Grande Chorale de La Voix Libre<br><small>Saison 2025–2026</small></h2>
+                <h3>Horaire & lieu des répétitions</h3>
+                <p>Les répétitions ont lieu chaque lundi soir de 19h30 à 21h30, hors vacances scolaires de la Zone B et jours fériés.<br>
+                Lieu actuel : Salle de l’Avenir, 21 rue Papu, Rennes.<br>
+                Ce lieu peut changer en cours d’année sur décision du bureau. Les choristes seront averti·es par e-mail. Tout nouveau lieu sera situé à Rennes.</p>
+                <h3>Calendrier des répétitions</h3>
+                <p>Période : du lundi 15 septembre 2025 au lundi 29 juin 2026</p>
+                <ul>
+                  <li><strong>Pas de répétition :</strong>
+                    <ul>
+                      <li>Vacances de la Toussaint : 20, 27 octobre 2025</li>
+                      <li>Vacances de Noël : 22, 29 décembre 2025</li>
+                      <li>Vacances d’Hiver : 16, 23 février 2026</li>
+                      <li>Vacances de Printemps : 13, 20 avril 2026</li>
+                      <li>Lundi de Pâques : 6 avril 2026</li>
+                      <li>Lundi de Pentecôte : 25 mai 2026</li>
+                    </ul>
+                  </li>
+                  <li><strong>Répétitions prévues (32 séances) :</strong>
+                    <ul>
+                      <li>Septembre 2025 : 15, 22, 29</li>
+                      <li>Octobre 2025 : 6, 13</li>
+                      <li>Novembre 2025 : 3, 10, 17, 24</li>
+                      <li>Décembre 2025 : 1, 8, 15</li>
+                      <li>Janvier 2026 : 5, 12, 19, 26</li>
+                      <li>Février 2026 : 2, 9</li>
+                      <li>Mars 2026 : 2, 9, 16, 23, 30</li>
+                      <li>Avril 2026 : 27</li>
+                      <li>Mai 2026 : 4, 11, 18</li>
+                      <li>Juin 2026 : 1, 8, 15, 22, 29</li>
+                    </ul>
+                  </li>
+                </ul>
+                <p>Des répétitions supplémentaires peuvent être ajoutées en cours d’année pour préparer les concerts ou événements, généralement dans les jours précédant ces rendez-vous.</p>
+                <h3>Calendrier des représentations</h3>
+                <p>Le calendrier des représentations est élaboré durant le premier mois de la rentrée scolaire (septembre) et reste consultable à tout moment sur le site internet, espace choriste → onglet “Calendrier”.<br>
+                Plusieurs concerts et événements jalonnent l’année : déambulations chantées dans Rennes, pique-niques chantés, flash mobs, collaborations avec d’autres structures et chorales.<br>
+                Ces moments rendent la chorale particulièrement dynamique, joyeuse et attractive, et demandent donc implication et engagement de la part de chacun·e.<br>
+                Nous savons que tout le monde ne peut pas être disponible à chaque date, mais nous faisons en sorte de fixer ces rendez-vous le plus tôt possible afin que chacun·e puisse s’organiser et se libérer dans la mesure du possible.<br>
+                Ce calendrier peut évoluer au cours de l’année en fonction des propositions, des occasions et des nouvelles collaborations.</p>
+                <h3>Nouveauté 2025–2026 : un site pour tout centraliser</h3>
+                <p>Toutes les ressources sont désormais regroupées sur notre site internet chanterlavoixlibre.fr, dans l’espace choriste :</p>
+                <ul>
+                  <li>partitions</li>
+                  <li>enregistrements</li>
+                  <li>planning & calendrier</li>
+                  <li>informations pratiques sur les concerts et événements</li>
+                </ul>
+                <p>Pour une meilleure organisation, les choristes sont invités à confirmer ou infirmer leur présence aux événements via les formulaires Framadate intégrés au site.<br>
+                Cette anticipation permet d’adapter au mieux les répertoires, la répartition des voix et la logistique.</p>
+                <h3>Rôle du chef de chœur</h3>
+                <ul>
+                  <li>choisit le répertoire</li>
+                  <li>dirige les répétitions</li>
+                  <li>propose échauffements vocaux et corporels</li>
+                  <li>transmet les outils techniques et musicaux nécessaires</li>
+                  <li>incarne les valeurs humaines et musicales du groupe</li>
+                </ul>
+                <p>En accord avec le bureau, il peut exclure temporairement ou définitivement un·e choriste dont le comportement nuit au groupe, notamment en cas :</p>
+                <ul>
+                  <li>de propos ou attitudes déplacés</li>
+                  <li>de comportements irrespectueux ou dangereux</li>
+                </ul>
+                <h3>Comportement des choristes</h3>
+                <ul>
+                  <li>respecter le cadre bienveillant et collectif</li>
+                  <li>respecter les autres membres</li>
+                  <li>s’abstenir de tout propos déplacé en dehors du cadre du chant et de la chorale</li>
+                  <li>veiller à ce que la chorale reste un espace sûr (safe), exempt de propos ou comportements pouvant heurter (harcèlement, sexisme, homophobie, discrimination…)</li>
+                  <li>contribuer à un environnement respectueux de l’égalité des sexes et de la diversité</li>
+                </ul>
+                <p>L’association décline toute responsabilité en cas d’incident ou de comportement inapproprié.<br>
+                Le bureau se réserve le droit de décider de la poursuite ou non de la participation d’un·e membre.</p>
+                <h3>Cotisation – Inscription définitive</h3>
+                <p>L’inscription est définitive une fois la cotisation réglée (via HelloAsso ou autre moyen convenu).<br>
+                Elle comprend :</p>
+                <ul>
+                  <li>l’adhésion à l’association</li>
+                  <li>la participation à l’activité chorale</li>
+                </ul>
+                <h3>Pourquoi aucun remboursement ?</h3>
+                <p>Les frais engagés (chef de chœur, location des salles, organisation des concerts) sont calculés sur l’ensemble de l’année. Une place libérée en cours de saison ne peut pas être réattribuée et ces frais restent dus, ce qui rend tout remboursement impossible, sauf cas de force majeure validé par le bureau.</p>
+                <h3>Paiement mensualisé via HelloAsso</h3>
+                <p>La mensualisation est une facilité de paiement, et non un abonnement.<br>
+                En choisissant cette option, vous vous engagez à régler l’intégralité de la somme sur la durée prévue, même en cas d’arrêt en cours d’année.</p>
+                <h3>Cas exceptionnels</h3>
+                <p>En cas d’annulation des répétitions (crise sanitaire, fermeture administrative…), les choristes seront prévenu·es.<br>
+                Au-delà de 2 semaines consécutives sans remplacement, un remboursement proratisé pourra être proposé, sur décision du bureau.</p>
+                <h3>Image & captations</h3>
+                <p>Les photos/vidéos captées lors des répétitions ou concerts ne peuvent être diffusées sans accord du chef de chœur.<br>
+                En validant votre inscription, vous autorisez l’association et le chef de chœur à utiliser ces images/sons pour la communication du chœur (aucune exploitation commerciale).<br>
+                Vous pouvez retirer votre consentement à tout moment sur simple demande écrite.</p>
+                <h3>Données personnelles</h3>
+                <p>Les données recueillies sont utilisées pour :</p>
+                <ul>
+                  <li>vous informer des activités</li>
+                  <li>gérer l’association</li>
+                </ul>
+                <p>Responsable du traitement : le président du bureau<br>
+                Conservation : 2 ans<br>
+                Consultation/modification/suppression sur demande à :<br>
+                📧 lavoixlibrerennes@gmail.com</p>
+                <h3>Référence aux statuts</h3>
+                <p>Ce document complète les statuts et/ou le règlement intérieur de l’association.<br>
+                En cas de contradiction, ce sont ces derniers qui prévalent.</p>
+                <h3>Communication officielle</h3>
+                <p>L’e-mail est le canal officiel de communication.<br>
+                Il est de la responsabilité de chaque choriste de consulter régulièrement sa messagerie et de maintenir ses coordonnées à jour.</p>
+                <h3>Validation de l'engagement</h3>
+                <p>En validant votre inscription, vous reconnaissez avoir lu et accepté ce document, et vous vous engagez pour toute la saison 2025–2026.</p>
+              </div>
+            </details>
+          </section>
+
+          <section style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
+            <h3 style="margin-top:0;">Cours individuels</h3>
+            <p>Prendre RDV pour un cours de chant avec Vincent :
+              <a href="https://calendly.com/vincenttricotel/cours-individuel" target="_blank" rel="noopener">Calendly</a>
+            </p>
+          </section>
         </div>
         <div id="tab-content-calendrier" class="choristes-tab-content" style="display:none;">
           <h2>Calendrier et présences</h2>
@@ -81,80 +379,531 @@
             <button class="calendrier-sous-onglet" data-sousonglet="soul" style="padding:14px 38px;font-size:1.15em;border-radius:12px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">SOUL</button>
           </div>
           <div id="sousonglet-grandechorale" class="calendrier-sousonglet-content">
+            <div id="presence-profile-bar" class="presence-profile">
+              <div class="field">
+                <label for="choriste-prenom">Prénom</label>
+                <input id="choriste-prenom" type="text" placeholder="Votre prénom">
+              </div>
+              <div class="field">
+                <label for="choriste-nom">Nom</label>
+                <input id="choriste-nom" type="text" placeholder="Votre nom">
+              </div>
+              <div class="field">
+                <label for="choriste-pupitre">Pupitre</label>
+                <select id="choriste-pupitre">
+                  <option value="">Sélectionner…</option>
+                  <option>Soprane</option>
+                  <option>Alto</option>
+                  <option>Ténor</option>
+                  <option>Basse</option>
+                </select>
+              </div>
+              <button class="save" id="choriste-save">Enregistrer mon profil</button>
+            </div>
             <div style="margin-bottom:32px;">
               <h3 style="margin-bottom:12px;">Agenda annuel Grande Chorale</h3>
-              <div id="events-list" style="background:#f8faff;border:1px solid #b6e0fe;padding:16px 20px;border-radius:10px;margin-bottom:18px;max-width:900px;margin:0 auto 18px auto;"></div>
+              <div id="events-lists" style="display:flex;gap:16px;flex-wrap:wrap;max-width:900px;margin:0 auto 18px auto;">
+                <div id="events-list-repetitions" style="flex:1;min-width:260px;background:#f8faff;border:1px solid #b6e0fe;padding:16px 20px;border-radius:10px;"></div>
+                <div id="events-list-concerts" style="flex:1;min-width:260px;background:#fff8f8;border:1px solid #feb6b6;padding:16px 20px;border-radius:10px;"></div>
+              </div>
               <iframe src="https://calendar.google.com/calendar/embed?src=8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e%40group.calendar.google.com&ctz=Europe%2FParis&mode=MONTH" style="border:0;width:100%;min-height:600px;max-width:900px;margin:0 auto;display:block;border-radius:12px;box-shadow:0 2px 12px #3981FF22;" frameborder="0" scrolling="no" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
               <script>
                 const apiKey = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
                 const calendarId = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
-                const maxResults = 10;
+                const maxResults = 100;
                 const timeMin = new Date().toISOString();
                 fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&maxResults=${maxResults}&orderBy=startTime&singleEvents=true`)
                   .then(res => res.json())
                   .then(data => {
-                    const container = document.getElementById('events-list');
-                    if (!data.items || !data.items.length) {
-                      container.innerHTML = '<em>Aucun événement à venir.</em>';
+                    const contRep = document.getElementById('events-list-repetitions');
+                    const contEvt = document.getElementById('events-list-concerts');
+                    const items = (data.items || []);
+                    if (!items.length) {
+                      contRep.innerHTML = '<em>Aucune répétition à venir.</em>'; 
+                      contEvt.innerHTML = '<em>Aucun concert/événement à venir.</em>';
                       return;
                     }
-                    container.innerHTML = '<strong>Prochains événements :</strong><ul style="margin-top:10px;line-height:1.7;">' +
-                      data.items.map(ev => {
-                        const start = ev.start.dateTime || ev.start.date;
-                        const date = new Date(start);
-                        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                        const dateStr = date.toLocaleString('fr-FR', options);
-                        return `<li><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=\'color:#888;\'>(' + ev.location + ')</span>' : ''}</li>`;
-                      }).join('') + '</ul>';
+                    const kw = /(concert|événement|evenement|déambulation|deambulation|chant|stage|pic[- ]?nic|pique[- ]?nique|pique[- ]?niques)/i;
+                    const concerts = items.filter(ev => kw.test((ev.summary || '')));
+                    const repetitions = items.filter(ev => !kw.test((ev.summary || '')));
+                    const now = new Date();
+                    const fmt = (ev, withAtt) => {
+                      const start = ev.start.dateTime || ev.start.date;
+                      const end = (ev.end && (ev.end.dateTime || ev.end.date)) || start;
+                      const endDate = new Date(end);
+                      const isPast = endDate < now;
+                      const date = new Date(start);
+                      const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                      const dateStr = date.toLocaleString('fr-FR', options);
+                      const disabled = isPast ? 'disabled' : '';
+                      const eid = (ev.id || (ev.summary + '-' + start)).replace(/[^a-zA-Z0-9_-]/g,'');
+                      const att = withAtt ? `
+                        <span class="att-controls" data-calendar="grandechorale" data-eventid="${eid}" data-title="${(ev.summary || '').replace(/"/g,'&quot;')}" data-start="${start}" data-end="${end}" data-location="${(ev.location||'').replace(/"/g,'&quot;')}">
+                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="present" ${disabled} onclick="submitAttendance(this)"> Présent</label>
+                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="absent" ${disabled} onclick="submitAttendance(this)"> Absent</label>
+                          <span class="att-status">Enregistré</span>
+                        </span>` : '';
+                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="grandechorale" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=\'color:#888;\'>(' + ev.location + ')</span>' : ''}${att}
+                        <div class="event-stats chef-only" aria-hidden="true"></div>
+                      </li>`;
+                    };
+                    contRep.innerHTML = '<strong>Prochaines répétitions :</strong>' + (repetitions.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + repetitions.map(ev => fmt(ev, false)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucune répétition à venir.</em></div>');
+                    contEvt.innerHTML = '<strong>Prochain concert/événement :</strong>' + (concerts.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + concerts.map(ev => fmt(ev, true)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucun concert/événement à venir.</em></div>');
                   })
                   .catch(() => {
-                    document.getElementById('events-list').innerHTML = '<em>Impossible de charger les événements (clé API manquante ou agenda non public).</em>';
+                    document.getElementById('events-list-repetitions').innerHTML = '<em>Impossible de charger les répétitions (clé API manquante ou agenda non public).</em>';
+                    document.getElementById('events-list-concerts').innerHTML = '<em>Impossible de charger les concerts/événements (clé API manquante ou agenda non public).</em>';
                   });
               </script>
             </div>
-            <p>Pour indiquer votre présence aux concerts et stages de la Grande Chorale, remplissez directement le sondage ci-dessous :</p>
-            <iframe src="https://framadate.org/PQQH3ffEpZwplOUs" style="width:100%;min-height:700px;border:1.5px solid #3981FF;border-radius:10px;background:#fff;" allowfullscreen loading="lazy"></iframe>
-            <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/PQQH3ffEpZwplOUs" target="_blank">https://framadate.org/PQQH3ffEpZwplOUs</a></p>
+            <p>Pour indiquer votre présence aux concerts et stages de la Grande Chorale, utilisez le sondage ci-dessous :</p>
+            <div id="framadate-grandechorale" class="framadate-wrapper" data-default-zoom="desktop">
+              <div class="framadate-toolbar">
+                <div class="hint">
+                  <strong>Présences</strong> — cochez la colonne sous votre prénom pour chaque date.
+                </div>
+                <div class="framadate-actions">
+                  <button type="button" class="btn-zoom" data-target="framadate-grandechorale">Zoom cases à cocher</button>
+                  <a class="btn-zoom secondary" href="https://framadate.org/PQQH3ffEpZwplOUs" target="_blank" rel="noopener">Plein écran</a>
+                </div>
+              </div>
+              <iframe class="framadate-iframe" src="https://framadate.org/PQQH3ffEpZwplOUs" title="Présences Grande Chorale" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/PQQH3ffEpZwplOUs" target="_blank" rel="noopener">https://framadate.org/PQQH3ffEpZwplOUs</a></p>
           </div>
           <div id="sousonglet-soul" class="calendrier-sousonglet-content" style="display:none;">
+            <div id="presence-profile-bar-soul" class="presence-profile">
+              <div class="field">
+                <label for="choriste-prenom-soul">Prénom</label>
+                <input id="choriste-prenom-soul" type="text" placeholder="Votre prénom">
+              </div>
+              <div class="field">
+                <label for="choriste-nom-soul">Nom</label>
+                <input id="choriste-nom-soul" type="text" placeholder="Votre nom">
+              </div>
+              <div class="field">
+                <label for="choriste-pupitre-soul">Pupitre</label>
+                <select id="choriste-pupitre-soul">
+                  <option value="">Sélectionner…</option>
+                  <option>Soprane</option>
+                  <option>Alto</option>
+                  <option>Ténor</option>
+                  <option>Basse</option>
+                </select>
+              </div>
+              <button class="save" id="choriste-save-soul">Enregistrer mon profil</button>
+            </div>
             <div style="margin-bottom:32px;">
               <h3 style="margin-bottom:12px;">Agenda annuel SOUL</h3>
-              <div id="events-list-soul" style="background:#f8faff;border:1px solid #b6e0fe;padding:16px 20px;border-radius:10px;margin-bottom:18px;max-width:900px;margin:0 auto 18px auto;"></div>
+              <div id="events-lists-soul" style="display:flex;gap:16px;flex-wrap:wrap;max-width:900px;margin:0 auto 18px auto;">
+                <div id="events-list-soul-repetitions" style="flex:1;min-width:260px;background:#f8faff;border:1px solid #b6e0fe;padding:16px 20px;border-radius:10px;"></div>
+                <div id="events-list-soul-concerts" style="flex:1;min-width:260px;background:#fff8f8;border:1px solid #feb6b6;padding:16px 20px;border-radius:10px;"></div>
+              </div>
               <iframe src="https://calendar.google.com/calendar/embed?src=566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce%40group.calendar.google.com&ctz=Europe%2FParis&mode=MONTH" style="border:0;width:100%;min-height:600px;max-width:900px;margin:0 auto;display:block;border-radius:12px;box-shadow:0 2px 12px #3981FF22;" frameborder="0" scrolling="no" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
               <script>
                 const apiKeySoul = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
                 const calendarIdSoul = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
-                const maxResultsSoul = 10;
+                const maxResultsSoul = 250;
                 const timeMinSoul = new Date().toISOString();
                 fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarIdSoul)}/events?key=${apiKeySoul}&timeMin=${timeMinSoul}&maxResults=${maxResultsSoul}&orderBy=startTime&singleEvents=true`)
                   .then(res => res.json())
                   .then(data => {
-                    const container = document.getElementById('events-list-soul');
-                    if (!data.items || !data.items.length) {
-                      container.innerHTML = '<em>Aucun événement à venir.</em>';
+                    const contRep = document.getElementById('events-list-soul-repetitions');
+                    const contEvt = document.getElementById('events-list-soul-concerts');
+                    const items = (data.items || []);
+                    if (!items.length) {
+                      contRep.innerHTML = '<em>Aucune répétition à venir.</em>'; 
+                      contEvt.innerHTML = '<em>Aucun concert/événement à venir.</em>';
                       return;
                     }
-                    container.innerHTML = '<strong>Prochains événements :</strong><ul style="margin-top:10px;line-height:1.7;">' +
-                      data.items.map(ev => {
-                        const start = ev.start.dateTime || ev.start.date;
-                        const date = new Date(start);
-                        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                        const dateStr = date.toLocaleString('fr-FR', options);
-                        return `<li><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=\'color:#888;\'>(' + ev.location + ')</span>' : ''}</li>`;
-                      }).join('') + '</ul>';
+                    const kw = /(concert|événement|evenement|déambulation|deambulation|chant|stage|pic[- ]?nic|pique[- ]?nique|pique[- ]?niques)/i;
+                    const concerts = items.filter(ev => kw.test((ev.summary || '')));
+                    const repetitions = items.filter(ev => !kw.test((ev.summary || '')));
+                    const nowSoul = new Date();
+                    const fmt = (ev, withAtt) => {
+                      const start = ev.start.dateTime || ev.start.date;
+                      const end = (ev.end && (ev.end.dateTime || ev.end.date)) || start;
+                      const endDate = new Date(end);
+                      const isPast = endDate < nowSoul;
+                      const date = new Date(start);
+                      const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                      const dateStr = date.toLocaleString('fr-FR', options);
+                      const disabled = isPast ? 'disabled' : '';
+                      const eid = (ev.id || (ev.summary + '-' + start)).replace(/[^a-zA-Z0-9_-]/g,'');
+                      const att = withAtt ? `
+                        <span class=\"att-controls\" data-calendar=\"soul\" data-eventid=\"${eid}\" data-title=\"${(ev.summary || '').replace(/\"/g,'&quot;')}\" data-start=\"${start}\" data-end=\"${end}\" data-location=\"${(ev.location||'').replace(/\"/g,'&quot;')}\">
+                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"present\" ${disabled} onclick=\"submitAttendance(this)\"> Présent</label>
+                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"absent\" ${disabled} onclick=\"submitAttendance(this)\"> Absent</label>
+                          <span class=\"att-status\">Enregistré</span>
+                        </span>` : '';
+                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="soul" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=' + "'color:#888;'" + '>(' + ev.location + ')</span>' : ''}${att}
+                        <div class="event-stats chef-only" aria-hidden="true"></div>
+                      </li>`;
+                    };
+                    contRep.innerHTML = '<strong>Prochaines répétitions :</strong>' + (repetitions.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + repetitions.map(ev => fmt(ev, false)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucune répétition à venir.</em></div>');
+                    contEvt.innerHTML = '<strong>Prochain concert/événement :</strong>' + (concerts.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + concerts.map(ev => fmt(ev, true)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucun concert/événement à venir.</em></div>');
                   })
                   .catch(() => {
-                    document.getElementById('events-list-soul').innerHTML = '<em>Impossible de charger les événements (clé API manquante ou agenda non public).</em>';
+                    document.getElementById('events-list-soul-repetitions').innerHTML = '<em>Impossible de charger les répétitions (clé API manquante ou agenda non public).</em>';
+                    document.getElementById('events-list-soul-concerts').innerHTML = '<em>Impossible de charger les concerts/événements (clé API manquante ou agenda non public).</em>';
                   });
               </script>
             </div>
-            <p>Pour indiquer votre présence aux concerts et stages de SOUL, remplissez directement le sondage ci-dessous :</p>
-            <iframe src="https://framadate.org/5jMb5k4sL795WTyp" style="width:100%;min-height:700px;border:1.5px solid #3981FF;border-radius:10px;background:#fff;" allowfullscreen loading="lazy"></iframe>
-            <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/5jMb5k4sL795WTyp" target="_blank">https://framadate.org/5jMb5k4sL795WTyp</a></p>
+            <p>Pour indiquer votre présence aux concerts et stages de SOUL, utilisez le sondage ci-dessous :</p>
+            <div id="framadate-soul" class="framadate-wrapper" data-default-zoom="desktop">
+              <div class="framadate-toolbar">
+                <div class="hint">
+                  <strong>Présences</strong> — cochez la colonne sous votre prénom pour chaque date.
+                </div>
+                <div class="framadate-actions">
+                  <button type="button" class="btn-zoom" data-target="framadate-soul">Zoom cases à cocher</button>
+                  <a class="btn-zoom secondary" href="https://framadate.org/5jMb5k4sL795WTyp" target="_blank" rel="noopener">Plein écran</a>
+                </div>
+              </div>
+              <iframe class="framadate-iframe" src="https://framadate.org/5jMb5k4sL795WTyp" title="Présences SOUL" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <p style="margin-top:10px;">Ou copiez ce lien&nbsp;: <a href="https://framadate.org/5jMb5k4sL795WTyp" target="_blank" rel="noopener">https://framadate.org/5jMb5k4sL795WTyp</a></p>
           </div>
         </div>
       </div>
     </main>
+    <!-- Admin (chef) floating panel -->
+    <div id="admin-panel" aria-live="polite" aria-label="Panneau admin présences">
+      <h4>Admin présences (chef)</h4>
+      <div class="row">
+        <label for="admin-calendar">Agenda</label>
+        <select id="admin-calendar">
+          <option value="grandechorale">Grande chorale</option>
+          <option value="soul">SOUL</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="admin-eventid">Event ID</label>
+        <input id="admin-eventid" type="text" placeholder="Sélectionnez un événement…">
+      </div>
+      <div class="actions">
+        <button type="button" id="btn-download-att" title="Télécharger toutes les présences (JSON)">Télécharger JSON</button>
+        <button type="button" id="btn-purge-event" title="Supprimer toutes les réponses de cet événement">Purger l’événement</button>
+      </div>
+      <div id="admin-hint" style="font-size:0.85em;color:#456;margin-top:6px;">Astuce: cliquez un événement pour préremplir.</div>
+    </div>
+    <script>
+      // Framadate zoom toggles
+      (function() {
+        function setDefaultZoom() {
+          const isDesktop = window.innerWidth >= 900;
+          document.querySelectorAll('.framadate-wrapper[data-default-zoom="desktop"]').forEach(wrap => {
+            wrap.classList.toggle('zoom', isDesktop);
+            const btn = document.querySelector('.btn-zoom[data-target="' + wrap.id + '"]');
+            if (btn) btn.textContent = wrap.classList.contains('zoom') ? 'Vue standard' : 'Zoom cases à cocher';
+          });
+        }
+        function initZoomButtons() {
+          document.querySelectorAll('.btn-zoom').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const targetId = this.getAttribute('data-target');
+              const wrap = document.getElementById(targetId);
+              if (!wrap) return;
+              wrap.classList.toggle('zoom');
+              this.textContent = wrap.classList.contains('zoom') ? 'Vue standard' : 'Zoom cases à cocher';
+            });
+          });
+        }
+        window.addEventListener('resize', function() {
+          // Re-apply default on resize only if no manual toggle happened
+          // We detect manual toggles by data-manual flag (set on first click)
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+          setDefaultZoom();
+          initZoomButtons();
+        });
+      })();
+    </script>
+    <script>
+      // Configurer ci-dessous l'URL du Web App Google Apps Script (à déployer) pour l'enregistrement des présences
+  const ATTENDANCE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
+  const PROFILE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
+  function isGASEndpoint(u){ return /script\.google\.com|googleusercontent\.com\/macros/.test(u||''); }
+      function getChoristeProfile() {
+        try { return JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch { return {}; }
+      }
+      function setChoristeProfile(p) {
+        localStorage.setItem('choristeProfile', JSON.stringify(p||{}));
+      }
+      // Normalisation simple (pour backend si besoin)
+      function normalizeName(s) {
+        return (s||'').toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').trim().toLowerCase();
+      }
+      function ensureProfileInputs() {
+        const p = getChoristeProfile();
+        // Migration légère si ancien format {name: 'Prénom Nom'}
+        if (p && p.name && (!p.prenom || !p.nom)) {
+          const parts = String(p.name).split(/\s+/);
+          p.prenom = parts[0] || '';
+          p.nom = parts.slice(1).join(' ') || '';
+          delete p.name; delete p.email;
+          setChoristeProfile(p);
+        }
+        function bindSet(ids) {
+          const prenom = document.getElementById(ids.prenom);
+          const nom = document.getElementById(ids.nom);
+          const pup = document.getElementById(ids.pup);
+          const btn = document.getElementById(ids.btn);
+          if (prenom && p.prenom) prenom.value = p.prenom;
+          if (nom && p.nom) nom.value = p.nom;
+          if (pup && p.pupitre) pup.value = p.pupitre;
+          if (btn) btn.onclick = () => {
+            const np = {
+              prenom: (prenom ? prenom.value.trim() : ''),
+              nom: (nom ? nom.value.trim() : ''),
+              pupitre: (pup ? pup.value : '')
+            };
+            setChoristeProfile(np);
+            // Tentative d'enregistrement serveur (optionnel)
+            (async () => {
+              try {
+                if (PROFILE_ENDPOINT) {
+                  let res;
+                  if (isGASEndpoint(PROFILE_ENDPOINT)) {
+                    const params = new URLSearchParams();
+                    params.set('action','profile');
+                    params.set('data', JSON.stringify(np));
+                    res = await fetch(PROFILE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+                  } else {
+                    res = await fetch(PROFILE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(np) });
+                  }
+                  if (!res.ok) throw new Error('HTTP ' + res.status);
+                  alert('Profil enregistré (serveur).');
+                } else {
+                  alert('Profil enregistré (local).');
+                }
+              } catch (e) {
+                console.warn('Enregistrement profil serveur échoué:', e);
+                alert('Profil enregistré (local).');
+              }
+            })();
+            // Repropager vers l'autre encart
+            const sets = [
+              { prenom: 'choriste-prenom', nom: 'choriste-nom', pup: 'choriste-pupitre' },
+              { prenom: 'choriste-prenom-soul', nom: 'choriste-nom-soul', pup: 'choriste-pupitre-soul' }
+            ];
+            sets.forEach(s => {
+              const p2 = document.getElementById(s.prenom);
+              const n2 = document.getElementById(s.nom);
+              const pv = document.getElementById(s.pup);
+              if (p2) p2.value = np.prenom;
+              if (n2) n2.value = np.nom;
+              if (pv) pv.value = np.pupitre;
+            });
+          };
+        }
+        bindSet({ prenom: 'choriste-prenom', nom: 'choriste-nom', pup: 'choriste-pupitre', btn: 'choriste-save' });
+        bindSet({ prenom: 'choriste-prenom-soul', nom: 'choriste-nom-soul', pup: 'choriste-pupitre-soul', btn: 'choriste-save-soul' });
+      }
+      async function submitAttendance(inputEl) {
+        const wrap = inputEl.closest('.att-controls');
+        const statusEl = wrap.querySelector('.att-status');
+        const profile = getChoristeProfile();
+        if (!profile.prenom || !profile.nom || !profile.pupitre) {
+          alert('Merci de renseigner votre profil (Prénom, Nom et Pupitre) au-dessus avant de cocher.');
+          inputEl.checked = false;
+          return;
+        }
+        const payload = {
+          calendar: wrap.dataset.calendar,
+          eventId: wrap.dataset.eventid,
+          eventTitle: wrap.dataset.title,
+          start: wrap.dataset.start,
+          end: wrap.dataset.end,
+          location: wrap.dataset.location,
+          status: inputEl.value, // 'present' | 'absent'
+          choriste: {
+            prenom: profile.prenom,
+            nom: profile.nom,
+            pupitre: profile.pupitre,
+            prenom_norm: normalizeName(profile.prenom),
+            nom_norm: normalizeName(profile.nom)
+          },
+          ts: new Date().toISOString()
+        };
+        function saveLocalAttendance(p) {
+          try {
+            const store = JSON.parse(localStorage.getItem('attendanceLocal') || '{}');
+            if (!store[p.calendar]) store[p.calendar] = {};
+            store[p.calendar][p.eventId] = { status: p.status, choriste: p.choriste, ts: p.ts };
+            localStorage.setItem('attendanceLocal', JSON.stringify(store));
+          } catch {}
+        }
+        try {
+          if (!ATTENDANCE_ENDPOINT) {
+            // Enregistrement local (fallback sans backend)
+            saveLocalAttendance(payload);
+            statusEl.textContent = 'Enregistré (local)';
+            statusEl.classList.remove('error');
+            statusEl.style.display = 'inline';
+            setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
+            return;
+          }
+          let res;
+          if (isGASEndpoint(ATTENDANCE_ENDPOINT)) {
+            // Apps Script: éviter preflight => form-encoded avec action + data
+            const params = new URLSearchParams();
+            params.set('action','attendance');
+            params.set('data', JSON.stringify(payload));
+            res = await fetch(ATTENDANCE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+          } else {
+            res = await fetch(ATTENDANCE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          }
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          statusEl.textContent = 'Enregistré';
+          statusEl.classList.remove('error');
+          statusEl.style.display = 'inline';
+          setTimeout(() => { statusEl.style.display = 'none'; }, 2500);
+          // Si un encart stats est ouvert pour cet event et que l'utilisateur est chef, on rafraîchit
+          if (window.IS_CHEF) {
+            const li = wrap.closest('.event-item');
+            if (li) {
+              const statsDiv = li.querySelector('.event-stats');
+              if (statsDiv && statsDiv.style.display === 'block') {
+                try { await refreshEventStats(li); } catch {}
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Envoi présence échoué', e);
+          statusEl.textContent = 'Erreur d\'enregistrement';
+          statusEl.classList.add('error');
+          statusEl.style.display = 'inline';
+          setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+        }
+      }
+      document.addEventListener('DOMContentLoaded', ensureProfileInputs);
+
+      // ===== Stats chef: helpers =====
+      function escapeHtml(s){
+        return (s||'').toString().replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c); });
+      }
+      function renderStats(statsDiv, stats){
+        const presents = Array.isArray(stats.present) ? stats.present : [];
+        const absents = Array.isArray(stats.absent) ? stats.absent : [];
+        const counts = '<span class="count">Présents: ' + presents.length + '</span><span class="count">Absents: ' + absents.length + '</span>';
+        const list = presents.length ? ('<ul>' + presents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>') : '<em>Aucun présent pour le moment.</em>';
+        statsDiv.innerHTML = counts + '<div>' + list + '</div>';
+      }
+      async function fetchEventStats(calendar, eventId){
+        if (!ATTENDANCE_ENDPOINT) throw new Error('backend absent');
+  const url = ATTENDANCE_ENDPOINT + (ATTENDANCE_ENDPOINT.includes('?') ? '&' : '?') + 'action=stats&calendar=' + encodeURIComponent(calendar) + '&eventId=' + encodeURIComponent(eventId);
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      }
+      async function refreshEventStats(li){
+        const statsDiv = li.querySelector('.event-stats');
+        if (!statsDiv) return;
+        const calendar = li.getAttribute('data-calendar');
+        const eventId = li.getAttribute('data-eventid');
+        statsDiv.innerHTML = 'Chargement…';
+        try {
+          const stats = await fetchEventStats(calendar, eventId);
+          renderStats(statsDiv, stats);
+        } catch (e) {
+          statsDiv.innerHTML = '<em>Stats indisponibles (backend non configuré).</em>';
+        }
+      }
+      function toggleStatsForEvent(li){
+        const statsDiv = li.querySelector('.event-stats');
+        if (!statsDiv) return;
+        const isOpen = statsDiv.style.display === 'block';
+        if (isOpen){
+          statsDiv.style.display = 'none';
+          statsDiv.setAttribute('aria-hidden','true');
+        } else {
+          statsDiv.style.display = 'block';
+          statsDiv.setAttribute('aria-hidden','false');
+          refreshEventStats(li);
+        }
+      }
+      // Délégation de clic: en mode chef, cliquer une ligne d'événement ouvre/ferme les stats
+      document.addEventListener('click', function(e){
+        if (!window.IS_CHEF) return;
+        const li = e.target.closest && e.target.closest('.event-item');
+        if (!li) return;
+        // Éviter d'interférer avec un clic sur les radios de présence
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.closest('.att-controls'))) return;
+        toggleStatsForEvent(li);
+        // Pré-remplir le panneau admin avec l'événement sélectionné
+        try {
+          const selCal = document.getElementById('admin-calendar');
+          const selEid = document.getElementById('admin-eventid');
+          if (selCal && selEid) {
+            selCal.value = li.getAttribute('data-calendar') || selCal.value;
+            selEid.value = li.getAttribute('data-eventid') || '';
+          }
+        } catch {}
+      });
+    </script>
+    <script>
+      // Admin actions (chef only)
+      (function(){
+        const ADMIN_KEY = 'chefdechoeur'; // même mot de passe que l’accès chef
+        function downloadAll(){
+          if (!ATTENDANCE_ENDPOINT) { alert('Backend indisponible.'); return; }
+          const url = ATTENDANCE_ENDPOINT + (ATTENDANCE_ENDPOINT.includes('?') ? '&' : '?') + 'action=download' + (isGASEndpoint(ATTENDANCE_ENDPOINT) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');
+          fetch(url, { cache: 'no-store', headers: isGASEndpoint(ATTENDANCE_ENDPOINT) ? {} : { 'X-Admin-Key': ADMIN_KEY } })
+            .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.blob(); })
+            .then(blob => {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url; a.download = 'attendance.json';
+              document.body.appendChild(a); a.click(); a.remove();
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            })
+            .catch(err => { console.error(err); alert('Téléchargement impossible.'); });
+        }
+        async function purgeEvent(){
+          if (!ATTENDANCE_ENDPOINT) { alert('Backend indisponible.'); return; }
+          const cal = document.getElementById('admin-calendar').value;
+          const eid = document.getElementById('admin-eventid').value.trim();
+          if (!cal || !eid) { alert('Choisissez un agenda et un Event ID.'); return; }
+          if (!confirm('Confirmer la purge des réponses pour cet événement ?')) return;
+          try {
+            let res;
+            if (isGASEndpoint(ATTENDANCE_ENDPOINT)) {
+              const params = new URLSearchParams();
+              params.set('action','purge');
+              params.set('adminPass', ADMIN_KEY);
+              params.set('calendar', cal);
+              params.set('eventId', eid);
+              res = await fetch(ATTENDANCE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+            } else {
+              res = await fetch(ATTENDANCE_ENDPOINT + '?action=purge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
+                body: JSON.stringify({ calendar: cal, eventId: eid })
+              });
+            }
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            alert('Purge terminée. Supprimés: ' + (data.removed || 0));
+            // Si des stats sont affichées pour cet event, rafraîchir
+            const open = document.querySelector('.event-item[data-calendar="' + cal + '"][data-eventid="' + eid + '"] .event-stats');
+            if (open && open.style.display === 'block') {
+              const li = open.closest('.event-item');
+              if (li) { try { await refreshEventStats(li); } catch {} }
+            }
+          } catch (e) {
+            console.error(e);
+            alert('Purge échouée.');
+          }
+        }
+        document.addEventListener('DOMContentLoaded', function(){
+          const btnDl = document.getElementById('btn-download-att');
+          const btnPg = document.getElementById('btn-purge-event');
+          if (btnDl) btnDl.addEventListener('click', downloadAll);
+          if (btnPg) btnPg.addEventListener('click', purgeEvent);
+        });
+      })();
+    </script>
     <script src="assets/js/choristes.js"></script>
     <script src="assets/js/main.js"></script>
   </body>
