@@ -25,7 +25,7 @@
         this.classList.add('active');
         Object.keys(sousOngletContents).forEach(key => {
           if (sousOngletContents[key]) {
-            sousOngletContents[key].style.display = (this.dataset.sousonglet === key) ? '' : 'none';
+            sousOngletContents[key].classList.toggle('active', this.dataset.sousonglet === key);
           }
         });
         updateSousOngletStyles();
@@ -34,6 +34,14 @@
     const cont = document.querySelector('.calendrier-sous-onglets');
     if (cont) cont.setAttribute('role', 'tablist');
     updateSousOngletStyles();
+    // Initial state for mobile: ensure correct content has .active
+    const initialActiveBtn = Array.from(sousOnglets).find(b => b.classList.contains('active'));
+    const initialKey = initialActiveBtn ? initialActiveBtn.dataset.sousonglet : 'grandechorale';
+    Object.keys(sousOngletContents).forEach(key => {
+      if (sousOngletContents[key]) {
+        sousOngletContents[key].classList.toggle('active', key === initialKey);
+      }
+    });
   }
 
   async function getPartitionPassword() {
@@ -64,9 +72,9 @@
     document.querySelectorAll('.choristes-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === tab);
     });
-    document.querySelectorAll('.choristes-tab-content').forEach(div => div.style.display = 'none');
+    document.querySelectorAll('.choristes-tab-content').forEach(div => div.classList.remove('active'));
     const panel = document.getElementById('tab-content-' + tab);
-    if (panel) panel.style.display = '';
+    if (panel) panel.classList.add('active');
     updateTabStyles();
   }
 
