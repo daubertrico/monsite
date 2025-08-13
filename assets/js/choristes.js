@@ -24,8 +24,12 @@
         sousOnglets.forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         Object.keys(sousOngletContents).forEach(key => {
-          if (sousOngletContents[key]) {
-            sousOngletContents[key].classList.toggle('active', this.dataset.sousonglet === key);
+          const el = sousOngletContents[key];
+          if (el) {
+            const isActive = (this.dataset.sousonglet === key);
+            el.classList.toggle('active', isActive);
+            // Assure aussi l'affichage sur desktop (où le CSS n'a pas !important)
+            el.style.display = isActive ? '' : 'none';
           }
         });
         updateSousOngletStyles();
@@ -38,8 +42,11 @@
     const initialActiveBtn = Array.from(sousOnglets).find(b => b.classList.contains('active'));
     const initialKey = initialActiveBtn ? initialActiveBtn.dataset.sousonglet : 'grandechorale';
     Object.keys(sousOngletContents).forEach(key => {
-      if (sousOngletContents[key]) {
-        sousOngletContents[key].classList.toggle('active', key === initialKey);
+      const el = sousOngletContents[key];
+      if (el) {
+        const isActive = (key === initialKey);
+        el.classList.toggle('active', isActive);
+        el.style.display = isActive ? '' : 'none';
       }
     });
   }
@@ -72,9 +79,10 @@
     document.querySelectorAll('.choristes-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === tab);
     });
-    document.querySelectorAll('.choristes-tab-content').forEach(div => div.classList.remove('active'));
-    const panel = document.getElementById('tab-content-' + tab);
-    if (panel) panel.classList.add('active');
+  const contents = document.querySelectorAll('.choristes-tab-content');
+  contents.forEach(div => { div.classList.remove('active'); div.style.display = 'none'; });
+  const panel = document.getElementById('tab-content-' + tab);
+  if (panel) { panel.classList.add('active'); panel.style.display = ''; }
     updateTabStyles();
   }
 
