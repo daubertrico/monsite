@@ -186,7 +186,7 @@
       });
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
+  function initChoristesPage(){
     // Rôles ARIA de base pour les onglets principaux
     const tabsContainer = document.querySelector('.choristes-tabs');
     if (tabsContainer) tabsContainer.setAttribute('role', 'tablist');
@@ -201,7 +201,7 @@
     const submitBtn = document.getElementById('partition-submit');
     const errorMsg = document.getElementById('partition-error');
 
-    // Auto-ouverture si rôle en session (member ou chef)
+    // Affichage conditionnel selon rôle en session
     const storedRole = sessionStorage.getItem('choristesRole');
     if (storedRole === 'member' || storedRole === 'chef') {
       if (passwordContainer) passwordContainer.style.display = 'none';
@@ -212,14 +212,24 @@
       }
       showTab('chansons');
       generateChansonsContent();
+    } else {
+      // Aucune session: forcer l'affichage du formulaire de mot de passe
+      if (passwordContainer) passwordContainer.style.display = '';
+      if (tabsWrap) tabsWrap.style.display = 'none';
     }
 
     // Utilitaire de normalisation (trim, lowercase, supprime accents/diacritiques et espaces)
     function normalizeInput(s) {
       if (!s) return '';
       try {
-        return s.toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').replace(/\s+/g,'').trim().toLowerCase();
-      } catch {
+        // Fallback diacritics removal without Unicode properties for wider browser support
+        return s.toString()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\s+/g, '')
+          .trim()
+          .toLowerCase();
+      } catch (e) {
         return s.toString().trim().toLowerCase();
       }
     }
@@ -252,6 +262,24 @@
       });
     }
 
+    // Déconnexion / Changer de rôle
+    const logoutBtn = document.getElementById('logout-role');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(){
+        try { sessionStorage.removeItem('choristesRole'); } catch {}
+        window.IS_CHEF = false;
+        if (document && document.body) {
+          document.body.classList.remove('role-chef');
+        }
+        if (tabsWrap) tabsWrap.style.display = 'none';
+        if (passwordContainer) passwordContainer.style.display = '';
+        const err = document.getElementById('partition-error');
+        if (err) err.style.display = 'none';
+        const input = document.getElementById('partition-password');
+        if (input) { input.value = ''; input.focus(); }
+      });
+    }
+
     // Gestion clic sur onglets principaux
     document.querySelectorAll('.choristes-tab').forEach(btn => {
       btn.addEventListener('click', function() {
@@ -260,5 +288,10 @@
       });
     });
     updateTabStyles();
-  });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChoristesPage);
+  } else {
+    initChoristesPage();
+  }
 })();
