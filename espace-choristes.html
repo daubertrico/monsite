@@ -562,6 +562,13 @@
         <button type="button" id="btn-download-att" title="Télécharger toutes les présences (JSON)">Télécharger JSON</button>
         <button type="button" id="btn-purge-event" title="Supprimer toutes les réponses de cet événement">Purger l’événement</button>
       </div>
+        <hr style="margin:10px 0;border:none;border-top:1px solid #e5e7eb;">
+        <h4 style="margin-top:8px;">Essais Grande Chorale</h4>
+        <div class="actions">
+          <button type="button" id="btn-tryout-refresh" title="Voir les inscrits (emails)">Voir emails</button>
+          <button type="button" id="btn-tryout-download" title="Télécharger les emails (CSV)">Télécharger CSV</button>
+        </div>
+        <div id="tryout-list" style="max-height:160px;overflow:auto;margin-top:6px;border:1px solid #eef2ff;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:0.92em;display:none;"></div>
       <div id="admin-hint" style="font-size:0.85em;color:#456;margin-top:6px;">Astuce: cliquez un événement pour préremplir.</div>
     </div>
     
@@ -876,6 +883,55 @@
       // Admin actions (chef only)
       (function(){
         const ADMIN_KEY = 'chefdechoeur'; // même mot de passe que l’accès chef
+        async function fetchTryoutList(){
+          if (!ATTENDANCE_ENDPOINT) throw new Error('Backend indisponible');
+          const url = ATTENDANCE_ENDPOINT + (ATTENDANCE_ENDPOINT.includes('?') ? '&' : '?') + 'action=tryout_list' + (isGASEndpoint(ATTENDANCE_ENDPOINT) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');
+          try {
+            const res = await fetch(url, { cache: 'no-store', headers: isGASEndpoint(ATTENDANCE_ENDPOINT) ? {} : { 'X-Admin-Key': ADMIN_KEY } });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            // Essayer JSON direct, sinon tenter texte->JSON
+            try { return await res.json(); } catch(e) {
+              const txt = await res.text();
+              try { return JSON.parse(txt); } catch { throw new Error('Format de réponse inattendu'); }
+            }
+          } catch (e) {
+            // Fallback local pour tests Live Server
+            try {
+              const local = JSON.parse(localStorage.getItem('tryoutsLocal') || '[]');
+              return { items: local };
+            } catch { throw e; }
+          }
+        }
+        function renderTryoutList(container, arr){
+          const list = Array.isArray(arr) ? arr : (Array.isArray(arr.items) ? arr.items : []);
+          if (!list.length){ container.innerHTML = '<em>Aucune inscription à afficher.</em>'; container.style.display='block'; return; }
+          const rows = list.map(it => {
+            const nom = [it.prenom||'', it.nom||''].join(' ').trim();
+            const email = it.email || '';
+            const tel = it.telephone || '';
+            const date = it.date || '';
+            return '<div style="display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px dashed #e5e7eb;">'
+              + '<span style="flex:1 1 auto;min-width:120px;"><strong>' + (nom||'(Sans nom)') + '</strong></span>'
+              + '<span style="color:#134;">' + email + '</span>'
+              + (tel ? '<span style="color:#456;"> · ' + tel + '</span>' : '')
+              + (date ? '<span style="color:#456;"> · ' + date + '</span>' : '')
+              + '</div>';
+          }).join('');
+          container.innerHTML = '<div style="margin-bottom:6px;">Total: <strong>' + list.length + '</strong></div>' + rows;
+          container.style.display = 'block';
+        }
+        function downloadCSVFromList(arr){
+          const list = Array.isArray(arr) ? arr : (Array.isArray(arr.items) ? arr.items : []);
+          const headers = ['prenom','nom','email','telephone','date','pupitre','message','ts'];
+          const esc = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+          const csv = [headers.join(',')].concat(list.map(it => headers.map(h => esc(it[h])).join(','))).join('\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'essais-emails.csv';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(()=>URL.revokeObjectURL(url), 500);
+        }
         function downloadAll(){
           if (!ATTENDANCE_ENDPOINT) { alert('Backend indisponible.'); return; }
           const url = ATTENDANCE_ENDPOINT + (ATTENDANCE_ENDPOINT.includes('?') ? '&' : '?') + 'action=download' + (isGASEndpoint(ATTENDANCE_ENDPOINT) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');
@@ -929,8 +985,31 @@
         document.addEventListener('DOMContentLoaded', function(){
           const btnDl = document.getElementById('btn-download-att');
           const btnPg = document.getElementById('btn-purge-event');
+          const btnTryR = document.getElementById('btn-tryout-refresh');
+          const btnTryD = document.getElementById('btn-tryout-download');
+          const tryList = document.getElementById('tryout-list');
           if (btnDl) btnDl.addEventListener('click', downloadAll);
           if (btnPg) btnPg.addEventListener('click', purgeEvent);
+          if (btnTryR) btnTryR.addEventListener('click', async () => {
+            tryList.style.display = 'block';
+            tryList.innerHTML = 'Chargement…';
+            try {
+              const data = await fetchTryoutList();
+              renderTryoutList(tryList, data);
+            } catch(e) {
+              console.error(e);
+              tryList.innerHTML = '<em>Liste indisponible (backend non configuré).</em>';
+            }
+          });
+          if (btnTryD) btnTryD.addEventListener('click', async () => {
+            try {
+              const data = await fetchTryoutList();
+              downloadCSVFromList(data);
+            } catch(e) {
+              console.error(e);
+              alert('Export impossible.');
+            }
+          });
         });
       })();
     </script>

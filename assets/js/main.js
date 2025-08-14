@@ -772,6 +772,23 @@ async function fetchPostsFromCSV(csvUrl) {
               sec.appendChild(imgWrap);
               sec.appendChild(right);
               contentContainer.appendChild(sec);
+
+              // Injecte l'encart d'essai sous la section Chorale Pop
+              try {
+                const title = (section.title || '').toLowerCase();
+                if (title.includes('chorale') && title.includes('pop')) {
+                  const cta = document.createElement('section');
+                  cta.style.maxWidth = '1000px';
+                  cta.style.margin = '12px auto 0 auto';
+                  cta.style.padding = '14px 18px';
+                  cta.style.border = '1px solid #b6e0fe';
+                  cta.style.background = '#eaf6ff';
+                  cta.style.borderRadius = '12px';
+                  cta.style.boxShadow = '0 2px 10px #3981FF22';
+                  cta.innerHTML = '<span>🎶 Envie de chanter ? Inscrivez-vous à une séance d’essai !</span> <a href="chorale-pop.html#tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">S\'inscrire à une séance d\'essai</a>';
+                  contentContainer.appendChild(cta);
+                }
+              } catch {}
             });
           }
 
