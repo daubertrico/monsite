@@ -778,21 +778,47 @@
         const presents = Array.isArray(stats.present) ? stats.present : [];
         const absents = Array.isArray(stats.absent) ? stats.absent : [];
         // Comptage par pupitre (case-insensitive, normalisé visuellement)
-        const pupCount = {};
-        presents.forEach(p => {
-          const label = (p.pupitre || '').toString().trim();
-          const key = label.toLowerCase();
-          if (!key) return;
-          pupCount[key] = (pupCount[key] || 0) + 1;
-        });
+        function countByPup(list){
+          const m = {};
+          list.forEach(p => {
+            const label = (p.pupitre || '').toString().trim();
+            const key = label.toLowerCase();
+            if (!key) return;
+            m[key] = (m[key] || 0) + 1;
+          });
+          return m;
+        }
         const order = ['soprane','alto','ténor','tenor','basse'];
         const labelMap = { soprane: 'Soprane', alto: 'Alto', ténor: 'Ténor', tenor: 'Ténor', basse: 'Basse' };
-        const byPup = Object.keys(pupCount).sort((a,b) => (order.indexOf(a)+99) - (order.indexOf(b)+99))
-          .map(k => (labelMap[k] || (k.charAt(0).toUpperCase()+k.slice(1))) + ': ' + pupCount[k]).join(' · ');
+        function formatPupCounts(map){
+          return Object.keys(map)
+            .sort((a,b) => (order.indexOf(a)+99) - (order.indexOf(b)+99))
+            .map(k => (labelMap[k] || (k.charAt(0).toUpperCase()+k.slice(1))) + ': ' + map[k])
+            .join(' · ');
+        }
+        const presentByPup = formatPupCounts(countByPup(presents));
+        const absentByPup  = formatPupCounts(countByPup(absents));
+
         const counts = '<span class="count">Présents: ' + presents.length + '</span><span class="count">Absents: ' + absents.length + '</span>';
-        const byP = byPup ? '<div class="by-pupitre">Présents par pupitre — ' + byPup + '</div>' : '';
-        const list = presents.length ? ('<ul>' + presents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>') : '<em>Aucun présent pour le moment.</em>';
-        statsDiv.innerHTML = counts + byP + '<div>' + list + '</div>';
+        const byPresents = presentByPup ? '<div class="by-pupitre">Présents par pupitre — ' + presentByPup + '</div>' : '';
+        const byAbsents  = absentByPup  ? '<div class="by-pupitre">Absents par pupitre — ' + absentByPup  + '</div>' : '';
+
+        const listPresent = presents.length
+          ? ('<ul>' + presents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>')
+          : '<em>Aucun présent pour le moment.</em>';
+        const listAbsent = absents.length
+          ? ('<ul>' + absents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>')
+          : '<em>Aucun absent déclaré.</em>';
+
+        statsDiv.innerHTML = [
+          counts,
+          byPresents,
+          byAbsents,
+          '<div style="margin-top:6px;"><strong>Liste des présents</strong></div>',
+          '<div>' + listPresent + '</div>',
+          '<div style="margin-top:6px;"><strong>Liste des absents</strong></div>',
+          '<div>' + listAbsent + '</div>'
+        ].join('');
       }
       async function fetchEventStats(calendar, eventId){
         if (!ATTENDANCE_ENDPOINT) throw new Error('backend absent');
