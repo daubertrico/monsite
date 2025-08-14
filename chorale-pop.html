@@ -106,7 +106,8 @@
                         }
                     } catch {}
 
-                const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
+                // URL du Web App GAS dédié aux séances d'essai
+                const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
                 function isGASEndpoint(u){ return /script\.google\.com|googleusercontent\.com\/macros/.test(u||''); }
                 const form = document.getElementById('form-essai-modal');
                 if (form) form.addEventListener('submit', async function(e){
