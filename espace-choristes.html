@@ -886,6 +886,14 @@
       (function(){
         const ADMIN_KEY = 'chefdechoeur'; // même mot de passe que l’accès chef
         async function fetchTryoutList(){
+          // Mode local forcé: ?local=1
+          try {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('local') === '1') {
+              const local = JSON.parse(localStorage.getItem('tryoutsLocal') || '[]');
+              return { items: local };
+            }
+          } catch {}
           const endpoint = TRYOUT_ENDPOINT || ATTENDANCE_ENDPOINT;
           if (!endpoint) throw new Error('Backend indisponible');
           const url = endpoint + (endpoint.includes('?') ? '&' : '?') + 'action=tryout_list' + (isGASEndpoint(endpoint) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');

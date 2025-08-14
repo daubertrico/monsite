@@ -23,8 +23,8 @@
     <main class="main-content">
         <!-- Bandeau d'inscription séance d'essai (visible et simple) -->
         <section style="max-width:1000px;margin:0 auto 18px auto;padding:14px 18px;border:1px solid #b6e0fe;background:#eaf6ff;border-radius:12px;box-shadow:0 2px 10px #3981FF22;">
-            <span>🎶 Envie de chanter ? Inscrivez-vous à une séance d’essai !</span>
-                        <a href="#" id="open-tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">S'inscrire à une séance d'essai</a>
+            <span>🎶 Envie de chanter ? Inscrivez‑vous</span>
+                        <a href="#" id="open-tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">Séance d’essai gratuite</a>
         </section>
         <div id="page-content-container"></div>
     </main>
@@ -136,6 +136,20 @@
                         return;
                     }
                     try {
+                        // Mode local forcé: ?local=1 dans l'URL
+                        let forceLocal = false;
+                        try { forceLocal = (new URLSearchParams(window.location.search)).get('local') === '1'; } catch {}
+                        if (forceLocal) {
+                            const key = 'tryoutsLocal';
+                            const saved = JSON.parse(localStorage.getItem(key) || '[]');
+                            const withId = Object.assign({ id: 'local-' + Date.now() }, data);
+                            saved.push(withId);
+                            localStorage.setItem(key, JSON.stringify(saved));
+                            form.reset();
+                            confirmBox.innerHTML = 'Merci ! Votre inscription est bien prise en compte <strong>en mode local</strong> (sans serveur).<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#456;">Vous pouvez enlever ?local=1 pour tester l\'envoi réel vers le serveur.</span>';
+                            confirmBox.style.display = 'block';
+                            return;
+                        }
                         if (!TRYOUT_ENDPOINT) throw new Error('no-endpoint');
                         status.style.display = 'inline';
                         let res;
@@ -148,6 +162,11 @@
                             res = await fetch(TRYOUT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                         }
                         if (!res.ok) throw new Error('HTTP ' + res.status);
+                        // Valider la réponse JSON si possible
+                        try {
+                            const payload = await res.clone().json();
+                            if (payload && payload.ok === false) throw new Error(payload.error || 'server-error');
+                        } catch {_=>{} }
                                     // Succès: message personnalisé avec la date choisie (ton sympathique)
                         form.reset();
                         status.style.display = 'none';

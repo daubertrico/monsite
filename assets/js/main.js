@@ -773,20 +773,44 @@ async function fetchPostsFromCSV(csvUrl) {
               sec.appendChild(right);
               contentContainer.appendChild(sec);
 
-              // Injecte l'encart d'essai sous la section Chorale Pop
+              // Injecte l'encart d'essai SOUS le titre "Chorale Pop", pleine largeur (de la photo au texte)
               try {
                 const title = (section.title || '').toLowerCase();
                 if (title.includes('chorale') && title.includes('pop')) {
-                  const cta = document.createElement('section');
-                  cta.style.maxWidth = '1000px';
-                  cta.style.margin = '12px auto 0 auto';
+                  // Reconfigure le conteneur en grille pour permettre des éléments pleine largeur
+                  sec.style.display = 'grid';
+                  sec.style.gridTemplateColumns = 'minmax(260px,1fr) 2fr';
+                  sec.style.alignItems = 'start';
+                  sec.style.gap = '16px';
+
+                  // Déplace le titre pour qu'il soit pleine largeur
+                  if (right && right.contains(h2)) {
+                    right.removeChild(h2);
+                    h2.style.gridColumn = '1 / -1';
+                    h2.style.marginBottom = '8px';
+                    sec.insertBefore(h2, sec.firstChild);
+                  }
+
+                  // Crée l'encart CTA en pleine largeur juste sous le titre
+                  const cta = document.createElement('div');
+                  cta.style.gridColumn = '1 / -1';
+                  cta.style.width = '100%';
+                  cta.style.margin = '6px 0 10px 0';
                   cta.style.padding = '14px 18px';
                   cta.style.border = '1px solid #b6e0fe';
                   cta.style.background = '#eaf6ff';
                   cta.style.borderRadius = '12px';
                   cta.style.boxShadow = '0 2px 10px #3981FF22';
-                  cta.innerHTML = '<span>🎶 Envie de chanter ? Inscrivez-vous à une séance d’essai !</span> <a href="chorale-pop.html#tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">S\'inscrire à une séance d\'essai</a>';
-                  contentContainer.appendChild(cta);
+                  cta.style.display = 'flex';
+                  cta.style.alignItems = 'center';
+                  cta.style.flexWrap = 'wrap';
+                  cta.innerHTML = '<span>🎶 Envie de chanter ? Inscrivez‑vous</span> <a href="chorale-pop.html#tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">Séance d’essai gratuite</a>';
+                  // Insère le CTA juste après le titre
+                  if (sec.firstChild && sec.firstChild.tagName && sec.firstChild.tagName.toLowerCase() === 'h2') {
+                    sec.insertBefore(cta, sec.children[1] || null);
+                  } else {
+                    sec.insertBefore(cta, sec.firstChild);
+                  }
                 }
               } catch {}
             });
