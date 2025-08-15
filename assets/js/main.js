@@ -827,6 +827,42 @@ async function fetchPostsFromCSV(csvUrl) {
                     sec.insertBefore(cta, sec.firstChild);
                   }
                 }
+
+                // Ajoute un encart Calendly SOUS le titre "Cours de chant", pleine largeur, même esthétique
+                if (title.includes('cours') && title.includes('chant')) {
+                  // Reconfigure le conteneur en grille si besoin
+                  sec.style.display = 'grid';
+                  sec.style.gridTemplateColumns = 'minmax(260px,1fr) 2fr';
+                  sec.style.alignItems = 'start';
+                  sec.style.gap = '16px';
+
+                  // Déplace le titre en pleine largeur
+                  if (right && right.contains(h2)) {
+                    right.removeChild(h2);
+                    h2.style.gridColumn = '1 / -1';
+                    h2.style.marginBottom = '8px';
+                    sec.insertBefore(h2, sec.firstChild);
+                  }
+
+                  const cta2 = document.createElement('div');
+                  cta2.style.gridColumn = '1 / -1';
+                  cta2.style.width = '100%';
+                  cta2.style.margin = '6px 0 10px 0';
+                  cta2.style.padding = '14px 18px';
+                  cta2.style.border = '1px solid #b6e0fe';
+                  cta2.style.background = '#eaf6ff';
+                  cta2.style.borderRadius = '12px';
+                  cta2.style.boxShadow = '0 2px 10px #3981FF22';
+                  cta2.style.display = 'flex';
+                  cta2.style.alignItems = 'center';
+                  cta2.style.flexWrap = 'wrap';
+                  cta2.innerHTML = '<span>🎤 Prendre rendez-vous en ligne pour un cours individuel</span> <a href="https://calendly.com/vincenttricotel/cours-individuel" target="_blank" rel="noopener" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">Réserver sur Calendly</a>';
+                  if (sec.firstChild && sec.firstChild.tagName && sec.firstChild.tagName.toLowerCase() === 'h2') {
+                    sec.insertBefore(cta2, sec.children[1] || null);
+                  } else {
+                    sec.insertBefore(cta2, sec.firstChild);
+                  }
+                }
               } catch {}
             });
           }
