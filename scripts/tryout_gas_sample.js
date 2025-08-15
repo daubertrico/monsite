@@ -21,6 +21,14 @@ function _getSheetId(){
 }
 const SHEET_NAME = 'inscriptions';
 const ADMIN_PASS = 'chefdechoeur'; // Doit correspondre côté site
+// Coordonnées et liens pour l'email de confirmation
+const EGM_ADDRESS_NAME = 'L\'Avenir de Rennes';
+const EGM_ADDRESS = '21 rue Papu, 35000 Rennes';
+const EGM_MAPS = "https://maps.google.com/?q=L'Avenir%20de%20Rennes%2C%2021%20Rue%20Papu%2C%2035000%20Rennes";
+const EGM_DURATION = '2 heures';
+const EGM_WEBSITE = 'https://chanterlavoixlibre.fr';
+const EGM_INSTAGRAM = 'https://instagram.com/chanterlavoixlibre';
+const EGM_FACEBOOK = 'https://facebook.com/chanterlavoixlibre';
 
 function _sheet() {
   let sid = _getSheetId();
@@ -68,12 +76,52 @@ function doPost(e) {
       const sh = _sheet();
       const row = [new Date(), data.prenom || '', data.nom || '', data.email || '', data.telephone || '', data.date || '', data.pupitre || '', data.message || '', data.ts || ''];
       sh.appendRow(row);
-      // Optionnel : email de confirmation
+      // Email de confirmation
       try {
         if (data.email) {
-          const subject = 'Votre séance d\'essai – La Voix Libre';
-          const body = 'Bonjour ' + (data.prenom || '') + ',\n\nVotre inscription à la séance d\'essai est bien prise en compte.\nRendez-vous : ' + (data.date || '') + '\n\nA très vite !\nLa Voix Libre';
-          MailApp.sendEmail(data.email, subject, body);
+          const prenom = data.prenom || '';
+          const when = data.date || '';
+          const subject = '🎶 Bienvenue à La Voix Libre – votre séance d\u2019essai est confirmée !';
+          const textBody =
+`Bonjour ${prenom},\n\nMerci pour votre inscription à une séance d\'essai avec La Voix Libre ! 🎵\nNous sommes ravis de vous accueillir pour partager un moment convivial, plein d’énergie, de musique et de bonne humeur.\n\n📅 Informations pratiques\n\nDate & heure : ${when}\n\nLieu : ${EGM_ADDRESS_NAME} — ${EGM_ADDRESS} (plan d’accès : ${EGM_MAPS})\n\nDurée : Environ ${EGM_DURATION}\n\nTenue conseillée : confortable, qui permet de bouger librement\n\n🔎 À propos de La Voix Libre\n\nLa Voix Libre, c’est un chœur dynamique, ouvert à tous niveaux, où l’on chante Pop, Soul, Gospel et musiques du monde… le tout dans une ambiance décontractée et bienveillante.\n\n📌 Pour rester connecté(e)\n\nSite web : ${EGM_WEBSITE}\nInstagram : ${EGM_INSTAGRAM}\nFacebook : ${EGM_FACEBOOK}\n\n🎤 Hâte de chanter ensemble !\n\nEn attendant la séance, n’hésitez pas à parcourir nos vidéos et photos pour vous mettre dans l’ambiance… et surtout, venez comme vous êtes !\n\nMusicalement,\nVincent – Chef de chœur\n🎶 La Voix Libre`;
+          const htmlBody = `
+<div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:15px;color:#1f2937;line-height:1.6;">
+  <h2 style="margin:0 0 8px 0;">🎶 Bienvenue à La Voix Libre – votre séance d’essai est confirmée !</h2>
+  <p>Bonjour <strong>${prenom}</strong>,</p>
+  <p>Merci pour votre inscription à une séance d’essai avec <strong>La Voix Libre</strong> ! 🎵<br>
+  Nous sommes ravis de vous accueillir pour partager un moment convivial, plein d’énergie, de musique et de bonne humeur.</p>
+  <h3 style="margin:16px 0 8px 0;">📅 Informations pratiques</h3>
+  <ul style="margin:0 0 12px 18px;padding:0;">
+    <li><strong>Date & heure :</strong> ${when}</li>
+  <li><strong>Lieu :</strong> ${EGM_ADDRESS_NAME} — ${EGM_ADDRESS} (<a href="${EGM_MAPS}" target="_blank" rel="noopener">plan d’accès</a>)</li>
+    <li><strong>Durée :</strong> Environ ${EGM_DURATION}</li>
+    <li><strong>Tenue conseillée :</strong> confortable, qui permet de bouger librement</li>
+  </ul>
+  <h3 style="margin:16px 0 8px 0;">🔎 À propos de La Voix Libre</h3>
+  <p>La Voix Libre, c’est un chœur dynamique, ouvert à tous niveaux, où l’on chante Pop, Soul, Gospel et musiques du monde…
+  le tout dans une ambiance décontractée et bienveillante.</p>
+  <h3 style="margin:16px 0 8px 0;">📌 Pour rester connecté(e)</h3>
+  <p>
+    🌐 <a href="${EGM_WEBSITE}" target="_blank" rel="noopener">Site web</a><br>
+    📸 <a href="${EGM_INSTAGRAM}" target="_blank" rel="noopener">Instagram</a><br>
+    📘 <a href="${EGM_FACEBOOK}" target="_blank" rel="noopener">Facebook</a>
+  </p>
+  <h3 style="margin:16px 0 8px 0;">🎤 Hâte de chanter ensemble !</h3>
+  <p>En attendant la séance, n’hésitez pas à parcourir nos vidéos et photos pour vous mettre dans l’ambiance…
+  et surtout, venez comme vous êtes !</p>
+  <p style="margin-top:18px;">Musicalement,<br>
+  Vincent – Chef de chœur<br>
+  🎶 La Voix Libre</p>
+  <hr style="border:none;border-top:1px solid #e5e7eb;margin:18px 0;">
+  <p style="font-size:12px;color:#6b7280;">Lieu habituel : ${EGM_ADDRESS_NAME}, ${EGM_ADDRESS}</p>
+  </div>`;
+          MailApp.sendEmail({
+            to: data.email,
+            subject: subject,
+            body: textBody,
+            htmlBody: htmlBody,
+            name: 'La Voix Libre'
+          });
         }
       } catch (e2) {}
       return _jsonOk({ ok: true });

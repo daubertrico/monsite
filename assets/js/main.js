@@ -487,8 +487,7 @@ async function fetchPostsFromCSV(csvUrl) {
     }
     console.log('[DEBUG] Objet page trouvé :', page);
     if (!contentContainer || !pageMainTitle || !pageSubtitle) {
-      document.body.innerHTML = '<div style="color:red;font-weight:bold;padding:24px;">Erreur critique : éléments HTML manquants pour l\'affichage dynamique.<br>Vérifiez la présence de #page-content-container, #page-main-title, #page-subtitle dans le HTML.</div>';
-      console.error('[ERREUR] Eléments HTML manquants pour affichage dynamique.');
+      console.warn('[WARN] Eléments requis manquants (#page-content-container, #page-main-title, #page-subtitle). Page statique détectée: aucune injection dynamique.');
       return;
     }
     console.log('[DEBUG] Eléments HTML trouvés, injection du contenu...');
@@ -496,6 +495,22 @@ async function fetchPostsFromCSV(csvUrl) {
     pageMainTitle.textContent = page.page_title;
     pageSubtitle.textContent = page.page_subtitle;
     contentContainer.innerHTML = '';
+
+    // CTA Calendly bien en évidence sous le titre pour la page Cours de chant
+    if (pageId === 'cours-de-chant') {
+      const calendlyCta = document.createElement('div');
+      calendlyCta.style.margin = '10px 0 18px 0';
+      calendlyCta.style.padding = '12px 16px';
+      calendlyCta.style.border = '1px solid #b6e0fe';
+      calendlyCta.style.background = '#eaf6ff';
+      calendlyCta.style.borderRadius = '12px';
+      calendlyCta.style.boxShadow = '0 2px 10px #3981FF22';
+      calendlyCta.style.display = 'flex';
+      calendlyCta.style.alignItems = 'center';
+      calendlyCta.style.flexWrap = 'wrap';
+      calendlyCta.innerHTML = '<span>🎤 Prendre rendez-vous en ligne pour un cours individuel</span> <a href="https://calendly.com/vincenttricotel/cours-individuel" target="_blank" rel="noopener" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">Réserver sur Calendly</a>';
+      contentContainer.appendChild(calendlyCta);
+    }
 
       if (page.page_content && page.page_content.length > 0) {
         let descriptionContainer;
@@ -804,7 +819,7 @@ async function fetchPostsFromCSV(csvUrl) {
                   cta.style.display = 'flex';
                   cta.style.alignItems = 'center';
                   cta.style.flexWrap = 'wrap';
-                  cta.innerHTML = '<span>🎶 Envie de chanter ? Inscrivez‑vous</span> <a href="chorale-pop.html#tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">Séance d’essai gratuite</a>';
+                  cta.innerHTML = '<span>🎶 Envie de chanter ? Inscrivez‑vous</span> <a href="#" id="open-tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">Séance d’essai gratuite</a>';
                   // Insère le CTA juste après le titre
                   if (sec.firstChild && sec.firstChild.tagName && sec.firstChild.tagName.toLowerCase() === 'h2') {
                     sec.insertBefore(cta, sec.children[1] || null);
@@ -840,6 +855,180 @@ async function fetchPostsFromCSV(csvUrl) {
             faq.appendChild(ul);
             contentContainer.appendChild(faq);
           }
+
+          // Injecter la même popup/logic que sur Chorale Pop pour que tout soit identique ici aussi
+          try {
+            if (!document.getElementById('tryout-popup')) {
+              const popup = document.createElement('div');
+              popup.id = 'tryout-popup';
+              popup.style.display = 'none';
+              popup.style.position = 'fixed';
+              popup.style.inset = '0';
+              popup.style.background = 'rgba(0,0,0,0.6)';
+              popup.style.zIndex = '9999';
+              popup.style.justifyContent = 'center';
+              popup.style.alignItems = 'center';
+              popup.innerHTML = `
+                <div role="dialog" aria-modal="true" aria-labelledby="tryout-title" style="background:#fff;padding:24px;border-radius:12px;max-width:640px;width:92%;position:relative;box-shadow:0 6px 28px rgba(0,0,0,0.25);">
+                  <button id="close-tryout" aria-label="Fermer" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:22px;cursor:pointer;line-height:1">&times;</button>
+                  <h2 id="tryout-title" style="margin:0 0 8px 0;">🎶 Séances d’essai – Grande Chorale</h2>
+                  <p style="margin:0 0 8px 0;color:#456;">
+                    Trois lundis pour nous rejoindre en septembre (19h30 – L’Avenir de Rennes, 21 rue Papu).<br>
+                    Les places peuvent être prises dès la première séance. Si c’est complet, on vous préviendra pour éviter un déplacement inutile.
+                  </p>
+                  <form id="form-essai-modal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px;">
+                    <div>
+                      <label for="egm-prenom">Prénom</label>
+                      <input id="egm-prenom" name="prenom" type="text" required style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
+                    </div>
+                    <div>
+                      <label for="egm-nom">Nom</label>
+                      <input id="egm-nom" name="nom" type="text" required style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
+                    </div>
+                    <div>
+                      <label for="egm-email">E‑mail</label>
+                      <input id="egm-email" name="email" type="email" required style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
+                    </div>
+                    <div>
+                      <label for="egm-tel">Téléphone</label>
+                      <input id="egm-tel" name="telephone" type="tel" inputmode="tel" style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
+                    </div>
+                    <div style="grid-column:1/-1;">
+                      <label for="egm-date">Date souhaitée</label>
+                      <select id="egm-date" name="date" required style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
+                        <option value="">Sélectionner…</option>
+                        <option value="Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
+                        <option value="Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
+                        <option value="Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="egm-voix">Votre pupitre (si vous savez)</label>
+                      <select id="egm-voix" name="pupitre" style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
+                        <option value="">Je ne sais pas</option>
+                        <option>Soprano</option>
+                        <option>Alto</option>
+                        <option>Ténor</option>
+                        <option>Basse</option>
+                      </select>
+                    </div>
+                    <div style="grid-column:1/-1;">
+                      <label for="egm-msg">Message (optionnel)</label>
+                      <textarea id="egm-msg" name="message" rows="3" style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;"></textarea>
+                    </div>
+                    <div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;">
+                      <button id="egm-submit" type="submit" style="padding:10px 14px;border:2px solid #3981FF;background:#3981FF;color:#fff;font-weight:700;border-radius:10px;cursor:pointer;box-shadow:0 2px 6px #3981FF33;">Envoyer ma demande</button>
+                      <span id="egm-status" style="font-size:0.95em;color:#2c7a2c;display:none;">inscription en court d'envoie</span>
+                      <span id="egm-error" style="font-size:0.95em;color:#b00020;display:none;">Envoi impossible, réessayez plus tard.</span>
+                    </div>
+                  </form>
+                  <div id="egm-confirm" style="display:none;margin-top:8px;color:#234;font-size:1.05em;"></div>
+                </div>`;
+              document.body.appendChild(popup);
+
+              // Handlers identiques
+              const openBtns = document.querySelectorAll('#open-tryout');
+              const closeBtn = document.getElementById('close-tryout');
+              const open = () => { popup.style.display = 'flex'; };
+              const close = () => { popup.style.display = 'none'; };
+              openBtns.forEach(b => b.addEventListener('click', (e)=>{ e.preventDefault(); open(); }));
+              if (closeBtn) closeBtn.addEventListener('click', close);
+              popup.addEventListener('click', (e)=>{ if (e.target === popup) close(); });
+
+              // Auto-ouverture via hash/query
+              try {
+                const hash = (window.location.hash || '').toLowerCase();
+                const params = new URLSearchParams(window.location.search);
+                if (hash === '#tryout' || params.get('tryout') === '1') setTimeout(open, 50);
+              } catch {}
+
+              // Soumission identique
+              const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
+              const isGASEndpoint = (u) => /script\.google\.com|googleusercontent\.com\/macros/.test(u||'');
+              const form = document.getElementById('form-essai-modal');
+              if (form && !form.dataset.bound) {
+                form.dataset.bound = '1';
+                form.addEventListener('submit', async function(e){
+                  e.preventDefault();
+                  const status = document.getElementById('egm-status');
+                  const error = document.getElementById('egm-error');
+                  const confirmBox = document.getElementById('egm-confirm');
+                  status.style.display = 'none';
+                  error.style.display = 'none';
+                  confirmBox.style.display = 'none';
+                  const data = {
+                    type: 'tryout',
+                    programme: 'grande-chorale',
+                    prenom: document.getElementById('egm-prenom').value.trim(),
+                    nom: document.getElementById('egm-nom').value.trim(),
+                    email: document.getElementById('egm-email').value.trim(),
+                    telephone: document.getElementById('egm-tel').value.trim(),
+                    date: document.getElementById('egm-date').value,
+                    pupitre: document.getElementById('egm-voix').value,
+                    message: document.getElementById('egm-msg').value.trim(),
+                    ts: new Date().toISOString()
+                  };
+                  if (!data.prenom || !data.nom || !data.email || !data.date) {
+                    error.textContent = 'Merci de compléter les champs requis.';
+                    error.style.display = 'inline';
+                    return;
+                  }
+                  try {
+                    let forceLocal = false;
+                    try { forceLocal = (new URLSearchParams(window.location.search)).get('local') === '1'; } catch {}
+                    if (forceLocal) {
+                      const key = 'tryoutsLocal';
+                      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+                      const withId = Object.assign({ id: 'local-' + Date.now() }, data);
+                      saved.push(withId);
+                      localStorage.setItem(key, JSON.stringify(saved));
+                      form.reset();
+                      confirmBox.innerHTML = 'Merci ! Votre inscription est bien prise en compte <strong>en mode local</strong> (sans serveur).<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#456;">Vous pouvez enlever ?local=1 pour tester l\'envoi réel vers le serveur.</span>';
+                      confirmBox.style.display = 'block';
+                      return;
+                    }
+                    if (!TRYOUT_ENDPOINT) throw new Error('no-endpoint');
+                    status.style.display = 'inline';
+                    let res;
+                    if (isGASEndpoint(TRYOUT_ENDPOINT)) {
+                      const params = new URLSearchParams();
+                      params.set('action','tryout');
+                      params.set('data', JSON.stringify(data));
+                      res = await fetch(TRYOUT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
+                    } else {
+                      res = await fetch(TRYOUT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                    }
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    try {
+                      const payload = await res.clone().json();
+                      if (payload && payload.ok === false) throw new Error(payload.error || 'server-error');
+                    } catch {_=>{}}
+                    form.reset();
+                    status.style.display = 'none';
+                    confirmBox.innerHTML = 'Merci pour votre inscription ✨<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#456;">Petit conseil : arrivez un peu en avance. Si la séance affiche complet, on vous préviendra pour éviter un déplacement inutile. À très vite !</span>';
+                    confirmBox.style.display = 'block';
+                  } catch (err) {
+                    console.error(err);
+                    status.style.display = 'none';
+                    try {
+                      const key = 'tryoutsLocal';
+                      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+                      const withId = Object.assign({ id: 'local-' + Date.now() }, data);
+                      saved.push(withId);
+                      localStorage.setItem(key, JSON.stringify(saved));
+                      form.reset();
+                      confirmBox.innerHTML = 'Merci ! Votre inscription est bien prise en compte <strong>en mode test</strong> (hors‑ligne).<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style=\"color:#b45309;\">Le serveur n\'a pas encore répondu (' + (err && err.message ? err.message : 'erreur inconnue') + '). Vos infos sont enregistrées sur cet appareil — réessayez un peu plus tard pour confirmer côté serveur. À très vite !</span>';
+                      confirmBox.style.display = 'block';
+                      error.style.display = 'none';
+                    } catch (e2) {
+                      error.textContent = 'Envoi impossible (' + (err && err.message ? err.message : 'erreur inconnue') + ').';
+                      error.style.display = 'inline';
+                    }
+                  }
+                });
+              }
+            }
+          } catch {}
 
         } else {
           // Pour Soul, Chorale Pop et autres pages, image et texte côte à côte
