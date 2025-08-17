@@ -702,13 +702,26 @@ async function fetchPostsFromCSV(csvUrl) {
             sectionsBlock.items.forEach(section => {
               const sec = document.createElement('section');
               sec.className = 'section';
+              // Desktop default: row layout. On small viewports, force column so the
+              // illustration stacks above the text (mobile UX requirement).
               sec.style.display = 'flex';
-              sec.style.alignItems = 'center';
-              sec.style.gap = '32px';
               sec.style.marginBottom = '48px';
+              // Use a JS breakpoint so we don't rely only on CSS (some phones report
+              // widths slightly above the CSS breakpoint). This preserves the desktop
+              // layout while fixing mobile where the text was displayed beside the image.
+              if (window.innerWidth <= 900) {
+                sec.style.flexDirection = 'column';
+                sec.style.alignItems = 'stretch';
+                sec.style.gap = '12px';
+              } else {
+                sec.style.flexDirection = 'row';
+                sec.style.alignItems = 'center';
+                sec.style.gap = '32px';
+              }
 
               const imgWrap = document.createElement('div');
               imgWrap.style.flex = '1';
+              // Default thumbnail sizing for desktop
               imgWrap.style.minWidth = '220px';
               imgWrap.style.maxWidth = '220px';
               imgWrap.style.background = '#f9f9f9';
@@ -716,6 +729,15 @@ async function fetchPostsFromCSV(csvUrl) {
               imgWrap.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
               imgWrap.style.padding = '16px';
               imgWrap.style.textAlign = 'center';
+              // If on small screens, relax the fixed sizing so the image becomes full-width
+              if (window.innerWidth <= 900) {
+                imgWrap.style.minWidth = '0';
+                imgWrap.style.maxWidth = '100%';
+                imgWrap.style.width = '100%';
+                imgWrap.style.padding = '0';
+                imgWrap.style.boxShadow = 'none';
+                imgWrap.style.background = 'transparent';
+              }
               if (section.image) {
                 const imgJpg = `${ASSETS_BASE_URL}images/${section.image}`;
                 const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
@@ -729,6 +751,9 @@ async function fetchPostsFromCSV(csvUrl) {
 
               const right = document.createElement('div');
               right.style.flex = '2';
+              if (window.innerWidth <= 900) {
+                right.style.width = '100%';
+              }
               const h2 = document.createElement('h2');
               h2.textContent = section.title || '';
               h2.style.color = '#8844aa';
@@ -776,12 +801,25 @@ async function fetchPostsFromCSV(csvUrl) {
               // Injecte l'encart d'essai SOUS le titre "Chorale Pop", pleine largeur (de la photo au texte)
               try {
                 const title = (section.title || '').toLowerCase();
-                if (title.includes('chorale') && title.includes('pop')) {
+                const ctaUrl = (section.cta && section.cta.url) ? (section.cta.url || '').toLowerCase() : '';
+                // Detect the chorale section without relying on an exact title string.
+                // Accept titles containing 'chorale' or CTA URLs referencing the chorale page.
+                const isChoraleSection = title.includes('chorale') || ctaUrl.includes('chorale-pop') || ctaUrl.includes('chorale');
+                if (isChoraleSection) {
                   // Reconfigure le conteneur en grille pour permettre des éléments pleine largeur
-                  sec.style.display = 'grid';
-                  sec.style.gridTemplateColumns = 'minmax(260px,1fr) 2fr';
-                  sec.style.alignItems = 'start';
-                  sec.style.gap = '16px';
+                  // Switch to a grid layout on wider screens so the CTA can span full width.
+                  if (window.innerWidth > 900) {
+                    sec.style.display = 'grid';
+                    sec.style.gridTemplateColumns = 'minmax(260px,1fr) 2fr';
+                    sec.style.alignItems = 'start';
+                    sec.style.gap = '16px';
+                  } else {
+                    // On small screens keep column stacking and let the CTA be full width naturally
+                    sec.style.display = 'flex';
+                    sec.style.flexDirection = 'column';
+                    sec.style.alignItems = 'stretch';
+                    sec.style.gap = '12px';
+                  }
 
                   // Déplace le titre pour qu'il soit pleine largeur
                   if (right && right.contains(h2)) {

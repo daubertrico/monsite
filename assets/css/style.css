@@ -912,10 +912,10 @@ body {
 @media (max-width: 768px) {
     /* Nous rejoindre: sur mobile, empiler l'image au-dessus du texte */
     #page-content-container .section {
-        display: flex;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 12px !important;
+    display: flex;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
     }
     #page-content-container .section > div:first-child { /* imgWrap */
         flex: 0 0 auto !important;
@@ -1061,4 +1061,33 @@ body {
     }
 
     /* Navigation mobile: gérée par le menu hamburger (vertical dropdown) */
+}
+
+/* Safer breakpoint: some Android browsers report widths slightly above 768px.
+   Force stacking and full-width CTA under 900px to match JS behaviour. */
+@media (max-width: 900px) {
+    #page-content-container .section {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+    #page-content-container .section > div:first-child {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 8px 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+    }
+    #page-content-container .section > div:first-child img {
+        width: 100% !important;
+        height: auto !important;
+        display: block !important;
+        border-radius: 12px !important;
+        object-fit: cover !important;
+    }
+    #page-content-container .section > div:last-child {
+        width: 100% !important;
+    }
 }
