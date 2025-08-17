@@ -29,8 +29,8 @@
         <div id="page-content-container"></div>
     </main>
         <!-- Popup d'inscription séance d'essai -->
-        <div id="tryout-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:22px;">
-            <div role="dialog" aria-modal="true" aria-labelledby="tryout-title" style="background:#fff;padding:24px;border-radius:12px;max-width:640px;width:92%;position:relative;box-shadow:0 6px 28px rgba(0,0,0,0.25);max-height:calc(100vh - 44px);overflow:auto;-webkit-overflow-scrolling:touch;">
+        <div id="tryout-popup" class="tryout-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:22px;">
+            <div role="dialog" class="tryout-dialog" aria-modal="true" aria-labelledby="tryout-title" style="background:#fff;padding:24px;border-radius:12px;max-width:640px;width:92%;position:relative;box-shadow:0 6px 28px rgba(0,0,0,0.25);max-height:calc(100vh - 44px);overflow:auto;-webkit-overflow-scrolling:touch;">
                 <button id="close-tryout" aria-label="Fermer" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:22px;cursor:pointer;line-height:1">&times;</button>
                         <h2 id="tryout-title" style="margin:0 0 8px 0;">🎶 Séances d’essai – Grande Chorale</h2>
                         <p style="margin:0 0 8px 0;color:#456;">
@@ -77,7 +77,7 @@
                         <label for="egm-msg">Message (optionnel)</label>
                         <textarea id="egm-msg" name="message" rows="3" style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;"></textarea>
                     </div>
-                    <div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;">
+                    <div class="egm-submit-row" style="grid-column:1/-1;display:flex;gap:10px;align-items:center;">
                         <button id="egm-submit" type="submit" style="padding:10px 14px;border:2px solid #3981FF;background:#3981FF;color:#fff;font-weight:700;border-radius:10px;cursor:pointer;box-shadow:0 2px 6px #3981FF33;">Envoyer ma demande</button>
                         <span id="egm-status" style="font-size:0.95em;color:#2c7a2c;display:none;">Inscription envoyée…</span>
                         <span id="egm-error" style="font-size:0.95em;color:#b00020;display:none;">Envoi impossible, réessayez plus tard.</span>
@@ -92,24 +92,62 @@
                 const popup = document.getElementById('tryout-popup');
                 const openBtn = document.getElementById('open-tryout');
                 const closeBtn = document.getElementById('close-tryout');
-                function open(){ if (popup) popup.style.display = 'flex'; }
-                function close(){ if (popup) popup.style.display = 'none'; }
+                const form = document.getElementById('form-essai-modal');
+                const firstFieldSelector = '#egm-prenom, #egm-nom, #egm-email, #egm-date';
+
+                function lockBody() {
+                    document.documentElement.style.touchAction = 'none';
+                    document.body.style.overflow = 'hidden';
+                }
+                function unlockBody() {
+                    document.documentElement.style.touchAction = '';
+                    document.body.style.overflow = '';
+                }
+
+                function open(){
+                    if (!popup) return;
+                    popup.style.display = 'flex';
+                    // small delay to allow rendering before locking/focus
+                    setTimeout(() => {
+                        lockBody();
+                        // focus first visible input
+                        const first = popup.querySelector(firstFieldSelector);
+                        if (first && typeof first.focus === 'function') {
+                            first.focus({preventScroll:true});
+                            // Ensure the submit button is visible on small screens
+                            const submitRow = popup.querySelector('.egm-submit-row');
+                            if (submitRow && typeof submitRow.scrollIntoView === 'function') {
+                                submitRow.scrollIntoView({block: 'end', behavior:'smooth'});
+                            }
+                        }
+                    }, 60);
+                }
+
+                function close(){
+                    if (!popup) return;
+                    popup.style.display = 'none';
+                    unlockBody();
+                }
+
                 if (openBtn) openBtn.addEventListener('click', function(e){ e.preventDefault(); open(); });
                 if (closeBtn) closeBtn.addEventListener('click', close);
                 if (popup) popup.addEventListener('click', function(e){ if (e.target === popup) close(); });
-                    // Auto-ouverture si on arrive avec #tryout ou ?tryout=1
-                    try {
-                        const hash = (window.location.hash || '').toLowerCase();
-                        const params = new URLSearchParams(window.location.search);
-                        if (hash === '#tryout' || params.get('tryout') === '1') {
-                            setTimeout(open, 50);
-                        }
-                    } catch {}
 
-                // URL du Web App GAS dédié aux séances d'essai
+                // Close on ESC
+                document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+
+                // Auto-open via #tryout or ?tryout=1
+                try {
+                    const hash = (window.location.hash || '').toLowerCase();
+                    const params = new URLSearchParams(window.location.search);
+                    if (hash === '#tryout' || params.get('tryout') === '1') {
+                        setTimeout(open, 50);
+                    }
+                } catch {}
+
+                // --- form submit handling (existing logic kept) ---
                 const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
                 function isGASEndpoint(u){ return /script\.google\.com|googleusercontent\.com\/macros/.test(u||''); }
-                const form = document.getElementById('form-essai-modal');
                 if (form) form.addEventListener('submit', async function(e){
                     e.preventDefault();
                     const status = document.getElementById('egm-status');
@@ -136,7 +174,6 @@
                         return;
                     }
                     try {
-                        // Mode local forcé: ?local=1 dans l'URL
                         let forceLocal = false;
                         try { forceLocal = (new URLSearchParams(window.location.search)).get('local') === '1'; } catch {}
                         if (forceLocal) {
@@ -162,36 +199,36 @@
                             res = await fetch(TRYOUT_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                         }
                         if (!res.ok) throw new Error('HTTP ' + res.status);
-                        // Valider la réponse JSON si possible
                         try {
                             const payload = await res.clone().json();
                             if (payload && payload.ok === false) throw new Error(payload.error || 'server-error');
                         } catch {_=>{} }
-                                    // Succès: message personnalisé avec la date choisie (ton sympathique)
                         form.reset();
                         status.style.display = 'none';
-                                    confirmBox.innerHTML = 'Merci pour votre inscription ✨<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#456;">Petit conseil : arrivez un peu en avance. Si la séance affiche complet, on vous préviendra pour éviter un déplacement inutile. À très vite !</span>';
+                        confirmBox.innerHTML = 'Merci pour votre inscription ✨<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#456;">Petit conseil : arrivez un peu en avance. Si la séance affiche complet, on vous préviendra pour éviter un déplacement inutile. À très vite !</span>';
                         confirmBox.style.display = 'block';
                     } catch (err) {
                         console.error(err);
-                                    status.style.display = 'none';
-                                    // Fallback: enregistre localement pour tests Live Server et hors-ligne
-                                    try {
-                                        const key = 'tryoutsLocal';
-                                        const saved = JSON.parse(localStorage.getItem(key) || '[]');
-                                        const withId = Object.assign({ id: 'local-' + Date.now() }, data);
-                                        saved.push(withId);
-                                        localStorage.setItem(key, JSON.stringify(saved));
-                                        form.reset();
-                                        confirmBox.innerHTML = 'Merci ! Votre inscription est bien prise en compte <strong>en mode test</strong> (hors‑ligne).<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style=\"color:#b45309;\">Le serveur n\'a pas encore répondu (' + (err && err.message ? err.message : 'erreur inconnue') + '). Vos infos sont enregistrées sur cet appareil — réessayez un peu plus tard pour confirmer côté serveur. À très vite !</span>';
-                                        confirmBox.style.display = 'block';
-                                        error.style.display = 'none';
-                                    } catch (e2) {
-                                        error.textContent = 'Envoi impossible (' + (err && err.message ? err.message : 'erreur inconnue') + ').';
-                                        error.style.display = 'inline';
-                                    }
+                        status.style.display = 'none';
+                        try {
+                            const key = 'tryoutsLocal';
+                            const saved = JSON.parse(localStorage.getItem(key) || '[]');
+                            const withId = Object.assign({ id: 'local-' + Date.now() }, data);
+                            saved.push(withId);
+                            localStorage.setItem(key, JSON.stringify(saved));
+                            form.reset();
+                            confirmBox.innerHTML = 'Merci ! Votre inscription est bien prise en compte <strong>en mode test</strong> (hors‑ligne).<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#b45309;">Le serveur n\'a pas encore répondu (' + (err && err.message ? err.message : 'erreur inconnue') + '). Vos infos sont enregistrées sur cet appareil — réessayez un peu plus tard pour confirmer côté serveur. À très vite !</span>';
+                            confirmBox.style.display = 'block';
+                            error.style.display = 'none';
+                        } catch (e2) {
+                            error.textContent = 'Envoi impossible (' + (err && err.message ? err.message : 'erreur inconnue') + ').';
+                            error.style.display = 'inline';
+                        }
                     }
                 });
+
+                // When closing the form (after successful submit or user action), restore scroll
+                // Keep popup open unless user explicitly closes it; some flows reset the form only.
             })();
         </script>
 </body>

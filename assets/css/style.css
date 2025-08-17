@@ -1091,3 +1091,45 @@ body {
         width: 100% !important;
     }
 }
+
+/* Tryout popup: mobile-friendly adjustments without changing desktop/tablet */
+@media (max-width: 600px) {
+    .tryout-overlay {
+        align-items: flex-end; /* place dialog near bottom to mimic native keyboard behavior */
+        padding-top: 0; /* avoid extra top gap */
+    }
+    .tryout-dialog {
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 100vh !important; /* allow full viewport use */
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 14px !important;
+        box-shadow: 0 -6px 24px rgba(0,0,0,0.28) !important;
+        overflow: visible !important;
+    }
+    .tryout-dialog * { -webkit-font-smoothing: antialiased; }
+    /* Slightly reduce base font-size on tiny screens to fit content when needed */
+    .tryout-dialog { font-size: 14px; }
+
+    /* Sticky submit row so the button remains visible above the virtual keyboard */
+    .egm-submit-row {
+        position: sticky;
+        bottom: 6px;
+        background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0.95));
+        padding-top: 6px;
+        padding-bottom: 6px;
+        margin: 0 -14px -6px -14px; /* extend to dialog edges */
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        align-items: center;
+    }
+    /* Ensure the submit button can shrink if necessary */
+    .egm-submit-row button { flex-shrink: 0; }
+
+    /* Keep overflow inside the dialog to allow native keyboard to push content */
+    .tryout-dialog { overflow: auto; -webkit-overflow-scrolling: touch; }
+}
