@@ -1133,3 +1133,11 @@ body {
     /* Keep overflow inside the dialog to allow native keyboard to push content */
     .tryout-dialog { overflow: auto; -webkit-overflow-scrolling: touch; }
 }
+
+/* Small helper for Calendly CTA card used on cours-de-chant.html */
+@media (max-width: 700px) {
+    .cta-calendly { padding: 10px !important; margin: 14px 10px !important; }
+    .cta-calendly h3 { font-size: 1.05rem !important; }
+    .cta-calendly p { font-size: 0.95rem !important; }
+    .cta-calendly .calendly-cta { padding: 9px 12px !important; font-size: 0.95rem !important; }
+}
