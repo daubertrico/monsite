@@ -7,6 +7,16 @@ function harmoniseTitles() {
 }
 
 harmoniseTitles();
+// --- Meta Pixel (Facebook) initialization ---
+(function(){
+  const META_PIXEL_ID = '1296355052211114';
+  try {
+    if (!window.fbq) {
+      (function(f,b,e,v,n,t,s){if(f.fbq) return; n=f.fbq=function(){n.callMethod? n.callMethod.apply(n,arguments):n.queue.push(arguments)}; if(!f._fbq) f._fbq=n; n.push=n; n.loaded=!0; n.version='2.0'; n.queue=[]; t=b.createElement(e); t.async=!0; t.src=v; s=b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t,s)})(window, document, 'script', 'https://connect.facebook.net/fr_FR/fbevents.js');
+    }
+  } catch (e) { console.warn('Meta Pixel load failed', e); }
+  try { if (window.fbq) { fbq('init', META_PIXEL_ID); fbq('track', 'PageView'); console.info('[Pixel] PageView sent'); } } catch (e) { console.warn('Meta Pixel init/track failed', e); }
+})();
 const ASSETS_BASE_URL = 'assets/';
 const DATA_BASE_URL = 'data/';
 let globalConfig = null;
@@ -23,6 +33,24 @@ function getCurrentPageId() {
   if (id === 'espace-choristes') return 'partitions';
   return id;
 }
+
+// Track Meta Pixel Lead on tryout form submit clicks for specific pages
+(function(){
+  try {
+    const pageId = getCurrentPageId();
+    const trackOn = ['chorale-pop', 'nous-rejoindre'];
+    if (!trackOn.includes(pageId)) return;
+    // Delegate click on the document to catch dynamically inserted buttons
+    document.addEventListener('click', function(e){
+      const target = e.target;
+      if (!target) return;
+      // match the tryout submit button by id
+      if (target.id === 'egm-submit' || target.closest && target.closest('#egm-submit')) {
+        try { if (window.fbq) { fbq('track', 'Lead'); console.info('[Pixel] Lead sent'); } } catch (err) { console.warn('fbq track Lead failed', err); }
+      }
+    }, { capture: true });
+  } catch (e) { console.warn('Meta Pixel lead wiring failed', e); }
+})();
 
 function mapPageIdToHref(id) {
   // Special routing rules
