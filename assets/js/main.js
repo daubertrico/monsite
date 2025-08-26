@@ -1214,22 +1214,50 @@ function ensureSeoMeta(currentPageId) {
 
 
 async function init() {
-  globalConfig = await fetchJson('global_config.json');
-  pagesData = await fetchJson('pages.json');
-  partitionsData = await fetchJson('partitions.json');
-  // Remplacer le chargement local par le chargement depuis la Google Sheet (CSV)
-
-  postsData = await fetchPostsFromCSV('https://docs.google.com/spreadsheets/d/e/2PACX-1vROQBU3QffdHqtL93jVZOPjcuD0GHs2icQ13rx3-U7xvjASaQQILjk4pbVG7fk1ucFJQJMUI1GwKEy6/pub?output=csv');
-
-  if (!globalConfig || !pagesData) {
-    document.body.innerHTML = '<p style="color: red;">Erreur lors du chargement des données du site.</p>';
-    return;
+  // Parallelize the small JSON requests to avoid blocking sequential waits
+  try {
+    const [g, p, part] = await Promise.all([
+      fetchJson('global_config.json'),
+      fetchJson('pages.json'),
+      fetchJson('partitions.json')
+    ]);
+    globalConfig = g;
+    pagesData = p;
+    partitionsData = part;
+  } catch (err) {
+    console.error('[INIT] Erreur lors des fetch JSON initiaux :', err);
   }
 
-  // postsData n'est utilisé que pour l'affichage des posts, ne jamais bloquer le site si absent
-  if (!postsData) {
-    console.error('[ERREUR POSTS] Impossible de charger les posts depuis le CSV Google Sheets. Les posts ne seront pas affichés.');
-    postsData = [];
+  // Load posts CSV in background — don't block the main render on this.
+  fetchPostsFromCSV('https://docs.google.com/spreadsheets/d/e/2PACX-1vROQBU3QffdHqtL93jVZOPjcuD0GHs2icQ13rx3-U7xvjASaQQILjk4pbVG7fk1ucFJQJMUI1GwKEy6/pub?output=csv')
+    .then(data => {
+      postsData = data || [];
+      console.info('[POSTS] CSV chargé en arrière-plan, posts disponibles :', postsData.length);
+      // If current page displays posts, attempt to render them now
+      try {
+        const currentPageId = getCurrentPageId();
+        if (currentPageId && pagesData) {
+          const page = pagesData.find(pp => pp.id === currentPageId);
+          if (page && page.display_posts) {
+            // ensure posts container exists and call loader
+            const postsContainer = document.getElementById('posts-container');
+            if (postsContainer) loadAndDisplayPosts(page.tags);
+          }
+        }
+      } catch (e) { console.warn('[POSTS] rendu différé échoué', e); }
+    })
+    .catch(err => {
+      console.error('[ERREUR POSTS] Impossible de charger les posts depuis le CSV Google Sheets (background):', err);
+      postsData = [];
+    });
+
+  // If critical JSONs are missing, show a non-destructive warning but don't erase the whole page
+  if (!globalConfig || !pagesData) {
+    const warn = document.createElement('div');
+    warn.style.cssText = 'color:red;font-weight:bold;padding:20px;background:#fff7f7;border-left:4px solid #e53935;';
+    warn.textContent = 'Erreur lors du chargement des données du site. Certaines fonctionnalités peuvent être limitées.';
+    document.body.insertBefore(warn, document.body.firstChild);
+    // still proceed where possible (partial rendering may work)
   }
 
   // Render unified header/nav/footer
