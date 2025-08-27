@@ -17,7 +17,16 @@
     <meta name="twitter:description" content="Chant collectif, gospel, polyphonie, répertoire pop et concerts à Rennes.">
     <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/choralepop.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/style.css">
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);} 
+            gtag('js', new Date());
+
+            gtag('config', 'AW-928718843');
+        </script>
 </head>
 <body class="internal-page">
     <main class="main-content">
@@ -207,6 +216,7 @@
                         status.style.display = 'none';
                         confirmBox.innerHTML = 'Merci pour votre inscription ✨<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#456;">Petit conseil : arrivez un peu en avance. Si la séance affiche complet, on vous préviendra pour éviter un déplacement inutile. À très vite !</span>';
                         confirmBox.style.display = 'block';
+                        try { if (typeof gtag === 'function') gtag('event', 'conversion', { 'send_to': 'AW-928718843/hk9sCNXW2o4bEPu_7LoD' }); } catch(e) {}
                     } catch (err) {
                         console.error(err);
                         status.style.display = 'none';
@@ -219,6 +229,7 @@
                             form.reset();
                             confirmBox.innerHTML = 'Merci ! Votre inscription est bien prise en compte <strong>en mode test</strong> (hors‑ligne).<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#b45309;">Le serveur n\'a pas encore répondu (' + (err && err.message ? err.message : 'erreur inconnue') + '). Vos infos sont enregistrées sur cet appareil — réessayez un peu plus tard pour confirmer côté serveur. À très vite !</span>';
                             confirmBox.style.display = 'block';
+                            try { if (typeof gtag === 'function') gtag('event', 'conversion', { 'send_to': 'AW-928718843/hk9sCNXW2o4bEPu_7LoD' }); } catch(e) {}
                             error.style.display = 'none';
                         } catch (e2) {
                             error.textContent = 'Envoi impossible (' + (err && err.message ? err.message : 'erreur inconnue') + ').';

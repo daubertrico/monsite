@@ -49,6 +49,39 @@ function getCurrentPageId() {
         try { if (window.fbq) { fbq('track', 'Lead'); console.info('[Pixel] Lead sent'); } } catch (err) { console.warn('fbq track Lead failed', err); }
       }
     }, { capture: true });
+    // Central Google Ads conversion tracking for successful tryout submissions
+    // Fires once per page view when a tryout is confirmed.
+    try {
+      let _googleConversionTracked = false;
+      function trackGoogleConversionOnce() {
+        if (_googleConversionTracked) return;
+        _googleConversionTracked = true;
+        try { if (typeof gtag === 'function') { gtag('event', 'conversion', { 'send_to': 'AW-928718843/hk9sCNXW2o4bEPu_7LoD' }); console.info('[GTag] conversion sent'); } } catch(e) { console.warn('[GTag] conversion failed', e); }
+      }
+      // Listen to custom event dispatched by pages after successful submit
+      document.addEventListener('tryout:success', trackGoogleConversionOnce);
+      // MutationObserver fallback: when #egm-confirm becomes visible, consider it a success
+      const obs = new MutationObserver(() => {
+        try {
+          const cb = document.getElementById('egm-confirm');
+          if (cb && cb.style && cb.style.display && cb.style.display !== 'none' && cb.textContent && cb.textContent.trim().length > 0) {
+            trackGoogleConversionOnce();
+            obs.disconnect();
+          }
+        } catch(e) {}
+      });
+      obs.observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
+      // Also safe fallback: when click submit triggers, set a small timeout to check for confirmation
+      document.addEventListener('click', function(e){
+        const t = e.target;
+        if (t && (t.id === 'egm-submit' || (t.closest && t.closest('#egm-submit')))) {
+          setTimeout(() => {
+            const cb = document.getElementById('egm-confirm');
+            if (cb && cb.style && cb.style.display && cb.style.display !== 'none') trackGoogleConversionOnce();
+          }, 800);
+        }
+      }, { capture: true });
+    } catch (e) { console.warn('Google conversion wiring failed', e); }
   } catch (e) { console.warn('Meta Pixel lead wiring failed', e); }
 })();
 
