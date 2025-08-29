@@ -971,6 +971,26 @@ async function fetchPostsFromCSV(csvUrl) {
       const postsSection = document.createElement('section');
       postsSection.classList.add('dynamic-posts-section');
       postsSection.innerHTML = '<div id="posts-container"></div>';
+      // If this is the SOUL page, inject the audition embed BEFORE the posts
+      if (pageId === 'soul') {
+        try {
+          const auditionWrapper = document.createElement('div');
+          auditionWrapper.style.maxWidth = '900px';
+          auditionWrapper.style.margin = '0 auto 18px auto';
+          auditionWrapper.style.borderRadius = '10px';
+          auditionWrapper.style.overflow = 'hidden';
+          auditionWrapper.style.border = '1px solid #e8e8f2';
+          auditionWrapper.style.boxShadow = '0 6px 18px rgba(0,0,0,0.06)';
+          auditionWrapper.innerHTML = `
+            <div style="background:#fff;padding:8px 12px;">
+              <div style="width:100%;">
+                <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd7L0GtI9ctgS8gN6phoIAnC-hC0ZvDhNRKeJ-UyvQqLHIMsg/viewform?embedded=true" width="100%" height="1400" frameborder="0" marginheight="0" marginwidth="0" style="display:block;width:100%;min-height:900px;" loading="lazy">Chargement…</iframe>
+              </div>
+            </div>
+          `;
+          contentContainer.appendChild(auditionWrapper);
+        } catch (e) { console.warn('[AUDITION] Injection échouée', e); }
+      }
       contentContainer.appendChild(postsSection);
       loadAndDisplayPosts(page.tags);
     }
