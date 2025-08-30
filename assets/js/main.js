@@ -1021,6 +1021,23 @@ async function fetchPostsFromCSV(csvUrl) {
       return;
     }
 
+    // Ensure posts are displayed newest first (by date when available)
+    try {
+      if (Array.isArray(postsData) && postsData.length) {
+        postsData.sort((a, b) => {
+          const parseDate = item => {
+            const v = (item.date || item.Date || item.published || item.created || item.timestamp || '').toString();
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? 0 : d.getTime();
+          };
+          return parseDate(b) - parseDate(a);
+        });
+      }
+    } catch (err) {
+      // Fallback: reverse order if parsing/sort fails
+      postsData = postsData.slice().reverse();
+    }
+
     let filteredPosts;
     if (!Array.isArray(pageTags) || pageTags.length === 0) {
       // Si aucun tag fourni, afficher tous les posts
