@@ -67,10 +67,12 @@
                         <label for="egm-date">Date souhaitée</label>
                         <select id="egm-date" name="date" required style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
                             <option value="">Sélectionner…</option>
-                            <option value="Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
+                            <!-- 15 septembre marked as full and disabled so people cannot choose it -->
+                            <option value="Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu" disabled aria-disabled="true">Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu — Complet</option>
                             <option value="Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
                             <option value="Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
                         </select>
+                        <div id="egm-full-note" style="margin-top:8px;color:#b45309;font-size:0.95em;">La séance du <strong>15 septembre</strong> affiche complet — merci de choisir une autre date (22 ou 29 septembre).</div>
                     </div>
                     <div>
                         <label for="egm-voix">Votre pupitre (si vous savez)</label>
@@ -182,6 +184,14 @@
                         error.style.display = 'inline';
                         return;
                     }
+                    // Protect against attempted signup for the full session (15 septembre)
+                    try {
+                        if (data.date && data.date.toLowerCase().indexOf('15 septembre') !== -1) {
+                            error.textContent = 'La séance du 15 septembre est complète. Merci de choisir une autre date ou de nous contacter pour être mis·e sur la liste d\'attente.';
+                            error.style.display = 'inline';
+                            return;
+                        }
+                    } catch (e) {}
                     try {
                         let forceLocal = false;
                         try { forceLocal = (new URLSearchParams(window.location.search)).get('local') === '1'; } catch {}

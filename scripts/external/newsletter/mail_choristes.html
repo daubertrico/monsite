@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mail choristes - Template</title>
+  <style>
+    .encart-shadow{box-shadow:0 6px 18px rgba(0,0,0,0.06);border-radius:8px;padding:12px;margin-bottom:14px}
+    .encart-titre{font-family:Raleway, Arial, sans-serif;color:#8844aa}
+    .encart-separator{border:none;border-top:1px solid #eee;margin:18px 0}
+    body{font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.4;margin:0;padding:0}
+    .wrapper{max-width:680px;margin:0 auto;padding:18px}
+    a{color:#8844aa}
+    p{margin:0 0 12px}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div style="text-align:center;margin-bottom:18px"><img src="https://chanterlavoixlibre.fr/assets/images/logo.png" alt="La Voix Libre" style="max-width:180px"></div>
+
+    <div style="text-align:justify;margin-bottom:14px">
+      <?!= intro ?>
+    </div>
+
+    <div>
+      <?!= encart_evenement ?>
+    </div>
+
+    <div style="margin-top:14px">
+      <?!= cta ?>
+    </div>
+
+    <div style="margin-top:26px;font-style:italic;color:#666;font-size:14px">Au plaisir de chanter ensemble,<br>La Voix Libre</div>
+  </div>
+</body>
+</html>
