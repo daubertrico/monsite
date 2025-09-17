@@ -612,6 +612,11 @@ async function fetchPostsFromCSV(csvUrl) {
                 ul.appendChild(li);
               });
               textDiv.appendChild(ul);
+              // Add a clear Tarifs button linking to the Nous rejoindre section
+              const tarifsBtn = document.createElement('div');
+              tarifsBtn.style.marginTop = '12px';
+              tarifsBtn.innerHTML = `<a href="nous-rejoindre.html#cours-de-chant" class="tarifs-cta" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#8844aa;color:#fff;font-weight:700;text-decoration:none;border:2px solid #8844aa;">Tarifs</a>`;
+              textDiv.appendChild(tarifsBtn);
             }
 
             // Ajout du portrait audio avec bande colorée et texte explicatif
@@ -762,6 +767,8 @@ async function fetchPostsFromCSV(csvUrl) {
           if (sectionsBlock && Array.isArray(sectionsBlock.items)) {
             sectionsBlock.items.forEach(section => {
               const sec = document.createElement('section');
+              // If the section provides an explicit anchor in the JSON, set it so it can be targeted by links
+              if (section.anchor) sec.id = section.anchor;
               sec.className = 'section';
               // Desktop default: row layout. On small viewports, force column so the
               // illustration stacks above the text (mobile UX requirement).
@@ -853,6 +860,14 @@ async function fetchPostsFromCSV(csvUrl) {
                 more.style.color = '#8844aa';
                 more.style.textDecoration = 'underline';
                 right.appendChild(more);
+              }
+
+              // If a Calendly link is provided in the section JSON, render a CTA button
+              if (section.calendly) {
+                const calButton = document.createElement('div');
+                calButton.style.marginTop = '12px';
+                calButton.innerHTML = `<a href="${section.calendly}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px rgba(57,129,255,0.2);">Prendre rendez‑vous</a>`;
+                right.appendChild(calButton);
               }
 
               sec.appendChild(imgWrap);
@@ -1354,3 +1369,30 @@ async function init() {
 }
 
 init();
+
+// Smooth-scroll handler: when a page is rendered dynamically and the URL contains a hash,
+// try to scroll to the target element once it's available. Retries a few times with delay.
+(function enableHashSmoothScroll() {
+  if (!('location' in window) || !window.location.hash) return;
+  const targetId = window.location.hash.slice(1);
+  if (!targetId) return;
+  let attempts = 0;
+  const maxAttempts = 12; // will retry for ~1.2s total (12 * 100ms)
+  const tryScroll = () => {
+    attempts++;
+    const el = document.getElementById(targetId);
+    if (el) {
+      try {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        el.scrollIntoView();
+      }
+      return;
+    }
+    if (attempts < maxAttempts) {
+      setTimeout(tryScroll, 100);
+    }
+  };
+  // Start after a short delay to allow initial rendering
+  setTimeout(tryScroll, 120);
+})();

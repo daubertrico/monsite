@@ -184,10 +184,10 @@
     ],
     "specific_content": [
       {
-        "type": "list",
+          "type": "list",
         "title": "Infos pratiques :",
         "items": [
-          "Les cours durent 45 minutes et leur coût varie en fonction de leur régularité (de 40 à 50 euros la séance).",
+          "Les cours durent 45 minutes. Pour les tarifs et modalités d'inscription, consultez la page 'Nous rejoindre' (bouton ci‑dessous).",
           "Il est possible de faire les cours 'à la carte', sans régularité, sur les créneaux qui restent disponibles.",
           "Il n'y a pas de cours pendant les vacances scolaires."
         ]
@@ -424,12 +424,14 @@
             "title": "Cours de chant",
             "image": "courschant.jpg",
             "description": "Cours individuels de 45 minutes à ABE, rue Papu, Rennes.",
-            "details": [
+              "details": [
               "Tarifs :",
-              "50€ le cours unique",
-              "45€ le cours bi-mensuel",
-              "40€ le cours hebdomadaire"
+              "55€ le cours unique",
+              "50€ le cours bi-mensuel",
+              "45€ le cours hebdomadaire"
             ],
+            "anchor": "cours-de-chant",
+            "calendly": "https://calendly.com/vincenttricotel/cours-individuel",
             "contactEmail": "lavoixlibrerennes@gmail.com",
             "cta": { "text": "En savoir plus", "url": "cours-de-chant.html" }
           }
