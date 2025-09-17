@@ -823,10 +823,25 @@ async function fetchPostsFromCSV(csvUrl) {
                 right.style.width = '100%';
               }
               const h2 = document.createElement('h2');
-              h2.textContent = section.title || '';
               h2.style.color = '#8844aa';
               h2.style.fontFamily = "'Lobster',cursive";
               h2.style.fontSize = '2em';
+              // Make the section title clickable when a CTA URL is provided in the JSON
+              if (section.cta && section.cta.url) {
+                const a = document.createElement('a');
+                a.href = section.cta.url;
+                a.textContent = section.title || '';
+                a.style.color = 'inherit';
+                a.style.textDecoration = 'none';
+                a.setAttribute('aria-label', section.title ? `En savoir plus sur ${section.title}` : 'En savoir plus');
+                // Ensure focus styles remain visible for keyboard users
+                a.style.outline = 'none';
+                a.addEventListener('focus', function() { a.style.textDecoration = 'underline'; });
+                a.addEventListener('blur', function() { a.style.textDecoration = 'none'; });
+                h2.appendChild(a);
+              } else {
+                h2.textContent = section.title || '';
+              }
               right.appendChild(h2);
 
               if (section.description) {
@@ -1370,6 +1385,19 @@ async function init() {
 
 init();
 
+// Notify that dynamic content has been rendered so other listeners (e.g. smooth-scroll)
+// can react. generatePageContent already performs synchronous DOM insertions; we
+// dispatch this event at the end of that function's logical flow. To avoid
+// duplicating logic we dispatch from here after init() calls generatePageContent.
+// However, some pages may re-render later; individual renderers should also
+// dispatch 'site:content-rendered' if they perform async updates. We emit a
+// gentle fallback here after a short delay to cover usual cases.
+setTimeout(() => {
+  try {
+    document.dispatchEvent(new Event('site:content-rendered'));
+  } catch (e) {}
+}, 400);
+
 // Smooth-scroll handler: when a page is rendered dynamically and the URL contains a hash,
 // try to scroll to the target element once it's available. Retries a few times with delay.
 (function enableHashSmoothScroll() {
@@ -1377,7 +1405,8 @@ init();
   const targetId = window.location.hash.slice(1);
   if (!targetId) return;
   let attempts = 0;
-  const maxAttempts = 12; // will retry for ~1.2s total (12 * 100ms)
+  const maxAttempts = 40; // retry longer on slower networks (40 * 150ms ~ 6s)
+  const delay = 150;
   const tryScroll = () => {
     attempts++;
     const el = document.getElementById(targetId);
@@ -1390,9 +1419,16 @@ init();
       return;
     }
     if (attempts < maxAttempts) {
-      setTimeout(tryScroll, 100);
+      setTimeout(tryScroll, delay);
     }
   };
-  // Start after a short delay to allow initial rendering
-  setTimeout(tryScroll, 120);
+
+  // If the dynamic renderer emits a signal that content finished rendering, try immediately
+  document.addEventListener('site:content-rendered', function onRendered(e) {
+    // small timeout to let microtasks settle
+    setTimeout(tryScroll, 50);
+  }, { once: true });
+
+  // Also start a fallback polling in case the event was missed or rendering happened earlier
+  setTimeout(tryScroll, 200);
 })();
