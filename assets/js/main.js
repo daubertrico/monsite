@@ -1300,7 +1300,7 @@ function ensureSeoMeta(currentPageId) {
       email: email || undefined,
       address: {
         '@type': 'PostalAddress',
-        streetAddress: '21 rue Papu',
+  streetAddress: '47b rue Papu',
         addressLocality: 'Rennes',
         postalCode: '35000',
         addressCountry: 'FR'

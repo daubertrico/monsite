@@ -43,7 +43,7 @@
                 <button id="close-tryout" aria-label="Fermer" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:22px;cursor:pointer;line-height:1">&times;</button>
                         <h2 id="tryout-title" style="margin:0 0 8px 0;">🎶 Séances d’essai – Grande Chorale</h2>
                         <p style="margin:0 0 8px 0;color:#456;">
-                            Trois lundis pour nous rejoindre en septembre (19h30–21h30 – L’Avenir de Rennes, 21 rue Papu).<br>
+                            Trois lundis pour nous rejoindre en septembre (19h30–21h30 – L’Avenir de Rennes, 47b rue Papu).<br>
                             Les places peuvent être prises dès la première séance. Si c’est complet, on vous préviendra pour éviter un déplacement inutile.
                         </p>
                 <form id="form-essai-modal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px;">
@@ -68,9 +68,9 @@
                         <select id="egm-date" name="date" required style="width:100%;padding:10px;border:1px solid #cfe3ff;border-radius:8px;">
                             <option value="">Sélectionner…</option>
                             <!-- 15 septembre marked as full and disabled so people cannot choose it -->
-                            <option value="Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu" disabled aria-disabled="true">Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu — Complet</option>
-                            <option value="Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
-                            <option value="Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu">Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 21 rue Papu</option>
+                            <option value="Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 47b rue Papu" disabled aria-disabled="true">Lundi 15 septembre 2025 – 19h30 – L’Avenir de Rennes, 47b rue Papu — Complet</option>
+                            <option value="Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 47b rue Papu">Lundi 22 septembre 2025 – 19h30 – L’Avenir de Rennes, 47b rue Papu</option>
+                            <option value="Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 47b rue Papu">Lundi 29 septembre 2025 – 19h30 – L’Avenir de Rennes, 47b rue Papu</option>
                         </select>
                         <div id="egm-full-note" style="margin-top:8px;color:#b45309;font-size:0.95em;">La séance du <strong>15 septembre</strong> affiche complet — merci de choisir une autre date (22 ou 29 septembre).</div>
                     </div>
@@ -221,7 +221,7 @@
                         try {
                             const payload = await res.clone().json();
                             if (payload && payload.ok === false) throw new Error(payload.error || 'server-error');
-                        } catch {_=>{} }
+                        } catch (e) { }
                         form.reset();
                         status.style.display = 'none';
                         confirmBox.innerHTML = 'Merci pour votre inscription ✨<br><strong>Rendez-vous</strong> : ' + data.date + '<br><span style="color:#456;">Petit conseil : arrivez un peu en avance. Si la séance affiche complet, on vous préviendra pour éviter un déplacement inutile. À très vite !</span>';
