@@ -126,10 +126,21 @@
         <strong>Attention :</strong> Ces partitions sont des arrangements réalisés pour la chorale La Voix Libre. Elles sont protégées par le droit d’auteur et strictement réservées à un usage interne. Merci de ne pas les diffuser.
       </div>
       <h2>Espace choristes : partitions et ressources</h2>
-      <table id="partitions-table" style="width:100%;border-collapse:collapse;margin:2em 0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;box-shadow:0 2px 8px #0002;">
+      <!-- Member sub-tabs (SOUL / La Voix Libre) -->
+      <div id="chansons-subtabs" style="margin:12px 0; display:none;">
+        <button id="tab-soul" class="subtab active" style="padding:10px 16px;margin-right:8px;border-radius:10px;border:2px solid #3981FF;background:#3981FF;color:#fff;cursor:pointer;">Chansons en chantier SOUL</button>
+        <button id="tab-lv" class="subtab" style="padding:10px 16px;border-radius:10px;border:2px solid #e0e0e0;background:#e0e0e0;color:#222;cursor:pointer;">Chansons en chantier La Voix Libre</button>
+      </div>
+      <div id="chansons-content">
+        <div id="chansons-soul" class="chansons-list" style="display:none;"></div>
+        <div id="chansons-lv" class="chansons-list" style="display:none;"></div>
+      </div>
+      <!-- Chef unified table with two visibility columns -->
+      <table id="partitions-table" style="width:100%;border-collapse:collapse;margin:2em 0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;box-shadow:0 2px 8px #0002;display:none;">
         <thead>
           <tr>
-            <th style="width:64px;text-align:center;">Vis.</th>
+            <th style="width:80px;text-align:center;">SOUL</th>
+            <th style="width:160px;text-align:center;">La Voix Libre</th>
             <th style="text-align:left;">Morceau</th>
             <th style="text-align:left;">Enregistrements</th>
             <th style="text-align:left;">Ressources</th>
@@ -144,7 +155,15 @@
     function simplifyKey(s){ return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase(); }
     function loadVisibility(){ try { return JSON.parse(localStorage.getItem(VIS_KEY) || '{}'); } catch { return {}; } }
     function saveVisibility(m){ try { localStorage.setItem(VIS_KEY, JSON.stringify(m||{})); } catch {} }
-    function isVisible(part){ const m = loadVisibility(); const k = simplifyKey(part.title); if (k in m) return !!m[k]; if (typeof part.visible !== 'undefined') return !!part.visible; return true; }
+    function getVisibility(part){
+      const m = loadVisibility();
+      const k = simplifyKey(part.title);
+      if (m && m[k]) return { soul: !!m[k].soul, lv: !!m[k].lv };
+      // respect explicit fields if present, otherwise default to true (backward compatibility)
+      const soul = (typeof part.visible_soul !== 'undefined') ? !!part.visible_soul : true;
+      const lv = (typeof part.visible_lavoixlibre !== 'undefined') ? !!part.visible_lavoixlibre : true;
+      return { soul, lv };
+    }
 
     fetch('data/partitions.json')
       .then(res => res.json())
@@ -156,10 +175,16 @@
           return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' });
         });
 
-        // If not chef, filter out hidden partitions
-        if (!window.IS_CHEF) {
-          data = data.filter(p => isVisible(p));
-        }
+        // Prepare partitions lists based on visibility
+        const soulList = [];
+        const lvList = [];
+        const chefRows = [];
+        data.forEach(partition => {
+          const vis = getVisibility(partition);
+          if (vis.soul) soulList.push(partition);
+          if (vis.lv) lvList.push(partition);
+          chefRows.push({ partition, vis });
+        });
 
         data.forEach(partition => {
           const recordingsLinks = [];
@@ -187,59 +212,102 @@
             interactiveLinks.push(`<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>`);
           }
 
-          // Visibility control (chef only)
-          const key = simplifyKey(partition.title);
-          const visible = isVisible(partition);
-          const visCell = window.IS_CHEF ? `<td style="width:64px;text-align:center;"><label title="${visible ? 'Visible pour les choristes' : 'Masqué pour les choristes'}" style="cursor:pointer;"><input type="checkbox" data-vis-key="${key}" class="vis-toggle" ${visible ? 'checked' : ''} style="transform:scale(1.05);margin-right:6px; vertical-align:middle;">${visible ? '👁️' : '🙈'}</label></td>` : `<td style="width:64px;"></td>`;
-
-          tbody.innerHTML += `
-            <tr data-vis-key="${key}">
-              ${visCell}
-              <td class="title-cell">${partition.title || ''}</td>
-              <td>${recordingsLinks.join('<br>')}</td>
-              <td>${ressourcesLinks.join('<br>')}</td>
-              <td>${interactiveLinks.join('<br>')}</td>
-            </tr>
-            <tr><td colspan='5' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>
-          `;
+          // For chef view we will build rows later from chefRows; for members we'll populate soul/lv lists
+          // Member lists: append to respective containers
+          // We'll handle members below after loop
         });
-
-        // Apply dimming for hidden items when chef views
+        // Fill member subtabs or chef table
+        const soulContainer = document.getElementById('chansons-soul');
+        const lvContainer = document.getElementById('chansons-lv');
+        const partitionsTable = document.getElementById('partitions-table');
         if (window.IS_CHEF) {
-          document.querySelectorAll('#partitions-table tbody tr[data-vis-key]').forEach(tr => {
-            const k = tr.getAttribute('data-vis-key');
-            const p = { title: tr.querySelector('.title-cell') ? tr.querySelector('.title-cell').textContent : '' };
-            const v = isVisible(p);
-            const titleTd = tr.querySelector('.title-cell');
-            if (titleTd) titleTd.style.opacity = v ? '1' : '0.45';
+          // show chef table
+          partitionsTable.style.display = '';
+          const tbodyChef = partitionsTable.querySelector('tbody');
+          chefRows.forEach(({ partition, vis }) => {
+            const k = simplifyKey(partition.title);
+            const soulChk = `<label style="cursor:pointer;"><input type="checkbox" data-vis-key="${k}" data-vis-target="soul" class="vis-toggle" ${vis.soul ? 'checked' : ''} style="transform:scale(1.05);vertical-align:middle;margin-right:6px;">${vis.soul ? '✓' : ''}</label>`;
+            const lvChk = `<label style="cursor:pointer;"><input type="checkbox" data-vis-key="${k}" data-vis-target="lv" class="vis-toggle" ${vis.lv ? 'checked' : ''} style="transform:scale(1.05);vertical-align:middle;margin-right:6px;">${vis.lv ? '✓' : ''}</label>`;
+            const recordingsLinks = [];
+            const ressourcesLinks = [];
+            const interactiveLinks = [];
+            if (partition.recordings) partition.recordings.forEach(rec => recordingsLinks.push(`<a href="#" class="audio-link" data-src="${rec.file}">${rec.label}</a>`));
+            if (partition.recordings_link) recordingsLinks.push(`<a href="${partition.recordings_link}" target="_blank">Enregistrements</a>`);
+            if (partition.documents) partition.documents.forEach(doc => ressourcesLinks.push(`<a href="${doc.file}" target="_blank">${doc.label}</a>`));
+            if (partition.paroles_prononciation_image) ressourcesLinks.push(`<a href="${partition.paroles_prononciation_image}" target="_blank">Paroles & prononciation</a>`);
+            if (partition.interactive_link) interactiveLinks.push(`<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>`);
+            else if (partition.flatio_link) interactiveLinks.push(`<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>`);
+            tbodyChef.innerHTML += `
+              <tr data-vis-key="${k}">
+                <td style="text-align:center;">${soulChk}</td>
+                <td style="text-align:center;">${lvChk}</td>
+                <td class="title-cell">${partition.title || ''}</td>
+                <td>${recordingsLinks.join('<br>')}</td>
+                <td>${ressourcesLinks.join('<br>')}</td>
+                <td>${interactiveLinks.join('<br>')}</td>
+              </tr>
+              <tr><td colspan='6' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>
+            `;
           });
-        }
 
-        // Bind checkbox toggles
-        document.querySelectorAll('.vis-toggle').forEach(chk => {
-          chk.addEventListener('change', function(){
-            try {
-              const visMap = loadVisibility();
-              const k = this.dataset.visKey;
-              visMap[k] = !!this.checked;
-              saveVisibility(visMap);
-              // update UI: icon and dimming
-              const row = this.closest('tr');
-              if (row) {
-                const titleTd = row.querySelector('.title-cell');
-                if (titleTd) titleTd.style.opacity = this.checked ? '1' : '0.45';
-                // update label emoji
-                const lbl = this.parentElement;
-                if (lbl) lbl.innerHTML = `<input type=\"checkbox\" data-vis-key=\"${k}\" class=\"vis-toggle\" ${this.checked ? 'checked' : ''} style=\"transform:scale(1.05);margin-right:6px;vertical-align:middle;\">${this.checked ? '👁️' : '🙈'}`;
-                // re-bind newly created checkbox (simple approach)
-                const newChk = row.querySelector('.vis-toggle');
-                if (newChk && newChk !== this) {
-                  newChk.addEventListener('change', arguments.callee);
-                }
-              }
-            } catch (e) { console.error(e); }
-          });
-        });
+          // bind both types of checkboxes
+          function bindChefToggles() {
+            document.querySelectorAll('.vis-toggle').forEach(chk => {
+              chk.addEventListener('change', function handler(e){
+                try {
+                  const visMap = loadVisibility();
+                  const k = this.dataset.visKey;
+                  if (!visMap[k]) visMap[k] = { soul: false, lv: false };
+                  if (this.dataset.visTarget === 'soul') visMap[k].soul = !!this.checked;
+                  if (this.dataset.visTarget === 'lv') visMap[k].lv = !!this.checked;
+                  saveVisibility(visMap);
+                  // update display of checkmark/label
+                  const lbl = this.parentElement;
+                  if (lbl) lbl.innerHTML = `<input type=\"checkbox\" data-vis-key=\"${k}\" data-vis-target=\"${this.dataset.visTarget}\" class=\"vis-toggle\" ${this.checked ? 'checked' : ''} style=\"transform:scale(1.05);vertical-align:middle;margin-right:6px;\">${this.checked ? '✓' : ''}`;
+                  // rebind new checkbox
+                  const newChk = lbl.querySelector('.vis-toggle');
+                  if (newChk && newChk !== this) newChk.addEventListener('change', handler);
+                } catch (e) { console.error(e); }
+              });
+            });
+          }
+          bindChefToggles();
+        } else {
+          // member view: show subtabs and populate lists
+          const subtabs = document.getElementById('chansons-subtabs');
+          subtabs.style.display = '';
+          const tabSoulBtn = document.getElementById('tab-soul');
+          const tabLvBtn = document.getElementById('tab-lv');
+          const showList = (which) => {
+            document.getElementById('chansons-soul').style.display = (which === 'soul') ? '' : 'none';
+            document.getElementById('chansons-lv').style.display = (which === 'lv') ? '' : 'none';
+            tabSoulBtn.classList.toggle('active', which === 'soul');
+            tabLvBtn.classList.toggle('active', which === 'lv');
+            tabSoulBtn.style.background = which === 'soul' ? '#3981FF' : '#e0e0e0';
+            tabSoulBtn.style.color = which === 'soul' ? '#fff' : '#222';
+            tabLvBtn.style.background = which === 'lv' ? '#3981FF' : '#e0e0e0';
+            tabLvBtn.style.color = which === 'lv' ? '#fff' : '#222';
+          };
+          tabSoulBtn.addEventListener('click', () => showList('soul'));
+          tabLvBtn.addEventListener('click', () => showList('lv'));
+          // Populate soul list
+          soulContainer.innerHTML = soulList.length ? ('<table style="width:100%;border-collapse:collapse;"><tbody>' + soulList.map(partition => {
+            const recordingsLinks = (partition.recordings||[]).map(r => `<a href="#" class="audio-link" data-src="${r.file}">${r.label}</a>`).join('<br>');
+            const ressourcesLinks = (partition.documents||[]).map(d => `<a href="${d.file}" target="_blank">${d.label}</a>`).join('<br>');
+            const interactiveLinks = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>` : (partition.flatio_link ? `<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>` : '');
+            return `<tr><td style="padding:10px 0;"><strong>${partition.title}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLinks ? '<br>' : ''}${interactiveLinks}</div></td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
+          }).join('') + '</tbody></table>') : '<em>Aucune chanson SOUL disponible.</em>';
+          // Populate lv list
+          lvContainer.innerHTML = lvList.length ? ('<table style="width:100%;border-collapse:collapse;"><tbody>' + lvList.map(partition => {
+            const recordingsLinks = (partition.recordings||[]).map(r => `<a href="#" class="audio-link" data-src="${r.file}">${r.label}</a>`).join('<br>');
+            const ressourcesLinks = (partition.documents||[]).map(d => `<a href="${d.file}" target="_blank">${d.label}</a>`).join('<br>');
+            const interactiveLinks = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>` : (partition.flatio_link ? `<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>` : '');
+            return `<tr><td style="padding:10px 0;"><strong>${partition.title}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLinks ? '<br>' : ''}${interactiveLinks}</div></td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
+          }).join('') + '</tbody></table>') : '<em>Aucune chanson La Voix Libre disponible.</em>';
+          // show default tab
+          showList('soul');
+          bindAudioClickOnce();
+        }
 
         // Create export button in admin panel for convenience
         if (window.IS_CHEF) {
@@ -255,7 +323,7 @@
                   const resp = await fetch('data/partitions.json');
                   const parts = await resp.json();
                   const vis = loadVisibility();
-                  const patched = parts.map(p => { const k = simplifyKey(p.title); if (k in vis) p.visible = !!vis[k]; return p; });
+                  const patched = parts.map(p => { const k = simplifyKey(p.title); if (vis[k]) { p.visible_soul = !!vis[k].soul; p.visible_lavoixlibre = !!vis[k].lv; } return p; });
                   const blob = new Blob([JSON.stringify(patched, null, 2)], { type: 'application/json' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a'); a.href = url; a.download = 'partitions-with-visibility.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
