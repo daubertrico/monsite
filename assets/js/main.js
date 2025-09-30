@@ -933,7 +933,7 @@ async function fetchPostsFromCSV(csvUrl) {
                   cta.style.display = 'flex';
                   cta.style.alignItems = 'center';
                   cta.style.flexWrap = 'wrap';
-                  cta.innerHTML = '<span>🎶 Envie de chanter ? Inscrivez‑vous</span> <a href="chorale-pop.html#tryout" style="display:inline-block;margin-left:12px;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px #3981FF33;">Séance d’essai gratuite</a>';
+                  cta.innerHTML = '<span>🎶 Envie de chanter ?</span>';
                   // Insère le CTA juste après le titre
                   if (sec.firstChild && sec.firstChild.tagName && sec.firstChild.tagName.toLowerCase() === 'h2') {
                     sec.insertBefore(cta, sec.children[1] || null);
