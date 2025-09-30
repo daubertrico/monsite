@@ -304,8 +304,8 @@
             const interactiveLinks = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>` : (partition.flatio_link ? `<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>` : '');
             return `<tr><td style="padding:10px 0;"><strong>${partition.title}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLinks ? '<br>' : ''}${interactiveLinks}</div></td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
           }).join('') + '</tbody></table>') : '<em>Aucune chanson La Voix Libre disponible.</em>';
-          // show default tab
-          showList('soul');
+          // show default tab (La Voix Libre par défaut)
+          showList('lv');
           bindAudioClickOnce();
         }
 

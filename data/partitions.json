@@ -168,6 +168,8 @@
   {
     "title": "Shchedryk",
     "interactive_link": "materielchansons/shchedryk-partition.html",
+    "visible_soul": true,
+    "visible_lavoixlibre": true,
     "documents": [
       {
         "label": "Paroles (anglais) — Schedryk (Carol of the Bells)",
@@ -181,6 +183,8 @@
   },
   {
     "title": "I Will Follow Him",
-    "interactive_link": "materielchansons/I Will Follow Him-partition.html"
+    "interactive_link": "materielchansons/I Will Follow Him-partition.html",
+    "visible_soul": true,
+    "visible_lavoixlibre": true
   }
 ]
