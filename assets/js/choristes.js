@@ -129,6 +129,7 @@
       <table id="partitions-table" style="width:100%;border-collapse:collapse;margin:2em 0;font-family:'Segoe UI',Arial,sans-serif;background:#fff;box-shadow:0 2px 8px #0002;">
         <thead>
           <tr>
+            <th style="width:64px;text-align:center;">Vis.</th>
             <th style="text-align:left;">Morceau</th>
             <th style="text-align:left;">Enregistrements</th>
             <th style="text-align:left;">Ressources</th>
@@ -138,6 +139,13 @@
         <tbody></tbody>
       </table>
     `;
+    // Visibility helpers (persist in localStorage)
+    const VIS_KEY = 'partitionsVisibility';
+    function simplifyKey(s){ return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase(); }
+    function loadVisibility(){ try { return JSON.parse(localStorage.getItem(VIS_KEY) || '{}'); } catch { return {}; } }
+    function saveVisibility(m){ try { localStorage.setItem(VIS_KEY, JSON.stringify(m||{})); } catch {} }
+    function isVisible(part){ const m = loadVisibility(); const k = simplifyKey(part.title); if (k in m) return !!m[k]; if (typeof part.visible !== 'undefined') return !!part.visible; return true; }
+
     fetch('data/partitions.json')
       .then(res => res.json())
       .then(data => {
@@ -147,6 +155,12 @@
           if (!b.title) return -1;
           return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' });
         });
+
+        // If not chef, filter out hidden partitions
+        if (!window.IS_CHEF) {
+          data = data.filter(p => isVisible(p));
+        }
+
         data.forEach(partition => {
           const recordingsLinks = [];
           const ressourcesLinks = [];
@@ -172,16 +186,85 @@
           } else if (partition.flatio_link) {
             interactiveLinks.push(`<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>`);
           }
+
+          // Visibility control (chef only)
+          const key = simplifyKey(partition.title);
+          const visible = isVisible(partition);
+          const visCell = window.IS_CHEF ? `<td style="width:64px;text-align:center;"><label title="${visible ? 'Visible pour les choristes' : 'Masqué pour les choristes'}" style="cursor:pointer;"><input type="checkbox" data-vis-key="${key}" class="vis-toggle" ${visible ? 'checked' : ''} style="transform:scale(1.05);margin-right:6px; vertical-align:middle;">${visible ? '👁️' : '🙈'}</label></td>` : `<td style="width:64px;"></td>`;
+
           tbody.innerHTML += `
-            <tr>
-              <td>${partition.title || ''}</td>
+            <tr data-vis-key="${key}">
+              ${visCell}
+              <td class="title-cell">${partition.title || ''}</td>
               <td>${recordingsLinks.join('<br>')}</td>
               <td>${ressourcesLinks.join('<br>')}</td>
               <td>${interactiveLinks.join('<br>')}</td>
             </tr>
-            <tr><td colspan='4' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>
+            <tr><td colspan='5' style='padding:0;'><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>
           `;
         });
+
+        // Apply dimming for hidden items when chef views
+        if (window.IS_CHEF) {
+          document.querySelectorAll('#partitions-table tbody tr[data-vis-key]').forEach(tr => {
+            const k = tr.getAttribute('data-vis-key');
+            const p = { title: tr.querySelector('.title-cell') ? tr.querySelector('.title-cell').textContent : '' };
+            const v = isVisible(p);
+            const titleTd = tr.querySelector('.title-cell');
+            if (titleTd) titleTd.style.opacity = v ? '1' : '0.45';
+          });
+        }
+
+        // Bind checkbox toggles
+        document.querySelectorAll('.vis-toggle').forEach(chk => {
+          chk.addEventListener('change', function(){
+            try {
+              const visMap = loadVisibility();
+              const k = this.dataset.visKey;
+              visMap[k] = !!this.checked;
+              saveVisibility(visMap);
+              // update UI: icon and dimming
+              const row = this.closest('tr');
+              if (row) {
+                const titleTd = row.querySelector('.title-cell');
+                if (titleTd) titleTd.style.opacity = this.checked ? '1' : '0.45';
+                // update label emoji
+                const lbl = this.parentElement;
+                if (lbl) lbl.innerHTML = `<input type=\"checkbox\" data-vis-key=\"${k}\" class=\"vis-toggle\" ${this.checked ? 'checked' : ''} style=\"transform:scale(1.05);margin-right:6px;vertical-align:middle;\">${this.checked ? '👁️' : '🙈'}`;
+                // re-bind newly created checkbox (simple approach)
+                const newChk = row.querySelector('.vis-toggle');
+                if (newChk && newChk !== this) {
+                  newChk.addEventListener('change', arguments.callee);
+                }
+              }
+            } catch (e) { console.error(e); }
+          });
+        });
+
+        // Create export button in admin panel for convenience
+        if (window.IS_CHEF) {
+          try {
+            const admin = document.getElementById('admin-panel');
+            if (admin && !document.getElementById('btn-export-visibility')) {
+              const div = document.createElement('div');
+              div.style.marginTop = '10px';
+              div.innerHTML = `<button id="btn-export-visibility" type="button" style="padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:600;background:#eef5ff;color:#134;border:2px solid #98bfff;">Exporter visibilité (JSON)</button>`;
+              admin.appendChild(div);
+              document.getElementById('btn-export-visibility').addEventListener('click', async function(){
+                try {
+                  const resp = await fetch('data/partitions.json');
+                  const parts = await resp.json();
+                  const vis = loadVisibility();
+                  const patched = parts.map(p => { const k = simplifyKey(p.title); if (k in vis) p.visible = !!vis[k]; return p; });
+                  const blob = new Blob([JSON.stringify(patched, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a'); a.href = url; a.download = 'partitions-with-visibility.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+                } catch (e) { console.error(e); alert('Export failed: ' + (e && e.message)); }
+              });
+            }
+          } catch (e) { console.error(e); }
+        }
+
         bindAudioClickOnce();
       });
   }
