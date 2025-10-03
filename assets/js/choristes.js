@@ -191,10 +191,10 @@
   }
 
   function initChoristesPage(){
-    // Rôles ARIA de base pour les onglets principaux
-    const tabsContainer = document.querySelector('.choristes-tabs');
-    if (tabsContainer) tabsContainer.setAttribute('role', 'tablist');
-    document.querySelectorAll('.choristes-tab').forEach(btn => btn.setAttribute('role', 'tab'));
+  // Rôles ARIA de base pour les onglets principaux (inclut maintenant 'asso')
+  const tabsContainer = document.querySelector('.choristes-tabs');
+  if (tabsContainer) tabsContainer.setAttribute('role', 'tablist');
+  document.querySelectorAll('.choristes-tab').forEach(btn => btn.setAttribute('role', 'tab'));
     document.querySelectorAll('.choristes-tab-content').forEach(p => p.setAttribute('role', 'tabpanel'));
 
     setupSousOnglets();

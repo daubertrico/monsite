@@ -2,6 +2,16 @@
 <html lang="fr">
 <head>
     <style>
+      /* Ensure tabs remain visible on narrow viewports / print (A4) */
+      .choristes-tabs { flex-wrap: wrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .choristes-tab { flex: 0 1 auto; min-width: 140px; box-sizing: border-box; white-space: nowrap; }
+      @media (max-width: 1100px) {
+        .choristes-tab { padding: 12px 20px !important; font-size: 1.05em !important; }
+      }
+      @media print {
+        .choristes-tabs { overflow: visible !important; flex-wrap: wrap !important; }
+        .choristes-tab { display: inline-block !important; page-break-inside: avoid !important; color: #000 !important; background: #fff !important; }
+      }
       @media (max-width: 700px) {
         .choristes-tabs {
           flex-direction: column !important;
@@ -119,10 +129,34 @@
           <button class="choristes-tab active" data-tab="chansons" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #3981FF;background:#3981FF;color:#fff;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF33;outline:none;transition:all 0.2s;position:relative;">Chansons</button>
           <button class="choristes-tab" data-tab="liens" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Inscription & liens utiles</button>
           <button class="choristes-tab" data-tab="calendrier" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Calendrier et présences</button>
+          <button class="choristes-tab" data-tab="asso" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Côté asso</button>
         </div>
         <div id="tab-content-chansons" class="choristes-tab-content"></div>
+        <div id="tab-content-asso" class="choristes-tab-content" style="display:none;">
+          <h2>Côté asso — Documents officiels</h2>
+          <p style="margin-top:0;">Espace dédié aux documents officiels de l'association. Les fichiers listés ci-dessous sont ceux présents dans le dossier <code>docs asso/</code>.</p>
+
+          <section style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
+            <h3 style="margin-top:0">Documents disponibles</h3>
+            <ul>
+              <li><a href="docs%20asso/AG%202024%20(2).pdf" target="_blank" rel="noopener">AG 2024 (PV) — AG 2024 (2).pdf</a></li>
+              <li><a href="docs%20asso/AG%20extraordinaire%2007_2025.pdf" target="_blank" rel="noopener">AG extraordinaire — AG extraordinaire 07_2025.pdf</a></li>
+              <li><a href="docs%20asso/%F0%9F%93%91%20STATUTS%20DE%20L%E2%80%99ASSOCIATION%202025.pdf" target="_blank" rel="noopener">Statuts de l'association 2025 (PDF)</a></li>
+            </ul>
+            <p style="margin-top:12px;color:#555;">Si l'un des fichiers ne s'ouvre pas, vérifiez que les caractères spéciaux sont préservés lors du déploiement ou contactez le bureau.</p>
+          </section>
+
+          <p style="margin-top:8px;">Pour toute modification, ajout de document ou problème d'accès, contactez : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
+        </div>
         <div id="tab-content-liens" class="choristes-tab-content" style="display:none;">
           <h2>Inscription & liens utiles</h2>
+
+          <section style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
+            <h3 style="margin-top:0;">Groupe WhatsApp — Vie de la chorale</h3>
+            <p>Groupe WhatsApp réservé aux membres pour les informations de la vie de la chorale : annonces, logistique, covoiturage et échanges rapides.</p>
+            <p><a href="https://chat.whatsapp.com/LFftvf8dsDbFrQ9EXPGUnW" target="_blank" rel="noopener">Rejoindre le groupe WhatsApp — infos pratiques de la chorale</a></p>
+            <p style="margin-top:6px;color:#555;">Conseil : indiquez votre nom complet et votre pupitre à l'entrée du groupe.</p>
+          </section>
 
           <section style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
             <h3 style="margin-top:0;">SOUL – Inscription & feuille d'engagement</h3>
@@ -1033,6 +1067,43 @@
         });
       })();
     </script>
+  <script>
+    // Small helper to (re)bind choristes tabs reliably, including the newly added 'asso' tab.
+    document.addEventListener('DOMContentLoaded', function () {
+      try {
+        const tabs = Array.from(document.querySelectorAll('.choristes-tab'));
+        const contents = Array.from(document.querySelectorAll('.choristes-tab-content'));
+        if (!tabs.length || !contents.length) return;
+        function applyStyles() {
+          tabs.forEach(btn => {
+            const active = btn.classList.contains('active');
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+            btn.style.background = active ? '#3981FF' : '#e0e0e0';
+            btn.style.color = active ? '#fff' : '#222';
+            btn.style.border = active ? '2.5px solid #3981FF' : '2.5px solid #e0e0e0';
+            btn.style.boxShadow = active ? '0 2px 8px #3981FF33' : '0 2px 8px #3981FF11';
+            btn.style.textDecoration = active ? 'underline' : 'none';
+            btn.style.textUnderlineOffset = active ? '6px' : '';
+          });
+        }
+        function showTab(name) {
+          tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+          contents.forEach(c => {
+            c.style.display = (c.id === 'tab-content-' + name) ? '' : 'none';
+          });
+          applyStyles();
+        }
+        tabs.forEach(t => {
+          t.addEventListener('click', function () {
+            showTab(this.dataset.tab);
+          });
+        });
+        // Ensure an active tab is shown on load (fallback to 'chansons')
+        const active = tabs.find(t => t.classList.contains('active'));
+        showTab(active ? active.dataset.tab : 'chansons');
+      } catch (e) { console.error('choristes tab helper error', e); }
+    });
+  </script>
   <script src="assets/js/choristes.js?v=20250813"></script>
   <script src="assets/js/main.js?v=20250813"></script>
   </body>
