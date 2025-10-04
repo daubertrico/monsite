@@ -162,7 +162,7 @@ function envoyerMailChoristesHtmlDraft() {
 <body style="font-family: Arial, sans-serif; background: #f9f9f9; color: #333; margin: 0; padding: 0;">
   <div style="max-width: 600px; margin: 20px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); overflow: hidden;">
     <div style="background: #ff6699; color: #fff; padding: 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 20px;">
-      <img src="https://chanterlavoixlibre.fr/assets/images/entete.png" alt="La Voix Libre - École de chant et Chorales à Rennes" style="width:100%; max-width:560px; border-radius:12px; display:block; margin:auto;">
+  <img src="https://chanterlavoixlibre.fr/assets/images/entete.png" alt="La Voix Libre - chant chorale à Rennes" style="width:100%; max-width:560px; border-radius:12px; display:block; margin:auto;">
     </div>
     <div style="padding: 20px; text-align: center;">
       <div style="text-align:justify;margin-bottom:14px">${escapeHtml(introText).replace(/\n/g,'<br>')}</div>

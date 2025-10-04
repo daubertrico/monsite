@@ -535,6 +535,15 @@ async function fetchPostsFromCSV(csvUrl) {
     }
     const page = pagesData.find(p => p.id === pageId);
     const contentContainer = document.getElementById('page-content-container');
+    // If the page contains a static, hand-authored body (data-static="true"),
+    // respect it and do not inject dynamic content. This avoids duplications
+    // like the portrait audio block which is already present in the static HTML.
+    try {
+      if (contentContainer && contentContainer.getAttribute && contentContainer.getAttribute('data-static') === 'true') {
+        console.info('[INFO] Page provides static content; skipping dynamic injection for', pageId);
+        return;
+      }
+    } catch (e) { /* ignore and proceed with dynamic rendering */ }
     const pageMainTitle = document.getElementById('page-main-title');
     const pageSubtitle = document.getElementById('page-subtitle');
 
@@ -587,11 +596,55 @@ async function fetchPostsFromCSV(csvUrl) {
           textDiv.classList.add('description-text');
           textDiv.style.width = '100%';
           textDiv.style.textAlign = 'justify';
-          page.page_content.forEach(pText => {
-            const pElement = document.createElement('p');
-            pElement.textContent = pText;
-            textDiv.appendChild(pElement);
-          });
+          // If the page_content contains heading-like entries (user expects sections),
+          // try to turn them into H2 + paragraphs. Fallback: render as plain paragraphs.
+          function isHeadingLike(s) {
+            if (!s || typeof s !== 'string') return false;
+            const trimmed = s.trim();
+            if (trimmed.length === 0) return false;
+            // Heuristic: short string, starts with uppercase (including accented), not ending with a period
+            if (trimmed.length > 80) return false;
+            if (/\.$/.test(trimmed)) return false;
+            return /^[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ][\w\s'’\-\u00C0-\u017F]+$/.test(trimmed);
+          }
+
+          if (pageId === 'cours-de-chant') {
+            // Build sections from page.page_content when possible
+            let i = 0;
+            while (i < page.page_content.length) {
+              const current = (page.page_content[i] || '').trim();
+              if (isHeadingLike(current)) {
+                const h2 = document.createElement('h2');
+                h2.textContent = current;
+                h2.style.marginTop = '0';
+                h2.style.color = '#133';
+                h2.style.fontWeight = '800';
+                h2.style.letterSpacing = '0.2px';
+                textDiv.appendChild(h2);
+                // consume following paragraphs until next heading-like or end
+                let j = i + 1;
+                while (j < page.page_content.length && !isHeadingLike(page.page_content[j])) {
+                  const paragraph = document.createElement('p');
+                  paragraph.textContent = page.page_content[j] || '';
+                  textDiv.appendChild(paragraph);
+                  j++;
+                }
+                i = j;
+                continue;
+              }
+              // Fallback: plain paragraph
+              const pElement = document.createElement('p');
+              pElement.textContent = current;
+              textDiv.appendChild(pElement);
+              i++;
+            }
+          } else {
+            page.page_content.forEach(pText => {
+              const pElement = document.createElement('p');
+              pElement.textContent = pText;
+              textDiv.appendChild(pElement);
+            });
+          }
 
           // Ajout des infos pratiques (list)
           if (page.specific_content) {
@@ -646,9 +699,20 @@ async function fetchPostsFromCSV(csvUrl) {
                 <p style="margin:0;font-size:1.08rem;line-height:1.6;color:#222;">Découvrez la pratique et les méthodes de Vincent à travers ce portrait radiophonique réalisé en 2023 par Marion Lecointre et diffusé sur radio Laser.</p>`;
 
               // Lien audio
-              const audioPlayer = document.createElement('audio');
-              audioPlayer.controls = true;
-              audioPlayer.src = audioBlock.url;
+              // Avoid adding the audio if an identical player already exists on the page
+              const existingAudio = document.querySelector(`audio[src="${audioBlock.url}"]`);
+              if (existingAudio) {
+                console.info('[AUDIO] Le fichier audio est d\u00e9j\u00e0 pr\u00e9sent sur la page, saut de l\'injection.');
+              } else {
+                const audioPlayer = document.createElement('audio');
+                audioPlayer.controls = true;
+                audioPlayer.src = audioBlock.url;
+                audioPlayer.autoplay = false;
+                audioPlayer.style.width = '100%';
+                audioPlayer.style.marginTop = '8px';
+                audioPlayer.style.background = '#fff';
+                audioPlayer.style.borderRadius = '12px';
+                audioPlayer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
               audioPlayer.autoplay = false;
               audioPlayer.style.width = '100%';
               audioPlayer.style.marginTop = '8px';
@@ -691,8 +755,9 @@ async function fetchPostsFromCSV(csvUrl) {
               }, 500);
 
               audioDiv.appendChild(audioText);
-              audioDiv.appendChild(audioPlayer);
-              textDiv.appendChild(audioDiv);
+                audioDiv.appendChild(audioPlayer);
+                textDiv.appendChild(audioDiv);
+              }
 
               // (Autoplay direct retiré pour compatibilité navigateurs; la relance muette ci-dessus suffit.)
             }
@@ -842,7 +907,10 @@ async function fetchPostsFromCSV(csvUrl) {
               } else {
                 h2.textContent = section.title || '';
               }
-              right.appendChild(h2);
+              // Ensure the section title is placed above the image and text (full width)
+              h2.style.width = '100%';
+              h2.style.margin = '0 0 12px 0';
+              sec.insertBefore(h2, sec.firstChild);
 
               if (section.description) {
                 const p = document.createElement('p');
@@ -885,63 +953,27 @@ async function fetchPostsFromCSV(csvUrl) {
                 right.appendChild(calButton);
               }
 
-              sec.appendChild(imgWrap);
-              sec.appendChild(right);
+              // Wrap image and text into an inner row so the H2 stays full-width above them
+              const innerRow = document.createElement('div');
+              innerRow.style.display = 'flex';
+              innerRow.style.gap = sec.style.gap || '32px';
+              innerRow.style.alignItems = 'center';
+              // Respect the same responsive breakpoint used above
+              if (window.innerWidth <= 900) {
+                innerRow.style.flexDirection = 'column';
+                imgWrap.style.width = '100%';
+                right.style.width = '100%';
+              } else {
+                innerRow.style.flexDirection = 'row';
+              }
+              innerRow.appendChild(imgWrap);
+              innerRow.appendChild(right);
+              // Ensure the section itself stacks title then content
+              sec.style.display = 'block';
+              sec.appendChild(innerRow);
               contentContainer.appendChild(sec);
 
-              // Injecte l'encart d'essai SOUS le titre "Chorale Pop", pleine largeur (de la photo au texte)
-              try {
-                const title = (section.title || '').toLowerCase();
-                const ctaUrl = (section.cta && section.cta.url) ? (section.cta.url || '').toLowerCase() : '';
-                // Detect the chorale section without relying on an exact title string.
-                // Accept titles containing 'chorale' or CTA URLs referencing the chorale page.
-                const isChoraleSection = title.includes('chorale') || ctaUrl.includes('chorale-pop') || ctaUrl.includes('chorale');
-                if (isChoraleSection) {
-                  // Reconfigure le conteneur en grille pour permettre des éléments pleine largeur
-                  // Switch to a grid layout on wider screens so the CTA can span full width.
-                  if (window.innerWidth > 900) {
-                    sec.style.display = 'grid';
-                    sec.style.gridTemplateColumns = 'minmax(260px,1fr) 2fr';
-                    sec.style.alignItems = 'start';
-                    sec.style.gap = '16px';
-                  } else {
-                    // On small screens keep column stacking and let the CTA be full width naturally
-                    sec.style.display = 'flex';
-                    sec.style.flexDirection = 'column';
-                    sec.style.alignItems = 'stretch';
-                    sec.style.gap = '12px';
-                  }
-
-                  // Déplace le titre pour qu'il soit pleine largeur
-                  if (right && right.contains(h2)) {
-                    right.removeChild(h2);
-                    h2.style.gridColumn = '1 / -1';
-                    h2.style.marginBottom = '8px';
-                    sec.insertBefore(h2, sec.firstChild);
-                  }
-
-                  // Crée l'encart CTA en pleine largeur juste sous le titre
-                  const cta = document.createElement('div');
-                  cta.style.gridColumn = '1 / -1';
-                  cta.style.width = '100%';
-                  cta.style.margin = '6px 0 10px 0';
-                  cta.style.padding = '14px 18px';
-                  cta.style.border = '1px solid #b6e0fe';
-                  cta.style.background = '#eaf6ff';
-                  cta.style.borderRadius = '12px';
-                  cta.style.boxShadow = '0 2px 10px #3981FF22';
-                  cta.style.display = 'flex';
-                  cta.style.alignItems = 'center';
-                  cta.style.flexWrap = 'wrap';
-                  cta.innerHTML = '<span>🎶 Envie de chanter ?</span>';
-                  // Insère le CTA juste après le titre
-                  if (sec.firstChild && sec.firstChild.tagName && sec.firstChild.tagName.toLowerCase() === 'h2') {
-                    sec.insertBefore(cta, sec.children[1] || null);
-                  } else {
-                    sec.insertBefore(cta, sec.firstChild);
-                  }
-                }
-              } catch {}
+              // (No special CTA injected for chorale sections - keep titles and layout consistent.)
             });
           }
 

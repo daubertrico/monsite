@@ -176,11 +176,24 @@
     "page_title": "Cours de chant lyrique",
     "page_subtitle": "entre autres styles !",
     "page_content": [
-      "Chanteur d'opéra et de jazz, professeur de chant, et chef de choeur, Vincent est le professeur attitré de La Voix Libre. Il a étudié la voix et la pédagogie vocale pendant plus de 10 ans, en France, en Allemagne, dans des conservatoires, des maisons d'opéra, des cabarets, auprès de pédagogues de renom mais aussi sur scène, avec ses collègues... En 2017 il créé à Rennes une école de chant : la Voix Libre. Le but de son enseignement est de trouver un point d’union entre l’ouverture du corps, la résonance de la voix et la tranquillité de l’esprit afin que le chanteur puisse devenir l’artiste.",
-      "Passionné par la pédagogie et le fonctionnement de la voix, il développe sa méthode, en dialogue avec ses élèves, et en se basant sur l'AFCM (physiologie et anatomie du chant), sur les méthodes éprouvées par les siècles des grands pédagogues lyriques italiens, sur ses incursions vers d'autres disciplines musicales et corporelles (telles les percussions corporelles), mais aussi sur le yoga, source d'inspiration infinie pour le travail du corps et de la voix.",
-      "Que ce soit pour chanter du jazz, de la pop ou bien de la musique classique, mon cours a un but principal : libérer la voix, afin de pouvoir chanter dans la joie, en toute conscience de son corps, et avec un esprit détendu.",
-      "Chaque cours est un dialogue avec l'élève, afin de trouver 'ce qui marche' pour chacun-e. La prise de conscience de la voix, parlée et chantée, se fait au travers d'exercices de chant classiques, mais aussi de techniques de respiration et de mouvement empruntés au yoga et à l’ostéopathie. Ces différentes disciplines permettent d'ouvrir et de développer sa voix en douceur dans un corps fort et détendu. Le cours dure 45 minutes.",
-      "Le travail du répertoire choisi permet à l'élève de développer sa personnalité musicale, son sens du rythme et sa confiance en soi !"
+  "À propos de Vincent Tricotel",
+  "Professeur de chant indépendant, Vincent accompagne La Voix Libre depuis sa création et participe à son développement en partenariat avec l’association.",
+  "Il a étudié la voix et la pédagogie vocale pendant plus de dix ans en France et en Allemagne, au sein de conservatoires, maisons d’opéra et cabarets. Sa formation l’a amené à travailler aux côtés de pédagogues de renom, mais aussi à enrichir sa pratique directement sur scène.",
+  "",
+  "Sa pédagogie",
+  "Passionné par le fonctionnement de la voix et sa transmission, Vincent développe une approche qui allie :",
+  "la physiologie et l’anatomie du chant (AFCM),",
+  "l’héritage des grands pédagogues lyriques italiens,",
+  "des incursions dans d’autres pratiques musicales et corporelles (percussions corporelles, yoga, ostéopathie).",
+  "Son objectif : aider chaque chanteur·euse à trouver l’union entre le corps, la voix et l’esprit pour chanter avec liberté, joie et confiance.",
+  "",
+  "Cours particuliers",
+  "Vincent propose également des cours individuels de chant (45 minutes), ouverts à tous les styles — jazz, pop, musique classique…",
+  "Chaque séance est un dialogue avec l'élève, construit autour :",
+  "d’exercices vocaux et respiratoires,",
+  "de mises en mouvement inspirées du yoga,",
+  "du travail du répertoire choisi, pour développer personnalité musicale, rythme et confiance en soi.",
+  "📩 Pour les cours particuliers, contactez-le directement : vincenttricotel@gmail.com"
     ],
     "specific_content": [
       {
@@ -196,6 +209,11 @@
         "type": "audio",
         "title": "Portrait audio :",
         "url": "materielchansons/vincent-tricotel-le-jardinier-de-la-voix.mp3"
+      },
+      {
+        "type": "contact",
+        "email": "vincenttricotel@gmail.com",
+        "note": "Vincent est professeur de chant indépendant — contactez-le directement pour les cours particuliers."
       }
     ],
     "tags": ["cours_de_chant"],
@@ -432,7 +450,7 @@
             ],
             "anchor": "cours-de-chant",
             "calendly": "https://calendly.com/vincenttricotel/cours-individuel",
-            "contactEmail": "lavoixlibrerennes@gmail.com",
+            "contactEmail": "vincenttricotel@gmail.com",
             "cta": { "text": "En savoir plus", "url": "cours-de-chant.html" }
           }
         ]
