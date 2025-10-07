@@ -136,23 +136,7 @@
           <h2>Côté asso — Documents officiels</h2>
           <p style="margin-top:0;">Espace dédié aux documents officiels de l'association. Les fichiers listés ci-dessous sont ceux présents dans le dossier <code>docs asso/</code>.</p>
 
-          <section style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
-            <h3 style="margin-top:0">Affichages — Vie administrative</h3>
-            <p style="margin-top:6px;color:#444;">Informations pratiques et annonces administratives de l'association.</p>
-            <div style="margin-top:10px;padding:12px;border-radius:10px;background:#fbfdff;border:1px solid #dfeeff;">
-              <h4 style="margin:0 0 8px 0;color:#133;">Convocation — Assemblée générale</h4>
-              <p style="margin:0 0 8px 0;">Convocation à l'Assemblée Générale : <strong>vendredi 10 octobre 2025 à 16h</strong>. S'inscrire par mail à <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
-              <p style="margin:0 0 8px 0;">Tous les adhérents sont conviés. La réunion se déroulera soit en distanciel, soit à Rennes (Association Bourg l'Évêque, 14 rue Papu), en fonction du nombre de personnes présentes.</p>
-              <p style="margin:0 0 8px 0;font-weight:700;">Lors de cette AG seront présentés :</p>
-              <ul style="margin:6px 0 0 18px;color:#222;line-height:1.6;">
-                <li>Le bilan financier et moral de l’année passée</li>
-                <li>L’élection d’un(e) nouveau(elle) trésorier(ère), si quelqu’un se présente (les autres postes du bureau ayant déjà été renouvelés en 2024)</li>
-                <li>L’ouverture éventuelle de nouvelles places au Conseil d’Administration (les statuts n’en limitent pas le nombre)</li>
-                <li>Un bref prévisionnel pour la saison à venir</li>
-              </ul>
-              <p style="margin-top:10px;color:#555;">L’Assemblée Générale concerne principalement les aspects administratifs de l’association. Ces sujets ne sont pas forcément les plus passionnants et il est tout à fait légitime de profiter de la chorale sans souhaiter s’impliquer dans cette partie. Votre présence n’est donc absolument pas une obligation. Toutefois, si vous souhaitez y assister, vous êtes les bienvenus. Et si l’horaire ne vous convient pas, merci de nous le signaler par retour de mail : si plusieurs personnes sont concernées, une nouvelle date pourra être proposée.</p>
-            </div>
-          </section>
+          <!-- Section 'Affichages — Vie administrative' déplacée vers la section dynamique plus bas -->
           
           <section style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
             <h3 style="margin-top:0">Documents officiels</h3>
@@ -162,8 +146,11 @@
 
           <!-- Affichages dynamiques (posts tagués 'asso' depuis le CSV/posts) -->
           <section id="affichages-section" style="margin:18px 0;padding:14px;border:1px dashed #eef2ff;border-radius:12px;background:#fff;">
-            <h3 style="margin-top:0">Affichages</h3>
-            <div id="affichages-posts" style="margin-top:12px;color:#444;">Chargement des affichages…</div>
+            <h3 style="margin-top:0">Affichages — Vie administrative</h3>
+            <!-- Le contenu administratif est désormais fourni par la feuille Google Sheet via les posts tagués 'asso'. -->
+            <div id="affichages-posts" style="margin-top:12px;color:#444;">
+              <div id="posts-container">Chargement des affichages…</div>
+            </div>
           </section>
           </section>
 
@@ -1126,42 +1113,50 @@
     });
   </script>
   <script>
-    // Render posts tagged 'asso' into the Affichages section.
+    // Use central renderer (loadAndDisplayPosts) to display posts tagged 'asso' in the Affichages section.
     (function(){
-      const containerId = 'affichages-posts';
-      const waitForPosts = (cb, attempts = 0) => {
+      const attemptLimit = 60; // ~9s wait (60 * 150ms)
+      const delay = 150;
+      function waitFor(fnName, cb, attempts = 0) {
         try {
-          if (typeof postsData !== 'undefined' && Array.isArray(postsData)) return cb(null, postsData);
-        } catch (e) {}
-        if (attempts > 40) return cb(new Error('postsData not available'));
-        setTimeout(() => waitForPosts(cb, attempts + 1), 150);
-      };
-
-      function renderPosts(posts) {
-        const cont = document.getElementById(containerId);
-        if (!cont) return;
-        const assoPosts = posts.filter(p => Array.isArray(p.tags) && p.tags.includes('asso'));
-        if (!assoPosts.length) { cont.innerHTML = '<em>Aucun affichage pour l\'instant.</em>'; return; }
-        const html = assoPosts.map(p => {
-          const title = p.title || p.post_title || p.title || 'Affichage';
-          const date = p.date || p.ts || p.published || '';
-          const excerpt = (p.excerpt || p.summary || '').trim() || (p.content ? (p.content.length > 300 ? p.content.slice(0,300) + '…' : p.content) : '');
-          const meta = date ? `<div style="color:#666;font-size:0.95em;margin-bottom:6px;">${date}</div>` : '';
-          return `<article style="margin-bottom:18px;border-bottom:1px dashed #eef2ff;padding-bottom:12px;">\
-            <h4 style="margin:0 0 6px 0;color:#133;">${escapeHtml(title)}</h4>\
-            ${meta}\
-            <div style="color:#333;">${escapeHtml(excerpt)}</div>\
-          </article>`;
-        }).join('');
-        cont.innerHTML = html;
+          const parts = fnName.split('.');
+          let cur = window;
+          for (let p of parts) { cur = cur[p]; if (typeof cur === 'undefined') break; }
+          if (typeof cur !== 'undefined') return cb(null, cur);
+        } catch(e) {}
+        if (attempts >= attemptLimit) return cb(new Error(fnName + ' not available'));
+        setTimeout(() => waitFor(fnName, cb, attempts + 1), delay);
       }
 
-      function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; }); }
-
       document.addEventListener('DOMContentLoaded', function(){
-        waitForPosts((err, posts) => {
-          if (err) { const c = document.getElementById(containerId); if (c) c.innerHTML = '<em>Les affichages sont temporairement indisponibles.</em>'; return; }
-          renderPosts(posts);
+        // 1) ensure #posts-container exists (loadAndDisplayPosts expects it)
+        const postsContainer = document.getElementById('posts-container');
+        if (!postsContainer) {
+          const parent = document.getElementById('affichages-posts');
+          if (parent) {
+            const div = document.createElement('div');
+            div.id = 'posts-container';
+            div.textContent = 'Chargement des affichages…';
+            parent.appendChild(div);
+          }
+        }
+
+        // 2) wait for loadAndDisplayPosts function and postsData to be available
+        waitFor('loadAndDisplayPosts', (errFn, fn) => {
+          if (errFn) {
+            const c = document.getElementById('affichages-posts'); if (c) c.innerHTML = '<em>Les affichages sont temporairement indisponibles (renderer manquant).</em>';
+            return;
+          }
+          waitFor('postsData', (errData) => {
+            // If postsData is not yet ready, call loadAndDisplayPosts which itself handles postsData presence in main.js
+            try {
+              // Use the same API as other pages: tags array argument
+              loadAndDisplayPosts(['asso'], { noIllustrations: true });
+            } catch (e) {
+              const c = document.getElementById('affichages-posts'); if (c) c.innerHTML = '<em>Les affichages sont temporairement indisponibles.</em>';
+              console.error('Affichages render failed', e);
+            }
+          });
         });
       });
     })();

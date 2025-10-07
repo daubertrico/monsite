@@ -1055,7 +1055,7 @@ async function fetchPostsFromCSV(csvUrl) {
     }
   }
 
-  function loadAndDisplayPosts(pageTags) {
+  function loadAndDisplayPosts(pageTags, options = {}) {
     const postsContainer = document.getElementById('posts-container');
     if (!postsContainer) return;
 
@@ -1063,6 +1063,8 @@ async function fetchPostsFromCSV(csvUrl) {
       postsContainer.innerHTML = '';
       return;
     }
+
+    const noIllustrations = options && options.noIllustrations;
 
     // Ensure posts are displayed newest first (by date when available)
     try {
@@ -1107,16 +1109,18 @@ async function fetchPostsFromCSV(csvUrl) {
 
       // Illustrations : image d'abord, puis vidéos
       let illustrations = [];
-      if (post.image) {
-        illustrations.push({ type: 'image', src: /^https?:\/\//.test(post.image) ? post.image : `${ASSETS_BASE_URL}images/${post.image}` });
-      }
-      if (Array.isArray(post.videos) && post.videos.length > 0) {
-        post.videos.forEach(function(videoObj) {
-          let url = typeof videoObj === 'string' ? videoObj : videoObj.url;
-          illustrations.push({ type: 'video', src: convertToEmbedUrl(url) });
-        });
-      } else if (post.video_url) {
-        illustrations.push({ type: 'video', src: convertToEmbedUrl(post.video_url) });
+      if (!noIllustrations) {
+        if (post.image) {
+          illustrations.push({ type: 'image', src: /^https?:\/\//.test(post.image) ? post.image : `${ASSETS_BASE_URL}images/${post.image}` });
+        }
+        if (Array.isArray(post.videos) && post.videos.length > 0) {
+          post.videos.forEach(function(videoObj) {
+            let url = typeof videoObj === 'string' ? videoObj : videoObj.url;
+            illustrations.push({ type: 'video', src: convertToEmbedUrl(url) });
+          });
+        } else if (post.video_url) {
+          illustrations.push({ type: 'video', src: convertToEmbedUrl(post.video_url) });
+        }
       }
 
       // Build the illustrations column (stacked vertically)
@@ -1178,16 +1182,27 @@ async function fetchPostsFromCSV(csvUrl) {
 
       let postHTML = `<h3>${post.title}</h3>`;
       postHTML += eventInfo;
-      postHTML += `
-        <div class="post-wrapper">
-          <div class="media media-vertical">
-            ${illustrationsHTML}
+      if (noIllustrations) {
+        // Render a single full-width text column for affichages (no media)
+        postHTML += `
+          <div class="post-wrapper">
+            <div class="text-content" style="width:100%;">
+              <p>${linkify(post.content)}</p>
+            </div>
           </div>
-          <div class="text-content">
-            <p>${linkify(post.content)}</p>
+        `;
+      } else {
+        postHTML += `
+          <div class="post-wrapper">
+            <div class="media media-vertical">
+              ${illustrationsHTML}
+            </div>
+            <div class="text-content">
+              <p>${linkify(post.content)}</p>
+            </div>
           </div>
-        </div>
-      `;
+        `;
+      }
 
       postElement.innerHTML = postHTML;
       postsContainer.appendChild(postElement);

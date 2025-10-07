@@ -155,7 +155,7 @@
         const map = {};
         (data||[]).forEach(p => { if (p && p.title) map[p.title.trim()] = p; });
 
-        const lvTitles = ['Spondo','Shchedryk','This Little Light Of Mine'];
+  const lvTitles = ['Spondo','Shchedryk','This Little Light Of Mine','Since I Laid My Burdens Down'];
         const soulTitles = ['Lean on Me','My Girl','I Will Follow Him'];
 
         const lvParts = lvTitles.map(t => map[t]).filter(Boolean);
