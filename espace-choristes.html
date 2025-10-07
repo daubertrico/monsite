@@ -153,11 +153,18 @@
               <p style="margin-top:10px;color:#555;">L’Assemblée Générale concerne principalement les aspects administratifs de l’association. Ces sujets ne sont pas forcément les plus passionnants et il est tout à fait légitime de profiter de la chorale sans souhaiter s’impliquer dans cette partie. Votre présence n’est donc absolument pas une obligation. Toutefois, si vous souhaitez y assister, vous êtes les bienvenus. Et si l’horaire ne vous convient pas, merci de nous le signaler par retour de mail : si plusieurs personnes sont concernées, une nouvelle date pourra être proposée.</p>
             </div>
           </section>
-
+          
           <section style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
             <h3 style="margin-top:0">Documents officiels</h3>
             <p style="margin-top:8px;color:#444;font-style:italic;">Aucun document officiel n'est affiché publiquement pour l'instant.</p>
             <p style="margin-top:12px;color:#555;">Si vous devez accéder à un document, contactez le bureau : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
+          </section>
+
+          <!-- Affichages dynamiques (posts tagués 'asso' depuis le CSV/posts) -->
+          <section id="affichages-section" style="margin:18px 0;padding:14px;border:1px dashed #eef2ff;border-radius:12px;background:#fff;">
+            <h3 style="margin-top:0">Affichages</h3>
+            <div id="affichages-posts" style="margin-top:12px;color:#444;">Chargement des affichages…</div>
+          </section>
           </section>
 
           <p style="margin-top:8px;">Pour toute modification, ajout de document ou problème d'accès, contactez : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
@@ -1117,6 +1124,47 @@
         showTab(active ? active.dataset.tab : 'chansons');
       } catch (e) { console.error('choristes tab helper error', e); }
     });
+  </script>
+  <script>
+    // Render posts tagged 'asso' into the Affichages section.
+    (function(){
+      const containerId = 'affichages-posts';
+      const waitForPosts = (cb, attempts = 0) => {
+        try {
+          if (typeof postsData !== 'undefined' && Array.isArray(postsData)) return cb(null, postsData);
+        } catch (e) {}
+        if (attempts > 40) return cb(new Error('postsData not available'));
+        setTimeout(() => waitForPosts(cb, attempts + 1), 150);
+      };
+
+      function renderPosts(posts) {
+        const cont = document.getElementById(containerId);
+        if (!cont) return;
+        const assoPosts = posts.filter(p => Array.isArray(p.tags) && p.tags.includes('asso'));
+        if (!assoPosts.length) { cont.innerHTML = '<em>Aucun affichage pour l\'instant.</em>'; return; }
+        const html = assoPosts.map(p => {
+          const title = p.title || p.post_title || p.title || 'Affichage';
+          const date = p.date || p.ts || p.published || '';
+          const excerpt = (p.excerpt || p.summary || '').trim() || (p.content ? (p.content.length > 300 ? p.content.slice(0,300) + '…' : p.content) : '');
+          const meta = date ? `<div style="color:#666;font-size:0.95em;margin-bottom:6px;">${date}</div>` : '';
+          return `<article style="margin-bottom:18px;border-bottom:1px dashed #eef2ff;padding-bottom:12px;">\
+            <h4 style="margin:0 0 6px 0;color:#133;">${escapeHtml(title)}</h4>\
+            ${meta}\
+            <div style="color:#333;">${escapeHtml(excerpt)}</div>\
+          </article>`;
+        }).join('');
+        cont.innerHTML = html;
+      }
+
+      function escapeHtml(s){ return (s||'').toString().replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; }); }
+
+      document.addEventListener('DOMContentLoaded', function(){
+        waitForPosts((err, posts) => {
+          if (err) { const c = document.getElementById(containerId); if (c) c.innerHTML = '<em>Les affichages sont temporairement indisponibles.</em>'; return; }
+          renderPosts(posts);
+        });
+      });
+    })();
   </script>
   <script src="assets/js/choristes.js?v=20250813"></script>
   <script src="assets/js/main.js?v=20250813"></script>
