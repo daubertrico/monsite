@@ -195,4 +195,16 @@
     ],
     "visible_lavoixlibre": true
   }
+  ,
+  {
+    "title": "Stand by Me",
+    "recordings": [
+      { "label": "Guide vocal 4 voix", "file": "materielchansons/stand by me/guide vocal 4 voix stand by me.m4a" }
+    ],
+    "documents": [
+      { "label": "Paroles (PDF)", "file": "materielchansons/stand by me/stand by me paroles.pdf" }
+    ],
+    "visible_soul": true,
+    "visible_lavoixlibre": true
+  }
 ]
