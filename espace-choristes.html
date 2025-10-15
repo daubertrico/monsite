@@ -489,14 +489,18 @@
                       const dateStr = date.toLocaleString('fr-FR', options);
                       const disabled = isPast ? 'disabled' : '';
                       const eid = (ev.id || (ev.summary + '-' + start)).replace(/[^a-zA-Z0-9_-]/g,'');
+                      const safeSummary = (ev.summary || '(Sans titre)').replace(/"/g,'&quot;');
+                      const locationHtml = ev.location ? ` <span style='color:#888;'>(${ev.location})</span>` : '';
+                      const descriptionHtml = ev.description ? `<div style="margin-top:6px;color:#444;">${ev.description}</div>` : '';
                       const att = withAtt ? `
-                        <span class="att-controls" data-calendar="grandechorale" data-eventid="${eid}" data-title="${(ev.summary || '').replace(/"/g,'&quot;')}" data-start="${start}" data-end="${end}" data-location="${(ev.location||'').replace(/"/g,'&quot;')}">
+                        <span class="att-controls" data-calendar="grandechorale" data-eventid="${eid}" data-title="${safeSummary}" data-start="${start}" data-end="${end}" data-location="${(ev.location||'').replace(/"/g,'&quot;')}">
                           <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="present" ${disabled} onclick="submitAttendance(this)"> Présent·e</label>
                           <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="absent" ${disabled} onclick="submitAttendance(this)"> Absent·e</label>
                           <span class="att-status">Enregistré</span>
                         </span>` : '';
-                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="grandechorale" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=\'color:#888;\'>(' + ev.location + ')</span>' : ''}${att}
+                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="grandechorale" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${safeSummary}${locationHtml}${att}
                         <div class="event-stats chef-only" aria-hidden="true"></div>
+                        ${descriptionHtml}
                       </li>`;
                     };
                     contRep.innerHTML = '<strong>Prochaines répétitions :</strong>' + (repetitions.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + repetitions.map(ev => fmt(ev, false)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucune répétition à venir.</em></div>');
