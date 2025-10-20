@@ -1339,20 +1339,34 @@ async function fetchPostsFromCSV(csvUrl) {
       const tryLoadChain = (urls) => {
         if (!urls || urls.length === 0) { imgEl.style.display = 'none'; return; }
         const url = urls[0];
-        const tester = new Image();
-        let timedOut = false;
-        const to = setTimeout(() => { timedOut = true; tester.onerror(); }, 8000);
-        tester.onload = function() {
-          clearTimeout(to);
-          imgEl.src = url;
-          imgEl.style.display = '';
-        };
-        tester.onerror = function() {
-          clearTimeout(to);
-          // try next
-          tryLoadChain(urls.slice(1));
-        };
-        try { tester.src = url; } catch (e) { clearTimeout(to); tryLoadChain(urls.slice(1)); }
+            const tester = new Image();
+            let timedOut = false;
+            const to = setTimeout(() => { timedOut = true; tester.onerror(); }, 8000);
+            tester.onload = function() {
+              clearTimeout(to);
+              // determine orientation from natural dimensions
+              try {
+                const w = tester.naturalWidth || tester.width || 0;
+                const h = tester.naturalHeight || tester.height || 0;
+                if (w && h && imgEl.classList) {
+                  if (h > w) {
+                    imgEl.classList.add('media-portrait');
+                    imgEl.classList.remove('media-landscape');
+                  } else {
+                    imgEl.classList.add('media-landscape');
+                    imgEl.classList.remove('media-portrait');
+                  }
+                }
+              } catch (ee) {}
+              imgEl.src = url;
+              imgEl.style.display = '';
+            };
+            tester.onerror = function() {
+              clearTimeout(to);
+              // try next
+              tryLoadChain(urls.slice(1));
+            };
+            try { tester.src = url; } catch (e) { clearTimeout(to); tryLoadChain(urls.slice(1)); }
       };
 
       if (!src) { imgEl.style.display = 'none'; return; }

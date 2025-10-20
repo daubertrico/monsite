@@ -573,6 +573,30 @@ body {
     /* Aucun filtre, affichage couleur naturel */
 }
 
+/* Portrait vs Landscape handling for media images to keep posts harmonious */
+.blog-post .media img.media-portrait {
+        object-fit: contain; /* show whole image without cropping */
+        background: #f4f4f4; /* neutral background when portrait has empty sides */
+        height: 420px; /* taller block to favor portrait orientation */
+        display: block;
+}
+.blog-post .media img.media-landscape {
+        object-fit: cover; /* keep full-bleed cover for landscape */
+        height: 220px; /* default landscape height */
+        display: block;
+}
+@media (max-width: 900px) {
+    .blog-post .media img.media-portrait {
+        height: 360px;
+    }
+}
+@media (max-width: 600px) {
+    .blog-post .media img.media-portrait {
+        height: auto; /* on mobile let it flow naturally */
+        max-height: none;
+    }
+}
+
 .blog-post .text-content {
     flex-grow: 1;
     display: flex;
