@@ -1206,7 +1206,9 @@ async function fetchPostsFromCSV(csvUrl) {
           const parts = ('' + imgField).split(',').map(s => s.trim()).filter(Boolean);
           parts.forEach(p => {
             const src = normalizePostImageSrc(p);
-            illustrations.push({ type: 'image', src });
+            // prepare an assets fallback (useful when hosting serves files under a subpath)
+            const assetsFallback = `${ASSETS_BASE_URL}images/${p}`;
+            illustrations.push({ type: 'image', src, fallback: (assetsFallback !== src ? [assetsFallback] : []) });
           });
         });
 
@@ -1226,7 +1228,8 @@ async function fetchPostsFromCSV(csvUrl) {
         if (ill.type === 'image') {
           // Render a small transparent placeholder initially and defer actual loading to JS
           const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
-          return `<img data-src="${ill.src}" src="${placeholder}" alt="${post.title}" class="media-illustration" loading="lazy" decoding="async">`;
+          const fallbackAttr = (ill.fallback && ill.fallback.length) ? ` data-fallback='${JSON.stringify(ill.fallback)}'` : '';
+          return `<img data-src="${ill.src}" src="${placeholder}" alt="${post.title}" class="media-illustration" loading="lazy" decoding="async"${fallbackAttr}>`;
         }
         return `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
       }).join('');
