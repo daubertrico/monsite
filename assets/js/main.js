@@ -24,6 +24,64 @@ let pagesData = null;
 let partitionsData = null;
 let postsData = null;
 
+// Normalize image source: local asset filename, absolute URL, or Google Drive share link -> direct image URL
+function normalizeImageSrc(src) {
+  if (!src) return '';
+  src = src.trim();
+  // If already absolute URL, return as-is
+  if (/^https?:\/\//i.test(src)) {
+    // Convert common Google Drive share links to direct image URL
+    try {
+      const u = new URL(src);
+      // drive.google.com/file/d/FILE_ID/view?usp=sharing
+      const driveFileMatch = src.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+      const idParam = u.searchParams.get('id');
+      const fileId = driveFileMatch ? driveFileMatch[1] : (idParam || null);
+      if (u.hostname.includes('drive.google.com') && fileId) {
+        // Prefer download export as primary (sometimes avoids preview wrappers)
+        return `https://drive.google.com/uc?export=download&id=${fileId}`;
+      }
+    } catch (e) {
+      // if URL parsing fails, fallthrough to return src
+    }
+    return src;
+  }
+    // Otherwise treat as a local asset path under assets/images
+  return `${ASSETS_BASE_URL}images/${src}`;
+}
+
+// For post images: treat bare filenames as site-root files, keep absolute URLs as-is.
+// This lets editors put the image file at the site root and write only the filename
+// in the CSV image column (e.g. "monimage.png").
+function normalizePostImageSrc(src) {
+  if (!src) return '';
+  src = src.trim();
+  // Absolute URLs or already root-anchored paths are returned as-is
+  if (/^https?:\/\//i.test(src) || src.startsWith('/')) return src;
+  // Otherwise treat as a site-root filename
+  return `/${src}`;
+}
+
+// If a Drive link was used, build a sensible fallback (one attempt) to try if the primary fails
+function driveFallbackForSrc(src) {
+  try {
+    const u = new URL(src);
+    if (u.hostname.includes('drive.google.com')) {
+      const driveFileMatch = src.match(/\/d\/([a-zA-Z0-9_-]{10,})/);
+      const idParam = u.searchParams.get('id');
+      const fileId = driveFileMatch ? driveFileMatch[1] : (idParam || null);
+      if (fileId) {
+        // Provide a list of fallbacks to try in order
+        const download = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        const view = `https://drive.google.com/uc?export=view&id=${fileId}`;
+        const thumb = `https://drive.google.com/thumbnail?id=${fileId}`;
+        return [download, view, thumb];
+      }
+    }
+  } catch (e) {}
+  return [];
+}
+
 // Helpers: current page id and utility mapping
 function getCurrentPageId() {
   const currentPagePath = window.location.pathname.split('/').pop();
@@ -1067,20 +1125,41 @@ async function fetchPostsFromCSV(csvUrl) {
     const noIllustrations = options && options.noIllustrations;
 
     // Ensure posts are displayed newest first (by date when available)
+    // Use a robust extractor that tolerates multiple field names and common formats
+    function extractTimestamp(post) {
+      if (!post) return 0;
+      const keys = ['date','Date','published','created','timestamp','ts','time'];
+      for (const k of keys) {
+        let v = post[k];
+        if (!v) continue;
+        v = String(v).trim();
+        // Unix seconds or ms
+        if (/^\d{10}$/.test(v)) return Number(v) * 1000;
+        if (/^\d{13}$/.test(v)) return Number(v);
+        // dd/mm/yyyy or dd-mm-yyyy optionally with time
+        const dm = v.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[ T](.*))?$/);
+        if (dm) {
+          const dd = dm[1].padStart(2,'0');
+          const mm = dm[2].padStart(2,'0');
+          const yyyy = dm[3];
+          const rest = dm[4] ? 'T' + dm[4] : '';
+          const iso = `${yyyy}-${mm}-${dd}${rest}`;
+          const d = new Date(iso);
+          if (!isNaN(d.getTime())) return d.getTime();
+        }
+        // Try native parsing (ISO formats, RFC etc.)
+        const d2 = new Date(v);
+        if (!isNaN(d2.getTime())) return d2.getTime();
+      }
+      return 0;
+    }
     try {
       if (Array.isArray(postsData) && postsData.length) {
-        postsData.sort((a, b) => {
-          const parseDate = item => {
-            const v = (item.date || item.Date || item.published || item.created || item.timestamp || '').toString();
-            const d = new Date(v);
-            return isNaN(d.getTime()) ? 0 : d.getTime();
-          };
-          return parseDate(b) - parseDate(a);
-        });
+        postsData.sort((a, b) => extractTimestamp(b) - extractTimestamp(a));
       }
     } catch (err) {
       // Fallback: reverse order if parsing/sort fails
-      postsData = postsData.slice().reverse();
+      try { postsData = postsData.slice().reverse(); } catch(e) {}
     }
 
     let filteredPosts;
@@ -1100,19 +1179,38 @@ async function fetchPostsFromCSV(csvUrl) {
       return;
     }
 
-    filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date)); // du plus récent au plus ancien
+  // Sort filtered posts newest first using the robust extractor
+  filteredPosts.sort((a, b) => extractTimestamp(b) - extractTimestamp(a));
     postsContainer.innerHTML = '';
 
     filteredPosts.forEach(post => {
       const postElement = document.createElement('article');
       postElement.classList.add('blog-post');
 
-      // Illustrations : image d'abord, puis vidéos
+      // Illustrations : image(s) d'abord, puis vidéos
       let illustrations = [];
       if (!noIllustrations) {
-        if (post.image) {
-          illustrations.push({ type: 'image', src: /^https?:\/\//.test(post.image) ? post.image : `${ASSETS_BASE_URL}images/${post.image}` });
-        }
+        // Support multiple ways to specify images in the CSV:
+        // - post.image (string): filename, absolute URL, Google Drive share link, or comma-separated list
+        // - post.images (array)
+        // - alternative fields: post.illustration, post.illustration_url
+        const imageCandidates = [];
+        if (post.image) imageCandidates.push(post.image);
+        if (post.images && Array.isArray(post.images)) imageCandidates.push(...post.images);
+        if (post.illustration) imageCandidates.push(post.illustration);
+        if (post.illustration_url) imageCandidates.push(post.illustration_url);
+
+        imageCandidates.forEach(imgField => {
+          if (!imgField) return;
+          // Split comma-separated lists (CSV authors sometimes list multiple filenames in one cell)
+          const parts = ('' + imgField).split(',').map(s => s.trim()).filter(Boolean);
+          parts.forEach(p => {
+            const src = normalizePostImageSrc(p);
+            illustrations.push({ type: 'image', src });
+          });
+        });
+
+        // Videos (YouTube): same as before
         if (Array.isArray(post.videos) && post.videos.length > 0) {
           post.videos.forEach(function(videoObj) {
             let url = typeof videoObj === 'string' ? videoObj : videoObj.url;
@@ -1124,11 +1222,14 @@ async function fetchPostsFromCSV(csvUrl) {
       }
 
       // Build the illustrations column (stacked vertically)
-      let illustrationsHTML = illustrations.map(ill =>
-        ill.type === 'image'
-          ? `<img src="${ill.src}" alt="${post.title}" class="media-illustration" loading="lazy" decoding="async">`
-          : `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`
-      ).join('');
+      let illustrationsHTML = illustrations.map(ill => {
+        if (ill.type === 'image') {
+          // Render a small transparent placeholder initially and defer actual loading to JS
+          const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+          return `<img data-src="${ill.src}" src="${placeholder}" alt="${post.title}" class="media-illustration" loading="lazy" decoding="async">`;
+        }
+        return `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+      }).join('');
 
       // Fonction utilitaire pour transformer les URLs en liens cliquables
       function linkify(text) {
@@ -1182,6 +1283,14 @@ async function fetchPostsFromCSV(csvUrl) {
 
       let postHTML = `<h3>${post.title}</h3>`;
       postHTML += eventInfo;
+
+      // Exergue lien: affiche un lien visible en haut du post si une colonne 'lien' (ou 'link'/'url') est fournie
+      const linkUrl = post.lien || post.link || post.url || post.website;
+      if (linkUrl) {
+        // Determine display text: prefer a title if provided, default to French friendly text
+        const linkText = post.lien_text || post.link_title || post.title_link_text || 'toutes les infos ici';
+        postHTML += `<div class="post-link-badge" style="margin-bottom:8px;"><a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#fff;border:1px solid #e6e6e6;padding:8px 12px;border-radius:6px;color:#0b63a7;text-decoration:none;font-weight:600;">${linkText}</a></div>`;
+      }
       if (noIllustrations) {
         // Render a single full-width text column for affichages (no media)
         postHTML += `
@@ -1206,6 +1315,55 @@ async function fetchPostsFromCSV(csvUrl) {
 
       postElement.innerHTML = postHTML;
       postsContainer.appendChild(postElement);
+      // After inserting the post, process deferred images to avoid broken icons
+      try { processDeferredImages(postElement); } catch (e) { console.warn('processDeferredImages failed', e); }
+    });
+  }
+
+  // Deferred image loader: tries primary URL, then fallback; hides image if both fail
+  function processDeferredImages(root) {
+    const imgs = (root || document).querySelectorAll('img[data-src]');
+    imgs.forEach(imgEl => {
+      // avoid re-processing
+      if (imgEl.dataset._loading === '1') return;
+      imgEl.dataset._loading = '1';
+      const src = imgEl.dataset.src;
+      const fallbackAttr = imgEl.dataset.fallback || '';
+      // If fallbackAttr holds a JSON array (we stored multiple fallbacks), parse it
+      let fallbacks = [];
+      try {
+        if (fallbackAttr.startsWith('[')) fallbacks = JSON.parse(fallbackAttr);
+        else if (fallbackAttr) fallbacks = [fallbackAttr];
+      } catch (e) { fallbacks = fallbackAttr ? [fallbackAttr] : []; }
+
+      const tryLoadChain = (urls) => {
+        if (!urls || urls.length === 0) { imgEl.style.display = 'none'; return; }
+        const url = urls[0];
+        const tester = new Image();
+        let timedOut = false;
+        const to = setTimeout(() => { timedOut = true; tester.onerror(); }, 8000);
+        tester.onload = function() {
+          clearTimeout(to);
+          imgEl.src = url;
+          imgEl.style.display = '';
+        };
+        tester.onerror = function() {
+          clearTimeout(to);
+          // try next
+          tryLoadChain(urls.slice(1));
+        };
+        try { tester.src = url; } catch (e) { clearTimeout(to); tryLoadChain(urls.slice(1)); }
+      };
+
+      if (!src) { imgEl.style.display = 'none'; return; }
+      const primary = [src];
+      // If fallbackAttr is empty and the src is a Drive link, ask driveFallbackForSrc
+      if (fallbacks.length === 0 && src.includes('drive.google.com')) {
+        try { fallbacks = driveFallbackForSrc(src); } catch (e) { fallbacks = []; }
+      }
+      // Build chain: primary first, then fallbacks
+      const chain = primary.concat(fallbacks || []);
+      tryLoadChain(chain);
     });
   }
 

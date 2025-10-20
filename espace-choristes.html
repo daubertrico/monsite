@@ -478,12 +478,12 @@
                     const kw = /(concert|événement|evenement|déambulation|deambulation|chant|stage|pic[- ]?nic|pique[- ]?nique|pique[- ]?niques)/i;
                     const concerts = items.filter(ev => kw.test((ev.summary || '')));
                     const repetitions = items.filter(ev => !kw.test((ev.summary || '')));
-                    const now = new Date();
+                    const nowSoul = new Date();
                     const fmt = (ev, withAtt) => {
                       const start = ev.start.dateTime || ev.start.date;
                       const end = (ev.end && (ev.end.dateTime || ev.end.date)) || start;
                       const endDate = new Date(end);
-                      const isPast = endDate < now;
+                      const isPast = endDate < nowSoul;
                       const date = new Date(start);
                       const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
                       const dateStr = date.toLocaleString('fr-FR', options);
@@ -493,12 +493,12 @@
                       const locationHtml = ev.location ? ` <span style='color:#888;'>(${ev.location})</span>` : '';
                       const descriptionHtml = ev.description ? `<div style="margin-top:6px;color:#444;">${ev.description}</div>` : '';
                       const att = withAtt ? `
-                        <span class="att-controls" data-calendar="grandechorale" data-eventid="${eid}" data-title="${safeSummary}" data-start="${start}" data-end="${end}" data-location="${(ev.location||'').replace(/"/g,'&quot;')}">
-                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="present" ${disabled} onclick="submitAttendance(this)"> Présent·e</label>
-                          <label class="att-chip"><input type="radio" name="att-grande-${eid}" value="absent" ${disabled} onclick="submitAttendance(this)"> Absent·e</label>
+                        <span class="att-controls" data-calendar="soul" data-eventid="${eid}" data-title="${safeSummary}" data-start="${start}" data-end="${end}" data-location="${(ev.location||'').replace(/"/g,'&quot;')}">
+                          <label class="att-chip"><input type="radio" name="att-soul-${eid}" value="present" ${disabled} onclick="submitAttendance(this)"> Présent·e</label>
+                          <label class="att-chip"><input type="radio" name="att-soul-${eid}" value="absent" ${disabled} onclick="submitAttendance(this)"> Absent·e</label>
                           <span class="att-status">Enregistré</span>
                         </span>` : '';
-                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="grandechorale" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${safeSummary}${locationHtml}${att}
+                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="soul" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${safeSummary}${locationHtml}${att}
                         <div class="event-stats chef-only" aria-hidden="true"></div>
                         ${descriptionHtml}
                       </li>`;
