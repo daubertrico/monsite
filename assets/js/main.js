@@ -1531,6 +1531,50 @@ async function init() {
     console.error('[INIT] Erreur lors des fetch JSON initiaux :', err);
   }
 
+  // Load official documents manifest and render documents officiels section
+  async function loadDocumentsOfficiels() {
+    try {
+      const docs = await fetchJson('docs_officiels.json');
+      const container = document.getElementById('documents-officiels-section');
+      if (!container) return;
+      const placeholder = container.querySelector('.documents-officiels-placeholder');
+      if (!docs || !Array.isArray(docs) || docs.length === 0) {
+        if (placeholder) placeholder.innerHTML = '<p style="margin-top:8px;color:#444;font-style:italic;">Aucun document officiel n\'est affiché publiquement pour l\'instant.</p>';
+        return;
+      }
+      // Simple title normalization
+      function normalizeDocTitle(name) {
+        if (!name) return '';
+        let s = String(name).replace(/\.[^.]+$/, ''); // remove extension
+        // remove leading dates or numbers like 2025_07_ or 202507
+        s = s.replace(/^[0-9\-_\.\s\(\)]+/, '');
+        s = s.replace(/[_\-]+/g, ' ');
+        s = s.replace(/\s{2,}/g, ' ');
+        s = s.trim();
+        // Capitalize first letter of each word (basic)
+        s = s.split(' ').map(w => w ? (w.charAt(0).toUpperCase() + w.slice(1)) : '').join(' ');
+        return s;
+      }
+      function escapeHtml(s){ return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+
+      docs.sort((a,b)=> (a.folder||'').localeCompare(b.folder||'') || (a.filename||'').localeCompare(b.filename||''));
+      let html = '<ul style="list-style:disc;padding-left:18px;margin:8px 0;">';
+      docs.forEach(d => {
+        const rel = (d.path || d.filename || '').replace(/\\\\/g,'/');
+        const url = rel.indexOf('/') === 0 ? rel : '/' + rel;
+        const title = normalizeDocTitle(d.title || d.filename || rel.split('/').pop());
+        html += `<li><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(title)}</a>`;
+        if (d.folder) html += ` <small style="color:#666">(${escapeHtml(d.folder)})</small>`;
+        html += '</li>';
+      });
+      html += '</ul>';
+      if (placeholder) placeholder.innerHTML = html;
+      else container.insertAdjacentHTML('beforeend', html);
+    } catch (e) {
+      console.warn('loadDocumentsOfficiels failed', e);
+    }
+  }
+
   // Load posts CSV in background — don't block the main render on this.
   fetchPostsFromCSV('https://docs.google.com/spreadsheets/d/e/2PACX-1vROQBU3QffdHqtL93jVZOPjcuD0GHs2icQ13rx3-U7xvjASaQQILjk4pbVG7fk1ucFJQJMUI1GwKEy6/pub?output=csv')
     .then(data => {
@@ -1584,6 +1628,8 @@ async function init() {
 
   // Ensure SEO meta tags and structured data are present
   ensureSeoMeta(currentPageId);
+  // Load documents list for espace choristes (documents officiels)
+  try { loadDocumentsOfficiels(); } catch(e) { /* ignore */ }
 }
 
 init();
