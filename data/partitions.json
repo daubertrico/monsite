@@ -157,7 +157,9 @@
   ,
   {
     "title": "This Little Light Of Mine",
-    "interactive_link": "materielchansons/This Little Light Of Mine-partition.html"
+    "interactive_link": "materielchansons/This Little Light Of Mine-partition.html",
+    "visible_soul": true,
+    "visible_lavoixlibre": true
   }
   ,
   {
@@ -185,7 +187,7 @@
     "title": "I Will Follow Him",
     "interactive_link": "materielchansons/I Will Follow Him-partition.html",
     "visible_soul": true,
-    "visible_lavoixlibre": true
+    "visible_lavoixlibre": false
   }
   ,
   {
@@ -206,5 +208,13 @@
     ],
     "visible_soul": true,
     "visible_lavoixlibre": true
+  }
+  ,
+  {
+    "title": "I Will Follow Him - grande chorale LVL",
+    "flatio_link": "https://flat.io/score/6910758b378d8d55e8be0459?sharingKey=d3b0e73facbda78714a308e65b156169b12ef18eb66788c8fa2b37c4733da73794ab28f0fb7ce9b01ef70cdc1682820858b21947c9cbfa977ce5c862e410e39c",
+    "interactive_link": "materielchansons/I Will Follow Him - grande chorale LVL-partition.html",
+    "visible_lavoixlibre": true,
+    "visible_soul": false
   }
 ]

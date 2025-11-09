@@ -155,14 +155,25 @@
         const map = {};
         (data||[]).forEach(p => { if (p && p.title) map[p.title.trim()] = p; });
 
-  const lvTitles = ['Spondo','Shchedryk','This Little Light Of Mine','Since I Laid My Burdens Down','Stand by Me','I Will Follow Him'];
+    // Prefer visibility flags specified in data/partitions.json when available.
+    // Fallback to the legacy title-based lists for older data.
+    const lvTitles = ['Spondo','Shchedryk','This Little Light Of Mine','Since I Laid My Burdens Down','Stand by Me','I Will Follow Him'];
     const soulTitles = ['Lean on Me','My Girl','Dock of the Bay','Ain\'t No Sunshine','Proud Mary','Simply the Best'];
 
-        const lvParts = lvTitles.map(t => map[t]).filter(Boolean);
-        const soulParts = soulTitles.map(t => map[t]).filter(Boolean);
+    // If partitions.json provides explicit visibility flags, use them to compute lists.
+    let lvParts = (data || []).filter(p => p && (p.visible_lavoixlibre === true));
+    let soulParts = (data || []).filter(p => p && (p.visible_soul === true));
 
-        const included = new Set([...lvParts.map(p=>p.title), ...soulParts.map(p=>p.title)]);
-        const oldParts = (data||[]).filter(p => p.title && !included.has(p.title));
+    // If flags are absent (no partition has the flag), fall back to legacy title arrays to preserve current ordering.
+    const anyFlagPresent = (data || []).some(p => p && (p.visible_lavoixlibre === true || p.visible_soul === true));
+    if (!anyFlagPresent) {
+      lvParts = lvTitles.map(t => map[t]).filter(Boolean);
+      soulParts = soulTitles.map(t => map[t]).filter(Boolean);
+    }
+
+    // Build the 'old' list as those not included in the two main lists
+    const included = new Set([...(lvParts || []).map(p => p.title), ...(soulParts || []).map(p => p.title)]);
+    const oldParts = (data || []).filter(p => p && p.title && !included.has(p.title));
 
         document.getElementById('chansons-lv').innerHTML = renderList(lvParts);
         document.getElementById('chansons-soul').innerHTML = renderList(soulParts);
