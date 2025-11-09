@@ -125,78 +125,43 @@
       <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:12px 18px;margin-bottom:18px;border-radius:8px;font-size:1.05em;">
         <strong>Attention :</strong> Ces partitions sont des arrangements réalisés pour la chorale La Voix Libre. Elles sont protégées par le droit d’auteur et strictement réservées à un usage interne. Merci de ne pas les diffuser.
       </div>
-      <h2>Espace choristes : partitions et ressources</h2>
-      <div id="chansons-subtabs" style="margin:12px 0;">
-        <button id="tab-lv" class="subtab active" style="padding:10px 16px;margin-right:8px;border-radius:10px;border:2px solid #3981FF;background:#3981FF;color:#fff;cursor:pointer;">Grande chorale — La Voix Libre</button>
-        <button id="tab-soul" class="subtab" style="padding:10px 16px;margin-right:8px;border-radius:10px;border:2px solid #e0e0e0;background:#e0e0e0;color:#222;cursor:pointer;">Chansons en chantier — SOUL</button>
-        <button id="tab-old" class="subtab" style="padding:10px 16px;border-radius:10px;border:2px solid #e0e0e0;background:#e0e0e0;color:#222;cursor:pointer;">Les anciennes chansons</button>
-      </div>
-      <div id="chansons-content">
-        <div id="chansons-lv" class="chansons-list" style="display:none;"></div>
-        <div id="chansons-soul" class="chansons-list" style="display:none;"></div>
-        <div id="chansons-old" class="chansons-list" style="display:none;"></div>
-      </div>
+      <h2>Espace choristes : catalogue des partitions</h2>
+      <div id="chansons-all" class="chansons-list"></div>
     `;
 
-    function renderList(parts){
+    function renderTable(parts){
       if (!parts || parts.length===0) return '<em>Aucune chanson.</em>';
       return '<table style="width:100%;border-collapse:collapse;"><tbody>' + parts.map(partition => {
+        // Build display title with suffixes when needed to distinguish arrangements
+        let displayTitle = partition.title || '';
+        const hasSoul = partition.visible_soul === true;
+        const hasLv = partition.visible_lavoixlibre === true;
+        // If title already contains an explicit qualifier (grande chorale/LVL), keep it.
+        const lcTitle = (displayTitle || '').toLowerCase();
+        const alreadyQual = /grande chorale|lvl|soul/i.test(lcTitle);
+        if (!alreadyQual) {
+          if (hasLv && !hasSoul) displayTitle = displayTitle + ' — Grande chorale';
+          else if (hasSoul && !hasLv) displayTitle = displayTitle + ' — SOUL';
+        }
+
         const recordingsLinks = (partition.recordings||[]).map(r => `<a href="#" class="audio-link" data-src="${r.file}">${r.label}</a>`).join('<br>');
         const ressourcesLinks = (partition.documents||[]).map(d => `<a href="${d.file}" target="_blank">${d.label}</a>`).join('<br>');
-        const interactiveLinks = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>` : (partition.flatio_link ? `<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>` : '');
-        return `<tr><td style="padding:10px 0;"><strong>${partition.title}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLinks ? '<br>' : ''}${interactiveLinks}</div></td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
+        const interactiveLink = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>` : (partition.flatio_link ? `<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>` : '');
+
+        return `<tr><td style="padding:10px 0;"><strong>${displayTitle}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLink ? '<br>' : ''}${interactiveLink}</div></td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
       }).join('') + '</tbody></table>';
     }
 
-    // load partitions and allocate as requested
+    // load partitions and show a single consolidated list
     fetch('data/partitions.json')
       .then(res => res.json())
       .then(data => {
-        const map = {};
-        (data||[]).forEach(p => { if (p && p.title) map[p.title.trim()] = p; });
-
-    // Prefer visibility flags specified in data/partitions.json when available.
-    // Fallback to the legacy title-based lists for older data.
-    const lvTitles = ['Spondo','Shchedryk','This Little Light Of Mine','Since I Laid My Burdens Down','Stand by Me','I Will Follow Him'];
-    const soulTitles = ['Lean on Me','My Girl','Dock of the Bay','Ain\'t No Sunshine','Proud Mary','Simply the Best'];
-
-    // If partitions.json provides explicit visibility flags, use them to compute lists.
-    let lvParts = (data || []).filter(p => p && (p.visible_lavoixlibre === true));
-    let soulParts = (data || []).filter(p => p && (p.visible_soul === true));
-
-    // If flags are absent (no partition has the flag), fall back to legacy title arrays to preserve current ordering.
-    const anyFlagPresent = (data || []).some(p => p && (p.visible_lavoixlibre === true || p.visible_soul === true));
-    if (!anyFlagPresent) {
-      lvParts = lvTitles.map(t => map[t]).filter(Boolean);
-      soulParts = soulTitles.map(t => map[t]).filter(Boolean);
-    }
-
-    // Build the 'old' list as those not included in the two main lists
-    const included = new Set([...(lvParts || []).map(p => p.title), ...(soulParts || []).map(p => p.title)]);
-    const oldParts = (data || []).filter(p => p && p.title && !included.has(p.title));
-
-        document.getElementById('chansons-lv').innerHTML = renderList(lvParts);
-        document.getElementById('chansons-soul').innerHTML = renderList(soulParts);
-        document.getElementById('chansons-old').innerHTML = renderList(oldParts);
-
-        // tab switching
-        const tabLvBtn = document.getElementById('tab-lv');
-        const tabSoulBtn = document.getElementById('tab-soul');
-        const tabOldBtn = document.getElementById('tab-old');
-        function showList(which){
-          document.getElementById('chansons-lv').style.display = (which==='lv')? '' : 'none';
-          document.getElementById('chansons-soul').style.display = (which==='soul')? '' : 'none';
-          document.getElementById('chansons-old').style.display = (which==='old')? '' : 'none';
-          tabLvBtn.classList.toggle('active', which==='lv'); tabLvBtn.style.background = which==='lv'?'#3981FF':'#e0e0e0'; tabLvBtn.style.color = which==='lv'?'#fff':'#222';
-          tabSoulBtn.classList.toggle('active', which==='soul'); tabSoulBtn.style.background = which==='soul'?'#3981FF':'#e0e0e0'; tabSoulBtn.style.color = which==='soul'?'#fff':'#222';
-          tabOldBtn.classList.toggle('active', which==='old'); tabOldBtn.style.background = which==='old'?'#3981FF':'#e0e0e0'; tabOldBtn.style.color = which==='old'?'#fff':'#222';
-        }
-        tabLvBtn.addEventListener('click', ()=>showList('lv'));
-        tabSoulBtn.addEventListener('click', ()=>showList('soul'));
-        tabOldBtn.addEventListener('click', ()=>showList('old'));
-        // default: La Voix Libre (grande chorale)
-        showList('lv');
-
+        // Keep the original order from the JSON but present to the user sorted
+        // alphabetically by title (locale-aware, accents handled, case-insensitive).
+        const parts = (data || []).filter(p => p && p.title).sort((a, b) => {
+          try { return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }); } catch (e) { return String(a.title).localeCompare(String(b.title)); }
+        });
+        document.getElementById('chansons-all').innerHTML = renderTable(parts);
         bindAudioClickOnce();
       }).catch(e=>{console.error('failed to load partitions.json',e);});
   }
