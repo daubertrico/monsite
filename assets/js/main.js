@@ -656,79 +656,6 @@ async function fetchPostsFromCSV(csvUrl) {
           textDiv.style.textAlign = 'justify';
           // If the page_content contains heading-like entries (user expects sections),
           // try to turn them into H2 + paragraphs. Fallback: render as plain paragraphs.
-          function isHeadingLike(s) {
-            if (!s || typeof s !== 'string') return false;
-            const trimmed = s.trim();
-            if (trimmed.length === 0) return false;
-            // Heuristic: short string, starts with uppercase (including accented), not ending with a period
-            if (trimmed.length > 80) return false;
-            if (/\.$/.test(trimmed)) return false;
-            return /^[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ][\w\s'’\-\u00C0-\u017F]+$/.test(trimmed);
-          }
-
-          if (pageId === 'cours-de-chant') {
-            // Build sections from page.page_content when possible
-            let i = 0;
-            while (i < page.page_content.length) {
-              const current = (page.page_content[i] || '').trim();
-              if (isHeadingLike(current)) {
-                const h2 = document.createElement('h2');
-                h2.textContent = current;
-                h2.style.marginTop = '0';
-                h2.style.color = '#133';
-                h2.style.fontWeight = '800';
-                h2.style.letterSpacing = '0.2px';
-                textDiv.appendChild(h2);
-                // consume following paragraphs until next heading-like or end
-                let j = i + 1;
-                while (j < page.page_content.length && !isHeadingLike(page.page_content[j])) {
-                  const paragraph = document.createElement('p');
-                  paragraph.textContent = page.page_content[j] || '';
-                  textDiv.appendChild(paragraph);
-                  j++;
-                }
-                i = j;
-                continue;
-              }
-              // Fallback: plain paragraph
-              const pElement = document.createElement('p');
-              pElement.textContent = current;
-              textDiv.appendChild(pElement);
-              i++;
-            }
-          } else {
-            page.page_content.forEach(pText => {
-              const pElement = document.createElement('p');
-              pElement.textContent = pText;
-              textDiv.appendChild(pElement);
-            });
-          }
-
-          // Ajout des infos pratiques (list)
-          if (page.specific_content) {
-            const listBlock = page.specific_content.find(sc => sc.type === 'list');
-            if (listBlock) {
-              const ul = document.createElement('ul');
-              ul.style.marginTop = '20px';
-              ul.style.marginBottom = '20px';
-              ul.style.fontWeight = 'bold';
-              if (listBlock.title) {
-                const listTitle = document.createElement('h4');
-                listTitle.textContent = listBlock.title;
-                ul.appendChild(listTitle);
-              }
-              listBlock.items.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = item;
-                ul.appendChild(li);
-              });
-              textDiv.appendChild(ul);
-              // Add a clear Tarifs button linking to the Nous rejoindre section
-              const tarifsBtn = document.createElement('div');
-              tarifsBtn.style.marginTop = '12px';
-              tarifsBtn.innerHTML = `<a href="nous-rejoindre.html#cours-de-chant" class="tarifs-cta" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#8844aa;color:#fff;font-weight:700;text-decoration:none;border:2px solid #8844aa;">Tarifs</a>`;
-              textDiv.appendChild(tarifsBtn);
-            }
 
             // Ajout du portrait audio avec bande colorée et texte explicatif
             const audioBlock = page.specific_content.find(sc => sc.type === 'audio');
@@ -1003,12 +930,14 @@ async function fetchPostsFromCSV(csvUrl) {
                 right.appendChild(more);
               }
 
-              // If a Calendly link is provided in the section JSON, render a CTA button
-              if (section.calendly) {
-                const calButton = document.createElement('div');
-                calButton.style.marginTop = '12px';
-                calButton.innerHTML = `<a href="${section.calendly}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px rgba(57,129,255,0.2);">Prendre rendez‑vous</a>`;
-                right.appendChild(calButton);
+              // If a contact email is provided in the section JSON, render a prominent mailto CTA
+              // (Calendly usage removed; prefer direct contact to Vincent)
+              // NOTE: hide the prominent RDV CTA on the 'nous-rejoindre' page to avoid duplication/redundancy
+              if (section.contactEmail && page && page.id !== 'nous-rejoindre') {
+                const mailButton = document.createElement('div');
+                mailButton.style.marginTop = '12px';
+                mailButton.innerHTML = `<a href="mailto:${section.contactEmail}" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px rgba(57,129,255,0.2);">Contacter pour RDV</a>`;
+                right.appendChild(mailButton);
               }
 
               // Wrap image and text into an inner row so the H2 stays full-width above them
@@ -1084,8 +1013,6 @@ async function fetchPostsFromCSV(csvUrl) {
           // (Suppression du lien SEO contextuel sur la page Chorale Pop)
           descriptionContainer.appendChild(textDiv);
           contentContainer.appendChild(descriptionContainer);
-        }
-      }
 
     if (page.display_posts) {
       const postsSection = document.createElement('section');
@@ -1647,6 +1574,7 @@ setTimeout(() => {
   } catch (e) {}
 }, 400);
 
+}
 // Smooth-scroll handler: when a page is rendered dynamically and the URL contains a hash,
 // try to scroll to the target element once it's available. Retries a few times with delay.
 (function enableHashSmoothScroll() {
