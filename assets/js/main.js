@@ -371,7 +371,14 @@ function setHeaderTitles(currentPageId) {
 async function fetchJson(filename) {
   console.log(`[DEBUG] Tentative de chargement de ${DATA_BASE_URL}${filename}`);
   try {
-    const response = await fetch(`${DATA_BASE_URL}${filename}`);
+    // Build the request URL relative to the current location so the code
+    // works whether the site is hosted at the root or in a subdirectory.
+    const url = new URL(`${DATA_BASE_URL}${filename}`, window.location.href).href;
+    console.log(`[DEBUG] fetch url: ${url}`);
+    // Force the browser to bypass any cached response (helps when users have
+    // stale cached assets or a Service Worker). This is safe for small JSON
+    // files; if you want to re-enable caching later, remove the option.
+    const response = await fetch(url, { cache: 'no-store' });
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Erreur HTTP ${response.status} lors du chargement de ${filename}: ${errorText}`);
