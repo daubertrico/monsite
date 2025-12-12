@@ -153,7 +153,7 @@ function mapPageIdToHref(id) {
 function navLabelForPage(page) {
   // Default to page_title from JSON; apply small overrides to keep legacy labels
   if (!page) return '';
-  if (page.id === 'videos') return 'Nous entendre';
+  // 'videos' (Nous entendre) removed from nav labels per request
   if (page.id === 'evenements') return 'Événements/Concerts';
   if (page.page_title) return page.page_title;
   return page.id;
@@ -161,7 +161,7 @@ function navLabelForPage(page) {
 
 function computeNavOrder(pages) {
   // Desired primary order, then the rest as found in JSON
-  const desiredOrder = ['chorale-pop', 'soul', 'comedie-musicale', 'cours-de-chant', 'nous-rejoindre', 'evenements', 'videos', 'partitions'];
+  const desiredOrder = ['chorale-pop', 'soul', 'comedie-musicale', 'cours-de-chant', 'nous-rejoindre', 'evenements', 'partitions'];
   // Exclude hidden pages from navigation
   const visiblePages = pages.filter(p => !p.hidden);
   const byId = Object.fromEntries(visiblePages.map(p => [p.id, p]));
@@ -519,7 +519,8 @@ async function fetchPostsFromCSV(csvUrl) {
     // Ajoute les tuiles principales dans l'ordre
     desiredOrder.forEach(pageId => {
       const page = pagesData.find(p => p.id === pageId);
-      if (!page || !page.image || !page.page_title || !page.page_subtitle) return;
+      // Skip if page not present or explicitly hidden
+      if (!page || page.hidden || !page.image || !page.page_title || !page.page_subtitle) return;
       const tileLink = document.createElement('a');
       // Correction pour la tuile Espace choristes
       if (page.id === 'partitions') {
@@ -1189,11 +1190,30 @@ async function fetchPostsFromCSV(csvUrl) {
       console.warn('[DEBUG] Aucun tag de page fourni à loadAndDisplayPosts, affichage de tous les posts.');
       filteredPosts = postsData;
     } else {
-      filteredPosts = postsData.filter(post =>
-        post.tags && post.tags.some(tag => pageTags.includes(tag))
-      );
-      console.log(`[DEBUG] Filtrage des posts avec tags: ${JSON.stringify(pageTags)}. Nombre de posts trouvés: ${filteredPosts.length}`);
+      // Special-case for the "evenements" page: require posts to have
+      // - the "evenements" tag AND
+      // - either "chorale_pop" or a comédie-related tag
+      // This allows posts like [evenements + chorale_pop + soul] to show,
+      // but excludes posts that are only [evenements + soul] without chorale_pop/comédie.
+      if (pageTags.includes('evenements')) {
+        const comedieVariants = ['comedie', 'comédie', 'comédie-musicale', 'comedie-musicale', 'comédie_musicale'];
+        filteredPosts = postsData.filter(post => {
+          if (!post.tags || !post.tags.includes('evenements')) return false;
+          if (post.tags.includes('chorale_pop') || post.tags.includes('chorale-pop')) return true;
+          return post.tags.some(t => comedieVariants.includes(t));
+        });
+        console.log(`[DEBUG] Filtrage spécial 'evenements' (requiert chorale_pop ou comédie). Nombre de posts trouvés: ${filteredPosts.length}`);
+      } else {
+        // Default behavior: any post matching any of the page tags
+        filteredPosts = postsData.filter(post =>
+          post.tags && post.tags.some(tag => pageTags.includes(tag))
+        );
+        console.log(`[DEBUG] Filtrage des posts avec tags: ${JSON.stringify(pageTags)}. Nombre de posts trouvés: ${filteredPosts.length}`);
+      }
     }
+
+    // Note: exclusion of posts tagged 'soul' was intentionally removed per request.
+    // Posts are now shown/filtered according to the logic above (evenements requires chorale_pop or comédie variants).
 
     if (filteredPosts.length === 0) {
       postsContainer.innerHTML = '<p style="color:red;">Aucun post à afficher pour ces tags.</p>';

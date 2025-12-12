@@ -277,7 +277,8 @@
       }
     ],
     "tags": ["soul"],
-    "display_posts": true
+    "display_posts": true,
+    "hidden": true
   },
   {
     "id": "evenements",
@@ -328,6 +329,7 @@
   {
     "id": "videos",
     "image": "videosbackground.jpg",
+    "hidden": true,
     "tile_overlay_title": "Vidéos",
     "tile_overlay_subtitle": "Nos performances et concerts",
     "page_title": "Vidéos",
@@ -413,19 +415,7 @@
             "newsletter": true,
             "cta": { "text": "En savoir plus", "url": "chorale-pop.html" }
           },
-          {
-            "title": "SOUL",
-            "image": "soul.jpg",
-            "description": "SOUL est un ensemble vocal réservé à des chanteur·se·s confirmé·e·s, sur audition, dédié aux polyphonies soul à cappella.",
-            "details": [
-              "Lieu : Campus The Land, Rennes",
-              "Horaires : Mardi soir 20h-22h",
-              "Tarif : 550€ l’année, mensualisable (45,83€/mois)",
-              "Inscription : Audition à la rentrée de septembre"
-            ],
-            "newsletter": true,
-            "cta": { "text": "En savoir plus", "url": "soul.html" }
-          },
+          
           {
             "title": "Comédie Musicale",
             "image": "comediemusicale.jpg",
