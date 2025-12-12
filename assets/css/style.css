@@ -1203,3 +1203,102 @@ iframe[src*="flat.io"] {
     .cta-calendly p { font-size: 0.95rem !important; }
     .cta-calendly .calendly-cta { padding: 9px 12px !important; font-size: 0.95rem !important; }
 }
+
+/* --- SOUL site overrides --- */
+/* Palette plus sombre et accents chauds pour une esthétique soul */
+.soul-site {
+    /* Palette strict issue du logo SOUL */
+    --soul-gold: #e9ba60;
+    --soul-orange: #cb7f48;
+    --soul-vvd: #0e0a0e;
+    --soul-vd: #261d27;
+    --soul-vm: #392c44;
+    --soul-vl: #4a3b57;
+    --soul-cream: #fefde5;
+    /* Map to legacy vars used elsewhere for easier integration */
+    --accent-color-primary: var(--soul-vvd);
+    --accent-color-complementary: var(--soul-gold);
+    --main-title-color: var(--soul-gold);
+    --primary-color: var(--soul-vvd);
+    --text-light: var(--soul-cream);
+    --background-light: linear-gradient(180deg,var(--soul-vd) 0%, var(--soul-vm) 60% , var(--soul-vvd) 100%);
+    --background-dark: var(--soul-vvd);
+    --text-dark: var(--soul-cream);
+}
+
+.soul-site .main-header {
+    background: var(--background-dark) !important;
+    color: var(--text-light) !important;
+    box-shadow: none !important;
+}
+
+/* Remove rounded white circle around logo on SOUL site and make it square/transparent */
+.soul-site .site-logo {
+    border-radius: 6px !important;
+    border: none !important;
+    background: transparent !important;
+    height: 220px !important;
+    width: auto !important;
+    object-fit: contain !important;
+}
+
+/* Titles and typography for SOUL */
+.soul-site .site-titles h1 {
+    font-family: 'Alfa Slab One', 'Playfair Display', serif !important; /* display retro */
+    font-size: 3.2rem !important;
+    color: var(--main-title-color) !important;
+    text-shadow: none !important;
+}
+.soul-site body, .soul-site p, .soul-site .post-wrapper, .soul-site .text-content {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    color: var(--text-dark) !important;
+}
+
+/* Nav adjustments */
+.soul-site .main-nav .nav-links li a {
+    color: var(--text-light) !important;
+    background: transparent !important;
+}
+.soul-site .main-nav .nav-links li a:hover,
+.soul-site .main-nav .nav-links li a.active {
+    color: var(--soul-gold) !important;
+    background: rgba(255,255,255,0.03) !important;
+}
+
+/* Footer darker with golden accents */
+.soul-site .main-footer {
+    background: linear-gradient(180deg,var(--soul-vd),var(--soul-vm)) !important;
+    color: var(--text-light) !important;
+}
+.soul-site .footer-content a { color: var(--soul-gold) !important; }
+
+/* Blog posts: lighter cards on dark background with golden accents */
+.soul-site #posts-container .blog-post {
+    background-color: var(--soul-vd) !important;
+    border: 1px solid rgba(233,186,96,0.12) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.6) !important;
+}
+.soul-site .blog-post h3 { color: var(--soul-gold) !important; }
+.soul-site .blog-post .read-more { background-color: var(--soul-orange) !important; color: var(--soul-cream) !important; }
+
+/* Ensure footer copyright specific text style (no ® symbol) */
+.soul-site .footer-content p:first-child { font-weight:700; letter-spacing:0.6px; }
+
+/* Hide 'Nous rejoindre' link only on SOUL page */
+body.page-soul .main-nav .nav-links a[href="nous-rejoindre.html"] { display: none !important; }
+
+/* Buttons style for SOUL */
+.soul-site button, .soul-site .read-more, .soul-site .tarifs-cta {
+    background: linear-gradient(90deg,var(--soul-gold), var(--soul-orange));
+    color: var(--soul-vvd);
+    border: none;
+    box-shadow: 0 6px 20px rgba(203,127,72,0.12);
+}
+.soul-site button:hover, .soul-site .read-more:hover, .soul-site .tarifs-cta:hover {
+    filter: brightness(1.06);
+    box-shadow: 0 10px 28px rgba(233,186,96,0.16);
+}
+
+/* Links: cream -> gold on hover */
+.soul-site a { color: var(--soul-cream); }
+.soul-site a:hover { color: var(--soul-gold); }

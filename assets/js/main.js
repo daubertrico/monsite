@@ -193,11 +193,21 @@ function renderHeader(currentPageId) {
     <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Ouvrir le menu">☰</button>\
     <ul class="nav-links" id="main-menu"></ul>\
   </nav>';
+
+  // If we're on the Soul site, use the soullogo at site root and do not wrap it in a link
+  const isSoulSite = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
+  const soulLogoPath = '/soullogo.png';
+  let logoHtml = '';
+  if (isSoulSite) {
+    const alt = 'SOUL';
+    logoHtml = `<img src="${soulLogoPath}" alt="${alt}" class="site-logo" decoding="async">`;
+  } else {
+    logoHtml = `<a href="${mapPageIdToHref('index')}" class="site-logo-link">\n  <img src="${logoUrlCfg ? logoUrlCfg.valeur : ''}" alt="Logo ${siteTitleCfg ? siteTitleCfg.valeur : 'La Voix Libre'}" class="site-logo" decoding="async">\n      </a>`;
+  }
+
   header.innerHTML = `
     <div class="header-content">
-      <a href="${mapPageIdToHref('index')}" class="site-logo-link">
-  <img src="${logoUrlCfg ? logoUrlCfg.valeur : ''}" alt="Logo ${siteTitleCfg ? siteTitleCfg.valeur : 'La Voix Libre'}" class="site-logo" decoding="async">
-      </a>
+      ${logoHtml}
       <div class="site-titles">
         <h1 id="page-main-title" class="${isHome ? 'main-title' : ''}">${h1Text}</h1>
         <p id="page-subtitle" class="subtitle">${subText}</p>
@@ -294,17 +304,19 @@ function renderFooter() {
 
   const year = new Date().getFullYear();
   const email = emailCfg?.valeur || 'contact@lavoixlibre.fr';
+  const isSoulSite = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
+  const copyrightText = isSoulSite ? `2025 soul.` : `&copy; ${year} La Voix Libre. Tous droits réservés.`;
   footer.innerHTML = `
     <div class="footer-content">
-      <p>&copy; ${year} La Voix Libre. Tous droits réservés.</p>
+      <p>${copyrightText}</p>
       <p>Contact : <a href="mailto:${email}">${email}</a></p>
       <div class="social-links">
-        <a href="${fbCfg?.valeur || '#'}" target="_blank" aria-label="Facebook La Voix Libre">Facebook</a>
-        <a href="${igCfg?.valeur || '#'}" target="_blank" aria-label="Instagram La Voix Libre">Instagram</a>
-        <a href="${ytCfg?.valeur || '#'}" target="_blank" aria-label="YouTube La Voix Libre">YouTube</a>
+        <a href="${fbCfg?.valeur || '#'}" target="_blank" aria-label="Facebook ${isSoulSite ? 'SOUL' : 'La Voix Libre'}">Facebook</a>
+        <a href="${igCfg?.valeur || '#'}" target="_blank" aria-label="Instagram ${isSoulSite ? 'SOUL' : 'La Voix Libre'}">Instagram</a>
+        <a href="${ytCfg?.valeur || '#'}" target="_blank" aria-label="YouTube ${isSoulSite ? 'SOUL' : 'La Voix Libre'}">YouTube</a>
       </div>
       <div class="newsletter-link" style="margin-top:10px;">
-        <a href="#newsletter" id="newsletter-btn" aria-label="Newsletter La Voix Libre" style="display:inline-flex;align-items:center;text-decoration:none;vertical-align:middle;background:#ff6699;color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;font-weight:bold;border-radius:6px;padding:8px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,box-shadow 0.2s;cursor:pointer;margin:0 auto;min-height:40px;">
+        <a href="#newsletter" id="newsletter-btn" aria-label="Newsletter ${isSoulSite ? 'SOUL' : 'La Voix Libre'}" style="display:inline-flex;align-items:center;text-decoration:none;vertical-align:middle;background:#ff6699;color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;font-weight:bold;border-radius:6px;padding:8px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,box-shadow 0.2s;cursor:pointer;margin:0 auto;min-height:40px;">
           <span style="display:inline-block;vertical-align:middle;height:24px;width:24px;margin-right:8px;">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:24px;width:24px;"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 7l9 6 9-6" stroke="#ff6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </span>
@@ -1536,6 +1548,40 @@ async function init() {
     globalConfig = g;
     pagesData = p;
     partitionsData = part;
+    // --- Domain-specific overrides ---
+    try {
+      const hostname = (window.location && window.location.hostname) ? window.location.hostname.toLowerCase() : '';
+      const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '';
+      const isSoulSite = hostname.includes('soulrennes') || pathname.startsWith('/soul') || (hostname.includes('chanterlavoixlibre') && pathname.startsWith('/soul'));
+      if (isSoulSite) {
+        // Remove pages that should not be accessible from the SOUL domain/subpath
+        const banned = ['chorale-pop', 'comedie-musicale', 'cours-de-chant', 'evenements', 'videos'];
+        if (Array.isArray(pagesData)) {
+          pagesData = pagesData.filter(p => !banned.includes(p.id));
+        }
+        // Override footer contacts for SOUL
+        function setGlobalConfig(section, champ, valeur) {
+          if (!Array.isArray(globalConfig)) globalConfig = [];
+          const found = globalConfig.find(i => i.section === section && i.champ === champ);
+          if (found) found.valeur = valeur;
+          else globalConfig.push({ section: section, champ: champ, valeur: valeur });
+        }
+        setGlobalConfig('footer', 'email', 'contacter.soul@protonmail.com');
+        setGlobalConfig('footer', 'facebook', 'https://www.facebook.com/profile.php?id=61584638320678');
+        setGlobalConfig('footer', 'instagram', 'https://www.instagram.com/soul.rennes/');
+        // Use soul logo and site title for SOUL
+        setGlobalConfig('head', 'logo_url', '/soullogo.png');
+        setGlobalConfig('head', 'site_title', 'SOUL');
+        // Expose a global flag so renderers can adapt (logo, labels...)
+        try {
+          window.__isSoulSite = true;
+          // Add a CSS hook class to the document so we can override styles in CSS
+          try { document.documentElement.classList.add('soul-site'); } catch (ee) { console.warn('cannot add soul-site class', ee); }
+        } catch(e) { console.warn('cannot set __isSoulSite', e); }
+      }
+    } catch (e) {
+      console.warn('[INIT] Domain-specific overrides failed', e);
+    }
   } catch (err) {
     console.error('[INIT] Erreur lors des fetch JSON initiaux :', err);
   }

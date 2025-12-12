@@ -17,6 +17,8 @@
   <meta name="twitter:description" content="Chorale SOUL à Rennes : chant soul, gospel, polyphonie, ateliers et concerts.">
   <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/soul.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <!-- Fonts for SOUL page only -->
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
    <link rel="stylesheet" href="assets/css/style.css?v=20250811">
    <!-- Google tag (gtag.js) -->
    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
@@ -27,13 +29,105 @@
 
      gtag('config', 'AW-928718843');
    </script>
+  <style>
+    /* Header spécifique à la page SOUL : gros logo centré, pas de texte */
+    body.page-soul .main-header.soul-header {
+      background: linear-gradient(180deg,#070307 0%, #1a0f1a 100%);
+      color: #fff;
+      padding: 3.2rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: none;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    body.page-soul .main-header.soul-header .soul-logo-wrap { max-width: 820px; width: 100%; }
+    body.page-soul .main-header.soul-header .site-logo {
+      height: 420px !important;
+      width: auto !important;
+      border-radius: 6px !important;
+      border: none !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      background: transparent;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    /* Responsive fallback for very small screens */
+    @media (max-width: 700px) {
+      body.page-soul .main-header.soul-header .site-logo { height: 220px !important; }
+    }
+    /* Hide title/subtitle only inside the header on this page (keep page content visible) */
+    body.page-soul header .site-titles, body.page-soul header #page-main-title, body.page-soul header #page-subtitle { display: none !important; }
+
+    /* Ensure page content (description paragraphs) is visible and legible */
+    body.page-soul #page-content-container { max-width: 980px; margin: 2.4rem auto; padding: 0 1rem; color: #fefde5; }
+    body.page-soul #page-content-container p { color: #fefde5; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1rem; font-weight: 500; }
+
+    /* Force dark background for the whole page SOUL (avoid white flash) */
+    body.page-soul {
+      background: linear-gradient(180deg,#261d27 0%, #392c44 60%, #0e0a0e 100%) fixed !important;
+      color: #fefde5 !important;
+      min-height: 100vh;
+    }
+    body.page-soul .main-content { background: transparent !important; }
+    body.page-soul a { color: #e9ba60 !important; }
+
+    /* Footer adjustments specific to SOUL page only */
+    body.page-soul footer.main-footer { background: linear-gradient(180deg,var(--soul-vd),var(--soul-vm)) !important; color: var(--soul-cream) !important; }
+    body.page-soul footer.main-footer .footer-content p { color: var(--soul-cream) !important; }
+    body.page-soul footer.main-footer .social-links a { background: transparent !important; color: var(--soul-cream) !important; border: 1px solid rgba(233,186,96,0.08); padding: 0.5rem 0.9rem; }
+    body.page-soul footer.main-footer .social-links a:hover { color: var(--soul-vvd) !important; background: linear-gradient(90deg,var(--soul-gold),var(--soul-orange)); }
+    /* Newsletter button style: gold/orange background, cream text */
+    body.page-soul #newsletter-btn,
+    body.page-soul .newsletter-link a {
+      background: linear-gradient(90deg,var(--soul-gold),var(--soul-orange)) !important;
+      color: var(--soul-vvd) !important;
+      color: var(--soul-cream) !important;
+      box-shadow: 0 8px 28px rgba(233,186,96,0.16) !important;
+    }
+    body.page-soul #newsletter-btn:hover, body.page-soul .newsletter-link a:hover { filter: brightness(1.06); }
+    /* Ensure buttons' text is visible (force font-weight) */
+    body.page-soul footer.main-footer button, body.page-soul footer.main-footer a, body.page-soul footer.main-footer .social-links a { font-weight: 700; }
+  </style>
 </head>
-<body class="internal-page">
+<body class="internal-page page-soul">
+
+  <header class="main-header soul-header" aria-label="Header SOUL">
+    <div class="header-content soul-logo-wrap">
+      <!-- Utilise le logo existant à la racine du site -->
+      <img src="/soullogo.png" alt="SOUL" class="site-logo">
+    </div>
+  </header>
+
   <main class="main-content">
     <div id="page-content-container"></div>
-
-    
-  </main>
   <script src="assets/js/main.js?v=20250811"></script>
+  <script>
+    // Ensure footer text is adjusted only on the SOUL page after dynamic render
+    function adjustSoulFooter(){
+      try {
+        const footer = document.querySelector('footer.main-footer');
+        if (!footer) return;
+        const footerContent = footer.querySelector('.footer-content');
+        if (!footerContent) return;
+        // Replace first paragraph with exact copyright line
+        const firstP = footerContent.querySelector('p');
+        if (firstP) firstP.innerHTML = '© 2025 SOUL. Tous droits réservés.';
+        // Ensure newsletter button uses correct colors (in case injected later)
+        const newsletter = document.getElementById('newsletter-btn') || footerContent.querySelector('#newsletter-btn');
+        if (newsletter) {
+          newsletter.style.background = 'linear-gradient(90deg, var(--soul-gold), var(--soul-orange))';
+          newsletter.style.color = 'var(--soul-cream)';
+          newsletter.style.fontWeight = '700';
+        }
+      } catch (e) { console.warn('adjustSoulFooter failed', e); }
+    }
+    // Try on the custom event emitted by main.js, and also on load as fallback
+    document.addEventListener('site:content-rendered', adjustSoulFooter);
+    window.addEventListener('load', function(){ setTimeout(adjustSoulFooter, 300); });
+  </script>
 </body>
 </html>
