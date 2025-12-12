@@ -217,6 +217,146 @@ function renderHeader(currentPageId) {
   `;
 }
 
+// ---- Espace choristes password gate ----
+function getGlobalConfigValue(section, champ) {
+  try {
+    if (!Array.isArray(globalConfig)) return null;
+    const item = globalConfig.find(i => i.section === section && i.champ === champ);
+    return item ? item.valeur : null;
+  } catch (e) { return null; }
+}
+
+function createChoristesModal() {
+  if (document.getElementById('choristes-modal')) return document.getElementById('choristes-modal');
+  const overlay = document.createElement('div');
+  overlay.id = 'choristes-modal';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,0.45)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+
+  const box = document.createElement('div');
+  box.style.background = '#fff';
+  box.style.padding = '20px';
+  box.style.borderRadius = '8px';
+  box.style.maxWidth = '420px';
+  box.style.width = '90%';
+  box.style.boxShadow = '0 10px 40px rgba(0,0,0,0.3)';
+
+  const title = document.createElement('h3');
+  title.textContent = 'Accès Espace choristes';
+  title.style.marginTop = '0';
+  title.style.marginBottom = '8px';
+
+  const hint = document.createElement('p');
+  hint.textContent = 'Saisissez le mot de passe pour accéder à l\'espace choristes.';
+  hint.style.margin = '0 0 12px 0';
+  hint.style.fontSize = '14px';
+
+  const input = document.createElement('input');
+  input.type = 'password';
+  input.id = 'choristes-password-input';
+  input.style.width = '100%';
+  input.style.padding = '10px';
+  input.style.marginBottom = '12px';
+  input.style.boxSizing = 'border-box';
+
+  const btnWrap = document.createElement('div');
+  btnWrap.style.display = 'flex';
+  btnWrap.style.justifyContent = 'flex-end';
+  btnWrap.style.gap = '8px';
+
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.textContent = 'Annuler';
+  cancel.style.background = '#eee';
+  cancel.style.border = 'none';
+  cancel.style.padding = '8px 12px';
+  cancel.style.borderRadius = '6px';
+
+  const ok = document.createElement('button');
+  ok.type = 'button';
+  ok.textContent = 'Valider';
+  ok.style.background = '#2b6cb0';
+  ok.style.color = '#fff';
+  ok.style.border = 'none';
+  ok.style.padding = '8px 12px';
+  ok.style.borderRadius = '6px';
+
+  btnWrap.appendChild(cancel);
+  btnWrap.appendChild(ok);
+
+  box.appendChild(title);
+  box.appendChild(hint);
+  box.appendChild(input);
+  box.appendChild(btnWrap);
+  overlay.appendChild(box);
+
+  // handlers
+  cancel.addEventListener('click', () => { overlay.remove(); });
+  ok.addEventListener('click', () => {
+    const val = (input.value || '').trim();
+    const expected = getGlobalConfigValue('security', 'espace_choristes_password') || 'lavoixlibre2026';
+    const adminPasswords = ['chefdechoeur'];
+    if (val === expected || adminPasswords.includes(val)) {
+      // save role for the choristes page (choristes.js expects 'choristesRole')
+      if (adminPasswords.includes(val)) {
+        sessionStorage.setItem('choristesRole', 'chef');
+        sessionStorage.setItem('espace_choristes_role', 'chefdechoeur');
+      } else {
+        sessionStorage.setItem('choristesRole', 'member');
+        sessionStorage.setItem('espace_choristes_role', 'choriste');
+      }
+      // also set a simple authed flag to avoid any other gate checks
+      sessionStorage.setItem('espace_choristes_authed', '1');
+      const target = overlay.dataset.targetHref;
+      overlay.remove();
+      if (target) window.location.href = target;
+      return;
+    }
+    // incorrect
+    input.value = '';
+    input.focus();
+    input.style.border = '1px solid #d9534f';
+  });
+  // allow Enter to submit
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') ok.click(); });
+
+  document.addEventListener('keydown', function onKey(e){
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); }
+  });
+
+  return overlay;
+}
+
+function initEspaceChoristesGate() {
+  // delegated listener to catch clicks on any anchor that links to espace-choristes
+  document.addEventListener('click', function (e) {
+    try {
+      const a = e.target.closest ? e.target.closest('a') : null;
+      if (!a) return;
+      const href = (a.getAttribute('href') || '').replace(/^\.\//, '');
+      if (href.indexOf('espace-choristes.html') !== -1) {
+        e.preventDefault();
+        const modal = createChoristesModal();
+        modal.dataset.targetHref = a.href || href;
+        document.body.appendChild(modal);
+        const input = modal.querySelector('#choristes-password-input');
+        if (input) setTimeout(() => input.focus(), 50);
+      }
+    } catch (e) { console.warn('choristes gate handler error', e); }
+  }, true);
+}
+
+// initialize gate as soon as possible
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initEspaceChoristesGate);
+  else initEspaceChoristesGate();
+}
+
 function renderNav(currentPageId) {
   const nav = document.querySelector('.main-nav');
   const navList = nav ? nav.querySelector('.nav-links') : null;

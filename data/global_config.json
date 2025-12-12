@@ -39,4 +39,10 @@
     "champ": "youtube",
     "valeur": "https://www.youtube.com/channel/UC5xRWArmPqnh_OdfvubC38Q"
   }
+  ,
+  {
+    "section": "security",
+    "champ": "espace_choristes_password",
+    "valeur": "lavoixlibre2026"
+  }
 ]
