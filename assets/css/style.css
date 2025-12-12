@@ -1409,6 +1409,102 @@ body.page-soul .blog-post .post-title {
     letter-spacing: -0.01em !important;
 }
 
+/* SOUL-specific footer: compact 45rpm back cover / tracklist styling */
+body.page-soul footer.main-footer {
+    background: transparent;
+    padding: 28px 16px;
+    color: var(--soul-cream);
+    position: relative;
+    z-index: 3;
+    border-top: 1px solid rgba(255,255,255,0.04); /* hairline */
+}
+
+body.page-soul .soul-tracklist-container {
+    max-width: 980px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center foot under the grid */
+}
+
+body.page-soul .soul-tracklist-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+    width: min(720px, 100%); /* constrain grid width so footer centers between columns */
+    margin: 0 auto;
+}
+
+body.page-soul .soul-side::before {
+    display: block;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.82rem;
+    color: rgba(254,253,229,0.9);
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+body.page-soul .soul-side-a::before { content: 'SIDE A'; }
+body.page-soul .soul-side-b::before { content: 'SIDE B'; }
+
+body.page-soul .soul-track {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.98rem;
+    line-height: 1.08;
+}
+
+body.page-soul .track-num {
+    color: var(--soul-gold);
+    font-weight: 700;
+    width: 3ch;
+    flex: 0 0 auto;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+body.page-soul .track-title { color: var(--soul-cream); white-space: nowrap; }
+body.page-soul .track-link { color: inherit; text-decoration: none; }
+body.page-soul .track-link .track-title { color: var(--soul-cream); }
+body.page-soul .track-link:hover .track-title { color: var(--soul-gold); text-decoration: underline; text-decoration-thickness: 1px; }
+
+/* dotted leader between title and meta */
+body.page-soul .track-dots {
+    flex: 1 1 auto;
+    height: 1px;
+    margin: 0 10px;
+    background-image: radial-gradient(circle, rgba(233,186,96,0.86) 0.5px, rgba(0,0,0,0) 0.5px);
+    background-size: 6px 1px;
+    opacity: 0.28;
+}
+
+/* Hide the small oblique arrows in the SOUL footer tracklist */
+body.page-soul .track-meta { display: none; }
+
+body.page-soul .soul-tracklist-foot {
+    margin-top: 14px;
+    font-size: 0.9rem;
+    color: rgba(254,253,229,0.85);
+    letter-spacing: 0.08em;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+/* Tighten spacing for compact, printed look */
+body.page-soul .soul-tracklist-container .soul-track { padding-top: 4px; padding-bottom: 4px; }
+
+/* Ensure small screens stack nicely */
+@media (max-width: 720px) {
+    body.page-soul .soul-tracklist-grid { grid-template-columns: 1fr; gap: 18px; }
+    body.page-soul .track-num { width: 3.5ch; }
+}
+
 /* Spacing inside cards */
 body.page-soul .tile > *, body.page-soul .card > *, body.page-soul .post-card > * { margin-bottom: 0.9rem; }
 
