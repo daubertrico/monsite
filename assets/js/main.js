@@ -1879,6 +1879,64 @@ async function init() {
 
 init();
 
+// Robust delegated handlers to ensure footer/contact and espace-choristes links always work
+function ensureDelegatedNavHandlers() {
+  // smooth scroll for #footer links (works even if nav was replaced)
+  document.removeEventListener('click', delegatedNavHandler, true);
+  document.addEventListener('click', delegatedNavHandler, true);
+}
+
+function delegatedNavHandler(e) {
+  try {
+    const a = e.target.closest ? e.target.closest('a') : null;
+    if (!a) return;
+    const href = (a.getAttribute('href') || '').trim();
+    // Contact -> scroll to footer
+    if (href === '#footer') {
+      const footer = document.getElementById('footer');
+      if (footer) {
+        e.preventDefault();
+        footer.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+    // Espace choristes -> open modal (use existing createChoristesModal)
+    if (href.indexOf('espace-choristes.html') !== -1 || href.indexOf('partitions') !== -1) {
+      e.preventDefault();
+      const modal = createChoristesModal();
+      modal.dataset.targetHref = a.href || href;
+      if (!document.body.contains(modal)) document.body.appendChild(modal);
+      const input = modal.querySelector('#choristes-password-input');
+      if (input) setTimeout(() => input.focus(), 50);
+      return;
+    }
+  } catch (err) { console.warn('delegatedNavHandler error', err); }
+}
+
+// install after a short delay to ensure header/nav rendered
+setTimeout(ensureDelegatedNavHandlers, 250);
+
+// Attach direct handlers to important anchors to avoid being blocked by other listeners
+function attachDirectHandlers() {
+  try {
+    // Espace choristes anchors
+    document.querySelectorAll('a[href*="espace-choristes.html"], a[href*="espace-choristes"], a[href*="partitions"]').forEach(a => {
+      a.addEventListener('click', function(e){
+        try { e.preventDefault(); const modal = createChoristesModal(); modal.dataset.targetHref = a.href || a.getAttribute('href'); if (!document.body.contains(modal)) document.body.appendChild(modal); const input = modal.querySelector('#choristes-password-input'); if (input) setTimeout(()=>input.focus(),50); } catch(err) { console.warn('choristes anchor handler', err); }
+      }, { capture: true });
+    });
+
+    // Footer/contact anchors
+    document.querySelectorAll('a[href="#footer"]').forEach(a => {
+      a.addEventListener('click', function(e){
+        try { e.preventDefault(); const footer = document.getElementById('footer'); if (footer) footer.scrollIntoView({ behavior: 'smooth' }); } catch(err) { console.warn('footer anchor handler', err); }
+      }, { capture: true });
+    });
+  } catch (e) { console.warn('attachDirectHandlers failed', e); }
+}
+
+setTimeout(attachDirectHandlers, 400);
+
 // Notify that dynamic content has been rendered so other listeners (e.g. smooth-scroll)
 // can react. generatePageContent already performs synchronous DOM insertions; we
 // dispatch this event at the end of that function's logical flow. To avoid

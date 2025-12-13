@@ -1344,6 +1344,11 @@ body.page-soul .main-header.soul-header {
     padding: 48px 16px 64px 16px; background: linear-gradient(180deg, rgba(57,44,68,0.12), rgba(14,10,14,0.28)); overflow:visible;
 }
 
+/* Ensure header/nav links accept pointer events on SOUL page */
+body.page-soul .main-nav .nav-links a,
+body.page-soul .main-header .mobile-menu-toggle,
+body.page-soul .main-nav { pointer-events: auto; z-index: 6; }
+
 /* Vinyl grooves behind header */
 body.page-soul .main-header.soul-header::before {
     content: '';
