@@ -221,5 +221,12 @@
   {
     "title": "Be My Husband",
     "interactive_link": "materielchansons/be-my-husband-partition.html"
+  },
+  {
+    "title": "Lamma Bada Tatayana",
+    "documents": [
+      { "label": "Partition (PDF)", "file": "materielchansons/lamma-bada-tatayana/Lamma Bada Tatayana.pdf" }
+    ],
+    "visible_lavoixlibre": true
   }
 ]
