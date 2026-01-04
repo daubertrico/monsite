@@ -225,7 +225,8 @@
   {
     "title": "Lamma Bada Tatayana",
     "documents": [
-      { "label": "Partition (PDF)", "file": "materielchansons/lamma bada yatatanna.pdf" }
+      { "label": "Partition (PDF)", "file": "materielchansons/lamma bada yatatanna.pdf" },
+      { "label": "Approcher le rythme arabe (PDF)", "file": "materielchansons/Approcher le rythme arabe.pdf" }
     ],
     "visible_lavoixlibre": true
   }
