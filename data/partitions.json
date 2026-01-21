@@ -230,4 +230,14 @@
     ],
     "visible_lavoixlibre": true
   }
+  ,
+  {
+    "title": "Joshua Fit the Battle",
+    "documents": [
+      {
+        "label": "Partition (PDF)",
+        "file": "materielchansons/joshua-fit-the-battle-of-jericho-partition.pdf"
+      }
+    ]
+  }
 ]
