@@ -226,7 +226,11 @@
     "title": "Lamma Bada Tatayana",
     "documents": [
       { "label": "Partition (PDF)", "file": "materielchansons/lamma bada yatatanna.pdf" },
-      { "label": "Approcher le rythme arabe (PDF)", "file": "materielchansons/Approcher le rythme arabe.pdf" }
+      { "label": "Approcher le rythme arabe (PDF)", "file": "materielchansons/Approcher le rythme arabe.pdf" },
+      { "label": "écouter le rythme", "file": "https://maqamworld.com/fr/iqaa/samai_thaqil.php" }
+    ],
+    "recordings": [
+      { "label": "prononciation Alia", "file": "materielchansons/lamma-bada-prononciation-alia.m4a" }
     ],
     "visible_lavoixlibre": true
   }
