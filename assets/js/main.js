@@ -144,9 +144,9 @@ function getCurrentPageId() {
 })();
 
 function mapPageIdToHref(id) {
-  // Special routing rules
   if (id === 'partitions') return 'espace-choristes.html';
-  if (id === 'index') return 'index.html';
+  if (id === 'index')      return 'index.html';
+  if (id === 'evenements') return 'index.html#evenements';
   return `${id}.html`;
 }
 
@@ -160,12 +160,12 @@ function navLabelForPage(page) {
 }
 
 function computeNavOrder(pages) {
-  // Desired primary order, then the rest as found in JSON
-  const desiredOrder = ['chorale-pop', 'soul', 'comedie-musicale', 'cours-de-chant', 'nous-rejoindre', 'evenements', 'galerie', 'partitions'];
-  // Exclude hidden pages from navigation
-  const visiblePages = pages.filter(p => !p.hidden);
+  // chorale-pop et comedie-musicale sont dans la page d'accueil, pas dans le nav
+  const hideFromNav  = new Set(['chorale-pop', 'comedie-musicale']);
+  const desiredOrder = ['soul', 'nous-rejoindre', 'evenements', 'galerie', 'partitions'];
+  const visiblePages = pages.filter(p => !p.hidden && !hideFromNav.has(p.id));
   const byId = Object.fromEntries(visiblePages.map(p => [p.id, p]));
-  const ordered = desiredOrder.filter(id => byId[id]).map(id => byId[id]);
+  const ordered  = desiredOrder.filter(id => byId[id]).map(id => byId[id]);
   const remaining = visiblePages.filter(p => !desiredOrder.includes(p.id));
   return [...ordered, ...remaining];
 }
@@ -189,7 +189,7 @@ function renderHeader(currentPageId) {
   const h1Text = isHome ? (siteTitleCfg?.valeur || '') : '';
   const subText = isHome ? (subTitleCfg?.valeur || '') : '';
 
-  const navHTML = isHome ? '' : '<nav class="main-nav" aria-label="Navigation principale">\
+  const navHTML = '<nav class="main-nav" aria-label="Navigation principale">\
     <button class="mobile-menu-toggle" aria-expanded="false" aria-controls="main-menu" aria-label="Ouvrir le menu">☰</button>\
     <ul class="nav-links" id="main-menu"></ul>\
   </nav>';
@@ -362,18 +362,25 @@ function renderNav(currentPageId) {
   const navList = nav ? nav.querySelector('.nav-links') : null;
   if (!navList || !Array.isArray(pagesData)) return;
   navList.innerHTML = '';
+
+  // Lien "La Voix Libre" → accueil (masqué si déjà sur la homepage)
+  if (currentPageId !== 'index') {
+    const liHome = document.createElement('li');
+    const aHome  = document.createElement('a');
+    aHome.href = 'index.html';
+    aHome.textContent = 'La Voix Libre';
+    liHome.appendChild(aHome);
+    navList.appendChild(liHome);
+  }
+
   const items = computeNavOrder(pagesData);
   items.forEach(page => {
     const li = document.createElement('li');
-    const a = document.createElement('a');
+    const a  = document.createElement('a');
     a.href = mapPageIdToHref(page.id);
     a.textContent = navLabelForPage(page);
-    // Active state
-    const isActive = (currentPageId === page.id) || (currentPageId === 'index' && page.id === 'index');
-    // Ne pas afficher l'onglet de la page courante
-    if (isActive) {
-      return; // skip
-    }
+    const isActive = (currentPageId === page.id);
+    if (isActive) return; // ne pas afficher la page courante
     li.appendChild(a);
     navList.appendChild(li);
   });
@@ -675,104 +682,315 @@ async function fetchPostsFromCSV(csvUrl) {
   }
 
   function generateHomeTiles() {
-    const tilesGrid = document.getElementById('main-tiles-grid');
-    if (!tilesGrid || !pagesData) return;
+    const tilesGrid   = document.getElementById('main-tiles-grid');
+    const homeContent = document.getElementById('home-chorale-content');
+    if (!pagesData) return;
 
-    tilesGrid.innerHTML = '';
-    // Nouvel ordre : Chorale Pop, Soul, Comédie Musicale, Cours de chant, puis le reste
-    const desiredOrder = [
-      'chorale-pop',
-      'soul',
-      'comedie-musicale',
-      'cours-de-chant'
-    ];
-    // Ajoute les tuiles principales dans l'ordre
-    desiredOrder.forEach(pageId => {
-      const page = pagesData.find(p => p.id === pageId);
-      // Skip if page not present or explicitly hidden
-      if (!page || page.hidden || !page.image || !page.page_title || !page.page_subtitle) return;
-      const tileLink = document.createElement('a');
-      // Correction pour la tuile Espace choristes
-      if (page.id === 'partitions') {
-        tileLink.href = 'espace-choristes.html';
-      } else {
-        tileLink.href = `${page.id}.html`;
-      }
-      tileLink.classList.add('tile');
-      const imgJpg = `${ASSETS_BASE_URL}images/${page.image}`;
-      const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
-      tileLink.innerHTML = `
-        <picture>
-          <source srcset="${imgWebp}" type="image/webp">
-          <img src="${imgJpg}" alt="${page.page_title}" loading="lazy" decoding="async">
-        </picture>
-        <div class="overlay">
-          <p class="overlay-title">${page.page_title}</p>
-          <p class="overlay-subtitle">${page.page_subtitle}</p>
-        </div>
-      `;
-      tilesGrid.appendChild(tileLink);
-    });
-    // Ajoute les autres tuiles (événements, vidéos, partitions, etc.) dans l'ordre du JSON
-    pagesData.forEach(page => {
-      if (page.hidden) return; // skip hidden pages from home tiles
-      if (desiredOrder.includes(page.id)) return; // déjà affiché
-      if (!page.id || !page.page_title || !page.page_subtitle) return;
-      const tileLink = document.createElement('a');
-      if (page.id === 'partitions') {
-        tileLink.href = 'espace-choristes.html';
-      } else {
-        tileLink.href = `${page.id}.html`;
-      }
-      tileLink.classList.add('tile');
-  if (page.id === 'nous-rejoindre') {
-        tileLink.style.background = 'var(--background-light)';
-        tileLink.style.display = 'flex';
-        tileLink.style.flexDirection = 'column';
-        tileLink.style.justifyContent = 'flex-end';
-        tileLink.style.alignItems = 'center';
-        tileLink.style.position = 'relative';
-        tileLink.style.height = '300px';
-        tileLink.style.borderRadius = '18px';
-        tileLink.style.boxShadow = '0 8px 24px rgba(255,102,153,0.18), 0 2px 12px rgba(0,0,0,0.10)';
-        tileLink.style.margin = '0';
-        tileLink.style.border = '4px solid var(--accent-color-primary)';
-        tileLink.style.transition = 'transform 0.2s, box-shadow 0.2s';
-        tileLink.innerHTML = `
-          <div class="overlay" style="background:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;height:100%;">
-            <p class="overlay-title" style="color:var(--accent-color-complementary);font-size:2.6rem;font-family:'Lobster',cursive;font-weight:bold;margin-bottom:0.5rem;letter-spacing:1px;text-shadow:2px 4px 12px rgba(255,102,153,0.18),0 2px 8px rgba(0,0,0,0.10);">${page.tile_overlay_title}! </p>
-            <p class="overlay-subtitle" style="opacity:0;transition:opacity 0.3s ease;font-size:1.35rem;color:var(--accent-color-primary);font-weight:bold;text-align:center;">${page.tile_overlay_subtitle}</p>
-          </div>
-        `;
-        // Effet 3D au survol
-        tileLink.addEventListener('mouseenter', function() {
-          const subtitle = tileLink.querySelector('.overlay-subtitle');
-          if (subtitle) subtitle.style.opacity = '0.9';
-          tileLink.style.transform = 'scale(1.04) translateY(-8px)';
-          tileLink.style.boxShadow = '0 16px 32px rgba(255,102,153,0.22), 0 4px 16px rgba(0,0,0,0.14)';
-        });
-        tileLink.addEventListener('mouseleave', function() {
-          const subtitle = tileLink.querySelector('.overlay-subtitle');
-          if (subtitle) subtitle.style.opacity = '0';
-          tileLink.style.transform = 'scale(1)';
-          tileLink.style.boxShadow = '0 8px 24px rgba(255,102,153,0.18), 0 2px 12px rgba(0,0,0,0.10)';
-        });
-      } else if (page.image) {
-        const imgJpg2 = `${ASSETS_BASE_URL}images/${page.image}`;
-        const imgWebp2 = imgJpg2.replace(/\.[a-zA-Z0-9]+$/, '.webp');
-        tileLink.innerHTML = `
+    // === SECTION 1 : Contenu grande chorale + bloc comédie musicale ===
+    if (homeContent) {
+      homeContent.innerHTML = '';
+      const choralePopPage = pagesData.find(p => p.id === 'chorale-pop');
+      const comediePage    = pagesData.find(p => p.id === 'comedie-musicale');
+
+      // --- Chorale : hero image ---
+      if (choralePopPage && choralePopPage.image) {
+        const hero = document.createElement('div');
+        hero.className = 'home-hero';
+        const imgJpg  = `${ASSETS_BASE_URL}images/${choralePopPage.image}`;
+        const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
+        hero.innerHTML = `
           <picture>
-            <source srcset="${imgWebp2}" type="image/webp">
-            <img src="${imgJpg2}" alt="${page.page_title}" loading="lazy" decoding="async">
+            <source srcset="${imgWebp}" type="image/webp">
+            <img src="${imgJpg}" alt="${choralePopPage.page_title}" loading="eager" decoding="async">
           </picture>
-          <div class="overlay">
-            <p class="overlay-title">${page.page_title}</p>
-            <p class="overlay-subtitle">${page.page_subtitle}</p>
-          </div>
-        `;
+          <div class="home-hero-overlay">
+            <p class="home-hero-tag">Chœur pop à Rennes depuis 2017</p>
+          </div>`;
+        homeContent.appendChild(hero);
       }
-      tilesGrid.appendChild(tileLink);
-    });
+
+      // --- Chorale : paragraphes + chips infos pratiques ---
+      if (choralePopPage) {
+        const INFO_RE   = /^(Répétitions|Lieu|Tarif|Horaires|Contact)\s*:/i;
+        const CHIP_ICON = { répétitions:'🗓', lieu:'📍', tarif:'💶', horaires:'⏰', contact:'✉️' };
+        const paras = [], chips = [];
+        (choralePopPage.page_content || []).forEach(txt => {
+          if (!txt || !txt.trim()) return;
+          const m = txt.match(/^([A-ZÀ-Ÿa-zàâäéèêëïîôöùûü]+)\s*:/i);
+          if (INFO_RE.test(txt) && m) {
+            const key  = m[1].toLowerCase();
+            chips.push((CHIP_ICON[key] || '•') + ' ' + txt.replace(/^[^:]+:\s*/, ''));
+          } else {
+            paras.push(txt);
+          }
+        });
+        paras.slice(0, 3).forEach(txt => {
+          const p = document.createElement('p');
+          p.className = 'home-intro-text';
+          p.textContent = txt;
+          homeContent.appendChild(p);
+        });
+        if (chips.length) {
+          const wrap = document.createElement('div');
+          wrap.className = 'home-info-chips';
+          chips.forEach(c => {
+            const s = document.createElement('span');
+            s.className = 'home-info-chip';
+            s.textContent = c;
+            wrap.appendChild(s);
+          });
+          homeContent.appendChild(wrap);
+        }
+      }
+
+      // --- Comédie musicale ---
+      if (comediePage) {
+        // Séparateur de section
+        const divider = document.createElement('div');
+        divider.className = 'home-section-divider';
+        divider.innerHTML = '<h2>Comédie musicale</h2>';
+        homeContent.appendChild(divider);
+
+        // Carte image + texte
+        const card    = document.createElement('div');
+        card.className = 'home-comedie-card';
+        const imgJpg  = `${ASSETS_BASE_URL}images/comediemusicale.jpg`;
+        const imgWebp = imgJpg.replace('.jpg', '.webp');
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'home-comedie-img-wrap';
+        imgWrap.innerHTML = `<picture><source srcset="${imgWebp}" type="image/webp"><img src="${imgJpg}" alt="Comédie musicale La Voix Libre" loading="lazy" decoding="async"></picture>`;
+        const body  = document.createElement('div');
+        body.className = 'home-comedie-body';
+        const desc  = document.createElement('p');
+        desc.textContent = 'En plus de ses activités chorales, La Voix Libre produit régulièrement des comédies musicales amateurs : spectacles complets avec chant, jeu scénique, costumes et décors, préparés en équipe sur toute une saison.';
+        const ctaBtn = document.createElement('button');
+        ctaBtn.className = 'home-cta-btn';
+        ctaBtn.textContent = 'En savoir plus ↓';
+        ctaBtn.setAttribute('aria-expanded', 'false');
+        body.appendChild(desc);
+        body.appendChild(ctaBtn);
+        card.appendChild(imgWrap);
+        card.appendChild(body);
+        homeContent.appendChild(card);
+
+        // Accordéon dépliable
+        const expand = document.createElement('div');
+        expand.className = 'home-comedie-expand';
+        (comediePage.page_content || []).forEach(txt => {
+          if (!txt || !txt.trim()) return;
+          const p = document.createElement('p'); p.textContent = txt; expand.appendChild(p);
+        });
+        (comediePage.specific_content || []).forEach(sc => {
+          if (sc.type !== 'list') return;
+          if (sc.title) { const h3 = document.createElement('h3'); h3.textContent = sc.title; expand.appendChild(h3); }
+          const ul = document.createElement('ul');
+          (sc.items || []).forEach(item => { const li = document.createElement('li'); li.textContent = item; ul.appendChild(li); });
+          expand.appendChild(ul);
+        });
+        ctaBtn.addEventListener('click', () => {
+          const open = expand.style.display !== 'none';
+          expand.style.display = open ? 'none' : 'block';
+          ctaBtn.textContent   = open ? 'En savoir plus ↓' : 'Masquer ↑';
+          ctaBtn.setAttribute('aria-expanded', String(!open));
+          if (!open) expand.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+        homeContent.appendChild(expand);
+      }
+    }
+
+    // === SECTION 2 : Concerts & événements (depuis Google Agenda) ===
+    loadHomeEvents(homeContent);
+  }
+
+  // Constantes Google Agenda — Grande Chorale uniquement
+  const _HOME_CAL_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+  const _HOME_CAL_ID  = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
+  const _HOME_KW = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pique[- ]?nique)/i;
+  const _JOURS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const _MOIS_L  = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const _MOIS_C  = ['jan','fév','mar','avr','mai','jun','juil','août','sep','oct','nov','déc'];
+  // Format identique au sélecteur d'upload (espace-choristes) pour la correspondance photos ↔ événements
+  const _K_JOURS = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+  const _K_MOIS  = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+
+  async function loadHomeEvents(container) {
+    if (!container) return;
+
+    const section = document.createElement('section');
+    section.id = 'evenements';
+    section.style.cssText = 'margin-top:40px;scroll-margin-top:80px;';
+    section.innerHTML = `
+      <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-primary);font-size:1.9rem;margin:0 0 6px 0;">Concerts &amp; événements</h2>
+      <p style="color:#666;margin:0 0 22px 0;font-size:0.97rem;">Prochaines dates de La Voix Libre à Rennes et alentours.</p>
+      <div id="home-events-upcoming"></div>
+      <h3 style="font-family:'Lobster',cursive;color:#aaa;font-size:1.4rem;margin:32px 0 12px 0;">Événements passés</h3>
+      <div id="home-events-past"></div>`;
+    container.appendChild(section);
+
+    const upEl = section.querySelector('#home-events-upcoming');
+    const paEl = section.querySelector('#home-events-past');
+    const skel = h => `<div style="height:${h}px;border-radius:12px;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;margin-bottom:10px;"></div>`;
+    if (upEl) upEl.innerHTML = skel(72) + skel(80) + skel(64);
+    if (paEl) paEl.innerHTML = skel(50) + skel(50);
+
+    // ---- Chargement des photos (groupées par concert) ----
+    const photosByKey = {};
+    try {
+      const ep = (typeof window !== 'undefined' && window.PHOTOS_ENDPOINT) || '';
+      if (ep && !ep.startsWith('REMPLACER')) {
+        const pd = await fetch(ep + (ep.includes('?') ? '&' : '?') + 'action=gallery_list', { cache: 'no-store' }).then(r => r.json());
+        (pd.photos || []).forEach(p => {
+          const k = (p.concert || '').trim();
+          if (!photosByKey[k]) photosByKey[k] = [];
+          photosByKey[k].push(p);
+        });
+      }
+    } catch(e) { /* photos non disponibles */ }
+
+    // ---- Chargement des événements (Grande Chorale uniquement) ----
+    const now  = new Date();
+    const tMin = new Date(now.getTime() - 365*24*3600*1000).toISOString();
+    const tMax = new Date(now.getTime() + 2*365*24*3600*1000).toISOString();
+    let allEvents = [];
+    try {
+      const url = 'https://www.googleapis.com/calendar/v3/calendars/'
+        + encodeURIComponent(_HOME_CAL_ID)
+        + '/events?key=' + _HOME_CAL_KEY
+        + '&timeMin=' + encodeURIComponent(tMin)
+        + '&timeMax=' + encodeURIComponent(tMax)
+        + '&maxResults=200&orderBy=startTime&singleEvents=true';
+      const data = await fetch(url).then(r => r.json());
+      allEvents = (data.items || []).filter(ev => _HOME_KW.test(ev.summary || ''));
+      allEvents.forEach(ev => { ev._ts = new Date(ev.start.dateTime || ev.start.date).getTime(); });
+    } catch(e) { /* silencieux */ }
+
+    const oneYearAgo = now.getTime() - 365*24*3600*1000;
+    const upcoming = allEvents.filter(ev => ev._ts >= now.getTime()).sort((a,b) => a._ts - b._ts);
+    const past     = allEvents.filter(ev => ev._ts < now.getTime() && ev._ts >= oneYearAgo).sort((a,b) => b._ts - a._ts);
+
+    // ---- Helpers ----
+    function evDate(ev) { return new Date(ev.start.dateTime || ev.start.date); }
+    function fullDate(ev) {
+      const d = evDate(ev);
+      let s = _JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + _MOIS_L[d.getMonth()] + ' ' + d.getFullYear();
+      if (ev.start.dateTime) {
+        const h = d.getHours().toString().padStart(2,'0');
+        const m = d.getMinutes().toString().padStart(2,'0');
+        s += ' à ' + h + 'h' + (m !== '00' ? m : '');
+      }
+      return s;
+    }
+    function esc(s) { return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c)); }
+    function concertKey(ev) {
+      const d = evDate(ev);
+      return (ev.summary||'Concert') + ' – ' + _K_JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + _K_MOIS[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    // ---- Lightbox inline ----
+    function ensureLightbox() {
+      let lb = document.getElementById('ev-lightbox');
+      if (lb) return lb;
+      lb = document.createElement('div');
+      lb.id = 'ev-lightbox';
+      lb.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.90);z-index:10000;align-items:center;justify-content:center;padding:16px;flex-direction:column;';
+      lb.innerHTML = '<button id="ev-lb-close" style="position:absolute;top:14px;right:18px;background:none;border:none;color:#fff;font-size:2.2rem;cursor:pointer;line-height:1;">&times;</button>'
+        + '<img id="ev-lb-img" src="" alt="" style="max-width:min(92vw,1200px);max-height:88vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.7);">';
+      document.body.appendChild(lb);
+      const close = () => { lb.style.display = 'none'; document.body.style.overflow = ''; };
+      lb.querySelector('#ev-lb-close').addEventListener('click', close);
+      lb.addEventListener('click', e => { if (e.target === lb) close(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && lb.style.display !== 'none') close(); });
+      return lb;
+    }
+    function openPhoto(fileId) {
+      const lb = ensureLightbox();
+      lb.querySelector('#ev-lb-img').src = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1600';
+      lb.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    // ---- Miniatures photos ----
+    function createThumbs(photos) {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.07);';
+      photos.forEach(p => {
+        const img = document.createElement('img');
+        img.src = 'https://drive.google.com/thumbnail?id=' + p.fileId + '&sz=w120';
+        img.alt = p.concert || '';
+        img.loading = 'lazy';
+        img.style.cssText = 'width:72px;height:72px;object-fit:cover;border-radius:6px;cursor:pointer;transition:transform .2s,opacity .2s;';
+        img.addEventListener('mouseenter', () => { img.style.transform = 'scale(1.08)'; img.style.opacity = '.88'; });
+        img.addEventListener('mouseleave', () => { img.style.transform = ''; img.style.opacity = '1'; });
+        img.addEventListener('click',      () => openPhoto(p.fileId));
+        wrap.appendChild(img);
+      });
+      return wrap;
+    }
+
+    // ---- Carte événement à venir ----
+    function createCardUp(ev) {
+      const d    = evDate(ev);
+      const div  = document.createElement('div');
+      div.style.cssText = 'display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,#fff0f5,#f5eaff);border-left:4px solid var(--accent-color-primary);margin-bottom:12px;box-shadow:0 2px 8px rgba(255,102,153,0.10);';
+      const loc  = ev.location    ? `<div style="font-size:.85rem;color:#666;margin-top:3px;">📍 ${esc(ev.location)}</div>` : '';
+      const desc = ev.description ? `<div style="font-size:.85rem;color:#555;margin-top:5px;line-height:1.5;">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
+      div.innerHTML = `
+        <div style="background:var(--accent-color-primary);color:#fff;border-radius:10px;padding:7px 10px;text-align:center;min-width:46px;flex-shrink:0;line-height:1.15;">
+          <div style="font-size:1.4rem;font-weight:800;">${d.getDate()}</div>
+          <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;">${_MOIS_C[d.getMonth()]}</div>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:.88rem;color:var(--accent-color-complementary);font-weight:600;margin-bottom:2px;">${esc(fullDate(ev))}</div>
+          <div style="font-weight:700;font-size:1rem;color:#222;">${esc(ev.summary||'')}</div>
+          ${loc}${desc}
+        </div>`;
+      return div;
+    }
+
+    // ---- Carte événement passé ----
+    function createCardPast(ev) {
+      const d   = evDate(ev);
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:10px 14px;border-radius:10px;background:#f5f5f5;border-left:3px solid #ccc;margin-bottom:10px;';
+      const loc  = ev.location    ? ` · ${esc(ev.location)}` : '';
+      const desc = ev.description ? `<div style="font-size:.82rem;color:#666;margin-top:4px;line-height:1.5;">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
+      div.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="background:#bbb;color:#fff;border-radius:8px;padding:5px 8px;text-align:center;min-width:38px;flex-shrink:0;line-height:1.15;">
+            <div style="font-size:1.1rem;font-weight:700;">${d.getDate()}</div>
+            <div style="font-size:.68rem;text-transform:uppercase;">${_MOIS_C[d.getMonth()]}</div>
+          </div>
+          <div style="opacity:.78;flex:1;min-width:0;">
+            <div style="font-weight:600;color:#555;font-size:.94rem;">${esc(ev.summary||'')}</div>
+            <div style="font-size:.82rem;color:#888;">${_JOURS[d.getDay()]} ${d.getDate()} ${_MOIS_L[d.getMonth()]} ${d.getFullYear()}${loc}</div>
+            ${desc}
+          </div>
+        </div>`;
+      return div;
+    }
+
+    // ---- Rendu ----
+    if (upEl) {
+      upEl.innerHTML = '';
+      if (!upcoming.length) {
+        upEl.innerHTML = '<p style="color:#888;font-style:italic;padding:6px 0;">Aucun concert annoncé pour le moment. Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
+      } else {
+        upcoming.forEach(ev => upEl.appendChild(createCardUp(ev)));
+      }
+    }
+    if (paEl) {
+      paEl.innerHTML = '';
+      if (!past.length) {
+        paEl.innerHTML = '<p style="color:#aaa;font-style:italic;">Aucun événement passé dans l\'agenda.</p>';
+      } else {
+        past.forEach(ev => {
+          const card   = createCardPast(ev);
+          const photos = photosByKey[concertKey(ev)] || [];
+          if (photos.length) card.appendChild(createThumbs(photos));
+          paEl.appendChild(card);
+        });
+      }
+    }
   }
 
   function generatePageContent(pageId) {
@@ -1010,11 +1228,6 @@ async function fetchPostsFromCSV(csvUrl) {
               // (Autoplay direct retiré pour compatibilité navigateurs; la relance muette ci-dessus suffit.)
             }
 
-            // Lien interne vers page dédiée "cours de chant lyrique à Rennes"
-            const internalLink = document.createElement('p');
-            internalLink.style.marginTop = '8px';
-            internalLink.innerHTML = 'Vous cherchez spécifiquement des <a href="/cours-de-chant-lyrique-rennes.html">cours de chant lyrique à Rennes</a> ? Consultez notre page dédiée.';
-            textDiv.appendChild(internalLink);
 
             // Ajout des contacts
             const contactBlock = page.specific_content.find(sc => sc.type === 'contact');
@@ -1855,9 +2068,7 @@ async function init() {
   // Render unified header/nav/footer
   const currentPageId = getCurrentPageId();
   renderHeader(currentPageId);
-  if (currentPageId !== 'index') {
-    renderNav(currentPageId);
-  }
+  renderNav(currentPageId);
   renderFooter();
   
   // Apply global config (sets document.title, logo fallback, social links if present)

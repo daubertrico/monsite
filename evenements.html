@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Événements La Voix Libre à Rennes : concerts, stages, ateliers vocaux, gospel, polyphonie, chorale, chant collectif, convivialité et partage.">
-    <title>La Voix Libre - Événements</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Événements La Voix Libre à Rennes : concerts, stages, ateliers vocaux, gospel, polyphonie, chorale, chant collectif.">
+  <title>La Voix Libre – Événements</title>
   <link rel="canonical" href="https://chanterlavoixlibre.fr/evenements.html" />
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="La Voix Libre – chant chorale à Rennes">
@@ -16,22 +16,257 @@
   <meta name="twitter:title" content="Événements – La Voix Libre">
   <meta name="twitter:description" content="Concerts, stages, ateliers vocaux à Rennes.">
   <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20250811">
-      <!-- Google tag (gtag.js) -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
-      <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);} 
-        gtag('js', new Date());
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=20250811">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-928718843');
+  </script>
+  <style>
+    /* ---- Carte événement à venir ---- */
+    .event-card-upcoming {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fff0f5, #f5eaff);
+      border-left: 4px solid var(--accent-color-primary);
+      margin-bottom: 14px;
+      box-shadow: 0 2px 10px rgba(255,102,153,0.12);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .event-card-upcoming:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(255,102,153,0.18);
+    }
+    .event-date-badge {
+      background: var(--accent-color-primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 8px 12px;
+      text-align: center;
+      min-width: 52px;
+      flex-shrink: 0;
+      line-height: 1.2;
+    }
+    .event-date-badge .day   { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .event-date-badge .month { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .event-title-upcoming { font-weight: 700; font-size: 1.05rem; color: #222; margin-bottom: 2px; }
+    .event-meta { font-size: 0.88rem; color: var(--accent-color-complementary); font-weight: 600; margin-bottom: 2px; }
+    .event-location { font-size: 0.88rem; color: #666; }
+    .event-badge-soul {
+      display: inline-block;
+      margin-left: 8px;
+      background: #8844aa;
+      color: #fff;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      padding: 1px 8px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
 
-        gtag('config', 'AW-928718843');
-      </script>
+    /* ---- Carte événement passé ---- */
+    .event-card-past {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f5f5f5;
+      border-left: 3px solid #ccc;
+      margin-bottom: 8px;
+      opacity: 0.72;
+    }
+    .event-card-past .event-date-badge {
+      background: #bbb;
+      min-width: 44px;
+      padding: 6px 8px;
+    }
+    .event-card-past .day   { font-size: 1.2rem; }
+    .event-title-past  { font-weight: 600; color: #555; font-size: 0.97rem; }
+    .event-meta-past   { font-size: 0.83rem; color: #888; }
+
+    /* ---- Skeleton loader ---- */
+    .event-skeleton {
+      height: 72px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ---- Section titres ---- */
+    .events-section-title {
+      font-family: 'Lobster', cursive;
+      font-size: 1.8rem;
+      margin: 0 0 16px 0;
+    }
+    .events-section-title.upcoming { color: var(--accent-color-primary); }
+    .events-section-title.past     { color: #999; font-size: 1.5rem; margin-top: 40px; }
+
+    @media (max-width: 600px) {
+      .event-card-upcoming, .event-card-past { flex-wrap: wrap; gap: 10px; }
+    }
+  </style>
 </head>
 <body class="internal-page">
   <main class="main-content">
-    <div id="page-content-container"></div>
+    <div id="page-content-container" data-static="true">
+
+      <p style="color:#555;margin:0 0 28px 0;">
+        Concerts, spectacles et événements de La Voix Libre et S.O.U.L. à Rennes et alentours.
+      </p>
+
+      <!-- Prochains événements -->
+      <section aria-labelledby="title-upcoming">
+        <h2 id="title-upcoming" class="events-section-title upcoming">Prochains concerts &amp; événements</h2>
+        <div id="events-upcoming-list">
+          <div class="event-skeleton"></div>
+          <div class="event-skeleton" style="height:80px;"></div>
+          <div class="event-skeleton" style="height:64px;"></div>
+        </div>
+      </section>
+
+      <!-- Événements passés -->
+      <section aria-labelledby="title-past">
+        <h2 id="title-past" class="events-section-title past">Événements passés</h2>
+        <div id="events-past-list">
+          <div class="event-skeleton" style="height:56px;opacity:.5;"></div>
+          <div class="event-skeleton" style="height:56px;opacity:.4;"></div>
+        </div>
+      </section>
+
+    </div>
   </main>
+
   <script src="assets/js/main.js?v=20250811"></script>
+  <script>
+    const CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+    const CALENDARS = [
+      { id: '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com', label: 'Grande Chorale' },
+      { id: '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com', label: 'SOUL' }
+    ];
+    const CONCERT_KW = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pique[- ]?nique)/i;
+
+    const JOURS  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    const MOIS_L = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    const MOIS_C = ['jan','fév','mar','avr','mai','jun','juil','août','sep','oct','nov','déc'];
+
+    function parseDate(ev) {
+      return new Date(ev.start.dateTime || ev.start.date);
+    }
+
+    function formatFullDate(ev) {
+      const d = parseDate(ev);
+      let s = JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS_L[d.getMonth()] + ' ' + d.getFullYear();
+      if (ev.start.dateTime) {
+        const h = d.getHours().toString().padStart(2,'0');
+        const m = d.getMinutes().toString().padStart(2,'0');
+        s += ' à ' + h + 'h' + (m !== '00' ? m : '');
+      }
+      return s;
+    }
+
+    function esc(s) { return (s||'').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c)); }
+
+    function cardUpcoming(ev) {
+      const d = parseDate(ev);
+      const loc = ev.location ? `<div class="event-location">📍 ${esc(ev.location)}</div>` : '';
+      const soul = ev._calLabel === 'SOUL' ? '<span class="event-badge-soul">SOUL</span>' : '';
+      return `
+        <div class="event-card-upcoming">
+          <div class="event-date-badge" aria-hidden="true">
+            <div class="day">${d.getDate()}</div>
+            <div class="month">${MOIS_C[d.getMonth()]}</div>
+          </div>
+          <div>
+            <div class="event-meta">${esc(formatFullDate(ev))}</div>
+            <div class="event-title-upcoming">${esc(ev.summary || '')}${soul}</div>
+            ${loc}
+          </div>
+        </div>`;
+    }
+
+    function cardPast(ev) {
+      const d = parseDate(ev);
+      const loc = ev.location ? ` · ${esc(ev.location)}` : '';
+      const soul = ev._calLabel === 'SOUL' ? ' <span class="event-badge-soul" style="background:#aaa;">SOUL</span>' : '';
+      return `
+        <div class="event-card-past">
+          <div class="event-date-badge" aria-hidden="true">
+            <div class="day">${d.getDate()}</div>
+            <div class="month">${MOIS_C[d.getMonth()]}</div>
+          </div>
+          <div>
+            <div class="event-title-past">${esc(ev.summary || '')}${soul}</div>
+            <div class="event-meta-past">${esc(JOURS[d.getDay()])} ${d.getDate()} ${MOIS_L[d.getMonth()]} ${d.getFullYear()}${loc}</div>
+          </div>
+        </div>`;
+    }
+
+    async function loadEvents() {
+      const now    = new Date();
+      const tMin   = new Date(now.getTime() - 365 * 24 * 3600 * 1000).toISOString();
+      const tMax   = new Date(now.getTime() + 2  * 365 * 24 * 3600 * 1000).toISOString();
+      const all    = [];
+
+      for (const cal of CALENDARS) {
+        try {
+          const url = 'https://www.googleapis.com/calendar/v3/calendars/'
+            + encodeURIComponent(cal.id)
+            + '/events?key=' + CAL_API_KEY
+            + '&timeMin=' + encodeURIComponent(tMin)
+            + '&timeMax=' + encodeURIComponent(tMax)
+            + '&maxResults=200&orderBy=startTime&singleEvents=true';
+          const data = await fetch(url).then(r => r.json());
+          (data.items || []).forEach(ev => {
+            if (!CONCERT_KW.test(ev.summary || '')) return;
+            ev._calLabel = cal.label;
+            ev._ts = parseDate(ev).getTime();
+            all.push(ev);
+          });
+        } catch (e) { console.warn('Calendar fetch failed', cal.label, e); }
+      }
+
+      // Déduplique (même titre + même date dans les 2 agendas)
+      const seen   = new Set();
+      const unique = all.filter(ev => {
+        const k = (ev.summary || '') + '|' + (ev.start.dateTime || ev.start.date || '');
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+
+      const oneYearAgo = now.getTime() - 365*24*3600*1000;
+      const upcoming = unique.filter(ev => ev._ts >= now.getTime()).sort((a,b) => a._ts - b._ts);
+      const past     = unique.filter(ev => ev._ts < now.getTime() && ev._ts >= oneYearAgo).sort((a,b) => b._ts - a._ts);
+
+      const upEl = document.getElementById('events-upcoming-list');
+      const paEl = document.getElementById('events-past-list');
+
+      if (upEl) {
+        upEl.innerHTML = upcoming.length
+          ? upcoming.map(cardUpcoming).join('')
+          : '<p style="color:#888;font-style:italic;padding:8px 0;">Aucun concert annoncé pour le moment.<br>Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
+      }
+      if (paEl) {
+        paEl.innerHTML = past.length
+          ? past.map(cardPast).join('')
+          : '<p style="color:#aaa;font-style:italic;">Aucun événement passé dans l\'agenda.</p>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadEvents);
+  </script>
 </body>
 </html>

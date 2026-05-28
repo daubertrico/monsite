@@ -1652,3 +1652,182 @@ body.page-soul header.main-header, body.page-soul main, body.page-soul .main-con
     body.page-soul h1 { font-size: 1.8rem; }
 }
 
+/* ============================================================
+   Page d'accueil — redesign
+   ============================================================ */
+
+/* Hero image chorale */
+.home-hero {
+  position: relative;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  height: 300px;
+  margin-bottom: 1.6rem;
+}
+.home-hero picture,
+.home-hero img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.home-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(0,0,0,0.04) 55%, rgba(0,0,0,0.46) 100%);
+  display: flex; align-items: flex-end;
+  padding: 20px 24px;
+}
+.home-hero-tag {
+  display: inline-block;
+  color: #fff;
+  font-size: .84rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  background: rgba(255,102,153,0.78);
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin: 0;
+}
+
+/* Texte intro chorale */
+.home-intro-text {
+  font-size: 1.02rem;
+  line-height: 1.85;
+  color: #444;
+  max-width: 800px;
+  margin-bottom: .85rem;
+}
+
+/* Chips infos pratiques */
+.home-info-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 2.4rem 0;
+}
+.home-info-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  background: #f3e8ff;
+  color: #6b21a8;
+  border-radius: 999px;
+  font-size: .87rem;
+  font-weight: 600;
+  border: 1px solid rgba(136,68,170,.14);
+}
+
+/* Séparateur de section avec titre */
+.home-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 1.2rem 0;
+}
+.home-section-divider h2 {
+  font-family: 'Lobster', cursive;
+  font-size: 1.55rem;
+  color: var(--accent-color-complementary);
+  margin: 0;
+  white-space: nowrap;
+}
+.home-section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(136,68,170,.25), transparent);
+}
+
+/* Carte comédie musicale */
+.home-comedie-card {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 18px rgba(0,0,0,.07);
+  border: 1px solid rgba(136,68,170,.09);
+}
+.home-comedie-img-wrap {
+  flex: 0 0 220px;
+  overflow: hidden;
+}
+.home-comedie-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .35s ease;
+}
+.home-comedie-img-wrap:hover img { transform: scale(1.04); }
+.home-comedie-body {
+  flex: 1;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+}
+.home-comedie-body > p {
+  font-size: .98rem;
+  line-height: 1.75;
+  color: #444;
+  margin: 0 0 16px 0;
+}
+.home-cta-btn {
+  align-self: flex-start;
+  padding: 8px 20px;
+  background: var(--accent-color-complementary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: .93rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .2s;
+}
+.home-cta-btn:hover { background: var(--accent-color-primary); }
+
+/* Accordéon comédie */
+.home-comedie-expand {
+  display: none;
+  padding: 22px 26px;
+  background: #faf5ff;
+  border: 1px solid rgba(136,68,170,.09);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  margin-top: -1px;
+}
+.home-comedie-expand p  { font-size: .97rem; line-height: 1.78; color: #444; margin-bottom: .85rem; }
+.home-comedie-expand h3 { font-family: 'Lobster',cursive; color: #8844aa; font-size: 1.12rem; margin: 14px 0 5px 0; }
+.home-comedie-expand ul { padding-left: 18px; margin: 0 0 10px 0; }
+.home-comedie-expand li { font-size: .93rem; color: #555; margin-bottom: 3px; line-height: 1.55; }
+
+/* Section événements */
+#evenements > h2 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+#evenements > h2::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(255,102,153,.3), transparent);
+}
+#evenements > h3 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+#evenements > h3::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(0,0,0,.1), transparent);
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .home-hero { height: 200px; }
+  .home-comedie-card { flex-direction: column; }
+  .home-comedie-img-wrap { flex: none; width: 100%; height: 180px; }
+  .home-comedie-body { padding: 16px; }
+  .home-comedie-expand { padding: 16px; }
+}
+

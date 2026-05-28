@@ -173,8 +173,9 @@
     "image": "courschant.jpg",
     "tile_overlay_title": "Cours de chant",
     "tile_overlay_subtitle": "Développez votre voix !",
-    "page_title": "Cours de chant lyrique",
+    "page_title": "Cours de chant",
     "page_subtitle": "entre autres styles !",
+    "hidden": true,
     "page_content": [
   "À propos de Vincent Tricotel",
   "Professeur de chant indépendant, Vincent accompagne La Voix Libre depuis sa création et participe à son développement en partenariat avec l’association.",
@@ -473,7 +474,7 @@
             ],
             "anchor": "cours-de-chant",
             "contactEmail": "vincenttricotel@gmail.com",
-            "cta": { "text": "En savoir plus", "url": "cours-de-chant.html" }
+            "cta": null
           }
         ]
       },
