@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
+  <title>La Voix Libre – Galerie</title>
+  <link rel="canonical" href="https://chanterlavoixlibre.fr/galerie.html" />
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="La Voix Libre – chant chorale à Rennes">
+  <meta property="og:title" content="Galerie – La Voix Libre">
+  <meta property="og:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
+  <meta property="og:url" content="https://chanterlavoixlibre.fr/galerie.html">
+  <meta property="og:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Galerie – La Voix Libre">
+  <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
+  <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-928718843');
+  </script>
+  <style>
+    /* ---- Filtres par concert ---- */
+    .gallery-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 24px 0 20px 0;
+    }
+    .gallery-filter-btn {
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 2px solid var(--accent-color-primary);
+      background: transparent;
+      color: var(--accent-color-primary);
+      font-weight: 700;
+      font-size: 0.93rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .gallery-filter-btn.active,
+    .gallery-filter-btn:hover {
+      background: var(--accent-color-primary);
+      color: #fff;
+    }
+
+    /* ---- Mosaïque ---- */
+    .photo-mosaic {
+      columns: 4 200px;
+      column-gap: 12px;
+      margin-top: 8px;
+    }
+    .photo-mosaic figure {
+      break-inside: avoid;
+      margin: 0 0 12px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: #eee;
+    }
+    .photo-mosaic figure img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+    .photo-mosaic figure:hover img {
+      transform: scale(1.04);
+      filter: brightness(1.06);
+    }
+    .photo-mosaic figure figcaption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 18px 10px 8px 10px;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .photo-mosaic figure:hover figcaption {
+      opacity: 1;
+    }
+
+    /* ---- Skeleton loader ---- */
+    .photo-skeleton {
+      break-inside: avoid;
+      margin: 0 0 12px 0;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ---- État vide / erreur ---- */
+    .gallery-empty {
+      text-align: center;
+      padding: 48px 16px;
+      color: #888;
+      font-size: 1.05rem;
+    }
+    .gallery-empty a {
+      color: var(--accent-color-primary);
+      font-weight: 700;
+    }
+
+    /* ---- Lightbox ---- */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 16px;
+    }
+    #lightbox.open {
+      display: flex;
+    }
+    #lightbox img {
+      max-width: min(92vw, 1200px);
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+    #lightbox-caption {
+      color: rgba(255,255,255,0.85);
+      margin-top: 14px;
+      font-size: 0.95rem;
+      text-align: center;
+      max-width: 600px;
+    }
+    #lightbox-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.75;
+      transition: opacity 0.2s;
+    }
+    #lightbox-close:hover { opacity: 1; }
+    #lightbox-prev, #lightbox-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    #lightbox-prev { left: 12px; }
+    #lightbox-next { right: 12px; }
+    #lightbox-prev:hover, #lightbox-next:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    @media (max-width: 600px) {
+      .photo-mosaic { columns: 2 140px; column-gap: 8px; }
+      #lightbox-prev { left: 4px; }
+      #lightbox-next { right: 4px; }
+    }
+    @media (max-width: 900px) {
+      .photo-mosaic { columns: 3 160px; }
+    }
+
+    /* ---- CTA upload ---- */
+    .gallery-upload-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-color-complementary);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 0.97rem;
+      transition: background 0.2s;
+      margin-bottom: 4px;
+    }
+    .gallery-upload-cta:hover { background: var(--accent-color-primary); color: #fff; }
+  </style>
+</head>
+<body class="internal-page">
+  <main class="main-content">
+    <div id="page-content-container" data-static="true">
+
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+        <p style="margin:0; color:#555;">Photos partagées par les choristes et l'équipe.</p>
+        <a href="espace-choristes.html" class="gallery-upload-cta">
+          + Ajouter mes photos
+        </a>
+      </div>
+
+      <!-- Filtres concerts -->
+      <div class="gallery-filters" id="gallery-filters">
+        <button class="gallery-filter-btn active" data-concert="">Tous les concerts</button>
+      </div>
+
+      <!-- Grille mosaïque -->
+      <div class="photo-mosaic" id="photo-mosaic" aria-live="polite" aria-label="Galerie photos">
+        <!-- skeletons affichés pendant le chargement -->
+        <div class="photo-skeleton" style="height:180px;"></div>
+        <div class="photo-skeleton" style="height:240px;"></div>
+        <div class="photo-skeleton" style="height:160px;"></div>
+        <div class="photo-skeleton" style="height:220px;"></div>
+        <div class="photo-skeleton" style="height:190px;"></div>
+        <div class="photo-skeleton" style="height:250px;"></div>
+      </div>
+
+    </div><!-- /#page-content-container -->
+  </main>
+
+  <!-- Lightbox -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo agrandie">
+    <button id="lightbox-close" aria-label="Fermer">&times;</button>
+    <button id="lightbox-prev" aria-label="Photo précédente">&#8249;</button>
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-caption"></div>
+    <button id="lightbox-next" aria-label="Photo suivante">&#8250;</button>
+  </div>
+
+  <script src="assets/js/main.js?v=20250826-0755"></script>
+  <script>
+    // ---- Endpoint GAS (à remplir après déploiement) ----
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyI6se-Tj1t9_bIGuu5hOYPZ7hh-iOCadlpY0z-3-USg0fI--EyUyyT-k8jLJ3uvjr0/exec';
+
+    // ---- État ----
+    let allPhotos = [];
+    let filteredPhotos = [];
+    let lightboxIndex = 0;
+
+    // ---- Chargement initial ----
+    async function loadGallery(concertFilter) {
+      const mosaic = document.getElementById('photo-mosaic');
+
+      // skeletons si premier chargement
+      if (!allPhotos.length) {
+        mosaic.innerHTML = [180,240,160,220,190,250].map(h =>
+          `<div class="photo-skeleton" style="height:${h}px;"></div>`
+        ).join('');
+      }
+
+      if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
+        mosaic.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.<br>Déployez le script GAS et renseignez l\'URL dans galerie.html.</p></div>';
+        return;
+      }
+
+      try {
+        const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?')
+          + 'action=gallery_list'
+          + (concertFilter ? '&concert=' + encodeURIComponent(concertFilter) : '');
+
+        const res = await fetch(url, { cache: 'no-store' });
+        const data = await res.json();
+
+        if (!data.photos || !data.photos.length) {
+          mosaic.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          return;
+        }
+
+        filteredPhotos = data.photos;
+        if (!concertFilter) allPhotos = data.photos;
+        renderMosaic(filteredPhotos);
+        if (!concertFilter) loadConcertFilters();
+      } catch (e) {
+        mosaic.innerHTML = '<div class="gallery-empty"><p>Impossible de charger la galerie. Réessayez plus tard.</p></div>';
+        console.error('Gallery load error', e);
+      }
+    }
+
+    // ---- Rendu mosaïque ----
+    function renderMosaic(photos) {
+      const mosaic = document.getElementById('photo-mosaic');
+      if (!photos.length) {
+        mosaic.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour ce concert.</p></div>';
+        return;
+      }
+
+      mosaic.innerHTML = photos.map((photo, i) => {
+        const thumb = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w600`;
+        const concert = (photo.concert || '').replace(/</g,'&lt;');
+        const uploader = (photo.uploaderName || '').replace(/</g,'&lt;');
+        const caption = [concert, uploader ? `par ${uploader}` : ''].filter(Boolean).join(' · ');
+        return `
+          <figure data-index="${i}" role="button" tabindex="0"
+            aria-label="Photo ${i+1} – ${concert}">
+            <img src="${thumb}" alt="${concert}"
+              loading="lazy" decoding="async"
+              onerror="this.parentElement.style.display='none'">
+            ${caption ? `<figcaption>${caption}</figcaption>` : ''}
+          </figure>`;
+      }).join('');
+
+      // Bind clicks et touches
+      mosaic.querySelectorAll('figure').forEach(fig => {
+        fig.addEventListener('click', () => openLightbox(Number(fig.dataset.index)));
+        fig.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') openLightbox(Number(fig.dataset.index));
+        });
+      });
+    }
+
+    // ---- Filtres concerts ----
+    async function loadConcertFilters() {
+      if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) return;
+      try {
+        const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=concerts_list';
+        const res = await fetch(url, { cache: 'no-store' });
+        const data = await res.json();
+        if (!data.concerts || data.concerts.length < 2) return; // pas assez de concerts pour filtrer
+
+        const filtersEl = document.getElementById('gallery-filters');
+        data.concerts.forEach(concert => {
+          const btn = document.createElement('button');
+          btn.className = 'gallery-filter-btn';
+          btn.dataset.concert = concert;
+          btn.textContent = concert;
+          btn.addEventListener('click', () => activateFilter(btn));
+          filtersEl.appendChild(btn);
+        });
+      } catch (e) {
+        // silencieux, les filtres sont un bonus
+      }
+    }
+
+    function activateFilter(btn) {
+      document.querySelectorAll('.gallery-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const concert = btn.dataset.concert;
+      if (concert) {
+        loadGallery(concert);
+      } else {
+        filteredPhotos = allPhotos;
+        renderMosaic(allPhotos);
+      }
+    }
+
+    // Bind du filtre "Tous"
+    document.querySelector('.gallery-filter-btn[data-concert=""]').addEventListener('click', function() {
+      activateFilter(this);
+    });
+
+    // ---- Lightbox ----
+    function openLightbox(index) {
+      lightboxIndex = index;
+      showLightboxPhoto(index);
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function showLightboxPhoto(index) {
+      const photo = filteredPhotos[index];
+      if (!photo) return;
+      const full = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w1600`;
+      const img = document.getElementById('lightbox-img');
+      img.src = full;
+      img.alt = photo.concert || '';
+
+      const concert = (photo.concert || '').replace(/</g,'&lt;');
+      const uploader = (photo.uploaderName || '').replace(/</g,'&lt;');
+      document.getElementById('lightbox-caption').innerHTML =
+        [concert, uploader ? `partagée par ${uploader}` : ''].filter(Boolean).join(' · ')
+        + `<span style="color:rgba(255,255,255,0.4);margin-left:10px;">${index+1} / ${filteredPhotos.length}</span>`;
+
+      // Cacher flèches si une seule photo
+      document.getElementById('lightbox-prev').style.display = filteredPhotos.length > 1 ? '' : 'none';
+      document.getElementById('lightbox-next').style.display = filteredPhotos.length > 1 ? '' : 'none';
+    }
+
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+      if (e.target === this) closeLightbox();
+    });
+    document.getElementById('lightbox-prev').addEventListener('click', () => {
+      lightboxIndex = (lightboxIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
+      showLightboxPhoto(lightboxIndex);
+    });
+    document.getElementById('lightbox-next').addEventListener('click', () => {
+      lightboxIndex = (lightboxIndex + 1) % filteredPhotos.length;
+      showLightboxPhoto(lightboxIndex);
+    });
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('lightbox').classList.contains('open')) return;
+      if (e.key === 'Escape')      closeLightbox();
+      if (e.key === 'ArrowLeft')  { lightboxIndex = (lightboxIndex - 1 + filteredPhotos.length) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
+      if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
+    });
+
+    // ---- Démarrage ----
+    loadGallery('');
+  </script>
+</body>
+</html>

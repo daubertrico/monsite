@@ -161,7 +161,7 @@ function navLabelForPage(page) {
 
 function computeNavOrder(pages) {
   // Desired primary order, then the rest as found in JSON
-  const desiredOrder = ['chorale-pop', 'soul', 'comedie-musicale', 'cours-de-chant', 'nous-rejoindre', 'evenements', 'partitions'];
+  const desiredOrder = ['chorale-pop', 'soul', 'comedie-musicale', 'cours-de-chant', 'nous-rejoindre', 'evenements', 'galerie', 'partitions'];
   // Exclude hidden pages from navigation
   const visiblePages = pages.filter(p => !p.hidden);
   const byId = Object.fromEntries(visiblePages.map(p => [p.id, p]));

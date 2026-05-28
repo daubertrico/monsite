@@ -130,6 +130,7 @@
           <button class="choristes-tab" data-tab="liens" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Inscription & liens utiles</button>
           <button class="choristes-tab" data-tab="calendrier" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Calendrier et présences</button>
           <button class="choristes-tab" data-tab="asso" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Côté asso</button>
+          <button class="choristes-tab" data-tab="photos" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">📷 Photos</button>
         </div>
         <div id="tab-content-chansons" class="choristes-tab-content"></div>
         <div id="tab-content-asso" class="choristes-tab-content" style="display:none;">
@@ -158,6 +159,84 @@
 
           <p style="margin-top:8px;">Pour toute modification, ajout de document ou problème d'accès, contactez : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- ONGLET PHOTOS                                                  -->
+        <!-- ============================================================ -->
+        <div id="tab-content-photos" class="choristes-tab-content" style="display:none;">
+          <h2>Photos de concerts</h2>
+          <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a>.</p>
+
+          <div style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
+            <h3 style="margin-top:0;color:#134;font-size:1.15rem;">Ajouter une photo</h3>
+
+            <!-- Concert -->
+            <div style="margin-bottom:14px;">
+              <label for="photo-concert" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Concert / Événement</label>
+              <select id="photo-concert"
+                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
+                <option value="">Chargement des concerts…</option>
+              </select>
+              <p id="photo-concert-error" style="display:none;color:#ef4444;font-size:0.85rem;margin:4px 0 0 0;">Veuillez choisir un concert.</p>
+            </div>
+
+            <!-- Prénom -->
+            <div style="margin-bottom:14px;">
+              <label for="photo-uploader" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Votre prénom (optionnel)</label>
+              <input type="text" id="photo-uploader"
+                placeholder="Laissez vide pour rester anonyme"
+                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;">
+            </div>
+
+            <!-- Fichier -->
+            <div style="margin-bottom:14px;">
+              <label style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Photo</label>
+              <label for="photo-file" id="photo-file-label"
+                style="display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border:2px dashed #98bfff;border-radius:10px;cursor:pointer;background:#fff;color:#3981FF;font-weight:700;transition:background 0.2s;">
+                <span style="font-size:1.5rem;">📷</span>
+                <span id="photo-file-label-text">Choisir une photo</span>
+              </label>
+              <input type="file" id="photo-file" accept="image/*"
+                style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+            </div>
+
+            <!-- Aperçu -->
+            <div id="photo-preview-wrap" style="display:none;margin-bottom:14px;text-align:center;">
+              <img id="photo-preview" alt="Aperçu" style="max-width:100%;max-height:220px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
+              <p id="photo-size-info" style="font-size:0.85rem;color:#666;margin:6px 0 0 0;"></p>
+            </div>
+
+            <!-- Bouton envoyer -->
+            <button id="photo-submit"
+              style="width:100%;padding:12px;background:#3981FF;color:#fff;font-weight:700;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:background 0.2s;"
+              disabled>
+              Envoyer la photo
+            </button>
+
+            <!-- Barre de progression -->
+            <div id="photo-progress" style="display:none;margin-top:14px;">
+              <div style="background:#e0eaff;border-radius:999px;height:8px;overflow:hidden;">
+                <div id="photo-progress-bar"
+                  style="height:100%;width:0%;background:linear-gradient(90deg,#3981FF,#8844aa);border-radius:999px;transition:width 0.4s ease;">
+                </div>
+              </div>
+              <p id="photo-status" style="font-size:0.9rem;color:#234;margin:8px 0 0 0;text-align:center;"></p>
+            </div>
+
+            <!-- Message succès -->
+            <div id="photo-success" style="display:none;margin-top:14px;padding:12px 16px;background:#e8f7ee;border:1px solid #8fd5a6;border-radius:8px;color:#064e3b;font-weight:600;text-align:center;">
+              ✅ Photo envoyée ! Elle apparaît maintenant dans la <a href="galerie.html" style="color:#047857;">galerie</a>.
+              <br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter une autre photo</button>
+            </div>
+          </div>
+
+          <p style="margin-top:20px;color:#888;font-size:0.88rem;">
+            Les photos sont compressées automatiquement avant envoi. Formats acceptés : JPG, PNG, WebP.<br>
+            En envoyant une photo, vous autorisez La Voix Libre à la diffuser sur ce site.
+          </p>
+        </div>
+        <!-- FIN ONGLET PHOTOS -->
+
         <div id="tab-content-liens" class="choristes-tab-content" style="display:none;">
           <h2>Inscription & liens utiles</h2>
 
@@ -1169,5 +1248,272 @@
   </script>
   <script src="assets/js/choristes.js?v=20250813"></script>
   <script src="assets/js/main.js?v=20250813"></script>
+
+  <!-- ============================================================ -->
+  <!-- JS : Upload de photos                                         -->
+  <!-- ============================================================ -->
+  <script>
+    // ---- À remplir après déploiement du GAS ----
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyI6se-Tj1t9_bIGuu5hOYPZ7hh-iOCadlpY0z-3-USg0fI--EyUyyT-k8jLJ3uvjr0/exec';
+
+    // ---- Compression côté client (Canvas) ----
+    function compressImage(file, maxWidth, quality) {
+      maxWidth = maxWidth || 1600;
+      quality  = quality  || 0.80;
+      return new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var w = img.width, h = img.height;
+            if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+            var canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            canvas.toBlob(function(blob) { resolve(blob); }, 'image/jpeg', quality);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function blobToBase64(blob) {
+      return new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+          // Supprimer le préfixe data:image/...;base64,
+          resolve(reader.result.split(',')[1]);
+        };
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function formatBytes(b) {
+      if (b < 1024)       return b + ' o';
+      if (b < 1024*1024)  return (b/1024).toFixed(0) + ' Ko';
+      return (b/1024/1024).toFixed(1) + ' Mo';
+    }
+
+    // ---- Chargement des concerts depuis Google Agenda ----
+    var _concertsLoaded = false;
+
+    async function loadConcertsForUpload() {
+      if (_concertsLoaded) return;
+      var select = document.getElementById('photo-concert');
+      if (!select) return;
+
+      var CAL_API_KEY  = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+      var CALENDARS    = [
+        { id: '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com', label: 'Grande Chorale' },
+        { id: '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com', label: 'SOUL' }
+      ];
+      // Filtre identique à celui de l'onglet Calendrier
+      var kw = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pic[- ]?nic|pique[- ]?nique)/i;
+
+      // Récupère les 2 dernières années + 1 an à venir
+      var timeMin = new Date(Date.now() - 2 * 365 * 24 * 3600 * 1000).toISOString();
+      var timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
+
+      var allConcerts = [];
+
+      for (var i = 0; i < CALENDARS.length; i++) {
+        var cal = CALENDARS[i];
+        try {
+          var url = 'https://www.googleapis.com/calendar/v3/calendars/'
+            + encodeURIComponent(cal.id)
+            + '/events?key=' + CAL_API_KEY
+            + '&timeMin=' + encodeURIComponent(timeMin)
+            + '&timeMax=' + encodeURIComponent(timeMax)
+            + '&maxResults=200&orderBy=startTime&singleEvents=true';
+          var res  = await fetch(url);
+          var data = await res.json();
+          (data.items || []).forEach(function(ev) {
+            if (!kw.test(ev.summary || '')) return;
+            var start = ev.start.dateTime || ev.start.date;
+            var d = new Date(start);
+            var label = formatConcertLabel(ev.summary, d);
+            // Déduplique par label
+            if (!allConcerts.find(function(c){ return c.label === label; })) {
+              allConcerts.push({ label: label, date: d, summary: ev.summary });
+            }
+          });
+        } catch (e) {
+          console.warn('Calendar fetch failed', cal.label, e);
+        }
+      }
+
+      // Trie du plus récent au plus ancien
+      allConcerts.sort(function(a, b) { return b.date - a.date; });
+
+      // Remplit le select
+      select.innerHTML = '<option value="">— Choisissez un concert —</option>';
+      if (!allConcerts.length) {
+        select.innerHTML += '<option value="" disabled>Aucun concert trouvé dans l\'agenda</option>';
+      } else {
+        allConcerts.forEach(function(c) {
+          var opt = document.createElement('option');
+          opt.value = c.label;
+          opt.textContent = c.label;
+          select.appendChild(opt);
+        });
+      }
+      _concertsLoaded = true;
+    }
+
+    function formatConcertLabel(summary, date) {
+      var mois = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+      var jours = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+      return (summary || 'Concert')
+        + ' – ' + jours[date.getDay()]
+        + ' ' + date.getDate()
+        + ' ' + mois[date.getMonth()]
+        + ' ' + date.getFullYear();
+    }
+
+    // ---- Logique principale ----
+    document.addEventListener('DOMContentLoaded', function() {
+      var fileInput    = document.getElementById('photo-file');
+      var fileLabel    = document.getElementById('photo-file-label');
+      var labelText    = document.getElementById('photo-file-label-text');
+      var previewWrap  = document.getElementById('photo-preview-wrap');
+      var previewImg   = document.getElementById('photo-preview');
+      var sizeInfo     = document.getElementById('photo-size-info');
+      var submitBtn    = document.getElementById('photo-submit');
+      var progressWrap = document.getElementById('photo-progress');
+      var progressBar  = document.getElementById('photo-progress-bar');
+      var statusText   = document.getElementById('photo-status');
+      var successWrap  = document.getElementById('photo-success');
+      var addAnotherBtn= document.getElementById('photo-add-another');
+
+      if (!fileInput) return; // page non initialisée
+
+      // Clic sur le label → déclenche l'input
+      fileLabel.addEventListener('click', function() { fileInput.click(); });
+      fileLabel.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') fileInput.click();
+      });
+
+      // Prévisualisation à la sélection
+      fileInput.addEventListener('change', function() {
+        var file = fileInput.files[0];
+        if (!file) return;
+
+        // Aperçu
+        var url = URL.createObjectURL(file);
+        previewImg.src = url;
+        previewWrap.style.display = 'block';
+        sizeInfo.textContent = 'Fichier original : ' + formatBytes(file.size) + ' — sera compressé avant envoi';
+        labelText.textContent = file.name;
+        fileLabel.style.borderColor = '#3981FF';
+        fileLabel.style.background  = '#eef5ff';
+
+        submitBtn.disabled = false;
+      });
+
+      // Envoi
+      submitBtn.addEventListener('click', async function() {
+        var file = fileInput.files[0];
+        if (!file) return;
+
+        var concert      = (document.getElementById('photo-concert').value || '').trim();
+        var uploaderName = (document.getElementById('photo-uploader').value || '').trim();
+
+        if (!concert) {
+          document.getElementById('photo-concert').focus();
+          document.getElementById('photo-concert').style.borderColor = '#ef4444';
+          var concertErr = document.getElementById('photo-concert-error');
+          if (concertErr) concertErr.style.display = 'block';
+          return;
+        }
+        document.getElementById('photo-concert').style.borderColor = '#cfe3ff';
+        var concertErr = document.getElementById('photo-concert-error');
+        if (concertErr) concertErr.style.display = 'none';
+
+        if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
+          alert('L\'endpoint GAS n\'est pas encore configuré. Déployez le script et renseignez l\'URL dans espace-choristes.html.');
+          return;
+        }
+
+        // UI : début
+        submitBtn.disabled = true;
+        progressWrap.style.display = 'block';
+        successWrap.style.display  = 'none';
+        progressBar.style.width = '10%';
+        statusText.textContent  = 'Compression de la photo…';
+
+        try {
+          // 1. Compression
+          var compressed = await compressImage(file, 1600, 0.80);
+          progressBar.style.width = '35%';
+          statusText.textContent = 'Encodage… (' + formatBytes(compressed.size) + ' après compression)';
+
+          // 2. Base64
+          var base64 = await blobToBase64(compressed);
+          progressBar.style.width = '55%';
+          statusText.textContent = 'Envoi en cours…';
+
+          // 3. Envoi au GAS
+          var params = new URLSearchParams();
+          params.set('action', 'upload_photo');
+          params.set('data', JSON.stringify({
+            base64:       base64,
+            mimeType:     'image/jpeg',
+            filename:     concert.replace(/[^a-zA-Z0-9àâäéèêëïîôöùûüçœÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ\s_-]/g, '') + '_' + Date.now() + '.jpg',
+            concert:      concert,
+            uploaderName: uploaderName
+          }));
+
+          progressBar.style.width = '75%';
+          var res  = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+
+          progressBar.style.width = '100%';
+
+          if (data.error) throw new Error(data.error);
+
+          // Succès
+          statusText.textContent = '';
+          progressWrap.style.display = 'none';
+          successWrap.style.display  = 'block';
+
+        } catch (err) {
+          progressBar.style.width    = '100%';
+          progressBar.style.background = '#ef4444';
+          statusText.textContent     = 'Erreur : ' + (err.message || 'Envoi impossible. Réessayez.');
+          submitBtn.disabled = false;
+          console.error('Upload error', err);
+        }
+      });
+
+      // Réinitialiser le formulaire
+      if (addAnotherBtn) {
+        addAnotherBtn.addEventListener('click', function() {
+          fileInput.value       = '';
+          previewWrap.style.display  = 'none';
+          successWrap.style.display  = 'none';
+          progressWrap.style.display = 'none';
+          progressBar.style.width    = '0%';
+          progressBar.style.background = 'linear-gradient(90deg,#3981FF,#8844aa)';
+          labelText.textContent  = 'Choisir une photo';
+          fileLabel.style.borderColor = '#98bfff';
+          fileLabel.style.background  = '#fff';
+          submitBtn.disabled = true;
+        });
+      }
+
+      // Charger les concerts depuis Google Agenda quand l'onglet Photos est ouvert
+      var photosTabBtn = document.querySelector('.choristes-tab[data-tab="photos"]');
+      if (photosTabBtn) {
+        photosTabBtn.addEventListener('click', function() {
+          loadConcertsForUpload();
+        });
+      }
+    });
+  </script>
   </body>
 </html>

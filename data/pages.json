@@ -327,6 +327,39 @@
     "display_posts": true
   },
   {
+    "id": "galerie",
+    "image": "concerts.jpg",
+    "tile_overlay_title": "Galerie",
+    "tile_overlay_subtitle": "Nos moments en images",
+    "page_title": "Galerie",
+    "page_subtitle": "Nos photos et souvenirs",
+    "page_content": [
+      "Plongez dans la galerie visuelle de La Voix Libre.",
+      "Retrouvez les images de nos concerts, répétitions et moments forts.",
+      "Chaque photo raconte l’énergie partagée sur scène et en coulisses."
+    ],
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Dans cette galerie :",
+        "items": [
+          "Photos de concerts",
+          "Moments d’ateliers et de répétitions",
+          "Coulisses et ambiance conviviale",
+          "Souvenirs d’événements à Rennes"
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
+    ],
+    "tags": ["galerie"],
+    "display_posts": false
+  },
+  {
     "id": "videos",
     "image": "videosbackground.jpg",
     "hidden": true,
