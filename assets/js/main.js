@@ -822,13 +822,11 @@ async function fetchPostsFromCSV(csvUrl) {
     section.innerHTML = `
       <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-primary);font-size:1.9rem;margin:0 0 6px 0;">Concerts &amp; événements</h2>
       <p style="color:#666;margin:0 0 22px 0;font-size:0.97rem;">Prochaines dates de La Voix Libre à Rennes et alentours.</p>
-      <div id="home-events-upcoming"></div>
-      <h3 style="font-family:'Lobster',cursive;color:#aaa;font-size:1.4rem;margin:32px 0 12px 0;">Événements passés</h3>
-      <div id="home-events-past"></div>`;
+      <div id="home-events-upcoming"></div>`;
     container.appendChild(section);
 
     const upEl = section.querySelector('#home-events-upcoming');
-    const paEl = section.querySelector('#home-events-past');
+    const paEl = null; // Plus de section séparée pour les passés
     const skel = h => `<div style="height:${h}px;border-radius:12px;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;margin-bottom:10px;"></div>`;
     if (upEl) upEl.innerHTML = skel(72) + skel(80) + skel(64);
     if (paEl) paEl.innerHTML = skel(50) + skel(50);
@@ -864,9 +862,11 @@ async function fetchPostsFromCSV(csvUrl) {
       allEvents.forEach(ev => { ev._ts = new Date(ev.start.dateTime || ev.start.date).getTime(); });
     } catch(e) { /* silencieux */ }
 
-    const oneYearAgo = now.getTime() - 365*24*3600*1000;
+    // Tri : à venir du plus proche au plus lointain, passés du plus récent au plus ancien
     const upcoming = allEvents.filter(ev => ev._ts >= now.getTime()).sort((a,b) => a._ts - b._ts);
-    const past     = allEvents.filter(ev => ev._ts < now.getTime() && ev._ts >= oneYearAgo).sort((a,b) => b._ts - a._ts);
+    const pastAll  = allEvents.filter(ev => ev._ts <  now.getTime()).sort((a,b) => b._ts - a._ts);
+    // Un seul événement passé (le dernier), affiché en grisé après les à venir
+    const lastPast = pastAll.length ? [pastAll[0]] : [];
 
     // ---- Helpers ----
     function evDate(ev) { return new Date(ev.start.dateTime || ev.start.date); }
@@ -969,25 +969,19 @@ async function fetchPostsFromCSV(csvUrl) {
       return div;
     }
 
-    // ---- Rendu ----
+    // ---- Rendu (à venir puis dernier passé en grisé) ----
     if (upEl) {
       upEl.innerHTML = '';
-      if (!upcoming.length) {
+      if (!upcoming.length && !lastPast.length) {
         upEl.innerHTML = '<p style="color:#888;font-style:italic;padding:6px 0;">Aucun concert annoncé pour le moment. Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
       } else {
         upcoming.forEach(ev => upEl.appendChild(createCardUp(ev)));
-      }
-    }
-    if (paEl) {
-      paEl.innerHTML = '';
-      if (!past.length) {
-        paEl.innerHTML = '<p style="color:#aaa;font-style:italic;">Aucun événement passé dans l\'agenda.</p>';
-      } else {
-        past.forEach(ev => {
+        // Dernier événement passé à la fin, grisé
+        lastPast.forEach(ev => {
           const card   = createCardPast(ev);
           const photos = photosByKey[concertKey(ev)] || [];
           if (photos.length) card.appendChild(createThumbs(photos));
-          paEl.appendChild(card);
+          upEl.appendChild(card);
         });
       }
     }
@@ -1265,204 +1259,133 @@ async function fetchPostsFromCSV(csvUrl) {
           descriptionContainer.style.flexDirection = 'column';
           contentContainer.appendChild(descriptionContainer);
   } else if (pageId === 'nous-rejoindre') {
-          // Rendu spécifique type "sections" + "faq" pour reproduire l'ancienne page
-          descriptionContainer = document.createElement('div');
-          descriptionContainer.classList.add('image-and-text-container');
-          // Centrage du texte d'introduction en l'absence d'illustration
-          descriptionContainer.style.display = 'flex';
-          descriptionContainer.style.justifyContent = 'center';
-          const textDiv = document.createElement('div');
-          textDiv.classList.add('description-text');
-          textDiv.style.width = '100%';
-          textDiv.style.maxWidth = '900px';
-          textDiv.style.margin = '0 auto';
-          textDiv.style.textAlign = 'center';
-          // Texte d'intro
+          // Intro centrée
           if (Array.isArray(page.page_content)) {
+            const intro = document.createElement('div');
+            intro.style.cssText = 'max-width:720px;margin:0 auto 32px auto;text-align:center;';
             page.page_content.forEach(pText => {
-              const pElement = document.createElement('p');
-              pElement.textContent = pText;
-              textDiv.appendChild(pElement);
+              if (!pText || !pText.trim()) return;
+              const p = document.createElement('p');
+              p.className = 'home-intro-text';
+              p.style.textAlign = 'center';
+              p.textContent = pText;
+              intro.appendChild(p);
             });
+            contentContainer.appendChild(intro);
           }
-          descriptionContainer.appendChild(textDiv);
-          contentContainer.appendChild(descriptionContainer);
 
-          // Blocs sections
+          // Sections sous forme de cartes (style page d'accueil)
           const sectionsBlock = page.specific_content && page.specific_content.find(sc => sc.type === 'sections');
           if (sectionsBlock && Array.isArray(sectionsBlock.items)) {
             sectionsBlock.items.forEach(section => {
-              const sec = document.createElement('section');
-              // If the section provides an explicit anchor in the JSON, set it so it can be targeted by links
-              if (section.anchor) sec.id = section.anchor;
-              sec.className = 'section';
-              // Desktop default: row layout. On small viewports, force column so the
-              // illustration stacks above the text (mobile UX requirement).
-              sec.style.display = 'flex';
-              sec.style.marginBottom = '48px';
-              // Use a JS breakpoint so we don't rely only on CSS (some phones report
-              // widths slightly above the CSS breakpoint). This preserves the desktop
-              // layout while fixing mobile where the text was displayed beside the image.
-              if (window.innerWidth <= 900) {
-                sec.style.flexDirection = 'column';
-                sec.style.alignItems = 'stretch';
-                sec.style.gap = '12px';
-              } else {
-                sec.style.flexDirection = 'row';
-                sec.style.alignItems = 'center';
-                sec.style.gap = '32px';
-              }
+              const card = document.createElement('div');
+              card.className = 'nr-card';
+              if (section.anchor) card.id = section.anchor;
 
-              const imgWrap = document.createElement('div');
-              imgWrap.style.flex = '1';
-              // Default thumbnail sizing for desktop
-              imgWrap.style.minWidth = '220px';
-              imgWrap.style.maxWidth = '220px';
-              imgWrap.style.background = '#f9f9f9';
-              imgWrap.style.borderRadius = '12px';
-              imgWrap.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-              imgWrap.style.padding = '16px';
-              imgWrap.style.textAlign = 'center';
-              // If on small screens, relax the fixed sizing so the image becomes full-width
-              if (window.innerWidth <= 900) {
-                imgWrap.style.minWidth = '0';
-                imgWrap.style.maxWidth = '100%';
-                imgWrap.style.width = '100%';
-                imgWrap.style.padding = '0';
-                imgWrap.style.boxShadow = 'none';
-                imgWrap.style.background = 'transparent';
-              }
+              // Image
               if (section.image) {
-                const imgJpg = `${ASSETS_BASE_URL}images/${section.image}`;
+                const imgJpg  = `${ASSETS_BASE_URL}images/${section.image}`;
                 const imgWebp = imgJpg.replace(/\.[a-zA-Z0-9]+$/, '.webp');
-                const pic = document.createElement('picture');
-                pic.innerHTML = `
-                  <source srcset="${imgWebp}" type="image/webp">
-                  <img src="${imgJpg}" alt="${section.title || ''}" loading="lazy" decoding="async" style="width:220px;height:160px;border-radius:8px;object-fit:cover;display:block;margin:0 auto;">
-                `;
-                imgWrap.appendChild(pic);
+                const imgWrap = document.createElement('div');
+                imgWrap.className = 'nr-card-img';
+                imgWrap.innerHTML = `<picture><source srcset="${imgWebp}" type="image/webp"><img src="${imgJpg}" alt="${section.title||''}" loading="lazy" decoding="async"></picture>`;
+                card.appendChild(imgWrap);
               }
 
-              const right = document.createElement('div');
-              right.style.flex = '2';
-              if (window.innerWidth <= 900) {
-                right.style.width = '100%';
-              }
+              // Corps
+              const body = document.createElement('div');
+              body.className = 'nr-card-body';
+
               const h2 = document.createElement('h2');
-              h2.style.color = '#8844aa';
-              h2.style.fontFamily = "'Lobster',cursive";
-              h2.style.fontSize = '2em';
-              // Make the section title clickable when a CTA URL is provided in the JSON
-              if (section.cta && section.cta.url) {
-                const a = document.createElement('a');
-                a.href = section.cta.url;
-                a.textContent = section.title || '';
-                a.style.color = 'inherit';
-                a.style.textDecoration = 'none';
-                a.setAttribute('aria-label', section.title ? `En savoir plus sur ${section.title}` : 'En savoir plus');
-                // Ensure focus styles remain visible for keyboard users
-                a.style.outline = 'none';
-                a.addEventListener('focus', function() { a.style.textDecoration = 'underline'; });
-                a.addEventListener('blur', function() { a.style.textDecoration = 'none'; });
-                h2.appendChild(a);
-              } else {
-                h2.textContent = section.title || '';
-              }
-              // Ensure the section title is placed above the image and text (full width)
-              h2.style.width = '100%';
-              h2.style.margin = '0 0 12px 0';
-              sec.insertBefore(h2, sec.firstChild);
+              h2.className = 'nr-card-title';
+              h2.textContent = section.title || '';
+              body.appendChild(h2);
 
               if (section.description) {
                 const p = document.createElement('p');
+                p.className = 'nr-card-desc';
                 p.textContent = section.description;
-                right.appendChild(p);
+                body.appendChild(p);
               }
 
+              // Détails -> chips (icône selon le mot-clé)
               if (Array.isArray(section.details) && section.details.length) {
-                const list = document.createElement('p');
-                list.innerHTML = section.details.map(d => `<strong>${d.split(':')[0]}:</strong> ${d.split(':').slice(1).join(':').trim()}`).join('<br>');
-                right.appendChild(list);
+                const chipIcons = { lieu:'📍', horaires:'🗓', horaire:'🗓', tarif:'💶', tarifs:'💶', inscription:'✏️' };
+                const chips = document.createElement('div');
+                chips.className = 'nr-card-chips';
+                section.details.forEach(d => {
+                  const idx = d.indexOf(':');
+                  const key = (idx > -1 ? d.slice(0, idx) : '').trim().toLowerCase();
+                  const val = idx > -1 ? d.slice(idx + 1).trim() : d.trim();
+                  if (!val) return;
+                  const chip = document.createElement('span');
+                  chip.className = 'nr-chip';
+                  chip.textContent = (chipIcons[key] || '•') + ' ' + val;
+                  chips.appendChild(chip);
+                });
+                body.appendChild(chips);
               }
 
-              if (section.newsletter) {
-                const nl = document.createElement('p');
-                nl.innerHTML = `<a href="#newsletter" style="color:#8844aa;text-decoration:underline;">Abonnez-vous à la newsletter</a> pour être tenu·e au courant.`;
-                right.appendChild(nl);
-              }
-
-              if (section.contactEmail) {
-                const ctaMail = document.createElement('p');
-                ctaMail.innerHTML = `Contact : <a href="mailto:${section.contactEmail}" style="color:#8844aa;text-decoration:underline;">${section.contactEmail}</a>`;
-                right.appendChild(ctaMail);
-              }
-
+              // CTA + newsletter sur une ligne d'actions
+              const actions = document.createElement('div');
+              actions.className = 'nr-card-actions';
               if (section.cta && section.cta.url) {
-                const more = document.createElement('a');
-                more.href = section.cta.url;
-                more.textContent = section.cta.text || 'En savoir plus';
-                more.style.color = '#8844aa';
-                more.style.textDecoration = 'underline';
-                right.appendChild(more);
+                const cta = document.createElement('a');
+                cta.href = section.cta.url;
+                cta.className = 'home-cta-btn';
+                cta.textContent = (section.cta.text || 'En savoir plus') + ' →';
+                actions.appendChild(cta);
               }
-
-              // If a contact email is provided in the section JSON, render a prominent mailto CTA
-              // (Calendly usage removed; prefer direct contact to Vincent)
-              // NOTE: hide the prominent RDV CTA on the 'nous-rejoindre' page to avoid duplication/redundancy
-              if (section.contactEmail && page && page.id !== 'nous-rejoindre') {
-                const mailButton = document.createElement('div');
-                mailButton.style.marginTop = '12px';
-                mailButton.innerHTML = `<a href="mailto:${section.contactEmail}" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#3981FF;color:#fff;font-weight:700;text-decoration:none;border:2px solid #3981FF;box-shadow:0 2px 6px rgba(57,129,255,0.2);">Contacter pour RDV</a>`;
-                right.appendChild(mailButton);
+              if (section.contactEmail) {
+                const mail = document.createElement('a');
+                mail.href = 'mailto:' + section.contactEmail;
+                mail.className = 'nr-link';
+                mail.textContent = 'Nous contacter';
+                actions.appendChild(mail);
               }
-
-              // Wrap image and text into an inner row so the H2 stays full-width above them
-              const innerRow = document.createElement('div');
-              innerRow.style.display = 'flex';
-              innerRow.style.gap = sec.style.gap || '32px';
-              innerRow.style.alignItems = 'center';
-              // Respect the same responsive breakpoint used above
-              if (window.innerWidth <= 900) {
-                innerRow.style.flexDirection = 'column';
-                imgWrap.style.width = '100%';
-                right.style.width = '100%';
-              } else {
-                innerRow.style.flexDirection = 'row';
+              if (section.newsletter) {
+                const nl = document.createElement('a');
+                nl.href = '#newsletter';
+                nl.className = 'nr-link';
+                nl.textContent = 'Newsletter';
+                actions.appendChild(nl);
               }
-              innerRow.appendChild(imgWrap);
-              innerRow.appendChild(right);
-              // Ensure the section itself stacks title then content
-              sec.style.display = 'block';
-              sec.appendChild(innerRow);
-              contentContainer.appendChild(sec);
+              if (actions.children.length) body.appendChild(actions);
 
-              // (No special CTA injected for chorale sections - keep titles and layout consistent.)
+              card.appendChild(body);
+              contentContainer.appendChild(card);
             });
           }
 
-          // FAQ
+          // FAQ en accordéon
           const faqBlock = page.specific_content && page.specific_content.find(sc => sc.type === 'faq');
           if (faqBlock && Array.isArray(faqBlock.items) && faqBlock.items.length) {
-            const faq = document.createElement('section');
-            faq.className = 'faq';
-            faq.style.marginTop = '48px';
-            faq.style.textAlign = 'center';
-            const h2 = document.createElement('h2');
-            h2.textContent = faqBlock.title || 'Questions fréquentes';
-            h2.style.color = '#8844aa';
-            h2.style.fontFamily = "'Lobster',cursive";
-            h2.style.fontSize = '2em';
-            faq.appendChild(h2);
-            const ul = document.createElement('ul');
-            ul.style.display = 'inline-block';
-            ul.style.textAlign = 'left';
+            const divider = document.createElement('div');
+            divider.className = 'home-section-divider';
+            divider.innerHTML = `<h2>${faqBlock.title || 'Questions fréquentes'}</h2>`;
+            contentContainer.appendChild(divider);
+
+            const faqWrap = document.createElement('div');
+            faqWrap.className = 'nr-faq';
             faqBlock.items.forEach(item => {
-              const li = document.createElement('li');
-              li.textContent = item;
-              ul.appendChild(li);
+              const sepIdx = item.search(/\?\s/);
+              const q = sepIdx > -1 ? item.slice(0, sepIdx + 1) : item;
+              const a = sepIdx > -1 ? item.slice(sepIdx + 2).trim() : '';
+              const it = document.createElement('div');
+              it.className = 'nr-faq-item';
+              const qEl = document.createElement('button');
+              qEl.className = 'nr-faq-q';
+              qEl.type = 'button';
+              qEl.textContent = q;
+              const aEl = document.createElement('div');
+              aEl.className = 'nr-faq-a';
+              aEl.textContent = a || item;
+              qEl.addEventListener('click', () => it.classList.toggle('open'));
+              it.appendChild(qEl);
+              it.appendChild(aEl);
+              faqWrap.appendChild(it);
             });
-            faq.appendChild(ul);
-            contentContainer.appendChild(faq);
+            contentContainer.appendChild(faqWrap);
           }
 
         } else {

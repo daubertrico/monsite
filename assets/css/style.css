@@ -1832,6 +1832,117 @@ body.page-soul header.main-header, body.page-soul main, body.page-soul .main-con
 }
 
 /* ============================================================
+   Page « Nous rejoindre » — cartes (style page d'accueil)
+   ============================================================ */
+.nr-card {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 18px rgba(0,0,0,.07);
+  border: 1px solid rgba(136,68,170,.09);
+  margin-bottom: 24px;
+}
+.nr-card-img { flex: 0 0 240px; overflow: hidden; }
+.nr-card-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .35s ease;
+}
+.nr-card-img:hover img { transform: scale(1.04); }
+.nr-card-body {
+  flex: 1;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.nr-card-title {
+  font-family: 'Lobster', cursive;
+  color: var(--accent-color-complementary);
+  font-size: 1.6rem;
+  margin: 0 0 8px 0;
+}
+.nr-card-desc {
+  font-size: .98rem;
+  line-height: 1.7;
+  color: #444;
+  margin: 0 0 14px 0;
+}
+.nr-card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.nr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 13px;
+  background: #f3e8ff;
+  color: #6b21a8;
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 600;
+  border: 1px solid rgba(136,68,170,.12);
+}
+.nr-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.nr-link {
+  color: var(--accent-color-complementary);
+  font-weight: 600;
+  font-size: .92rem;
+  text-decoration: none;
+}
+.nr-link:hover { text-decoration: underline; }
+
+/* FAQ accordéon */
+.nr-faq { display: flex; flex-direction: column; gap: 8px; }
+.nr-faq-item {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(136,68,170,.1);
+  background: #fff;
+}
+.nr-faq-q {
+  width: 100%;
+  text-align: left;
+  padding: 14px 18px;
+  font-weight: 700;
+  font-size: .96rem;
+  color: #333;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.nr-faq-q:hover { background: #faf5ff; }
+.nr-faq-q::after { content: '+'; color: #8844aa; font-size: 1.3rem; font-weight: 700; flex-shrink: 0; transition: transform .2s; }
+.nr-faq-item.open .nr-faq-q::after { content: '−'; }
+.nr-faq-a {
+  display: none;
+  padding: 0 18px 16px 18px;
+  font-size: .94rem;
+  line-height: 1.7;
+  color: #555;
+}
+.nr-faq-item.open .nr-faq-a { display: block; }
+
+@media (max-width: 700px) {
+  .nr-card { flex-direction: column; }
+  .nr-card-img { flex: none; width: 100%; height: 190px; }
+  .nr-card-body { padding: 16px; }
+}
+
+/* ============================================================
    Gate mot de passe
    ============================================================ */
 .password-gate-card {

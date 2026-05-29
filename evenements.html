@@ -247,23 +247,25 @@
         return true;
       });
 
-      const oneYearAgo = now.getTime() - 365*24*3600*1000;
+      // Tri : à venir du plus proche au plus lointain
       const upcoming = unique.filter(ev => ev._ts >= now.getTime()).sort((a,b) => a._ts - b._ts);
-      const past     = unique.filter(ev => ev._ts < now.getTime() && ev._ts >= oneYearAgo).sort((a,b) => b._ts - a._ts);
+      const pastAll  = unique.filter(ev => ev._ts <  now.getTime()).sort((a,b) => b._ts - a._ts);
+      const lastPast = pastAll.length ? [pastAll[0]] : [];
 
       const upEl = document.getElementById('events-upcoming-list');
       const paEl = document.getElementById('events-past-list');
 
       if (upEl) {
-        upEl.innerHTML = upcoming.length
-          ? upcoming.map(cardUpcoming).join('')
-          : '<p style="color:#888;font-style:italic;padding:8px 0;">Aucun concert annoncé pour le moment.<br>Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
+        if (!upcoming.length && !lastPast.length) {
+          upEl.innerHTML = '<p style="color:#888;font-style:italic;padding:8px 0;">Aucun concert annoncé pour le moment.<br>Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
+        } else {
+          upEl.innerHTML = upcoming.map(cardUpcoming).join('') + lastPast.map(cardPast).join('');
+        }
       }
-      if (paEl) {
-        paEl.innerHTML = past.length
-          ? past.map(cardPast).join('')
-          : '<p style="color:#aaa;font-style:italic;">Aucun événement passé dans l\'agenda.</p>';
-      }
+      // Section passés masquée (fusionnée dans la liste principale)
+      if (paEl) paEl.style.display = 'none';
+      const pastTitle = document.getElementById('title-past');
+      if (pastTitle) pastTitle.style.display = 'none';
     }
 
     document.addEventListener('DOMContentLoaded', loadEvents);

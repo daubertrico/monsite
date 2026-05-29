@@ -565,7 +565,12 @@
                   .then(function(r){return r.json();})
                   .then(function(data){
                     var now=new Date();
-                    var items=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
+                    var concerts=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
+                    var upcoming=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e>=now;});
+                    var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
+                    upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
+                    pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
+                    var items=upcoming.concat(pastAll.length?[pastAll[0]]:[]);
                     if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
                     box.innerHTML=items.map(function(ev){
                       var start=ev.start.dateTime||ev.start.date;
@@ -614,7 +619,12 @@
                   .then(function(r){return r.json();})
                   .then(function(data){
                     var now=new Date();
-                    var items=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
+                    var concerts=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
+                    var upcoming=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e>=now;});
+                    var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
+                    upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
+                    pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
+                    var items=upcoming.concat(pastAll.length?[pastAll[0]]:[]);
                     if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
                     box.innerHTML=items.map(function(ev){
                       var start=ev.start.dateTime||ev.start.date;

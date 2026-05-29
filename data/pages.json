@@ -461,20 +461,6 @@
             ],
             "newsletter": true,
             "cta": { "text": "En savoir plus", "url": "comedie-musicale.html" }
-          },
-          {
-            "title": "Cours de chant",
-            "image": "courschant.jpg",
-            "description": "Cours individuels de 45 minutes à ABE, rue Papu, Rennes.",
-              "details": [
-              "Tarifs :",
-              "55€ le cours unique",
-              "50€ le cours bi-mensuel",
-              "45€ le cours hebdomadaire"
-            ],
-            "anchor": "cours-de-chant",
-            "contactEmail": "vincenttricotel@gmail.com",
-            "cta": null
           }
         ]
       },
