@@ -1831,3 +1831,188 @@ body.page-soul header.main-header, body.page-soul main, body.page-soul .main-con
   .home-comedie-expand { padding: 16px; }
 }
 
+/* ============================================================
+   Gate mot de passe
+   ============================================================ */
+.password-gate-card {
+  max-width: 360px; margin: 48px auto;
+  background: #fff; border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.05);
+  padding: 32px 28px; text-align: center;
+}
+.password-gate-card img.gate-logo {
+  width: 68px; height: 68px; border-radius: 50%; object-fit: cover;
+  margin-bottom: 16px; border: 3px solid var(--accent-color-primary);
+}
+.password-gate-card h2 {
+  font-family: 'Lobster', cursive; color: var(--accent-color-primary);
+  font-size: 1.7rem; margin: 0 0 6px 0;
+}
+.password-gate-card .gate-hint { font-size: .9rem; color: #666; margin: 0 0 20px 0; line-height: 1.5; }
+.password-gate-form { display: flex; flex-direction: column; gap: 10px; }
+.password-gate-form input {
+  padding: 12px 14px; border: 1.5px solid #cfe3ff; border-radius: 8px;
+  font-size: 1rem; text-align: center; letter-spacing: .12em;
+  width: 100%; box-sizing: border-box; font-family: inherit;
+}
+.password-gate-form input:focus { outline: none; border-color: var(--accent-color-primary); box-shadow: 0 0 0 3px rgba(255,102,153,.15); }
+.password-gate-form button {
+  padding: 12px; background: var(--accent-color-primary); color: #fff;
+  border: none; border-radius: 8px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background .2s;
+}
+.password-gate-form button:hover { background: var(--accent-color-complementary); }
+.gate-error { color: #dc2626; font-size: .88rem; margin-top: 6px; display: none; }
+
+/* ============================================================
+   Calendrier — cartes événements & boutons présence
+   ============================================================ */
+.cal-section-title {
+  font-family: 'Lobster', cursive; color: var(--accent-color-complementary);
+  font-size: 1.3rem; margin: 0 0 14px 0;
+  display: flex; align-items: center; gap: 10px;
+}
+.cal-section-title::after { content:''; flex:1; height:1px; background:linear-gradient(to right,rgba(136,68,170,.2),transparent); }
+
+.cal-events-list { display: flex; flex-direction: column; gap: 10px; }
+.cal-event-card {
+  background: #fff; border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.06); box-shadow: 0 1px 8px rgba(0,0,0,.05);
+  padding: 14px 18px; transition: box-shadow .2s;
+}
+.cal-event-card:not(.cal-event-past):hover { box-shadow: 0 3px 14px rgba(0,0,0,.09); }
+.cal-event-card.cal-event-past { opacity: .58; }
+.cal-event-date { font-size: .87rem; font-weight: 700; color: var(--accent-color-complementary); margin-bottom: 3px; }
+.cal-event-card.cal-event-past .cal-event-date { color: #999; }
+.cal-event-title { font-size: 1rem; font-weight: 700; color: #1a2a3a; margin-bottom: 3px; }
+.cal-event-location { font-size: .84rem; color: #666; margin-bottom: 6px; }
+.cal-event-desc { font-size: .85rem; color: #555; line-height: 1.55; margin-bottom: 6px; }
+
+/* Boutons présence */
+.att-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.att-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border: 2px solid #d1e4ff; border-radius: 8px;
+  background: #f0f6ff; font-size: .91rem; font-weight: 600;
+  cursor: pointer; transition: background .16s, border-color .16s, color .16s; user-select: none;
+}
+.att-chip:hover { background: #dbeafe; border-color: #93c5fd; }
+.att-chip input[type="radio"] { width: 15px; height: 15px; accent-color: #3981FF; cursor: pointer; }
+.att-chip:has(input:checked) { background: #3981FF; border-color: #3981FF; color: #fff; }
+.att-status { font-size:.84rem; color:#2c7a2c; font-weight:600; display:none; font-style:italic; }
+.att-status.error { color: #b00020; }
+
+/* Profil en bas de section */
+.profile-footer-bar { margin-top:28px; padding-top:20px; border-top:1px solid rgba(0,0,0,.07); }
+.profile-footer-label { font-size:.85rem; color:#999; margin:0 0 12px 0; font-style:italic; }
+
+/* ============================================================
+   Partitions — recherche
+   ============================================================ */
+.partition-search-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; margin-bottom: 14px;
+  background: #fff; border: 1.5px solid #cfe3ff; border-radius: 10px;
+}
+.partition-search-bar::before { content: '🔍'; font-size: .88rem; opacity:.55; }
+.partition-search-bar input { flex:1; border:none; outline:none; font-size:.95rem; background:transparent; font-family:inherit; }
+.partition-row-hidden { display: none !important; }
+
+/* ============================================================
+   Étape profil (après mot de passe)
+   ============================================================ */
+.profile-step-form {
+  display: flex; flex-direction: column; gap: 10px; margin-top: 4px;
+}
+.profile-step-form input,
+.profile-step-form select {
+  padding: 11px 14px; border: 1.5px solid #cfe3ff; border-radius: 8px;
+  font-size: .97rem; font-family: inherit; width: 100%; box-sizing: border-box;
+  text-align: left;
+}
+.profile-step-form input:focus,
+.profile-step-form select:focus { outline: none; border-color: #3981FF; box-shadow: 0 0 0 3px rgba(57,129,255,.12); }
+.profile-step-form .input-error { border-color: #ef4444 !important; }
+.profile-step-form button {
+  padding: 12px; background: #3981FF; color: #fff;
+  border: none; border-radius: 8px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background .2s;
+}
+.profile-step-form button:hover { background: #2563eb; }
+
+/* Bandeau profil dans le calendrier */
+.profile-banner {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; margin-bottom: 20px;
+  background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;
+  font-size: .88rem;
+}
+.profile-banner .pb-icon { font-size: 1rem; }
+.profile-banner .pb-name { flex: 1; font-weight: 600; color: #166534; }
+.profile-banner .pb-modify {
+  font-size: .8rem; color: #3981FF; background: none; border: none;
+  cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit;
+}
+
+/* ============================================================
+   Sélecteur d'ensemble (Grande Chorale / SOUL)
+   ============================================================ */
+.ensemble-selector {
+  background: linear-gradient(135deg, #f0f6ff 0%, #f5eaff 100%);
+  border-radius: 14px; padding: 20px 16px;
+  margin-bottom: 28px; text-align: center;
+  border: 1px solid rgba(57,129,255,.1);
+}
+.ensemble-selector-label {
+  font-size: .95rem; font-weight: 700; color: #334; margin: 0 0 14px 0;
+}
+.ensemble-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.ensemble-btn {
+  flex: 1; max-width: 220px; min-width: 130px;
+  padding: 16px 12px; border: 2px solid #d1e4ff; border-radius: 12px;
+  background: #fff; cursor: pointer; font-family: inherit;
+  transition: border-color .2s, background .2s, box-shadow .2s;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+}
+.ensemble-btn .ens-icon { font-size: 1.5rem; }
+.ensemble-btn .ens-name { font-weight: 700; font-size: .97rem; color: #334; }
+.ensemble-btn .ens-day  { font-size: .78rem; color: #888; }
+.ensemble-btn .ens-check { font-size: .72rem; font-weight: 700; color: #3981FF; display: none; margin-top: 2px; }
+.ensemble-btn:hover { border-color: #93c5fd; background: #f0f6ff; }
+.ensemble-btn.active {
+  border-color: #3981FF; background: #ebf4ff;
+  box-shadow: 0 2px 14px rgba(57,129,255,.2);
+}
+.ensemble-btn.active .ens-name  { color: #3981FF; }
+.ensemble-btn.active .ens-check { display: block; }
+@media (max-width: 500px) {
+  .ensemble-btns { flex-direction: column; align-items: center; }
+  .ensemble-btn  { max-width: 100%; width: 100%; flex-direction: row; justify-content: flex-start; gap: 10px; }
+}
+
+/* ============================================================
+   Feedback présence sur la carte
+   ============================================================ */
+.cal-event-card.att-done-present {
+  border-left: 4px solid #22c55e;
+  background: linear-gradient(135deg, #f0fdf4, #fff);
+}
+.cal-event-card.att-done-absent {
+  border-left: 4px solid #9ca3af;
+  background: #fafafa;
+}
+/* Statut visible */
+.att-status {
+  display: none; font-size: .84rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 6px; margin-left: 4px;
+}
+.att-status.visible-present { display:inline; background:#dcfce7; color:#166534; }
+.att-status.visible-absent  { display:inline; background:#f3f4f6; color:#6b7280; }
+.att-status.error           { display:inline; background:#fee2e2; color:#b00020; }
+/* Hint modification */
+.att-change-hint {
+  font-size: .77rem; color: #aaa; margin: 5px 0 0 0; font-style: italic;
+}
+

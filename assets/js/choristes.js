@@ -8,14 +8,8 @@
     };
     function updateSousOngletStyles() {
       sousOnglets.forEach(btn => {
-        const active = btn.classList.contains('active');
-        btn.setAttribute('aria-selected', active ? 'true' : 'false');
-        btn.style.background = active ? '#3981FF' : '#e0e0e0';
-        btn.style.color = active ? '#fff' : '#222';
-        btn.style.border = active ? '2.5px solid #3981FF' : '2.5px solid #e0e0e0';
-        btn.style.boxShadow = active ? '0 2px 8px #3981FF33' : '0 2px 8px #3981FF11';
-        btn.style.textDecoration = active ? 'underline' : 'none';
-        btn.style.textUnderlineOffset = active ? '6px' : '';
+        btn.setAttribute('aria-selected', btn.classList.contains('active') ? 'true' : 'false');
+        // Pour les boutons ensemble-btn, toggle la classe active (CSS gère le reste)
       });
     }
     sousOnglets.forEach(btn => {
@@ -64,14 +58,7 @@
 
   function updateTabStyles() {
     document.querySelectorAll('.choristes-tab').forEach(btn => {
-      const active = btn.classList.contains('active');
-      btn.setAttribute('aria-selected', active ? 'true' : 'false');
-      btn.style.background = active ? '#3981FF' : '#e0e0e0';
-      btn.style.color = active ? '#fff' : '#222';
-      btn.style.border = active ? '2.5px solid #3981FF' : '2.5px solid #e0e0e0';
-      btn.style.boxShadow = active ? '0 2px 8px #3981FF33' : '0 2px 8px #3981FF11';
-      btn.style.textDecoration = active ? 'underline' : 'none';
-      btn.style.textUnderlineOffset = active ? '6px' : '';
+      btn.setAttribute('aria-selected', btn.classList.contains('active') ? 'true' : 'false');
     });
   }
 
@@ -122,10 +109,12 @@
     const container = document.getElementById('tab-content-chansons');
     if (!container) return;
     container.innerHTML = `
-      <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:12px 18px;margin-bottom:18px;border-radius:8px;font-size:1.05em;">
-        <strong>Attention :</strong> Ces partitions sont des arrangements réalisés pour la chorale La Voix Libre. Elles sont protégées par le droit d’auteur et strictement réservées à un usage interne. Merci de ne pas les diffuser.
+      <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:10px 16px;margin-bottom:14px;border-radius:8px;font-size:.93em;">
+        <strong>Usage interne.</strong> Ces arrangements sont réservés aux membres — merci de ne pas les diffuser.
       </div>
-      <h2>Espace choristes : catalogue des partitions</h2>
+      <div class="partition-search-bar">
+        <input type="search" id="partition-search" placeholder="Rechercher une chanson…" autocomplete="off">
+      </div>
       <div id="chansons-all" class="chansons-list"></div>
     `;
 
@@ -163,39 +152,173 @@
         });
         document.getElementById('chansons-all').innerHTML = renderTable(parts);
         bindAudioClickOnce();
+
+        // Recherche en temps réel
+        const searchInput = document.getElementById('partition-search');
+        if (searchInput) {
+          searchInput.addEventListener('input', function() {
+            const q = this.value.trim().toLowerCase()
+              .normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const rows = document.querySelectorAll('#chansons-all tr');
+            let prevIsHr = false;
+            rows.forEach(tr => {
+              const td = tr.querySelector('td');
+              if (!td) return;
+              // Les lignes <hr> (séparateurs) alternent avec les lignes de données
+              const isHr = !!tr.querySelector('hr');
+              if (isHr) { tr.classList.add('partition-row-hidden'); prevIsHr = true; return; }
+              if (!q) { tr.classList.remove('partition-row-hidden'); prevIsHr = false; return; }
+              const text = td.textContent.toLowerCase()
+                .normalize('NFD').replace(/[̀-ͯ]/g, '');
+              const match = text.includes(q);
+              tr.classList.toggle('partition-row-hidden', !match);
+              prevIsHr = false;
+            });
+            // Afficher les séparateurs seulement entre les lignes visibles
+            if (q) {
+              const allRows = Array.from(document.querySelectorAll('#chansons-all tr'));
+              allRows.forEach((tr, i) => {
+                if (!tr.querySelector('hr')) return;
+                const prev = allRows[i-1];
+                const next = allRows[i+1];
+                const prevHidden = !prev || prev.classList.contains('partition-row-hidden');
+                const nextHidden = !next || next.classList.contains('partition-row-hidden');
+                tr.classList.toggle('partition-row-hidden', prevHidden || nextHidden);
+              });
+            }
+          });
+          searchInput.focus();
+        }
       }).catch(e=>{console.error('failed to load partitions.json',e);});
   }
 
   function initChoristesPage(){
-  // Rôles ARIA de base pour les onglets principaux (inclut maintenant 'asso')
-  const tabsContainer = document.querySelector('.choristes-tabs');
-  if (tabsContainer) tabsContainer.setAttribute('role', 'tablist');
-  document.querySelectorAll('.choristes-tab').forEach(btn => btn.setAttribute('role', 'tab'));
+    // ARIA
+    document.querySelectorAll('.choristes-tab').forEach(btn => btn.setAttribute('role', 'tab'));
     document.querySelectorAll('.choristes-tab-content').forEach(p => p.setAttribute('role', 'tabpanel'));
-
     setupSousOnglets();
 
     const passwordContainer = document.getElementById('password-container');
-    const tabsWrap = document.getElementById('tabs-container');
-    const passwordInput = document.getElementById('partition-password');
-    const submitBtn = document.getElementById('partition-submit');
-    const errorMsg = document.getElementById('partition-error');
+    const profileStep       = document.getElementById('profile-step');
+    const tabsWrap          = document.getElementById('tabs-container');
+    const passwordInput     = document.getElementById('partition-password');
+    const submitBtn         = document.getElementById('partition-submit');
+    const errorMsg          = document.getElementById('partition-error');
 
-    // Affichage conditionnel selon rôle en session
-    const storedRole = sessionStorage.getItem('choristesRole');
-    if (storedRole === 'member' || storedRole === 'chef') {
+    // ---- Helpers profil ----
+    function getProf() { try { return JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch { return {}; } }
+    function setProf(p){ localStorage.setItem('choristeProfile', JSON.stringify(p||{})); }
+    function hasProf()  { const p = getProf(); return !!(p.prenom && p.nom && p.pupitre); }
+
+    // ---- Afficher les tabs ----
+    function showTabs() {
       if (passwordContainer) passwordContainer.style.display = 'none';
-      if (tabsWrap) tabsWrap.style.display = '';
-      window.IS_CHEF = (storedRole === 'chef');
-      if (document && document.body) {
-        document.body.classList.toggle('role-chef', window.IS_CHEF);
+      if (profileStep)       profileStep.style.display = 'none';
+      if (tabsWrap)          tabsWrap.style.display = '';
+
+      // Bandeau profil dans le calendrier
+      const p = getProf();
+      const banner = document.getElementById('profile-banner');
+      const nameEl = document.getElementById('pb-name-display');
+      if (banner && nameEl && p.prenom) {
+        nameEl.textContent = p.prenom + ' ' + p.nom + ' · ' + p.pupitre;
+        banner.style.display = 'flex';
       }
+
+      // Pré-remplir le champ photo depuis le profil
+      const photoUploader = document.getElementById('photo-uploader');
+      if (photoUploader && p.prenom) {
+        photoUploader.value = p.prenom + (p.nom ? ' ' + p.nom : '');
+      }
+
       showTab('chansons');
       generateChansonsContent();
+    }
+
+    // ---- Afficher l'étape profil ----
+    function showProfileStep(returnToCalendar) {
+      if (passwordContainer) passwordContainer.style.display = 'none';
+      if (profileStep)       profileStep.style.display = '';
+      if (tabsWrap)          tabsWrap.style.display = 'none';
+      if (returnToCalendar)  profileStep.dataset.returnTo = 'calendrier';
+      else                   delete profileStep.dataset.returnTo;
+
+      // Pré-remplir si profil partiel existe
+      const p = getProf();
+      const prenomEl  = document.getElementById('profile-step-prenom');
+      const nomEl     = document.getElementById('profile-step-nom');
+      const pupitreEl = document.getElementById('profile-step-pupitre');
+      if (prenomEl  && p.prenom)  prenomEl.value  = p.prenom;
+      if (nomEl     && p.nom)     nomEl.value     = p.nom;
+      if (pupitreEl && p.pupitre) pupitreEl.value = p.pupitre;
+      setTimeout(() => { if (prenomEl) prenomEl.focus(); }, 80);
+    }
+
+    // ---- Soumission profil ----
+    function bindProfileStep() {
+      const btn = document.getElementById('profile-step-submit');
+      if (!btn) return;
+      btn.addEventListener('click', function() {
+        const prenomEl  = document.getElementById('profile-step-prenom');
+        const nomEl     = document.getElementById('profile-step-nom');
+        const pupitreEl = document.getElementById('profile-step-pupitre');
+        const errEl     = document.getElementById('profile-step-error');
+
+        const prenom  = (prenomEl?.value  || '').trim();
+        const nom     = (nomEl?.value     || '').trim();
+        const pupitre = (pupitreEl?.value || '');
+
+        [prenomEl, nomEl, pupitreEl].forEach(el => el?.classList.remove('input-error'));
+        let ok = true;
+        if (!prenom)  { prenomEl?.classList.add('input-error');  prenomEl?.focus();  ok = false; }
+        if (!nom)     { nomEl?.classList.add('input-error');     if (ok) nomEl?.focus(); ok = false; }
+        if (!pupitre) { pupitreEl?.classList.add('input-error'); if (ok) pupitreEl?.focus(); ok = false; }
+
+        if (!ok) { if (errEl) errEl.style.display = 'block'; return; }
+        if (errEl) errEl.style.display = 'none';
+
+        setProf({ prenom, nom, pupitre });
+
+        // Mettre à jour aussi les champs profil du calendrier (présences)
+        [['choriste-prenom','choriste-nom','choriste-pupitre'],
+         ['choriste-prenom-soul','choriste-nom-soul','choriste-pupitre-soul']].forEach(([p,n,v]) => {
+          const pe = document.getElementById(p); if (pe) pe.value = prenom;
+          const ne = document.getElementById(n); if (ne) ne.value = nom;
+          const ve = document.getElementById(v); if (ve) ve.value = pupitre;
+        });
+
+        const returnTo = profileStep?.dataset.returnTo;
+        showTabs();
+        if (returnTo) showTab(returnTo);
+      });
+
+      // Entrée = soumettre
+      [document.getElementById('profile-step-prenom'),
+       document.getElementById('profile-step-nom'),
+       document.getElementById('profile-step-pupitre')].forEach(el => {
+        if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+      });
+    }
+    bindProfileStep();
+
+    // ---- Bouton "Modifier mon profil" dans le bandeau calendrier ----
+    const modifyBtn = document.getElementById('pb-modify-btn');
+    if (modifyBtn) {
+      modifyBtn.addEventListener('click', function() {
+        showProfileStep(true); // returnToCalendar = true
+      });
+    }
+
+    // ---- Restauration de session ----
+    const storedRole = sessionStorage.getItem('choristesRole');
+    if (storedRole === 'member' || storedRole === 'chef') {
+      window.IS_CHEF = (storedRole === 'chef');
+      if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
+      if (hasProf()) showTabs();
+      else           showProfileStep(false);
     } else {
-      // Aucune session: forcer l'affichage du formulaire de mot de passe
       if (passwordContainer) passwordContainer.style.display = '';
-      if (tabsWrap) tabsWrap.style.display = 'none';
+      if (tabsWrap)          tabsWrap.style.display = 'none';
     }
 
     // Utilitaire de normalisation (trim, lowercase, supprime accents/diacritiques et espaces)
@@ -216,47 +339,40 @@
 
     if (submitBtn) {
       submitBtn.addEventListener('click', async function() {
-        const enteredRaw = passwordInput ? passwordInput.value : '';
-        const entered = normalizeInput(enteredRaw);
+        const entered    = normalizeInput(passwordInput ? passwordInput.value : '');
         const correctRaw = await getPartitionPassword();
-        const correct = correctRaw ? normalizeInput(correctRaw) : null;
+        const correct    = correctRaw ? normalizeInput(correctRaw) : null;
         let role = null;
-        if (entered === 'chefdechoeur') {
-          role = 'chef';
-        } else if (!correct || entered === correct) {
-          role = 'member';
-        }
+        if (entered === 'chefdechoeur') role = 'chef';
+        else if (!correct || entered === correct) role = 'member';
+
         if (role) {
           sessionStorage.setItem('choristesRole', role);
           window.IS_CHEF = (role === 'chef');
-          if (document && document.body) {
-            document.body.classList.toggle('role-chef', window.IS_CHEF);
-          }
-          if (passwordContainer) passwordContainer.style.display = 'none';
-          if (tabsWrap) tabsWrap.style.display = '';
-          showTab('chansons');
-          generateChansonsContent();
+          if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
+          if (hasProf()) showTabs();
+          else           showProfileStep(false);
         } else {
           if (errorMsg) errorMsg.style.display = 'block';
         }
       });
+      // Enter pour soumettre le mot de passe
+      if (passwordInput) passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
     }
 
-    // Déconnexion / Changer de rôle
+    // Déconnexion
     const logoutBtn = document.getElementById('logout-role');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', function(){
         try { sessionStorage.removeItem('choristesRole'); } catch {}
         window.IS_CHEF = false;
-        if (document && document.body) {
-          document.body.classList.remove('role-chef');
-        }
-        if (tabsWrap) tabsWrap.style.display = 'none';
+        if (document.body) document.body.classList.remove('role-chef');
+        if (tabsWrap)          tabsWrap.style.display = 'none';
+        if (profileStep)       profileStep.style.display = 'none';
         if (passwordContainer) passwordContainer.style.display = '';
         const err = document.getElementById('partition-error');
         if (err) err.style.display = 'none';
-        const input = document.getElementById('partition-password');
-        if (input) { input.value = ''; input.focus(); }
+        if (passwordInput) { passwordInput.value = ''; passwordInput.focus(); }
       });
     }
 

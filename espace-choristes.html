@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <style>
@@ -115,140 +115,61 @@
   </head>
   <body class="internal-page">
     <main class="main-content">
-      <div id="password-container" style="max-width:400px;margin:40px auto;text-align:center;">
-        <label for="partition-password">Mot de passe :</label>
-        <input type="password" id="partition-password" style="margin:10px;">
-        <button id="partition-submit">Valider</button>
-        <div id="partition-error" style="color:red;margin-top:10px;display:none;">Mot de passe incorrect.</div>
+      <!-- Étape 1 : Mot de passe -->
+      <div id="password-container" class="password-gate-card">
+        <img src="assets/images/logo.png" class="gate-logo" alt="La Voix Libre">
+        <h2>Espace choristes</h2>
+        <p class="gate-hint">Réservé aux membres de La Voix Libre.<br>Le mot de passe est communiqué par le chef de chœur.</p>
+        <div class="password-gate-form">
+          <input type="password" id="partition-password" placeholder="Mot de passe…" autocomplete="current-password">
+          <button id="partition-submit">Entrer</button>
+        </div>
+        <div id="partition-error" class="gate-error">Mot de passe incorrect.</div>
       </div>
+
+      <!-- Étape 2 : Profil (prénom, nom, pupitre) -->
+      <div id="profile-step" class="password-gate-card" style="display:none;">
+        <img src="assets/images/logo.png" class="gate-logo" alt="La Voix Libre">
+        <h2 style="font-family:'Lobster',cursive;color:#3981FF;font-size:1.7rem;margin:0 0 6px 0;">Qui êtes-vous ?</h2>
+        <p class="gate-hint">Ces informations sont sauvegardées sur votre appareil. Vous ne les saisirez qu'une seule fois.</p>
+        <div class="profile-step-form">
+          <input type="text" id="profile-step-prenom" placeholder="Prénom" autocomplete="given-name">
+          <input type="text" id="profile-step-nom"    placeholder="Nom"    autocomplete="family-name">
+          <select id="profile-step-pupitre">
+            <option value="">Votre pupitre…</option>
+            <option>Soprane</option>
+            <option>Alto</option>
+            <option>Ténor</option>
+            <option>Basse</option>
+          </select>
+          <button id="profile-step-submit">Accéder à l'espace choristes →</button>
+        </div>
+        <div id="profile-step-error" class="gate-error">Merci de renseigner tous les champs.</div>
+      </div>
+
       <div id="tabs-container" style="display:none;max-width:1100px;margin:0 auto;">
         <div style="text-align:right;margin-bottom:8px;">
-          <button id="logout-role" title="Se déconnecter / Changer de rôle" style="background:#f3f4f6;border:1px solid #d1d5db;color:#111827;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600;">Changer de rôle</button>
+          <button id="logout-role" title="Se déconnecter / Se déconnecter" style="background:#f3f4f6;border:1px solid #d1d5db;color:#111827;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600;">Se déconnecter</button>
         </div>
-        <div class="choristes-tabs" style="display:flex;gap:18px;margin-bottom:32px;background:#f3f6fa;padding:18px 0 18px 0;border-radius:18px;box-shadow:0 2px 12px #3981FF22;">
-          <button class="choristes-tab active" data-tab="chansons" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #3981FF;background:#3981FF;color:#fff;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF33;outline:none;transition:all 0.2s;position:relative;">Chansons</button>
-          <button class="choristes-tab" data-tab="liens" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Inscription & liens utiles</button>
-          <button class="choristes-tab" data-tab="calendrier" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Calendrier et présences</button>
-          <button class="choristes-tab" data-tab="asso" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">Côté asso</button>
-          <button class="choristes-tab" data-tab="photos" style="padding:22px 54px;font-size:1.35em;border-radius:16px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">📷 Photos</button>
+        <div class="choristes-tab-bar">
+          <button class="choristes-tab active" data-tab="chansons">🎵 Chansons</button>
+          <button class="choristes-tab" data-tab="calendrier">📅 Calendrier</button>
+          <button class="choristes-tab" data-tab="infos">ℹ️ Infos & liens</button>
+          <button class="choristes-tab" data-tab="photos">📷 Photos</button>
         </div>
         <div id="tab-content-chansons" class="choristes-tab-content"></div>
-        <div id="tab-content-asso" class="choristes-tab-content" style="display:none;">
-          <h2>Côté asso — Documents officiels</h2>
-          <p style="margin-top:0;">Espace dédié aux documents officiels de l'association. Les fichiers listés ci-dessous sont ceux présents dans le dossier <code>docs asso/</code>.</p>
+        <div id="tab-content-infos" class="choristes-tab-content" style="display:none;">
+          <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-complementary);font-size:1.6rem;margin:0 0 20px 0;">Infos &amp; liens</h2>
 
-          <!-- Section 'Affichages — Vie administrative' déplacée vers la section dynamique plus bas -->
-          
-          <section id="documents-officiels-section" style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
-            <h3 style="margin-top:0">Documents officiels</h3>
-            <div class="documents-officiels-placeholder">
-              <p style="margin-top:8px;color:#444;font-style:italic;">Chargement des documents officiels…</p>
-            </div>
-            <p style="margin-top:12px;color:#555;">Si vous devez accéder à un document non listé, contactez le bureau : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
-          </section>
-
-          <!-- Affichages dynamiques (posts tagués 'asso' depuis le CSV/posts) -->
-          <section id="affichages-section" style="margin:18px 0;padding:14px;border:1px dashed #eef2ff;border-radius:12px;background:#fff;">
-            <h3 style="margin-top:0">Affichages — Vie administrative</h3>
-            <!-- Le contenu administratif est désormais fourni par la feuille Google Sheet via les posts tagués 'asso'. -->
-            <div id="affichages-posts" style="margin-top:12px;color:#444;">
-              <div id="posts-container">Chargement des affichages…</div>
-            </div>
-          </section>
-          </section>
-
-          <p style="margin-top:8px;">Pour toute modification, ajout de document ou problème d'accès, contactez : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
-        </div>
-
-        <!-- ============================================================ -->
-        <!-- ONGLET PHOTOS                                                  -->
-        <!-- ============================================================ -->
-        <div id="tab-content-photos" class="choristes-tab-content" style="display:none;">
-          <h2>Photos de concerts</h2>
-          <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a>.</p>
-
-          <div style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
-            <h3 style="margin-top:0;color:#134;font-size:1.15rem;">Ajouter une photo</h3>
-
-            <!-- Concert -->
-            <div style="margin-bottom:14px;">
-              <label for="photo-concert" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Concert / Événement</label>
-              <select id="photo-concert"
-                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
-                <option value="">Chargement des concerts…</option>
-              </select>
-              <p id="photo-concert-error" style="display:none;color:#ef4444;font-size:0.85rem;margin:4px 0 0 0;">Veuillez choisir un concert.</p>
-            </div>
-
-            <!-- Prénom -->
-            <div style="margin-bottom:14px;">
-              <label for="photo-uploader" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Votre prénom (optionnel)</label>
-              <input type="text" id="photo-uploader"
-                placeholder="Laissez vide pour rester anonyme"
-                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;">
-            </div>
-
-            <!-- Fichier -->
-            <div style="margin-bottom:14px;">
-              <label style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Photo</label>
-              <label for="photo-file" id="photo-file-label"
-                style="display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border:2px dashed #98bfff;border-radius:10px;cursor:pointer;background:#fff;color:#3981FF;font-weight:700;transition:background 0.2s;">
-                <span style="font-size:1.5rem;">📷</span>
-                <span id="photo-file-label-text">Choisir une photo</span>
-              </label>
-              <input type="file" id="photo-file" accept="image/*"
-                style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
-            </div>
-
-            <!-- Aperçu -->
-            <div id="photo-preview-wrap" style="display:none;margin-bottom:14px;text-align:center;">
-              <img id="photo-preview" alt="Aperçu" style="max-width:100%;max-height:220px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
-              <p id="photo-size-info" style="font-size:0.85rem;color:#666;margin:6px 0 0 0;"></p>
-            </div>
-
-            <!-- Bouton envoyer -->
-            <button id="photo-submit"
-              style="width:100%;padding:12px;background:#3981FF;color:#fff;font-weight:700;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:background 0.2s;"
-              disabled>
-              Envoyer la photo
-            </button>
-
-            <!-- Barre de progression -->
-            <div id="photo-progress" style="display:none;margin-top:14px;">
-              <div style="background:#e0eaff;border-radius:999px;height:8px;overflow:hidden;">
-                <div id="photo-progress-bar"
-                  style="height:100%;width:0%;background:linear-gradient(90deg,#3981FF,#8844aa);border-radius:999px;transition:width 0.4s ease;">
-                </div>
-              </div>
-              <p id="photo-status" style="font-size:0.9rem;color:#234;margin:8px 0 0 0;text-align:center;"></p>
-            </div>
-
-            <!-- Message succès -->
-            <div id="photo-success" style="display:none;margin-top:14px;padding:12px 16px;background:#e8f7ee;border:1px solid #8fd5a6;border-radius:8px;color:#064e3b;font-weight:600;text-align:center;">
-              ✅ Photo envoyée ! Elle apparaît maintenant dans la <a href="galerie.html" style="color:#047857;">galerie</a>.
-              <br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter une autre photo</button>
-            </div>
-          </div>
-
-          <p style="margin-top:20px;color:#888;font-size:0.88rem;">
-            Les photos sont compressées automatiquement avant envoi. Formats acceptés : JPG, PNG, WebP.<br>
-            En envoyant une photo, vous autorisez La Voix Libre à la diffuser sur ce site.
-          </p>
-        </div>
-        <!-- FIN ONGLET PHOTOS -->
-
-        <div id="tab-content-liens" class="choristes-tab-content" style="display:none;">
-          <h2>Inscription & liens utiles</h2>
-
-          <section style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
-            <h3 style="margin-top:0;">Groupe WhatsApp — Vie de la chorale</h3>
+          <section class="espace-section">
+            <h3>Groupe WhatsApp — Vie de la chorale</h3>
             <p>Groupe WhatsApp réservé aux membres pour les informations de la vie de la chorale : annonces, logistique, covoiturage et échanges rapides.</p>
             <p><a href="https://chat.whatsapp.com/LFftvf8dsDbFrQ9EXPGUnW" target="_blank" rel="noopener">Rejoindre le groupe WhatsApp — infos pratiques de la chorale</a></p>
             <p style="margin-top:6px;color:#555;">Conseil : indiquez votre nom complet et votre pupitre à l'entrée du groupe.</p>
           </section>
 
-          <section style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
-            <h3 style="margin-top:0;">SOUL – Inscription & feuille d'engagement</h3>
+          <section class="espace-section">
+            <h3>SOUL – Inscription & feuille d'engagement</h3>
             <p style="font-size:1.05em;">
               Inscription SOUL :
               <a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/soul-2025-2026" target="_blank" rel="noopener">formulaire HelloAsso</a>
@@ -369,8 +290,8 @@
             </details>
           </section>
 
-          <section style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
-            <h3 style="margin-top:0;">Grande Chorale – Inscription & feuille d'engagement</h3>
+          <section class="espace-section">
+            <h3>Grande Chorale – Inscription & feuille d'engagement</h3>
             <p style="font-size:1.05em;">
               Inscription Grande Chorale :
               <a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/grande-chorale-de-la-voix-libre-2025-2026" target="_blank" rel="noopener">formulaire HelloAsso</a>
@@ -492,194 +413,237 @@
             </details>
           </section>
 
-          <section style="margin:20px 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
-            <h3 style="margin-top:0;">Cours individuels</h3>
+          <section class="espace-section">
+            <h3>Cours individuels</h3>
             <p>Prendre RDV pour un cours de chant avec Vincent :
               <a href="mailto:vincenttricotel@gmail.com">Contacter Vincent par e‑mail</a>
             </p>
           </section>
+<hr style="margin:28px 0;border:none;border-top:1px solid rgba(0,0,0,.07);">
+<h3 style="font-family:'Lobster',cursive;color:#8844aa;font-size:1.3rem;margin:0 0 14px 0;">Documents &amp; vie de l'asso</h3>
+          <p>Espace dédié aux documents officiels de l'association. Les fichiers listés ci-dessous sont ceux présents dans le dossier <code>docs asso/</code>.</p>
+
+          <!-- Section 'Affichages — Vie administrative' déplacée vers la section dynamique plus bas -->
+          
+          <section id="documents-officiels-section" style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 2px 8px #00000011;">
+            <h3>Documents officiels</h3>
+            <div class="documents-officiels-placeholder">
+              <p style="margin-top:8px;color:#444;font-style:italic;">Chargement des documents officiels…</p>
+            </div>
+            <p style="margin-top:12px;color:#555;">Si vous devez accéder à un document non listé, contactez le bureau : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
+          </section>
+
+          <!-- Affichages dynamiques (posts tagués 'asso' depuis le CSV/posts) -->
+          <section id="affichages-section" style="margin:18px 0;padding:14px;border:1px dashed #eef2ff;border-radius:12px;background:#fff;">
+            <h3>Affichages — Vie administrative</h3>
+            <!-- Le contenu administratif est désormais fourni par la feuille Google Sheet via les posts tagués 'asso'. -->
+            <div id="affichages-posts" style="margin-top:12px;color:#444;">
+              <div id="posts-container">Chargement des affichages…</div>
+            </div>
+          </section>
+          </section>
+
+          <p style="margin-top:8px;">Pour toute modification, ajout de document ou problème d'accès, contactez : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a>.</p>
         </div>
+
+        <!-- ============================================================ -->
+        <!-- ONGLET PHOTOS                                                  -->
+        <!-- ============================================================ -->
+        <div id="tab-content-photos" class="choristes-tab-content" style="display:none;">
+          <h2>Photos de concerts</h2>
+          <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a>.</p>
+
+          <div style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
+            <h3 style="margin-top:0;color:#134;font-size:1.15rem;">Ajouter une photo</h3>
+
+            <!-- Concert -->
+            <div style="margin-bottom:14px;">
+              <label for="photo-concert" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Concert / Événement</label>
+              <select id="photo-concert"
+                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
+                <option value="">Chargement des concerts…</option>
+              </select>
+              <p id="photo-concert-error" style="display:none;color:#ef4444;font-size:0.85rem;margin:4px 0 0 0;">Veuillez choisir un concert.</p>
+            </div>
+
+            <!-- Prénom (champ caché, rempli automatiquement depuis le profil) -->
+            <input type="hidden" id="photo-uploader">
+
+            <!-- Fichier -->
+            <div style="margin-bottom:14px;">
+              <label style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Photo</label>
+              <label for="photo-file" id="photo-file-label"
+                style="display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border:2px dashed #98bfff;border-radius:10px;cursor:pointer;background:#fff;color:#3981FF;font-weight:700;transition:background 0.2s;">
+                <span style="font-size:1.5rem;">📷</span>
+                <span id="photo-file-label-text">Choisir une photo</span>
+              </label>
+              <input type="file" id="photo-file" accept="image/*"
+                style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+            </div>
+
+            <!-- Aperçu -->
+            <div id="photo-preview-wrap" style="display:none;margin-bottom:14px;text-align:center;">
+              <img id="photo-preview" alt="Aperçu" style="max-width:100%;max-height:220px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
+              <p id="photo-size-info" style="font-size:0.85rem;color:#666;margin:6px 0 0 0;"></p>
+            </div>
+
+            <!-- Bouton envoyer -->
+            <button id="photo-submit"
+              style="width:100%;padding:12px;background:#3981FF;color:#fff;font-weight:700;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:background 0.2s;"
+              disabled>
+              Envoyer la photo
+            </button>
+
+            <!-- Barre de progression -->
+            <div id="photo-progress" style="display:none;margin-top:14px;">
+              <div style="background:#e0eaff;border-radius:999px;height:8px;overflow:hidden;">
+                <div id="photo-progress-bar"
+                  style="height:100%;width:0%;background:linear-gradient(90deg,#3981FF,#8844aa);border-radius:999px;transition:width 0.4s ease;">
+                </div>
+              </div>
+              <p id="photo-status" style="font-size:0.9rem;color:#234;margin:8px 0 0 0;text-align:center;"></p>
+            </div>
+
+            <!-- Message succès -->
+            <div id="photo-success" style="display:none;margin-top:14px;padding:12px 16px;background:#e8f7ee;border:1px solid #8fd5a6;border-radius:8px;color:#064e3b;font-weight:600;text-align:center;">
+              ✅ Photo envoyée ! Elle apparaît maintenant dans la <a href="galerie.html" style="color:#047857;">galerie</a>.
+              <br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter une autre photo</button>
+            </div>
+          </div>
+
+          <p style="margin-top:20px;color:#888;font-size:0.88rem;">
+            Les photos sont compressées automatiquement avant envoi. Formats acceptés : JPG, PNG, WebP.<br>
+            En envoyant une photo, vous autorisez La Voix Libre à la diffuser sur ce site.
+          </p>
+        </div>
+        <!-- FIN ONGLET PHOTOS -->
+
         <div id="tab-content-calendrier" class="choristes-tab-content" style="display:none;">
-          <h2>Calendrier et présences</h2>
-          <div style="background:#eaf6ff;border:1px solid #b6e0fe;padding:14px 20px;border-radius:8px;margin-bottom:18px;">
-            <strong>Organisation annuelle :</strong><br>
-            Les activités suivent le calendrier scolaire de la zone B. L'année chorale débute la deuxième semaine de septembre et se termine à la fin du mois de juin. Il n'y a pas de répétitions pendant les jours fériés ni pendant les vacances scolaires.
+          <!-- Bandeau profil courant -->
+          <div id="profile-banner" class="profile-banner" style="display:none;">
+            <span class="pb-icon">👤</span>
+            <span class="pb-name" id="pb-name-display"></span>
+            <button class="pb-modify" id="pb-modify-btn">Modifier mon profil</button>
           </div>
-          <div class="calendrier-sous-onglets" style="display:flex;gap:18px;margin-bottom:24px;background:#f3f6fa;padding:14px 0 14px 0;border-radius:14px;box-shadow:0 2px 8px #3981FF22;">
-            <button class="calendrier-sous-onglet active" data-sousonglet="grandechorale" style="padding:14px 38px;font-size:1.15em;border-radius:12px;border:2.5px solid #3981FF;background:#3981FF;color:#fff;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF33;outline:none;transition:all 0.2s;position:relative;">Grande Chorale de La Voix Libre</button>
-            <button class="calendrier-sous-onglet" data-sousonglet="soul" style="padding:14px 38px;font-size:1.15em;border-radius:12px;border:2.5px solid #e0e0e0;background:#e0e0e0;color:#222;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px #3981FF11;outline:none;transition:all 0.2s;position:relative;">SOUL</button>
+
+          <!-- Sélecteur d'ensemble -->
+          <div class="ensemble-selector">
+            <p class="ensemble-selector-label">Dans quel ensemble chantez-vous ?</p>
+            <div class="ensemble-btns">
+              <button class="calendrier-sous-onglet ensemble-btn active" data-sousonglet="grandechorale">
+                <span class="ens-icon">🎼</span>
+                <span class="ens-name">Grande Chorale</span>
+                <span class="ens-day">Répétitions le lundi soir</span>
+                <span class="ens-check">✓ Sélectionné</span>
+              </button>
+              <button class="calendrier-sous-onglet ensemble-btn" data-sousonglet="soul">
+                <span class="ens-icon">🎤</span>
+                <span class="ens-name">SOUL</span>
+                <span class="ens-day">Répétitions le mardi soir</span>
+                <span class="ens-check">✓ Sélectionné</span>
+              </button>
+            </div>
           </div>
+
+          <!-- GRANDE CHORALE -->
           <div id="sousonglet-grandechorale" class="calendrier-sousonglet-content">
-            <div id="presence-profile-bar" class="presence-profile">
-              <div class="field">
-                <label for="choriste-prenom">Prénom</label>
-                <input id="choriste-prenom" type="text" placeholder="Votre prénom">
-              </div>
-              <div class="field">
-                <label for="choriste-nom">Nom</label>
-                <input id="choriste-nom" type="text" placeholder="Votre nom">
-              </div>
-              <div class="field">
-                <label for="choriste-pupitre">Pupitre</label>
-                <select id="choriste-pupitre">
-                  <option value="">Sélectionner…</option>
-                  <option>Soprane</option>
-                  <option>Alto</option>
-                  <option>Ténor</option>
-                  <option>Basse</option>
-                </select>
-              </div>
-              <button class="save" id="choriste-save">Enregistrer mon profil</button>
-              <button class="edit" id="choriste-edit" type="button">Modifier mon profil</button>
-            </div>
-            <p style="margin:-8px 0 16px 0;color:#355;font-size:0.95em;">Astuce&nbsp;: d’abord <strong>enregistrez votre profil</strong> (Prénom, Nom, Pupitre), puis cochez <em>Présent·e</em> ou <em>Absent·e</em> à côté de chaque concert/événement. Une mention <em style='color:#2c7a2c;'>Enregistré</em> s’affichera en vert une fois pris en compte.</p>
-            <div style="margin-bottom:32px;">
-              <h3 style="margin-bottom:12px;">Agenda annuel Grande Chorale</h3>
-              <div id="events-lists" style="display:flex;gap:16px;flex-wrap:wrap;max-width:900px;margin:0 auto 18px auto;">
-                <div id="events-list-repetitions" style="flex:1;min-width:260px;background:#f8faff;border:1px solid #b6e0fe;padding:16px 20px;border-radius:10px;"></div>
-                <div id="events-list-concerts" style="flex:1;min-width:260px;background:#fff8f8;border:1px solid #feb6b6;padding:16px 20px;border-radius:10px;"></div>
-              </div>
-              <iframe src="https://calendar.google.com/calendar/embed?src=8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e%40group.calendar.google.com&ctz=Europe%2FParis&mode=MONTH" style="border:0;width:100%;min-height:600px;max-width:900px;margin:0 auto;display:block;border-radius:12px;box-shadow:0 2px 12px #3981FF22;" frameborder="0" scrolling="no" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-              <script>
-                const apiKey = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-                const calendarId = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
-                const maxResults = 100;
-                const timeMin = new Date().toISOString();
-                fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?key=${apiKey}&timeMin=${timeMin}&maxResults=${maxResults}&orderBy=startTime&singleEvents=true`)
-                  .then(res => res.json())
-                  .then(data => {
-                    const contRep = document.getElementById('events-list-repetitions');
-                    const contEvt = document.getElementById('events-list-concerts');
-                    const items = (data.items || []);
-                    if (!items.length) {
-                      contRep.innerHTML = '<em>Aucune répétition à venir.</em>'; 
-                      contEvt.innerHTML = '<em>Aucun concert/événement à venir.</em>';
-                      return;
-                    }
-                    const kw = /(concert|événement|evenement|déambulation|deambulation|chant|stage|pic[- ]?nic|pique[- ]?nique|pique[- ]?niques)/i;
-                    const concerts = items.filter(ev => kw.test((ev.summary || '')));
-                    const repetitions = items.filter(ev => !kw.test((ev.summary || '')));
-                    const nowSoul = new Date();
-                    const fmt = (ev, withAtt) => {
-                      const start = ev.start.dateTime || ev.start.date;
-                      const end = (ev.end && (ev.end.dateTime || ev.end.date)) || start;
-                      const endDate = new Date(end);
-                      const isPast = endDate < nowSoul;
-                      const date = new Date(start);
-                      const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                      const dateStr = date.toLocaleString('fr-FR', options);
-                      const disabled = isPast ? 'disabled' : '';
-                      const eid = (ev.id || (ev.summary + '-' + start)).replace(/[^a-zA-Z0-9_-]/g,'');
-                      const safeSummary = (ev.summary || '(Sans titre)').replace(/"/g,'&quot;');
-                      const locationHtml = ev.location ? ` <span style='color:#888;'>(${ev.location})</span>` : '';
-                      const descriptionHtml = ev.description ? `<div style="margin-top:6px;color:#444;">${ev.description}</div>` : '';
-                      const att = withAtt ? `
-                        <span class="att-controls" data-calendar="soul" data-eventid="${eid}" data-title="${safeSummary}" data-start="${start}" data-end="${end}" data-location="${(ev.location||'').replace(/"/g,'&quot;')}">
-                          <label class="att-chip"><input type="radio" name="att-soul-${eid}" value="present" ${disabled} onclick="submitAttendance(this)"> Présent·e</label>
-                          <label class="att-chip"><input type="radio" name="att-soul-${eid}" value="absent" ${disabled} onclick="submitAttendance(this)"> Absent·e</label>
-                          <span class="att-status">Enregistré</span>
-                        </span>` : '';
-                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="soul" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${safeSummary}${locationHtml}${att}
-                        <div class="event-stats chef-only" aria-hidden="true"></div>
-                        ${descriptionHtml}
-                      </li>`;
-                    };
-                    contRep.innerHTML = '<strong>Prochaines répétitions :</strong>' + (repetitions.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + repetitions.map(ev => fmt(ev, false)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucune répétition à venir.</em></div>');
-                    contEvt.innerHTML = '<strong>Prochain concert/événement :</strong>' + (concerts.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + concerts.map(ev => fmt(ev, true)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucun concert/événement à venir.</em></div>');
-                  })
-                  .catch(() => {
-                    document.getElementById('events-list-repetitions').innerHTML = '<em>Impossible de charger les répétitions (clé API manquante ou agenda non public).</em>';
-                    document.getElementById('events-list-concerts').innerHTML = '<em>Impossible de charger les concerts/événements (clé API manquante ou agenda non public).</em>';
-                  });
-              </script>
+            <h3 class="cal-section-title">Prochains concerts &amp; événements</h3>
+            <div id="events-list-concerts" class="cal-events-list">
+              <p style="color:#aaa;font-style:italic;">Chargement…</p>
             </div>
             
+            <script>
+              (function() {
+                var CAL_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+                var CAL_ID  = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
+                var KW = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pique[- ]?nique)/i;
+                var tMin = new Date(Date.now()-30*24*3600*1000).toISOString();
+                var tMax = new Date(Date.now()+2*365*24*3600*1000).toISOString();
+                var box  = document.getElementById('events-list-concerts');
+                function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c;});}
+                fetch('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(CAL_ID)+'/events?key='+CAL_KEY+'&timeMin='+encodeURIComponent(tMin)+'&timeMax='+encodeURIComponent(tMax)+'&maxResults=100&orderBy=startTime&singleEvents=true')
+                  .then(function(r){return r.json();})
+                  .then(function(data){
+                    var now=new Date();
+                    var items=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
+                    if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
+                    box.innerHTML=items.map(function(ev){
+                      var start=ev.start.dateTime||ev.start.date;
+                      var end=(ev.end&&(ev.end.dateTime||ev.end.date))||start;
+                      var isPast=new Date(end)<now;
+                      var d=new Date(start);
+                      var ds=d.toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+                      ds=ds.charAt(0).toUpperCase()+ds.slice(1);
+                      var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
+                      var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
+                      var desc=ev.description?'<div class="cal-event-desc">'+esc(ev.description).replace(/\n/g,'<br>')+'</div>':'';
+                      var att=isPast?'':'<div class="att-controls" data-calendar="grandechorale" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
+                        +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
+                        +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
+                        +'<span class="att-status">Enregistré ✓</span></div>';
+                      return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="grandechorale" data-eventid="'+eid+'">'
+                        +'<div class="cal-event-date">'+ds+'</div>'
+                        +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
+                        +loc+desc+att
+                        +'<div class="event-stats chef-only" aria-hidden="true"></div>'
+                        +'</div>';
+                    }).join('');
+                  })
+                  .catch(function(){box.innerHTML='<p style="color:#b00;font-size:.9rem;">Impossible de charger les événements.</p>';});
+              })();
+            </script>
           </div>
+
+          <!-- SOUL -->
           <div id="sousonglet-soul" class="calendrier-sousonglet-content" style="display:none;">
-            <div id="presence-profile-bar-soul" class="presence-profile">
-              <div class="field">
-                <label for="choriste-prenom-soul">Prénom</label>
-                <input id="choriste-prenom-soul" type="text" placeholder="Votre prénom">
-              </div>
-              <div class="field">
-                <label for="choriste-nom-soul">Nom</label>
-                <input id="choriste-nom-soul" type="text" placeholder="Votre nom">
-              </div>
-              <div class="field">
-                <label for="choriste-pupitre-soul">Pupitre</label>
-                <select id="choriste-pupitre-soul">
-                  <option value="">Sélectionner…</option>
-                  <option>Soprane</option>
-                  <option>Alto</option>
-                  <option>Ténor</option>
-                  <option>Basse</option>
-                </select>
-              </div>
-              <button class="save" id="choriste-save-soul">Enregistrer mon profil</button>
-              <button class="edit" id="choriste-edit-soul" type="button">Modifier mon profil</button>
-            </div>
-            <p style="margin:-8px 0 16px 0;color:#355;font-size:0.95em;">Astuce&nbsp;: d’abord <strong>enregistrez votre profil</strong> (Prénom, Nom, Pupitre), puis cochez <em>Présent·e</em> ou <em>Absent·e</em> à côté de chaque concert/événement. Une mention <em style='color:#2c7a2c;'>Enregistré</em> s’affichera en vert une fois pris en compte.</p>
-            <div style="margin-bottom:32px;">
-              <h3 style="margin-bottom:12px;">Agenda annuel SOUL</h3>
-              <div id="events-lists-soul" style="display:flex;gap:16px;flex-wrap:wrap;max-width:900px;margin:0 auto 18px auto;">
-                <div id="events-list-soul-repetitions" style="flex:1;min-width:260px;background:#f8faff;border:1px solid #b6e0fe;padding:16px 20px;border-radius:10px;"></div>
-                <div id="events-list-soul-concerts" style="flex:1;min-width:260px;background:#fff8f8;border:1px solid #feb6b6;padding:16px 20px;border-radius:10px;"></div>
-              </div>
-              <iframe src="https://calendar.google.com/calendar/embed?src=566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce%40group.calendar.google.com&ctz=Europe%2FParis&mode=MONTH" style="border:0;width:100%;min-height:600px;max-width:900px;margin:0 auto;display:block;border-radius:12px;box-shadow:0 2px 12px #3981FF22;" frameborder="0" scrolling="no" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-              <script>
-                const apiKeySoul = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-                const calendarIdSoul = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
-                const maxResultsSoul = 250;
-                const timeMinSoul = new Date().toISOString();
-                fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarIdSoul)}/events?key=${apiKeySoul}&timeMin=${timeMinSoul}&maxResults=${maxResultsSoul}&orderBy=startTime&singleEvents=true`)
-                  .then(res => res.json())
-                  .then(data => {
-                    const contRep = document.getElementById('events-list-soul-repetitions');
-                    const contEvt = document.getElementById('events-list-soul-concerts');
-                    const items = (data.items || []);
-                    if (!items.length) {
-                      contRep.innerHTML = '<em>Aucune répétition à venir.</em>'; 
-                      contEvt.innerHTML = '<em>Aucun concert/événement à venir.</em>';
-                      return;
-                    }
-                    const kw = /(concert|événement|evenement|déambulation|deambulation|chant|stage|pic[- ]?nic|pique[- ]?nique|pique[- ]?niques)/i;
-                    const concerts = items.filter(ev => kw.test((ev.summary || '')));
-                    const repetitions = items.filter(ev => !kw.test((ev.summary || '')));
-                    const nowSoul = new Date();
-                    const fmt = (ev, withAtt) => {
-                      const start = ev.start.dateTime || ev.start.date;
-                      const end = (ev.end && (ev.end.dateTime || ev.end.date)) || start;
-                      const endDate = new Date(end);
-                      const isPast = endDate < nowSoul;
-                      const date = new Date(start);
-                      const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-                      const dateStr = date.toLocaleString('fr-FR', options);
-                      const disabled = isPast ? 'disabled' : '';
-                      const eid = (ev.id || (ev.summary + '-' + start)).replace(/[^a-zA-Z0-9_-]/g,'');
-                      const att = withAtt ? `
-                        <span class=\"att-controls\" data-calendar=\"soul\" data-eventid=\"${eid}\" data-title=\"${(ev.summary || '').replace(/\"/g,'&quot;')}\" data-start=\"${start}\" data-end=\"${end}\" data-location=\"${(ev.location||'').replace(/\"/g,'&quot;')}\">
-                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"present\" ${disabled} onclick=\"submitAttendance(this)\"> Présent·e</label>
-                          <label class=\"att-chip\"><input type=\"radio\" name=\"att-soul-${eid}\" value=\"absent\" ${disabled} onclick=\"submitAttendance(this)\"> Absent·e</label>
-                          <span class=\"att-status\">Enregistré</span>
-                        </span>` : '';
-                      return `<li class="event-item ${isPast ? 'event-past' : ''}" data-calendar="soul" data-eventid="${eid}"><span style='color:#3981FF;font-weight:bold;'>${dateStr}</span> : ${ev.summary || '(Sans titre)'}${ev.location ? ' <span style=' + "'color:#888;'" + '>(' + ev.location + ')</span>' : ''}${att}
-                        <div class="event-stats chef-only" aria-hidden="true"></div>
-                      </li>`;
-                    };
-                    contRep.innerHTML = '<strong>Prochaines répétitions :</strong>' + (repetitions.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + repetitions.map(ev => fmt(ev, false)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucune répétition à venir.</em></div>');
-                    contEvt.innerHTML = '<strong>Prochain concert/événement :</strong>' + (concerts.length ? '<div class="events-scroll"><ul style="line-height:1.7;">' + concerts.map(ev => fmt(ev, true)).join('') + '</ul></div>' : '<div style="margin-top:10px;"><em>Aucun concert/événement à venir.</em></div>');
-                  })
-                  .catch(() => {
-                    document.getElementById('events-list-soul-repetitions').innerHTML = '<em>Impossible de charger les répétitions (clé API manquante ou agenda non public).</em>';
-                    document.getElementById('events-list-soul-concerts').innerHTML = '<em>Impossible de charger les concerts/événements (clé API manquante ou agenda non public).</em>';
-                  });
-              </script>
+            <h3 class="cal-section-title">Prochains concerts &amp; événements SOUL</h3>
+            <div id="events-list-soul-concerts" class="cal-events-list">
+              <p style="color:#aaa;font-style:italic;">Chargement…</p>
             </div>
             
+            <script>
+              (function() {
+                var CAL_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+                var CAL_ID  = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
+                var KW = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pique[- ]?nique)/i;
+                var tMin = new Date(Date.now()-30*24*3600*1000).toISOString();
+                var tMax = new Date(Date.now()+2*365*24*3600*1000).toISOString();
+                var box  = document.getElementById('events-list-soul-concerts');
+                function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c;});}
+                fetch('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(CAL_ID)+'/events?key='+CAL_KEY+'&timeMin='+encodeURIComponent(tMin)+'&timeMax='+encodeURIComponent(tMax)+'&maxResults=100&orderBy=startTime&singleEvents=true')
+                  .then(function(r){return r.json();})
+                  .then(function(data){
+                    var now=new Date();
+                    var items=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
+                    if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
+                    box.innerHTML=items.map(function(ev){
+                      var start=ev.start.dateTime||ev.start.date;
+                      var end=(ev.end&&(ev.end.dateTime||ev.end.date))||start;
+                      var isPast=new Date(end)<now;
+                      var d=new Date(start);
+                      var ds=d.toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+                      ds=ds.charAt(0).toUpperCase()+ds.slice(1);
+                      var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
+                      var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
+                      var desc=ev.description?'<div class="cal-event-desc">'+esc(ev.description).replace(/\n/g,'<br>')+'</div>':'';
+                      var att=isPast?'':'<div class="att-controls" data-calendar="soul" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
+                        +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
+                        +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
+                        +'<span class="att-status">Enregistré ✓</span></div>';
+                      return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="soul" data-eventid="'+eid+'">'
+                        +'<div class="cal-event-date">'+ds+'</div>'
+                        +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
+                        +loc+desc+att
+                        +'<div class="event-stats chef-only" aria-hidden="true"></div>'
+                        +'</div>';
+                    }).join('');
+                  })
+                  .catch(function(){box.innerHTML='<p style="color:#b00;font-size:.9rem;">Impossible de charger les événements.</p>';});
+              })();
+            </script>
           </div>
         </div>
-      </div>
-    </main>
+      </div>    </main>
     <!-- Admin (chef) floating panel -->
     <div id="admin-panel" aria-live="polite" aria-label="Panneau admin présences">
       <h4>Admin présences (chef)</h4>
@@ -840,12 +804,25 @@
         bindSet({ prenom: 'choriste-prenom-soul', nom: 'choriste-nom-soul', pup: 'choriste-pupitre-soul', btn: 'choriste-save-soul', editBtn: 'choriste-edit-soul' });
       }
       async function submitAttendance(inputEl) {
-        const wrap = inputEl.closest('.att-controls');
+        const wrap    = inputEl.closest('.att-controls');
         const statusEl = wrap.querySelector('.att-status');
+        const card    = wrap.closest('.cal-event-card');
         const profile = getChoristeProfile();
+
         if (!profile.prenom || !profile.nom || !profile.pupitre) {
-          alert('Merci de renseigner votre profil (Prénom, Nom et Pupitre) au-dessus avant de cocher.');
           inputEl.checked = false;
+          statusEl.textContent = '⚠ Renseignez votre profil ci-dessous';
+          statusEl.className = 'att-status error';
+          // Scroller vers le formulaire profil et le mettre en évidence
+          const profileBar = wrap.closest('#sousonglet-grandechorale')
+            ? document.getElementById('presence-profile-bar')
+            : document.getElementById('presence-profile-bar-soul');
+          if (profileBar) {
+            profileBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            profileBar.style.outline = '2px solid var(--accent-color-primary)';
+            profileBar.style.borderRadius = '10px';
+            setTimeout(() => { profileBar.style.outline = ''; profileBar.style.borderRadius = ''; }, 2500);
+          }
           return;
         }
         const payload = {
@@ -873,18 +850,32 @@
             localStorage.setItem('attendanceLocal', JSON.stringify(store));
           } catch {}
         }
+        function applySuccess(isPresent) {
+          const label = isPresent ? '✓ Présence enregistrée' : '✓ Absence enregistrée';
+          statusEl.textContent = label;
+          statusEl.className = 'att-status ' + (isPresent ? 'visible-present' : 'visible-absent');
+          if (card) {
+            card.classList.remove('att-done-present', 'att-done-absent');
+            card.classList.add(isPresent ? 'att-done-present' : 'att-done-absent');
+            // Ajouter le hint "pour modifier" si pas encore présent
+            if (!wrap.querySelector('.att-change-hint')) {
+              const hint = document.createElement('p');
+              hint.className = 'att-change-hint';
+              hint.textContent = 'Pour modifier, cliquez simplement sur l\'autre bouton.';
+              wrap.appendChild(hint);
+            }
+          }
+        }
+
         try {
+          const isPresent = inputEl.value === 'present';
           if (!ATTENDANCE_ENDPOINT) {
-            // Enregistrement local (fallback sans backend)
             saveLocalAttendance(payload);
-            statusEl.textContent = 'Enregistré';
-            statusEl.classList.remove('error');
-            statusEl.style.display = 'inline';
+            applySuccess(isPresent);
             return;
           }
           let res;
           if (isGASEndpoint(ATTENDANCE_ENDPOINT)) {
-            // Apps Script: éviter preflight => form-encoded avec action + data
             const params = new URLSearchParams();
             params.set('action','attendance');
             params.set('data', JSON.stringify(payload));
@@ -893,24 +884,15 @@
             res = await fetch(ATTENDANCE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
           }
           if (!res.ok) throw new Error('HTTP ' + res.status);
-          statusEl.textContent = 'Enregistré';
-          statusEl.classList.remove('error');
-          statusEl.style.display = 'inline';
-          // Si un encart stats est ouvert pour cet event et que l'utilisateur est chef, on rafraîchit
+          applySuccess(isPresent);
           if (window.IS_CHEF) {
             const li = wrap.closest('.event-item');
-            if (li) {
-              const statsDiv = li.querySelector('.event-stats');
-              if (statsDiv && statsDiv.style.display === 'block') {
-                try { await refreshEventStats(li); } catch {}
-              }
-            }
+            if (li) { const sd = li.querySelector('.event-stats'); if (sd && sd.style.display === 'block') try { await refreshEventStats(li); } catch {} }
           }
         } catch (e) {
           console.error('Envoi présence échoué', e);
-          statusEl.textContent = 'Erreur d\'enregistrement';
-          statusEl.classList.add('error');
-          statusEl.style.display = 'inline';
+          statusEl.textContent = '✗ Erreur — réessayez';
+          statusEl.className = 'att-status error';
         }
       }
       document.addEventListener('DOMContentLoaded', ensureProfileInputs);
