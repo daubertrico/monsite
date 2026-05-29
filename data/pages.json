@@ -428,10 +428,7 @@
     "tile_overlay_subtitle": "Rejoignez l’aventure !",
     "page_title": "Nous rejoindre",
     "page_subtitle": "Rejoignez l’aventure La Voix Libre",
-    "page_content": [
-      "Envie de chanter, de découvrir la polyphonie, le gospel, la soul ou la comédie musicale ? Rejoignez l’un de nos ensembles ou nos ateliers !",
-      "La Voix Libre accueille tous les niveaux, dans une ambiance conviviale et inclusive. Contactez-nous pour plus d’informations ou pour participer à une séance découverte."
-    ],
+    "page_content": [],
     "specific_content": [
       {
         "type": "sections",
@@ -446,8 +443,7 @@
               "Tarif : 360€ l’année, mensualisable (30€/mois)",
               "Inscription : Séance d’essai gratuite avant inscription"
             ],
-            "newsletter": true,
-            "cta": { "text": "En savoir plus", "url": "chorale-pop.html" }
+            "newsletter": true
           },
           
           {
@@ -459,8 +455,7 @@
               "Horaires : Un week-end par mois sur un an",
               "Inscription : Sur audition"
             ],
-            "newsletter": true,
-            "cta": { "text": "En savoir plus", "url": "comedie-musicale.html" }
+            "newsletter": true
           }
         ]
       },

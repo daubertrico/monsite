@@ -1027,7 +1027,7 @@ async function fetchPostsFromCSV(csvUrl) {
     pageSubtitle.textContent = page.page_subtitle;
     contentContainer.innerHTML = '';
 
-      if (page.page_content && page.page_content.length > 0) {
+      if ((page.page_content && page.page_content.length > 0) || pageId === 'nous-rejoindre') {
         let descriptionContainer;
   if (pageId === 'cours-de-chant') {
           // Pour la page Cours de chant, image et texte côte à côte + infos pratiques + audio + contacts
