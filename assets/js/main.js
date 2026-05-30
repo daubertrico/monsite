@@ -1009,6 +1009,13 @@ async function fetchPostsFromCSV(csvUrl) {
       allEvents.forEach(ev => { ev._ts = new Date(ev.start.dateTime || ev.start.date).getTime(); });
     } catch(e) { /* silencieux */ }
 
+    // SEO : injecte un Schema.org ItemList de Event (uniquement les concerts à venir + le dernier passé)
+    try {
+      const futureEvents = allEvents.filter(ev => ev._ts >= now.getTime());
+      const ensembleKey = (calId === _HOME_CAL_ID) ? 'lvl' : 'soul';
+      if (typeof injectEventsJsonLd === 'function') injectEventsJsonLd(futureEvents, ensembleKey);
+    } catch(e) { /* silencieux */ }
+
     // Tri : à venir du plus proche au plus lointain, passés du plus récent au plus ancien
     const upcoming = allEvents.filter(ev => ev._ts >= now.getTime()).sort((a,b) => a._ts - b._ts);
     const pastAll  = allEvents.filter(ev => ev._ts <  now.getTime()).sort((a,b) => b._ts - a._ts);
@@ -2168,33 +2175,172 @@ function ensureSeoMeta(currentPageId) {
     upsertJsonLd('ld-breadcrumb', ldBreadcrumb);
   }
 
-  // Inject LocalBusiness on homepage to renforcer le SEO local (éviter doublons sur les pages dédiées)
+  // ====================================================
+  // Schemas réutilisables (générés une seule fois par page)
+  // ====================================================
+  const logoUrl = (globalConfig?.find(i => i.section==='head' && i.champ==='logo_url')?.valeur) || '';
+  const logoAbs = logoUrl ? (origin ? origin + (logoUrl.startsWith('/') ? logoUrl : '/' + logoUrl) : logoUrl) : '';
+  const email   = (globalConfig?.find(i => i.section==='footer' && i.champ==='email')?.valeur) || '';
+  const sameAsLVL = [];
+  ['facebook','instagram','youtube'].forEach(k => {
+    const v = globalConfig?.find(i => i.section==='footer' && i.champ===k)?.valeur;
+    if (v) sameAsLVL.push(v);
+  });
+
+  const ADDR_PAPU = {
+    '@type': 'PostalAddress',
+    streetAddress: '47b rue Papu',
+    addressLocality: 'Rennes',
+    postalCode: '35000',
+    addressCountry: 'FR'
+  };
+  const PLACE_RENNES = { '@type': 'Place', name: 'Rennes, Bretagne, France', address: ADDR_PAPU };
+
+  const PERSON_VINCENT = {
+    '@type': 'Person',
+    '@id': (origin || '') + '/vincent.html#person',
+    name: 'Vincent T-Dauberlieu',
+    alternateName: 'Vincent Tricotel',
+    givenName: 'Vincent',
+    familyName: 'T-Dauberlieu',
+    jobTitle: 'Chef de chœur, pédagogue vocal',
+    description: "Chef de chœur de La Voix Libre depuis 2017 et de S.O.U.L. depuis 2019, professeur de chant à Rennes. Plus de 10 ans d'études vocales en France et en Allemagne (conservatoires, maisons d'opéra, cabarets).",
+    knowsAbout: ['Direction de chœur', 'Pédagogie vocale', 'Chant lyrique', 'Chant soul', 'Anatomie de la voix', 'Pédagogie AFCM'],
+    image: origin ? origin + '/assets/images/courschant.jpg' : '/assets/images/courschant.jpg',
+    url: (origin || '') + '/vincent.html'
+  };
+
+  const MUSIC_GROUP_LVL = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicGroup',
+    '@id': (origin || 'https://chanterlavoixlibre.fr') + '/#musicgroup-lvl',
+    name: 'La Voix Libre',
+    alternateName: ['Chorale La Voix Libre', 'Chœur La Voix Libre Rennes'],
+    description: "Chœur rennais fondé en mars 2017, composé d'environ 80 chanteur·euse·s passionné·e·s, débutant·e·s comme confirmé·e·s. Répertoire pop, gospel, soul, chants du monde, chanson française.",
+    genre: ['Chorale', 'Pop', 'Gospel', 'Soul', 'Chant du monde', 'Chant choral'],
+    foundingDate: '2017-03',
+    foundingLocation: PLACE_RENNES,
+    location: PLACE_RENNES,
+    url: 'https://chanterlavoixlibre.fr/',
+    logo: logoAbs || undefined,
+    image: logoAbs || undefined,
+    email: email || undefined,
+    director: PERSON_VINCENT,
+    sameAs: sameAsLVL.length ? sameAsLVL : undefined
+  };
+
+  const MUSIC_GROUP_SOUL = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicGroup',
+    '@id': 'https://soulrennes.fr/#musicgroup-soul',
+    name: 'S.O.U.L.',
+    alternateName: ['SOUL Rennes', 'Ensemble vocal SOUL Rennes', 'Chorale SOUL Rennes'],
+    description: "Ensemble vocal a cappella rennais fondé en 2019, sous la direction de Vincent T-Dauberlieu. Répertoire soul, funk, gospel, jazz, pop. Auditions chaque année en septembre.",
+    genre: ['A cappella', 'Soul', 'Funk', 'Gospel', 'Jazz', 'Pop'],
+    foundingDate: '2019',
+    foundingLocation: PLACE_RENNES,
+    location: PLACE_RENNES,
+    url: 'https://soulrennes.fr/',
+    logo: (origin || '') + '/assets/images/soullogo.png',
+    image: (origin || '') + '/assets/images/soullogo.png',
+    director: PERSON_VINCENT
+  };
+
+  const MUSIC_SCHOOL = {
+    '@context': 'https://schema.org',
+    '@type': ['MusicSchool', 'LocalBusiness'],
+    '@id': (origin || 'https://chanterlavoixlibre.fr') + '/#musicschool',
+    name: 'La Voix Libre — chorale et cours de chant à Rennes',
+    description: "Association rennaise (loi 1901) proposant des chorales (La Voix Libre, S.O.U.L., comédie musicale) et des cours individuels de chant lyrique, jazz et pop avec Vincent T-Dauberlieu.",
+    url: origin || 'https://chanterlavoixlibre.fr/',
+    logo: logoAbs || undefined,
+    image: logoAbs || undefined,
+    email: email || undefined,
+    address: ADDR_PAPU,
+    areaServed: ['Rennes', 'Ille-et-Vilaine', 'Bretagne'],
+    founder: PERSON_VINCENT,
+    employee: PERSON_VINCENT,
+    sameAs: sameAsLVL.length ? sameAsLVL : undefined
+  };
+
+  // ====================================================
+  // Injection ciblée selon la page
+  // ====================================================
   if (currentPageId === 'index') {
-    const logoUrl = (globalConfig?.find(i => i.section==='head' && i.champ==='logo_url')?.valeur) || '';
-    const email = (globalConfig?.find(i => i.section==='footer' && i.champ==='email')?.valeur) || '';
-    const sameAs = [];
-    const fb = globalConfig?.find(i => i.section==='footer' && i.champ==='facebook')?.valeur; if (fb) sameAs.push(fb);
-    const ig = globalConfig?.find(i => i.section==='footer' && i.champ==='instagram')?.valeur; if (ig) sameAs.push(ig);
-    const yt = globalConfig?.find(i => i.section==='footer' && i.champ==='youtube')?.valeur; if (yt) sameAs.push(yt);
-    const ldLocal = {
-      '@context': 'https://schema.org',
-      '@type': 'LocalBusiness',
-      name: siteTitle,
-      url: origin || undefined,
-      image: logoUrl || undefined,
-      email: email || undefined,
-      address: {
-        '@type': 'PostalAddress',
-  streetAddress: '47b rue Papu',
-        addressLocality: 'Rennes',
-        postalCode: '35000',
-        addressCountry: 'FR'
-      },
-      areaServed: 'Rennes',
-      sameAs: sameAs.length ? sameAs : undefined
-    };
-    upsertJsonLd('ld-localbusiness', ldLocal);
+    upsertJsonLd('ld-musicschool', MUSIC_SCHOOL);
+    upsertJsonLd('ld-musicgroup-lvl', MUSIC_GROUP_LVL);
+    upsertJsonLd('ld-person-vincent', { '@context': 'https://schema.org', ...PERSON_VINCENT });
+  } else if (currentPageId === 'soul') {
+    upsertJsonLd('ld-musicgroup-soul', MUSIC_GROUP_SOUL);
+    upsertJsonLd('ld-person-vincent', { '@context': 'https://schema.org', ...PERSON_VINCENT });
+  } else if (currentPageId === 'vincent' || currentPageId === 'cours-de-chant' || currentPageId === 'cours-de-chant-lyrique-rennes') {
+    upsertJsonLd('ld-musicschool', MUSIC_SCHOOL);
+    upsertJsonLd('ld-person-vincent', { '@context': 'https://schema.org', ...PERSON_VINCENT });
+  } else if (currentPageId === 'chorale-pop' || currentPageId === 'chorale-rennes') {
+    upsertJsonLd('ld-musicgroup-lvl', MUSIC_GROUP_LVL);
+    upsertJsonLd('ld-musicschool', MUSIC_SCHOOL);
+  } else if (currentPageId === 'evenements') {
+    upsertJsonLd('ld-musicgroup-lvl', MUSIC_GROUP_LVL);
   }
+
+  // Expose les objets pour que loadHomeEvents puisse créer des Event reliés
+  if (typeof window !== 'undefined') {
+    window.__LD_CONTEXT = {
+      origin,
+      musicGroupLVL: MUSIC_GROUP_LVL,
+      musicGroupSOUL: MUSIC_GROUP_SOUL,
+      musicSchool: MUSIC_SCHOOL,
+      addrPapu: ADDR_PAPU,
+      upsertJsonLd
+    };
+  }
+}
+
+// Injecte une liste d'événements Schema.org (ItemList de Event) — appelée après loadHomeEvents
+function injectEventsJsonLd(events, ensembleKey) {
+  const ctx = (typeof window !== 'undefined') ? window.__LD_CONTEXT : null;
+  if (!ctx || !Array.isArray(events) || !events.length) return;
+  const performer = ensembleKey === 'soul' ? ctx.musicGroupSOUL : ctx.musicGroupLVL;
+  const performerLite = { '@type': 'MusicGroup', name: performer.name, url: performer.url };
+
+  const items = events.slice(0, 50).map((ev, i) => {
+    const start = ev.start && (ev.start.dateTime || ev.start.date);
+    const end   = ev.end   && (ev.end.dateTime   || ev.end.date);
+    if (!start) return null;
+    // Lieu : si l'agenda fournit ev.location, on l'utilise, sinon adresse par défaut
+    const placeName = (ev.location || '').trim() || 'Rennes';
+    const place = {
+      '@type': 'Place',
+      name: placeName,
+      address: ev.location ? { '@type': 'PostalAddress', addressLocality: 'Rennes', addressCountry: 'FR' } : ctx.addrPapu
+    };
+    return {
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Event',
+        '@id': (ctx.origin || '') + '/#event-' + (ev.id || i),
+        name: ev.summary || 'Concert',
+        startDate: start,
+        endDate: end || undefined,
+        eventStatus: 'https://schema.org/EventScheduled',
+        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+        location: place,
+        performer: performerLite,
+        organizer: { '@type': 'Organization', name: 'La Voix Libre', url: 'https://chanterlavoixlibre.fr/' },
+        description: (ev.description || '').replace(/<[^>]+>/g, '').trim() || undefined,
+        url: (ctx.origin || '') + '/#evenements'
+      }
+    };
+  }).filter(Boolean);
+
+  if (!items.length) return;
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items
+  };
+  ctx.upsertJsonLd('ld-events-' + (ensembleKey || 'lvl'), ld);
 }
 
 
