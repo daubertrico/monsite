@@ -589,7 +589,7 @@
                       ds=ds.charAt(0).toUpperCase()+ds.slice(1);
                       var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
                       var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
-                      var desc=ev.description?'<div class="cal-event-desc">'+esc(ev.description).replace(/\n/g,'<br>')+'</div>':'';
+                      var desc='';
                       var att=isPast?'':'<div class="att-controls" data-calendar="grandechorale" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
                         +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
                         +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
@@ -597,7 +597,7 @@
                       return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="grandechorale" data-eventid="'+eid+'">'
                         +'<div class="cal-event-date">'+ds+'</div>'
                         +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
-                        +loc+desc+att
+                        +loc+att
                         +'<div class="event-stats chef-only" aria-hidden="true"></div>'
                         +'</div>';
                     }).join('');
@@ -643,7 +643,7 @@
                       ds=ds.charAt(0).toUpperCase()+ds.slice(1);
                       var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
                       var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
-                      var desc=ev.description?'<div class="cal-event-desc">'+esc(ev.description).replace(/\n/g,'<br>')+'</div>':'';
+                      var desc='';
                       var att=isPast?'':'<div class="att-controls" data-calendar="soul" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
                         +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
                         +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
@@ -651,7 +651,7 @@
                       return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="soul" data-eventid="'+eid+'">'
                         +'<div class="cal-event-date">'+ds+'</div>'
                         +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
-                        +loc+desc+att
+                        +loc+att
                         +'<div class="event-stats chef-only" aria-hidden="true"></div>'
                         +'</div>';
                     }).join('');
