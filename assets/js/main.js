@@ -499,19 +499,18 @@ function applySoulCurvedNav() {
   header.appendChild(wrap);
 }
 
-// Mesure dynamique du gap Behold et application à la grille YouTube SOUL
-// (le widget Behold a son propre rendu en shadow DOM ; on copie son espacement à l'exécution)
-function syncSoulYoutubeGapToBehold() {
-  if (!document.body || !document.body.classList.contains('page-soul')) return;
+// Mesure dynamique du gap Behold et application à toutes les grilles de vignettes de la page
+// (YouTube + galerie photos), pour un espacement uniforme avec le widget Behold (Instagram).
+function syncYoutubeGapToBehold() {
+  const grids = document.querySelectorAll('.youtube-grid, .photo-mosaic');
+  if (!grids.length) return;
 
   function measureBeholdGap() {
     const behold = document.querySelector('behold-widget');
     if (!behold || !behold.shadowRoot) return null;
-    // Parcourt la shadow root pour trouver l'élément qui définit le gap (typiquement une grille CSS)
     const candidates = behold.shadowRoot.querySelectorAll('*');
     for (const el of candidates) {
       const cs = getComputedStyle(el);
-      // On accepte gap ou column-gap non nul
       const gap = cs.columnGap && cs.columnGap !== 'normal' ? cs.columnGap : cs.gap;
       if (gap && gap !== 'normal' && parseFloat(gap) > 0) return gap;
     }
@@ -519,9 +518,7 @@ function syncSoulYoutubeGapToBehold() {
   }
 
   function apply(gap) {
-    document.querySelectorAll('body.page-soul .youtube-grid').forEach(g => {
-      g.style.gap = gap;
-    });
+    grids.forEach(g => { g.style.gap = gap; });
   }
 
   let attempts = 0;
@@ -532,6 +529,8 @@ function syncSoulYoutubeGapToBehold() {
     else if (++attempts >= max) clearInterval(interval);
   }, 500);
 }
+// Alias pour rétrocompat (ancien nom appelé depuis le bloc SOUL)
+function syncSoulYoutubeGapToBehold() { return syncYoutubeGapToBehold(); }
 
 function renderFooter() {
   let footer = document.querySelector('footer.main-footer');
@@ -939,6 +938,7 @@ async function fetchPostsFromCSV(csvUrl) {
         </div>`;
       homeContent.appendChild(yt);
       if (typeof initYoutubeGrids === 'function') initYoutubeGrids();
+      if (typeof syncYoutubeGapToBehold === 'function') syncYoutubeGapToBehold();
     }
   }
 
@@ -2346,6 +2346,8 @@ async function init() {
   try { loadDocumentsOfficiels(); } catch(e) { /* ignore */ }
   // Initialise les grilles YouTube présentes dans la page (statiques ou dynamiques)
   try { initYoutubeGrids(); } catch(e) { /* ignore */ }
+  // Synchronise le gap YouTube sur celui de Behold (Insta) si les deux sont sur la page
+  try { syncYoutubeGapToBehold(); } catch(e) { /* ignore */ }
 }
 
 init();

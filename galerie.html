@@ -42,15 +42,12 @@
       font-size: 0.97rem;
     }
 
-    /* ---- Sections principales : même gabarit ---- */
-    .gallery-section,
-    .insta-section,
-    .youtube-section {
-      max-width: 1000px;
-      margin: 0 auto;
+    /* ---- Section galerie : même largeur que Insta/YouTube ---- */
+    .gallery-section {
+      max-width: 600px;
+      margin: 0 auto 2.6rem auto;
       padding: 0;
     }
-    .gallery-section { margin-bottom: 2.6rem; }
     .insta-section   { margin-bottom: 2.6rem; }
     .gallery-section .home-section-divider,
     .insta-section .home-section-divider,
@@ -88,9 +85,9 @@
     .photo-mosaic {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 4px;
+      gap: 20px; /* fallback ; sera synchronisé au runtime sur le gap Behold */
       margin: 8px auto 0 auto;
-      max-width: 1000px;
+      max-width: 600px;
     }
     .photo-mosaic figure {
       margin: 0;

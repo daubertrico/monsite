@@ -1977,26 +1977,10 @@ body.page-soul .soul-intro p {
   letter-spacing: 0.005em;
 }
 
-/* === SOUL : sections recentrées et harmonisées === */
+/* === SOUL : section concerts large comme avant === */
 body.page-soul #soul-evenements {
   max-width: 980px;
   margin: 0 auto;
-}
-/* Insta et YouTube : sections étroites pour des vignettes compactes, alignées sur Behold (3 col par défaut) */
-body.page-soul .insta-section,
-body.page-soul .youtube-section {
-  max-width: 600px;
-  margin: 0 auto;
-}
-/* Grille YouTube : 3 colonnes comme Behold pour que les vignettes aient la même taille
-   Le gap exact est mesuré au runtime par syncSoulYoutubeGapToBehold (cf main.js).
-   La valeur ci-dessous est un fallback si le shadow DOM Behold est inaccessible. */
-body.page-soul .youtube-grid {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-@media (max-width: 600px) {
-  body.page-soul .youtube-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
 }
 /* Icône ▶ proportionnée aux vignettes plus petites */
 body.page-soul .youtube-grid .yt-play::after {
@@ -2065,9 +2049,10 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
 }
 .home-conductor .home-intro-text { margin-bottom: 12px; }
 
-/* Rubrique Instagram (galerie + accueil) */
+/* Rubrique Instagram (galerie + accueil) — alignée sur le format SOUL */
 .insta-section {
   margin: 0 auto 1rem auto;
+  max-width: 600px;
 }
 .insta-section behold-widget {
   display: block;
@@ -2102,15 +2087,16 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   padding: 10px 0;
 }
 
-/* Rubrique YouTube (galerie + accueil) */
+/* Rubrique YouTube (galerie + accueil) — alignée sur le format SOUL */
 .youtube-section {
   margin: 0 auto 1rem auto;
+  max-width: 600px;
 }
-/* Grille de vignettes (même gabarit que la grille photos + Behold) */
+/* Grille de vignettes : 3 colonnes, gap synchronisé sur Behold à l'exécution (fallback 20px) */
 .youtube-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  gap: 20px;
 }
 .youtube-grid .yt-item {
   position: relative;
