@@ -26,12 +26,42 @@
     gtag('config', 'AW-928718843');
   </script>
   <style>
+    /* ---- Barre d'action en haut ---- */
+    .gallery-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      max-width: 1000px;
+      margin: 0 auto 1.6rem auto;
+    }
+    .gallery-actions-intro {
+      margin: 0;
+      color: #555;
+      font-size: 0.97rem;
+    }
+
+    /* ---- Sections principales : même gabarit ---- */
+    .gallery-section,
+    .insta-section {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0;
+    }
+    .gallery-section { margin-bottom: 2.6rem; }
+    .gallery-section .home-section-divider,
+    .insta-section .home-section-divider {
+      margin: 0 0 1rem 0;
+    }
+
     /* ---- Filtres par concert ---- */
     .gallery-filters {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 8px;
-      margin: 24px 0 20px 0;
+      margin: 0 0 16px 0;
     }
     .gallery-filter-btn {
       padding: 6px 16px;
@@ -51,51 +81,66 @@
       color: #fff;
     }
 
-    /* ---- Mosaïque ---- */
+    /* ---- Grille de vignettes carrées (calée sur la rubrique Insta Behold) ---- */
     .photo-mosaic {
-      columns: 4 200px;
-      column-gap: 12px;
-      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      margin: 8px auto 0 auto;
+      max-width: 1000px;
     }
     .photo-mosaic figure {
-      break-inside: avoid;
-      margin: 0 0 12px 0;
-      border-radius: 10px;
+      margin: 0;
+      border-radius: 0;
       overflow: hidden;
       cursor: pointer;
       position: relative;
       background: #eee;
+      aspect-ratio: 1 / 1;
     }
     .photo-mosaic figure img {
       width: 100%;
-      height: auto;
+      height: 100%;
       display: block;
-      transition: transform 0.3s ease, filter 0.3s ease;
+      object-fit: cover;
+      transition: opacity 0.2s ease;
     }
     .photo-mosaic figure:hover img {
-      transform: scale(1.04);
-      filter: brightness(1.06);
+      opacity: 0.92;
     }
     .photo-mosaic figure figcaption {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background: linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.15) 70%, transparent);
       color: #fff;
       font-size: 0.8rem;
-      padding: 18px 10px 8px 10px;
+      padding: 24px 10px 9px 10px;
       opacity: 0;
       transition: opacity 0.25s;
     }
-    .photo-mosaic figure:hover figcaption {
+    .photo-mosaic figure:hover figcaption,
+    .photo-mosaic figure:focus figcaption {
       opacity: 1;
+    }
+    .photo-mosaic figcaption .cap-desc {
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .photo-mosaic figcaption .cap-meta {
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.82);
     }
 
     /* ---- Skeleton loader ---- */
     .photo-skeleton {
-      break-inside: avoid;
-      margin: 0 0 12px 0;
+      aspect-ratio: 1 / 1;
+      margin: 0;
       border-radius: 10px;
       background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
       background-size: 200% 100%;
@@ -185,12 +230,9 @@
     }
 
     @media (max-width: 600px) {
-      .photo-mosaic { columns: 2 140px; column-gap: 8px; }
+      .photo-mosaic { grid-template-columns: repeat(2, 1fr); }
       #lightbox-prev { left: 4px; }
       #lightbox-next { right: 4px; }
-    }
-    @media (max-width: 900px) {
-      .photo-mosaic { columns: 3 160px; }
     }
 
     /* ---- CTA upload ---- */
@@ -215,28 +257,36 @@
   <main class="main-content">
     <div id="page-content-container" data-static="true">
 
-      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
-        <p style="margin:0; color:#555;">Photos partagées par les choristes et l'équipe.</p>
-        <a href="espace-choristes.html" class="gallery-upload-cta">
-          + Ajouter mes photos
-        </a>
+      <!-- Barre d'action -->
+      <div class="gallery-actions">
+        <p class="gallery-actions-intro">Photos partagées par les choristes et l'équipe.</p>
+        <a href="espace-choristes.html" class="gallery-upload-cta">+ Ajouter mes photos</a>
       </div>
 
-      <!-- Filtres concerts -->
-      <div class="gallery-filters" id="gallery-filters">
-        <button class="gallery-filter-btn active" data-concert="">Tous les concerts</button>
-      </div>
+      <!-- Section : Galerie des choristes -->
+      <section class="gallery-section" aria-label="Photos de concerts">
+        <div class="home-section-divider"><h2>Galerie des choristes</h2></div>
 
-      <!-- Grille mosaïque -->
-      <div class="photo-mosaic" id="photo-mosaic" aria-live="polite" aria-label="Galerie photos">
-        <!-- skeletons affichés pendant le chargement -->
-        <div class="photo-skeleton" style="height:180px;"></div>
-        <div class="photo-skeleton" style="height:240px;"></div>
-        <div class="photo-skeleton" style="height:160px;"></div>
-        <div class="photo-skeleton" style="height:220px;"></div>
-        <div class="photo-skeleton" style="height:190px;"></div>
-        <div class="photo-skeleton" style="height:250px;"></div>
-      </div>
+        <div class="gallery-filters" id="gallery-filters">
+          <button class="gallery-filter-btn active" data-key="">Tous les concerts</button>
+        </div>
+
+        <div class="photo-mosaic" id="photo-mosaic" aria-live="polite" aria-label="Galerie photos">
+          <div class="photo-skeleton"></div>
+          <div class="photo-skeleton"></div>
+          <div class="photo-skeleton"></div>
+          <div class="photo-skeleton"></div>
+          <div class="photo-skeleton"></div>
+          <div class="photo-skeleton"></div>
+        </div>
+      </section>
+
+      <!-- Section : Actualités Instagram (Behold) -->
+      <section class="insta-section" aria-label="Actualités Instagram">
+        <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
+        <behold-widget feed-id="Qs11G0efmxRMWv05Chdt"></behold-widget>
+        <p class="insta-cta"><a href="https://www.instagram.com/chanterlavoixlibre/" target="_blank" rel="noopener noreferrer">Voir notre Instagram →</a></p>
+      </section>
 
     </div><!-- /#page-content-container -->
   </main>
@@ -250,26 +300,80 @@
     <button id="lightbox-next" aria-label="Photo suivante">&#8250;</button>
   </div>
 
+  <!-- Widget Instagram Behold -->
+  <script type="module" src="https://w.behold.so/widget.js"></script>
   <script src="assets/js/main.js?v=20250826-0755"></script>
   <script>
     // ---- Endpoint GAS (à remplir après déploiement) ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyI6se-Tj1t9_bIGuu5hOYPZ7hh-iOCadlpY0z-3-USg0fI--EyUyyT-k8jLJ3uvjr0/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyq5Lxe3HzK-Da_xb010jMp2i_VF58Y3tPm4LvWq8RLz6qFSU5bEEXjXLQrXWo06tGz/exec';
 
     // ---- État ----
     let allPhotos = [];
     let filteredPhotos = [];
     let lightboxIndex = 0;
+    let eventMap = {}; // eventId -> { name, date }
+
+    // ---- Agenda La Voix Libre (pour résoudre le nom courant des concerts) ----
+    const CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+    const CALENDAR_ID = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
+
+    function formatConcertLabel(summary, date) {
+      const mois  = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+      const jours = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+      return (summary || 'Concert')
+        + ' – ' + jours[date.getDay()]
+        + ' ' + date.getDate()
+        + ' ' + mois[date.getMonth()]
+        + ' ' + date.getFullYear();
+    }
+
+    async function loadEventMap() {
+      const timeMin = new Date(Date.now() - 5 * 365 * 24 * 3600 * 1000).toISOString();
+      const timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
+      try {
+        const url = 'https://www.googleapis.com/calendar/v3/calendars/'
+          + encodeURIComponent(CALENDAR_ID)
+          + '/events?key=' + CAL_API_KEY
+          + '&timeMin=' + encodeURIComponent(timeMin)
+          + '&timeMax=' + encodeURIComponent(timeMax)
+          + '&maxResults=250&orderBy=startTime&singleEvents=true';
+        const res  = await fetch(url);
+        const data = await res.json();
+        (data.items || []).forEach(ev => {
+          const start = ev.start && (ev.start.dateTime || ev.start.date);
+          if (!start) return;
+          eventMap[ev.id] = { name: ev.summary || 'Concert', date: new Date(start) };
+        });
+      } catch (e) {
+        console.warn('Calendar fetch failed', e);
+      }
+    }
+
+    // Clé de regroupement : id d'événement si dispo, sinon nom stocké (anciennes photos)
+    function photoKey(photo) {
+      return photo.eventId ? ('id:' + photo.eventId) : ('name:' + (photo.concert || 'Non précisé'));
+    }
+    // Libellé affiché : nom courant de l'agenda, sinon nom stocké à l'envoi
+    function photoLabel(photo) {
+      if (photo.eventId && eventMap[photo.eventId]) {
+        const ev = eventMap[photo.eventId];
+        return formatConcertLabel(ev.name, ev.date);
+      }
+      return photo.concert || 'Non précisé';
+    }
+    // Date utilisée pour le tri des catégories
+    function photoDate(photo) {
+      if (photo.eventId && eventMap[photo.eventId]) return eventMap[photo.eventId].date.getTime();
+      return photo.uploadDate ? new Date(photo.uploadDate).getTime() : 0;
+    }
 
     // ---- Chargement initial ----
-    async function loadGallery(concertFilter) {
+    async function loadGallery() {
       const mosaic = document.getElementById('photo-mosaic');
 
-      // skeletons si premier chargement
-      if (!allPhotos.length) {
-        mosaic.innerHTML = [180,240,160,220,190,250].map(h =>
-          `<div class="photo-skeleton" style="height:${h}px;"></div>`
-        ).join('');
-      }
+      mosaic.innerHTML = Array(8).fill(0).map(() =>
+        `<div class="photo-skeleton"></div>`
+      ).join('');
 
       if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
         mosaic.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.<br>Déployez le script GAS et renseignez l\'URL dans galerie.html.</p></div>';
@@ -277,11 +381,9 @@
       }
 
       try {
-        const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?')
-          + 'action=gallery_list'
-          + (concertFilter ? '&concert=' + encodeURIComponent(concertFilter) : '');
-
-        const res = await fetch(url, { cache: 'no-store' });
+        const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=gallery_list';
+        // Agenda + photos en parallèle
+        const [, res] = await Promise.all([ loadEventMap(), fetch(url, { cache: 'no-store' }) ]);
         const data = await res.json();
 
         if (!data.photos || !data.photos.length) {
@@ -289,10 +391,13 @@
           return;
         }
 
-        filteredPhotos = data.photos;
-        if (!concertFilter) allPhotos = data.photos;
+        // Résout le libellé courant + la clé de regroupement de chaque photo
+        data.photos.forEach(p => { p._label = photoLabel(p); p._key = photoKey(p); });
+
+        allPhotos = data.photos;
+        filteredPhotos = allPhotos;
         renderMosaic(filteredPhotos);
-        if (!concertFilter) loadConcertFilters();
+        buildFilters();
       } catch (e) {
         mosaic.innerHTML = '<div class="gallery-empty"><p>Impossible de charger la galerie. Réessayez plus tard.</p></div>';
         console.error('Gallery load error', e);
@@ -309,16 +414,22 @@
 
       mosaic.innerHTML = photos.map((photo, i) => {
         const thumb = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w600`;
-        const concert = (photo.concert || '').replace(/</g,'&lt;');
+        const concert = (photo._label || photo.concert || '').replace(/</g,'&lt;');
         const uploader = (photo.uploaderName || '').replace(/</g,'&lt;');
-        const caption = [concert, uploader ? `par ${uploader}` : ''].filter(Boolean).join(' · ');
+        const description = (photo.description || '').replace(/</g,'&lt;');
+        const meta = [concert, uploader ? `par ${uploader}` : ''].filter(Boolean).join(' · ');
+        const capHtml = [
+          description ? `<span class="cap-desc">${description}</span>` : '',
+          meta ? `<span class="cap-meta">${meta}</span>` : ''
+        ].filter(Boolean).join('');
+        const altText = description || concert;
         return `
           <figure data-index="${i}" role="button" tabindex="0"
-            aria-label="Photo ${i+1} – ${concert}">
-            <img src="${thumb}" alt="${concert}"
+            aria-label="Photo ${i+1}${altText ? ' – ' + altText : ''}">
+            <img src="${thumb}" alt="${altText}"
               loading="lazy" decoding="async"
               onerror="this.parentElement.style.display='none'">
-            ${caption ? `<figcaption>${caption}</figcaption>` : ''}
+            ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
           </figure>`;
       }).join('');
 
@@ -331,43 +442,37 @@
       });
     }
 
-    // ---- Filtres concerts ----
-    async function loadConcertFilters() {
-      if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) return;
-      try {
-        const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=concerts_list';
-        const res = await fetch(url, { cache: 'no-store' });
-        const data = await res.json();
-        if (!data.concerts || data.concerts.length < 2) return; // pas assez de concerts pour filtrer
+    // ---- Filtres concerts (construits côté client à partir des photos) ----
+    function buildFilters() {
+      const filtersEl = document.getElementById('gallery-filters');
+      // Regroupe les photos par concert (clé)
+      const groups = {};
+      allPhotos.forEach(p => {
+        if (!groups[p._key]) groups[p._key] = { key: p._key, label: p._label, date: photoDate(p) };
+      });
+      const list = Object.values(groups).sort((a, b) => b.date - a.date);
+      if (list.length < 2) return; // pas assez de concerts pour proposer un filtre
 
-        const filtersEl = document.getElementById('gallery-filters');
-        data.concerts.forEach(concert => {
-          const btn = document.createElement('button');
-          btn.className = 'gallery-filter-btn';
-          btn.dataset.concert = concert;
-          btn.textContent = concert;
-          btn.addEventListener('click', () => activateFilter(btn));
-          filtersEl.appendChild(btn);
-        });
-      } catch (e) {
-        // silencieux, les filtres sont un bonus
-      }
+      list.forEach(g => {
+        const btn = document.createElement('button');
+        btn.className = 'gallery-filter-btn';
+        btn.dataset.key = g.key;
+        btn.textContent = g.label;
+        btn.addEventListener('click', () => activateFilter(btn));
+        filtersEl.appendChild(btn);
+      });
     }
 
     function activateFilter(btn) {
       document.querySelectorAll('.gallery-filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      const concert = btn.dataset.concert;
-      if (concert) {
-        loadGallery(concert);
-      } else {
-        filteredPhotos = allPhotos;
-        renderMosaic(allPhotos);
-      }
+      const key = btn.dataset.key;
+      filteredPhotos = key ? allPhotos.filter(p => p._key === key) : allPhotos;
+      renderMosaic(filteredPhotos);
     }
 
     // Bind du filtre "Tous"
-    document.querySelector('.gallery-filter-btn[data-concert=""]').addEventListener('click', function() {
+    document.querySelector('.gallery-filter-btn[data-key=""]').addEventListener('click', function() {
       activateFilter(this);
     });
 
@@ -390,12 +495,15 @@
       const full = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w1600`;
       const img = document.getElementById('lightbox-img');
       img.src = full;
-      img.alt = photo.concert || '';
 
-      const concert = (photo.concert || '').replace(/</g,'&lt;');
+      const concert = (photo._label || photo.concert || '').replace(/</g,'&lt;');
       const uploader = (photo.uploaderName || '').replace(/</g,'&lt;');
+      const description = (photo.description || '').replace(/</g,'&lt;');
+      img.alt = description || photo._label || photo.concert || '';
+      const meta = [concert, uploader ? `partagée par ${uploader}` : ''].filter(Boolean).join(' · ');
       document.getElementById('lightbox-caption').innerHTML =
-        [concert, uploader ? `partagée par ${uploader}` : ''].filter(Boolean).join(' · ')
+        (description ? `<span style="display:block;font-size:1.08rem;color:#fff;margin-bottom:4px;">${description}</span>` : '')
+        + meta
         + `<span style="color:rgba(255,255,255,0.4);margin-left:10px;">${index+1} / ${filteredPhotos.length}</span>`;
 
       // Cacher flèches si une seule photo
@@ -423,7 +531,7 @@
     });
 
     // ---- Démarrage ----
-    loadGallery('');
+    loadGallery();
   </script>
 </body>
 </html>

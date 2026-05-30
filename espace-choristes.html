@@ -466,6 +466,14 @@
               <p id="photo-concert-error" style="display:none;color:#ef4444;font-size:0.85rem;margin:4px 0 0 0;">Veuillez choisir un concert.</p>
             </div>
 
+            <!-- Description (facultative) -->
+            <div style="margin-bottom:14px;">
+              <label for="photo-description" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Description <span style="font-weight:400;color:#789;">(facultatif)</span></label>
+              <input type="text" id="photo-description" maxlength="300" placeholder="Ex : Final sous les applaudissements !"
+                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
+              <p style="font-size:0.82rem;color:#789;margin:4px 0 0 0;">Une courte phrase affichée au survol et à l'agrandissement de la photo.</p>
+            </div>
+
             <!-- Prénom (champ caché, rempli automatiquement depuis le profil) -->
             <input type="hidden" id="photo-uploader">
 
@@ -1246,12 +1254,12 @@
   <!-- ============================================================ -->
   <script>
     // ---- À remplir après déploiement du GAS ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyI6se-Tj1t9_bIGuu5hOYPZ7hh-iOCadlpY0z-3-USg0fI--EyUyyT-k8jLJ3uvjr0/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyq5Lxe3HzK-Da_xb010jMp2i_VF58Y3tPm4LvWq8RLz6qFSU5bEEXjXLQrXWo06tGz/exec';
 
     // ---- Compression côté client (Canvas) ----
     function compressImage(file, maxWidth, quality) {
       maxWidth = maxWidth || 1600;
-      quality  = quality  || 0.80;
+      quality  = quality  || 0.72;
       return new Promise(function(resolve) {
         var reader = new FileReader();
         reader.onload = function(e) {
@@ -1296,10 +1304,8 @@
       if (!select) return;
 
       var CAL_API_KEY  = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-      var CALENDARS    = [
-        { id: '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com', label: 'Grande Chorale' },
-        { id: '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com', label: 'SOUL' }
-      ];
+      // Uniquement l'agenda La Voix Libre (pas SOUL)
+      var CALENDAR_ID  = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
       // Filtre identique à celui de l'onglet Calendrier
       var kw = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pic[- ]?nic|pique[- ]?nique)/i;
 
@@ -1309,43 +1315,40 @@
 
       var allConcerts = [];
 
-      for (var i = 0; i < CALENDARS.length; i++) {
-        var cal = CALENDARS[i];
-        try {
-          var url = 'https://www.googleapis.com/calendar/v3/calendars/'
-            + encodeURIComponent(cal.id)
-            + '/events?key=' + CAL_API_KEY
-            + '&timeMin=' + encodeURIComponent(timeMin)
-            + '&timeMax=' + encodeURIComponent(timeMax)
-            + '&maxResults=200&orderBy=startTime&singleEvents=true';
-          var res  = await fetch(url);
-          var data = await res.json();
-          (data.items || []).forEach(function(ev) {
-            if (!kw.test(ev.summary || '')) return;
-            var start = ev.start.dateTime || ev.start.date;
-            var d = new Date(start);
-            var label = formatConcertLabel(ev.summary, d);
-            // Déduplique par label
-            if (!allConcerts.find(function(c){ return c.label === label; })) {
-              allConcerts.push({ label: label, date: d, summary: ev.summary });
-            }
-          });
-        } catch (e) {
-          console.warn('Calendar fetch failed', cal.label, e);
-        }
+      try {
+        var url = 'https://www.googleapis.com/calendar/v3/calendars/'
+          + encodeURIComponent(CALENDAR_ID)
+          + '/events?key=' + CAL_API_KEY
+          + '&timeMin=' + encodeURIComponent(timeMin)
+          + '&timeMax=' + encodeURIComponent(timeMax)
+          + '&maxResults=200&orderBy=startTime&singleEvents=true';
+        var res  = await fetch(url);
+        var data = await res.json();
+        (data.items || []).forEach(function(ev) {
+          if (!kw.test(ev.summary || '')) return;
+          var start = ev.start.dateTime || ev.start.date;
+          var d = new Date(start);
+          var label = formatConcertLabel(ev.summary, d);
+          // Déduplique par id d'événement
+          if (!allConcerts.find(function(c){ return c.id === ev.id; })) {
+            allConcerts.push({ id: ev.id, label: label, date: d, summary: ev.summary });
+          }
+        });
+      } catch (e) {
+        console.warn('Calendar fetch failed', e);
       }
 
       // Trie du plus récent au plus ancien
       allConcerts.sort(function(a, b) { return b.date - a.date; });
 
-      // Remplit le select
+      // Remplit le select : valeur = id de l'événement, texte = libellé courant
       select.innerHTML = '<option value="">— Choisissez un concert —</option>';
       if (!allConcerts.length) {
         select.innerHTML += '<option value="" disabled>Aucun concert trouvé dans l\'agenda</option>';
       } else {
         allConcerts.forEach(function(c) {
           var opt = document.createElement('option');
-          opt.value = c.label;
+          opt.value = c.id;
           opt.textContent = c.label;
           select.appendChild(opt);
         });
@@ -1380,11 +1383,9 @@
 
       if (!fileInput) return; // page non initialisée
 
-      // Clic sur le label → déclenche l'input
-      fileLabel.addEventListener('click', function() { fileInput.click(); });
-      fileLabel.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') fileInput.click();
-      });
+      // NB : le <label for="photo-file"> ouvre nativement le sélecteur de fichier.
+      // On n'ajoute PAS de handler JS qui rappelle fileInput.click(), sinon le clic
+      // est déclenché deux fois (la 1ʳᵉ sélection est alors ignorée).
 
       // Prévisualisation à la sélection
       fileInput.addEventListener('change', function() {
@@ -1408,12 +1409,17 @@
         var file = fileInput.files[0];
         if (!file) return;
 
-        var concert      = (document.getElementById('photo-concert').value || '').trim();
+        var concertSelect = document.getElementById('photo-concert');
+        var eventId       = (concertSelect.value || '').trim();
+        var concertLabel  = eventId && concertSelect.selectedIndex >= 0
+          ? (concertSelect.options[concertSelect.selectedIndex].text || '').trim()
+          : '';
         var uploaderName = (document.getElementById('photo-uploader').value || '').trim();
+        var description  = (document.getElementById('photo-description').value || '').trim();
 
-        if (!concert) {
-          document.getElementById('photo-concert').focus();
-          document.getElementById('photo-concert').style.borderColor = '#ef4444';
+        if (!eventId) {
+          concertSelect.focus();
+          concertSelect.style.borderColor = '#ef4444';
           var concertErr = document.getElementById('photo-concert-error');
           if (concertErr) concertErr.style.display = 'block';
           return;
@@ -1436,7 +1442,7 @@
 
         try {
           // 1. Compression
-          var compressed = await compressImage(file, 1600, 0.80);
+          var compressed = await compressImage(file, 1600, 0.72);
           progressBar.style.width = '35%';
           statusText.textContent = 'Encodage… (' + formatBytes(compressed.size) + ' après compression)';
 
@@ -1451,9 +1457,11 @@
           params.set('data', JSON.stringify({
             base64:       base64,
             mimeType:     'image/jpeg',
-            filename:     concert.replace(/[^a-zA-Z0-9àâäéèêëïîôöùûüçœÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ\s_-]/g, '') + '_' + Date.now() + '.jpg',
-            concert:      concert,
-            uploaderName: uploaderName
+            filename:     concertLabel.replace(/[^a-zA-Z0-9àâäéèêëïîôöùûüçœÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ\s_-]/g, '') + '_' + Date.now() + '.jpg',
+            concert:      concertLabel,
+            eventId:      eventId,
+            uploaderName: uploaderName,
+            description:  description
           }));
 
           progressBar.style.width = '75%';
@@ -1486,6 +1494,8 @@
       if (addAnotherBtn) {
         addAnotherBtn.addEventListener('click', function() {
           fileInput.value       = '';
+          var descField = document.getElementById('photo-description');
+          if (descField) descField.value = '';
           previewWrap.style.display  = 'none';
           successWrap.style.display  = 'none';
           progressWrap.style.display = 'none';

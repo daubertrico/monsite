@@ -57,7 +57,7 @@ function doGet(e) {
 // ------- Upload d'une photo -------
 
 function uploadPhoto(data) {
-  const { base64, mimeType, filename, concert, uploaderName } = data;
+  const { base64, mimeType, filename, concert, uploaderName, description, eventId } = data;
 
   if (!base64 || !filename) return jsonOk({ error: 'Données manquantes (base64 / filename)' });
 
@@ -83,7 +83,9 @@ function uploadPhoto(data) {
     filename,
     (concert || 'Non précisé').trim(),
     (uploaderName || 'Anonyme').trim(),
-    new Date().toISOString()
+    new Date().toISOString(),
+    (description || '').toString().trim().slice(0, 300),
+    (eventId || '').toString().trim()
   ]);
 
   return jsonOk({ success: true, fileId: file.getId() });
@@ -106,6 +108,17 @@ function getGalleryList(concertFilter) {
   if (concertFilter) {
     photos = photos.filter(p => p.concert === concertFilter);
   }
+
+  // Ignore les photos dont le fichier Drive a été supprimé ou mis à la corbeille
+  photos = photos.filter(p => {
+    if (!p.fileId) return false;
+    try {
+      const f = DriveApp.getFileById(p.fileId);
+      return f && !f.isTrashed();
+    } catch (e) {
+      return false; // fichier introuvable (supprimé définitivement)
+    }
+  });
 
   photos.reverse(); // plus récent en premier
   return jsonOk({ photos });
@@ -154,7 +167,7 @@ function getOrCreateSheet() {
   let sheet = ss.getSheetByName('Photos');
   if (!sheet) {
     sheet = ss.insertSheet('Photos');
-    sheet.appendRow(['fileId', 'filename', 'concert', 'uploaderName', 'uploadDate']);
+    sheet.appendRow(['fileId', 'filename', 'concert', 'uploaderName', 'uploadDate', 'description', 'eventId']);
     sheet.setFrozenRows(1);
     // Largeurs de colonnes confortables
     sheet.setColumnWidth(1, 180); // fileId
@@ -162,6 +175,19 @@ function getOrCreateSheet() {
     sheet.setColumnWidth(3, 220); // concert
     sheet.setColumnWidth(4, 140); // uploaderName
     sheet.setColumnWidth(5, 200); // uploadDate
+    sheet.setColumnWidth(6, 320); // description
+    sheet.setColumnWidth(7, 260); // eventId
+  } else {
+    // Migration : ajoute les colonnes manquantes aux feuilles déjà existantes
+    let header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    ['description', 'eventId'].forEach(name => {
+      if (header.indexOf(name) < 0) {
+        const col = header.length + 1;
+        sheet.getRange(1, col).setValue(name);
+        sheet.setColumnWidth(col, name === 'eventId' ? 260 : 320);
+        header.push(name);
+      }
+    });
   }
 
   return sheet;

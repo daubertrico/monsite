@@ -481,25 +481,29 @@ function renderFooter() {
     return;
   }
 
-  // Default footer for the main site (unchanged)
-  const copyrightText = `&copy; ${year} La Voix Libre. Tous droits réservés.`;
+  // Default footer for the main site
   footer.innerHTML = `
     <div class="footer-content">
-      <p>${copyrightText}</p>
-      <p>Contact : <a href="mailto:${email}">${email}</a></p>
-      <div class="social-links">
-        <a href="${fbCfg?.valeur || '#'}" target="_blank" aria-label="Facebook La Voix Libre">Facebook</a>
-        <a href="${igCfg?.valeur || '#'}" target="_blank" aria-label="Instagram La Voix Libre">Instagram</a>
-        <a href="${ytCfg?.valeur || '#'}" target="_blank" aria-label="YouTube La Voix Libre">YouTube</a>
+      <div class="footer-brand">
+        <span class="footer-brand-name">La Voix Libre</span>
+        <p class="footer-tagline">Chorale &amp; ateliers de chant à Rennes</p>
       </div>
-      <div class="newsletter-link" style="margin-top:10px;">
-        <a href="#newsletter" id="newsletter-btn" aria-label="Newsletter La Voix Libre" style="display:inline-flex;align-items:center;text-decoration:none;vertical-align:middle;background:#ff6699;color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;font-weight:bold;border-radius:6px;padding:8px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,box-shadow 0.2s;cursor:pointer;margin:0 auto;min-height:40px;">
-          <span style="display:inline-block;vertical-align:middle;height:24px;width:24px;margin-right:8px;">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:24px;width:24px;"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 7l9 6 9-6" stroke="#ff6699" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-          <span style="color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:18px;vertical-align:middle;">S'inscrire à la newsletter</span>
-        </a>
-      </div>
+
+      <a href="#newsletter" id="newsletter-btn" class="footer-newsletter-btn" aria-label="S'inscrire à la newsletter La Voix Libre">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        <span>S'inscrire à la newsletter</span>
+      </a>
+
+      <nav class="social-links" aria-label="Réseaux sociaux">
+        <a href="${fbCfg?.valeur || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Facebook La Voix Libre">Facebook</a>
+        <a href="${igCfg?.valeur || '#'}" target="_blank" rel="noopener noreferrer" aria-label="Instagram La Voix Libre">Instagram</a>
+        <a href="${ytCfg?.valeur || '#'}" target="_blank" rel="noopener noreferrer" aria-label="YouTube La Voix Libre">YouTube</a>
+      </nav>
+
+      <div class="footer-divider"></div>
+
+      <p class="footer-contact">Contact : <a href="mailto:${email}">${email}</a></p>
+      <p class="footer-copyright">&copy; ${year} La Voix Libre. Tous droits réservés.</p>
     </div>
   `;
 
@@ -741,6 +745,14 @@ async function fetchPostsFromCSV(csvUrl) {
           });
           homeContent.appendChild(wrap);
         }
+
+        // --- Chef de chœur : mention + bouton vers la page Vincent ---
+        const conductor = document.createElement('div');
+        conductor.className = 'home-conductor';
+        conductor.innerHTML = `
+          <p class="home-intro-text" style="margin-bottom:12px;">L'ensemble est dirigé par <strong>Vincent T-Dauberlieu</strong>, chef de chœur et pédagogue vocal.</p>
+          <a href="vincent.html" class="home-cta-btn">En savoir plus sur Vincent →</a>`;
+        homeContent.appendChild(conductor);
       }
 
       // --- Comédie musicale ---
@@ -800,6 +812,20 @@ async function fetchPostsFromCSV(csvUrl) {
 
     // === SECTION 2 : Concerts & événements (depuis Google Agenda) ===
     loadHomeEvents(homeContent);
+
+    // === SECTION 3 : Actualités Instagram (Behold), sous le calendrier ===
+    if (homeContent) {
+      const insta = document.createElement('section');
+      insta.className = 'insta-section';
+      insta.setAttribute('aria-label', 'Actualités Instagram');
+      const igUrl  = (globalConfig?.find(i => i.section === 'footer' && i.champ === 'instagram')?.valeur) || 'https://www.instagram.com/chanterlavoixlibre/';
+      const feedId = (typeof window !== 'undefined' && window.BEHOLD_FEED_ID && !window.BEHOLD_FEED_ID.startsWith('VOTRE_ID')) ? window.BEHOLD_FEED_ID : '';
+      insta.innerHTML = `
+        <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
+        ${feedId ? `<behold-widget feed-id="${feedId}"></behold-widget>` : `<p class="insta-fallback">Flux Instagram bientôt disponible.</p>`}
+        <p class="insta-cta"><a href="${igUrl}" target="_blank" rel="noopener noreferrer">Voir notre Instagram →</a></p>`;
+      homeContent.appendChild(insta);
+    }
   }
 
   // Constantes Google Agenda — Grande Chorale uniquement
@@ -838,7 +864,8 @@ async function fetchPostsFromCSV(csvUrl) {
       if (ep && !ep.startsWith('REMPLACER')) {
         const pd = await fetch(ep + (ep.includes('?') ? '&' : '?') + 'action=gallery_list', { cache: 'no-store' }).then(r => r.json());
         (pd.photos || []).forEach(p => {
-          const k = (p.concert || '').trim();
+          // Clé alignée sur la galerie : id d'événement si dispo, sinon nom stocké
+          const k = p.eventId ? ('id:' + p.eventId) : ('name:' + (p.concert || '').trim());
           if (!photosByKey[k]) photosByKey[k] = [];
           photosByKey[k].push(p);
         });
@@ -979,7 +1006,7 @@ async function fetchPostsFromCSV(csvUrl) {
         // Dernier événement passé à la fin, grisé
         lastPast.forEach(ev => {
           const card   = createCardPast(ev);
-          const photos = photosByKey[concertKey(ev)] || [];
+          const photos = photosByKey['id:' + ev.id] || photosByKey['name:' + concertKey(ev)] || [];
           if (photos.length) card.appendChild(createThumbs(photos));
           upEl.appendChild(card);
         });
