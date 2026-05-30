@@ -1814,6 +1814,176 @@ body.page-soul header.main-header, body.page-soul main, body.page-soul .main-con
   height: 1px;
   background: linear-gradient(to right, rgba(136,68,170,.25), transparent);
 }
+.soul-site .home-section-divider::after,
+body.page-soul .home-section-divider::after {
+  background: linear-gradient(to right, rgba(233,186,96,.45), transparent);
+}
+body.page-soul .home-section-subtitle { color: rgba(254,253,229,0.78); }
+
+/* === Cartes d'événements (à venir + passés) === */
+.event-card {
+  margin-bottom: 12px;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.event-card--upcoming {
+  background: linear-gradient(135deg, #fff0f5, #f5eaff);
+  border-left: 4px solid var(--accent-color-primary);
+  box-shadow: 0 2px 8px rgba(255, 102, 153, 0.10);
+}
+.event-card--past {
+  background: #f5f5f5;
+  border-left: 3px solid #ccc;
+  padding: 10px 14px;
+  display: block; /* le passé a un wrapper interne */
+}
+.event-card--past .event-card-inner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.event-card--past .event-card-body { opacity: 0.78; flex: 1; min-width: 0; }
+
+/* Date pill */
+.event-card-date {
+  background: var(--accent-color-primary);
+  color: #fff;
+  border-radius: 10px;
+  padding: 7px 10px;
+  text-align: center;
+  min-width: 46px;
+  flex-shrink: 0;
+  line-height: 1.15;
+}
+.event-card--past .event-card-date {
+  background: #bbb;
+  border-radius: 8px;
+  padding: 5px 8px;
+  min-width: 38px;
+}
+.event-card-day { font-size: 1.4rem; font-weight: 800; }
+.event-card--past .event-card-day { font-size: 1.1rem; font-weight: 700; }
+.event-card-month { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.event-card--past .event-card-month { font-size: 0.68rem; }
+
+/* Texte */
+.event-card-body { flex: 1; min-width: 0; }
+.event-card-fulldate {
+  font-size: 0.88rem;
+  color: var(--accent-color-complementary);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.event-card--past .event-card-fulldate {
+  font-size: 0.82rem;
+  color: #888;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+.event-card-title { font-weight: 700; font-size: 1rem; color: #222; }
+.event-card--past .event-card-title { font-weight: 600; color: #555; font-size: 0.94rem; }
+.event-card-loc { font-size: 0.85rem; color: #666; margin-top: 3px; }
+.event-card-desc {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 5px;
+  line-height: 1.5;
+}
+.event-card--past .event-card-desc { font-size: 0.82rem; color: #666; margin-top: 4px; }
+
+/* === SOUL : ré-habillage des cartes (dark + or) === */
+body.page-soul .event-card--upcoming {
+  background: linear-gradient(135deg, rgba(57,44,68,0.92), rgba(38,29,39,0.92));
+  border-left: 4px solid var(--soul-gold);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+body.page-soul .event-card--upcoming .event-card-date {
+  background: linear-gradient(135deg, var(--soul-gold), var(--soul-orange));
+  color: var(--soul-vvd);
+}
+body.page-soul .event-card--upcoming .event-card-fulldate { color: var(--soul-gold); }
+body.page-soul .event-card--upcoming .event-card-title    { color: var(--soul-cream); }
+body.page-soul .event-card--upcoming .event-card-loc,
+body.page-soul .event-card--upcoming .event-card-desc     { color: rgba(254,253,229,0.78); }
+
+body.page-soul .event-card--past {
+  background: rgba(38, 29, 39, 0.6);
+  border-left: 3px solid rgba(233, 186, 96, 0.4);
+}
+body.page-soul .event-card--past .event-card-date {
+  background: rgba(233, 186, 96, 0.25);
+  color: var(--soul-cream);
+}
+body.page-soul .event-card--past .event-card-title,
+body.page-soul .event-card--past .event-card-fulldate,
+body.page-soul .event-card--past .event-card-desc { color: rgba(254,253,229,0.7); }
+
+/* === SOUL : titres de rubrique en Alfa Slab One (au lieu de Lobster) === */
+body.page-soul .home-section-divider {
+  margin-top: 3rem;
+  margin-bottom: 1.4rem;
+}
+body.page-soul .home-section-divider h2 {
+  font-family: 'Alfa Slab One', 'Playfair Display', serif !important;
+  font-size: 1.45rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--soul-gold) !important;
+}
+body.page-soul .home-section-subtitle {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: rgba(254, 253, 229, 0.72);
+  letter-spacing: 0.01em;
+}
+
+/* === SOUL : halo doré sous le logo (mise en valeur) === */
+body.page-soul .main-header.soul-header { overflow: hidden; }
+body.page-soul .main-header.soul-header .soul-logo-wrap { position: relative; }
+body.page-soul .main-header.soul-header .soul-logo-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 14% -10% 16% -10%;
+  background: radial-gradient(ellipse at center, rgba(233, 186, 96, 0.30) 0%, transparent 70%);
+  filter: blur(22px);
+  z-index: 0;
+  pointer-events: none;
+}
+body.page-soul .main-header.soul-header .site-logo {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(233, 186, 96, 0.18) !important;
+  transition: transform 0.35s ease;
+}
+body.page-soul .main-header.soul-header .site-logo:hover {
+  transform: scale(1.015);
+}
+
+/* === SOUL : typographie de la présentation (Inter aéré) === */
+body.page-soul .soul-intro {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+body.page-soul .soul-intro p {
+  font-size: 1.06rem;
+  line-height: 1.78;
+  color: var(--soul-cream) !important;
+  margin-bottom: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+}
+
+/* === SOUL : sections recentrées et harmonisées (max 980px) === */
+body.page-soul .insta-section,
+body.page-soul .youtube-section,
+body.page-soul #soul-evenements {
+  max-width: 980px;
+  margin: 0 auto;
+}
 
 /* Carte comédie musicale */
 .home-comedie-card {

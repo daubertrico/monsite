@@ -278,7 +278,6 @@
       }
     ],
     "tags": ["soul"],
-    "display_posts": true,
     "hidden": true
   },
   {
@@ -359,53 +358,6 @@
     ],
     "tags": ["galerie"],
     "display_posts": false
-  },
-  {
-    "id": "videos",
-    "image": "videosbackground.jpg",
-    "hidden": true,
-    "tile_overlay_title": "Vidéos",
-    "tile_overlay_subtitle": "Nos performances et concerts",
-    "page_title": "Vidéos",
-    "page_subtitle": "Souvenirs de nos concerts",
-    "page_content": [
-      "Découvrez nos performances et concerts en vidéo : La Voix Libre et S.O.U.L sur scène, en répétition et lors des grands événements.",
-      "Retrouvez les extraits marquants, les arrangements originaux et les moments forts de nos ensembles vocaux."
-    ],
-    "specific_content": [
-      {
-        "type": "gallery",
-        "title": "Galerie vidéos :",
-        "images": [
-          "videosbackground.jpg",
-          "Co6lesdfIiY_maxresdefault.jpg",
-          "aDAkEPC-c-E_maxresdefault.jpg",
-          "jRPr0wGqtso_hqdefault.jpg"
-        ],
-        "links": [
-          {
-            "title": "S.O.U.L à Jazz sous les Pommiers 2025",
-            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/s-o-u-l-%C3%A0-jazz-sous-les-pommiers-2025-%C3%A9motions-et-soul-en-normandie"
-          },
-          {
-            "title": "Sittin' on the dock of the Bay !",
-            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/sittin-on-the-dock-of-the-bay"
-          },
-          {
-            "title": "Simply the Best, La Voix Libre, Chorale équestre :)",
-            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/_tina"
-          }
-        ]
-      },
-      {
-        "type": "contact",
-        "email": "lavoixlibrerennes@gmail.com",
-        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
-        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
-      }
-    ],
-    "tags": ["videos"],
-    "display_posts": true
   },
   {
     "id": "partitions",

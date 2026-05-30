@@ -196,7 +196,7 @@ function renderHeader(currentPageId) {
 
   // If we're on the Soul site, use the soullogo at site root and do not wrap it in a link
   const isSoulSite = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
-  const soulLogoPath = '/soullogo.png';
+  const soulLogoPath = '/assets/images/soullogo.png';
   let logoHtml = '';
   if (isSoulSite) {
     const alt = 'SOUL';
@@ -363,8 +363,9 @@ function renderNav(currentPageId) {
   if (!navList || !Array.isArray(pagesData)) return;
   navList.innerHTML = '';
 
-  // Lien "La Voix Libre" → accueil (masqué si déjà sur la homepage)
-  if (currentPageId !== 'index') {
+  // Lien "La Voix Libre" → accueil (masqué si déjà sur la homepage OU sur le site SOUL)
+  const _isSoulNav = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
+  if (currentPageId !== 'index' && !_isSoulNav) {
     const liHome = document.createElement('li');
     const aHome  = document.createElement('a');
     aHome.href = 'index.html';
@@ -434,6 +435,60 @@ function renderNav(currentPageId) {
       if (window.innerWidth > 768) closeMenu();
     });
   }
+
+  // SOUL : remplacer la nav HTML par une nav SVG "gravée" sur le bord inférieur du logo
+  try { applySoulCurvedNav(); } catch(e) { console.warn('soul curved nav', e); }
+}
+
+// Construit une nav SVG dont le texte suit la courbe inférieure du disque SOUL
+function applySoulCurvedNav() {
+  if (!document.body || !document.body.classList.contains('page-soul')) return;
+  const header = document.querySelector('.main-header.soul-header');
+  if (!header) return;
+
+  // Retire une éventuelle ancienne instance
+  const previous = header.querySelector('.soul-curved-nav');
+  if (previous) previous.remove();
+
+  const links = Array.from(document.querySelectorAll('.main-nav .nav-links li a'));
+  if (!links.length) return;
+
+  // Arc dans un viewBox 380x380 — centre (190,190), rayon proche du bord du disque
+  // Arc serré sur la partie basse du disque, 55° de chaque côté → arc total 110°
+  const cx = 190, cy = 190, r = 172;
+  const halfArc = 55 * Math.PI / 180;
+  const startX = cx - r * Math.sin(halfArc);
+  const endX   = cx + r * Math.sin(halfArc);
+  const y      = cy + r * Math.cos(halfArc);
+
+  // Répartition des items le long de l'arc, avec marges
+  const N = links.length;
+  const margin = 0.14;     // 14% de marge à chaque extrémité
+  const usable = 1 - 2 * margin;
+  const offsets = links.map((_, i) => {
+    if (N === 1) return 50;
+    return (margin + (i / (N - 1)) * usable) * 100;
+  });
+
+  // Construction du SVG en chaîne — innerHTML est parsé correctement en namespace SVG
+  const texts = links.map((a, i) => {
+    const txt = (a.textContent || '').trim();
+    const href = a.getAttribute('href') || '#';
+    const off  = offsets[i].toFixed(2);
+    return `<a href="${href}"><text>
+      <textPath href="#soul-nav-arc" startOffset="${off}%" text-anchor="middle">${txt}</textPath>
+    </text></a>`;
+  }).join('');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'soul-curved-nav';
+  wrap.innerHTML = `<svg viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg" aria-hidden="false">
+    <defs>
+      <path id="soul-nav-arc" d="M ${startX.toFixed(2)},${y.toFixed(2)} A ${r},${r} 0 0 1 ${endX.toFixed(2)},${y.toFixed(2)}" fill="none"/>
+    </defs>
+    ${texts}
+  </svg>`;
+  header.appendChild(wrap);
 }
 
 function renderFooter() {
@@ -856,47 +911,53 @@ async function fetchPostsFromCSV(csvUrl) {
   const _K_JOURS = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
   const _K_MOIS  = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
 
-  async function loadHomeEvents(container) {
+  async function loadHomeEvents(container, opts) {
     if (!container) return;
+    opts = opts || {};
+    const calId       = opts.calendarId   || _HOME_CAL_ID;
+    const showThumbs  = opts.showThumbs !== false;          // par défaut : oui (homepage)
+    const sectionId   = opts.sectionId    || 'evenements';
+    const subtitle    = opts.subtitle     || 'Prochaines dates de La Voix Libre à Rennes et alentours.';
 
     const section = document.createElement('section');
-    section.id = 'evenements';
+    section.id = sectionId;
     section.style.cssText = 'scroll-margin-top:80px;';
     section.innerHTML = `
       <div class="home-section-divider"><h2>Concerts &amp; événements</h2></div>
-      <p class="home-section-subtitle">Prochaines dates de La Voix Libre à Rennes et alentours.</p>
-      <div id="home-events-upcoming"></div>`;
+      <p class="home-section-subtitle">${subtitle}</p>
+      <div id="${sectionId}-upcoming"></div>`;
     container.appendChild(section);
 
-    const upEl = section.querySelector('#home-events-upcoming');
+    const upEl = section.querySelector('#' + sectionId + '-upcoming');
     const paEl = null; // Plus de section séparée pour les passés
     const skel = h => `<div style="height:${h}px;border-radius:12px;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;margin-bottom:10px;"></div>`;
     if (upEl) upEl.innerHTML = skel(72) + skel(80) + skel(64);
     if (paEl) paEl.innerHTML = skel(50) + skel(50);
 
-    // ---- Chargement des photos (groupées par concert) ----
+    // ---- Chargement des photos (groupées par concert) — uniquement quand showThumbs ----
     const photosByKey = {};
-    try {
-      const ep = (typeof window !== 'undefined' && window.PHOTOS_ENDPOINT) || '';
-      if (ep && !ep.startsWith('REMPLACER')) {
-        const pd = await fetch(ep + (ep.includes('?') ? '&' : '?') + 'action=gallery_list', { cache: 'no-store' }).then(r => r.json());
-        (pd.photos || []).forEach(p => {
-          // Clé alignée sur la galerie : id d'événement si dispo, sinon nom stocké
-          const k = p.eventId ? ('id:' + p.eventId) : ('name:' + (p.concert || '').trim());
-          if (!photosByKey[k]) photosByKey[k] = [];
-          photosByKey[k].push(p);
-        });
-      }
-    } catch(e) { /* photos non disponibles */ }
+    if (showThumbs) {
+      try {
+        const ep = (typeof window !== 'undefined' && window.PHOTOS_ENDPOINT) || '';
+        if (ep && !ep.startsWith('REMPLACER')) {
+          const pd = await fetch(ep + (ep.includes('?') ? '&' : '?') + 'action=gallery_list', { cache: 'no-store' }).then(r => r.json());
+          (pd.photos || []).forEach(p => {
+            const k = p.eventId ? ('id:' + p.eventId) : ('name:' + (p.concert || '').trim());
+            if (!photosByKey[k]) photosByKey[k] = [];
+            photosByKey[k].push(p);
+          });
+        }
+      } catch(e) { /* photos non disponibles */ }
+    }
 
-    // ---- Chargement des événements (Grande Chorale uniquement) ----
+    // ---- Chargement des événements (calendrier configurable) ----
     const now  = new Date();
     const tMin = new Date(now.getTime() - 365*24*3600*1000).toISOString();
     const tMax = new Date(now.getTime() + 2*365*24*3600*1000).toISOString();
     let allEvents = [];
     try {
       const url = 'https://www.googleapis.com/calendar/v3/calendars/'
-        + encodeURIComponent(_HOME_CAL_ID)
+        + encodeURIComponent(calId)
         + '/events?key=' + _HOME_CAL_KEY
         + '&timeMin=' + encodeURIComponent(tMin)
         + '&timeMax=' + encodeURIComponent(tMax)
@@ -975,17 +1036,17 @@ async function fetchPostsFromCSV(csvUrl) {
     function createCardUp(ev) {
       const d    = evDate(ev);
       const div  = document.createElement('div');
-      div.style.cssText = 'display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,#fff0f5,#f5eaff);border-left:4px solid var(--accent-color-primary);margin-bottom:12px;box-shadow:0 2px 8px rgba(255,102,153,0.10);';
-      const loc  = ev.location    ? `<div style="font-size:.85rem;color:#666;margin-top:3px;">📍 ${esc(ev.location)}</div>` : '';
-      const desc = ev.description ? `<div style="font-size:.85rem;color:#555;margin-top:5px;line-height:1.5;">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
+      div.className = 'event-card event-card--upcoming';
+      const loc  = ev.location    ? `<div class="event-card-loc">📍 ${esc(ev.location)}</div>` : '';
+      const desc = ev.description ? `<div class="event-card-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
       div.innerHTML = `
-        <div style="background:var(--accent-color-primary);color:#fff;border-radius:10px;padding:7px 10px;text-align:center;min-width:46px;flex-shrink:0;line-height:1.15;">
-          <div style="font-size:1.4rem;font-weight:800;">${d.getDate()}</div>
-          <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;">${_MOIS_C[d.getMonth()]}</div>
+        <div class="event-card-date">
+          <div class="event-card-day">${d.getDate()}</div>
+          <div class="event-card-month">${_MOIS_C[d.getMonth()]}</div>
         </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:.88rem;color:var(--accent-color-complementary);font-weight:600;margin-bottom:2px;">${esc(fullDate(ev))}</div>
-          <div style="font-weight:700;font-size:1rem;color:#222;">${esc(ev.summary||'')}</div>
+        <div class="event-card-body">
+          <div class="event-card-fulldate">${esc(fullDate(ev))}</div>
+          <div class="event-card-title">${esc(ev.summary||'')}</div>
           ${loc}${desc}
         </div>`;
       return div;
@@ -995,18 +1056,18 @@ async function fetchPostsFromCSV(csvUrl) {
     function createCardPast(ev) {
       const d   = evDate(ev);
       const div = document.createElement('div');
-      div.style.cssText = 'padding:10px 14px;border-radius:10px;background:#f5f5f5;border-left:3px solid #ccc;margin-bottom:10px;';
+      div.className = 'event-card event-card--past';
       const loc  = ev.location    ? ` · ${esc(ev.location)}` : '';
-      const desc = ev.description ? `<div style="font-size:.82rem;color:#666;margin-top:4px;line-height:1.5;">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
+      const desc = ev.description ? `<div class="event-card-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
       div.innerHTML = `
-        <div style="display:flex;gap:12px;align-items:flex-start;">
-          <div style="background:#bbb;color:#fff;border-radius:8px;padding:5px 8px;text-align:center;min-width:38px;flex-shrink:0;line-height:1.15;">
-            <div style="font-size:1.1rem;font-weight:700;">${d.getDate()}</div>
-            <div style="font-size:.68rem;text-transform:uppercase;">${_MOIS_C[d.getMonth()]}</div>
+        <div class="event-card-inner">
+          <div class="event-card-date">
+            <div class="event-card-day">${d.getDate()}</div>
+            <div class="event-card-month">${_MOIS_C[d.getMonth()]}</div>
           </div>
-          <div style="opacity:.78;flex:1;min-width:0;">
-            <div style="font-weight:600;color:#555;font-size:.94rem;">${esc(ev.summary||'')}</div>
-            <div style="font-size:.82rem;color:#888;">${_JOURS[d.getDay()]} ${d.getDate()} ${_MOIS_L[d.getMonth()]} ${d.getFullYear()}${loc}</div>
+          <div class="event-card-body">
+            <div class="event-card-title">${esc(ev.summary||'')}</div>
+            <div class="event-card-fulldate">${_JOURS[d.getDay()]} ${d.getDate()} ${_MOIS_L[d.getMonth()]} ${d.getFullYear()}${loc}</div>
             ${desc}
           </div>
         </div>`;
@@ -1167,6 +1228,73 @@ async function fetchPostsFromCSV(csvUrl) {
     pageSubtitle.textContent = page.page_subtitle;
     contentContainer.innerHTML = '';
 
+    // ====================================================================
+    // SOUL : layout dédié (présentation + calendrier SOUL + Insta + YouTube)
+    // ====================================================================
+    if (pageId === 'soul') {
+      // Présentation (paragraphes page_content)
+      if (Array.isArray(page.page_content) && page.page_content.length) {
+        const intro = document.createElement('div');
+        intro.className = 'soul-intro';
+        intro.style.cssText = 'max-width:980px;margin:0 auto 1rem auto;';
+        page.page_content.forEach(txt => {
+          if (!txt || !txt.trim()) return;
+          const p = document.createElement('p');
+          p.textContent = txt;
+          intro.appendChild(p);
+        });
+        contentContainer.appendChild(intro);
+      }
+
+      // Calendrier des événements SOUL (même modèle que l'accueil)
+      const SOUL_CAL_ID = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
+      loadHomeEvents(contentContainer, {
+        calendarId: SOUL_CAL_ID,
+        showThumbs: false,
+        sectionId: 'soul-evenements',
+        subtitle: 'Prochaines dates de SOUL à Rennes et alentours.'
+      });
+
+      // Instagram SOUL (Behold) — compte séparé via window.BEHOLD_SOUL_FEED_ID
+      const insta = document.createElement('section');
+      insta.className = 'insta-section';
+      insta.setAttribute('aria-label', 'Actualités Instagram SOUL');
+      const soulFeedId = (typeof window !== 'undefined' && window.BEHOLD_SOUL_FEED_ID && !window.BEHOLD_SOUL_FEED_ID.startsWith('VOTRE_ID')) ? window.BEHOLD_SOUL_FEED_ID : '';
+      insta.innerHTML = `
+        <div class="home-section-divider"><h2>SOUL sur Insta — Actualités</h2></div>
+        ${soulFeedId ? `<behold-widget feed-id="${soulFeedId}"></behold-widget>` : `<p class="insta-fallback">Flux Instagram SOUL bientôt disponible.</p>`}`;
+      contentContainer.appendChild(insta);
+      // Charge le script Behold à la volée si nécessaire
+      if (soulFeedId && !document.querySelector('script[data-behold]')) {
+        const s = document.createElement('script');
+        s.type = 'module';
+        s.src = 'https://w.behold.so/widget.js';
+        s.setAttribute('data-behold', '');
+        document.head.appendChild(s);
+      }
+
+      // Playlist YouTube SOUL
+      const yt = document.createElement('section');
+      yt.className = 'youtube-section';
+      yt.setAttribute('aria-label', 'Nos enregistrements YouTube SOUL');
+      yt.innerHTML = `
+        <div class="home-section-divider"><h2>SOUL sur YouTube — Enregistrements</h2></div>
+        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbY4oyR-Kic48Fu_UWhQSR2o" data-limit="6" aria-live="polite">
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+        </div>`;
+      contentContainer.appendChild(yt);
+      if (typeof initYoutubeGrids === 'function') initYoutubeGrids();
+
+      // Émet l'événement pour le footer SOUL custom + sortie : on ne fait pas le rendu générique
+      try { document.dispatchEvent(new CustomEvent('site:content-rendered', { detail: { pageId } })); } catch(e) {}
+      return;
+    }
+
       if ((page.page_content && page.page_content.length > 0) || pageId === 'nous-rejoindre') {
         let descriptionContainer;
   if (pageId === 'cours-de-chant') {
@@ -1313,14 +1441,8 @@ async function fetchPostsFromCSV(csvUrl) {
                 audioPlayer.style.background = '#fff';
                 audioPlayer.style.borderRadius = '12px';
                 audioPlayer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-              audioPlayer.autoplay = false;
-              audioPlayer.style.width = '100%';
-              audioPlayer.style.marginTop = '8px';
-              audioPlayer.style.background = '#fff';
-              audioPlayer.style.borderRadius = '12px';
-              audioPlayer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
 
-              // Diagnostic avancé
+                // Diagnostic avancé
               audioPlayer.onerror = function(e) {
                 const errorMsg = document.createElement('div');
                 errorMsg.textContent = "Le fichier audio n'a pas pu être chargé. Vérifiez le chemin, le format ou le serveur.";
@@ -2021,7 +2143,7 @@ async function init() {
       const isSoulSite = hostname.includes('soulrennes') || pathname.startsWith('/soul') || (hostname.includes('chanterlavoixlibre') && pathname.startsWith('/soul'));
       if (isSoulSite) {
         // Remove pages that should not be accessible from the SOUL domain/subpath
-        const banned = ['chorale-pop', 'comedie-musicale', 'cours-de-chant', 'evenements', 'videos'];
+        const banned = ['chorale-pop', 'comedie-musicale', 'cours-de-chant', 'evenements', 'videos', 'galerie', 'nous-rejoindre'];
         if (Array.isArray(pagesData)) {
           pagesData = pagesData.filter(p => !banned.includes(p.id));
         }
@@ -2036,7 +2158,7 @@ async function init() {
         setGlobalConfig('footer', 'facebook', 'https://www.facebook.com/profile.php?id=61584638320678');
         setGlobalConfig('footer', 'instagram', 'https://www.instagram.com/soul.rennes/');
         // Use soul logo and site title for SOUL
-        setGlobalConfig('head', 'logo_url', '/soullogo.png');
+        setGlobalConfig('head', 'logo_url', '/assets/images/soullogo.png');
         setGlobalConfig('head', 'site_title', 'SOUL');
         // Expose a global flag so renderers can adapt (logo, labels...)
         try {
