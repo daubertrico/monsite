@@ -55,30 +55,18 @@
       margin: 0 0 1rem 0;
     }
 
-    /* ---- Filtres par concert ---- */
-    .gallery-filters {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin: 0 0 16px 0;
-    }
-    .gallery-filter-btn {
-      padding: 6px 16px;
-      border-radius: 999px;
-      border: 2px solid var(--accent-color-primary);
-      background: transparent;
-      color: var(--accent-color-primary);
-      font-weight: 700;
-      font-size: 0.93rem;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      font-family: 'Montserrat', sans-serif;
-    }
-    .gallery-filter-btn.active,
-    .gallery-filter-btn:hover {
-      background: var(--accent-color-primary);
-      color: #fff;
+    /* ---- Groupes par concert (titre + grille) ---- */
+    .gallery-group { margin: 0 0 2.2rem 0; }
+    .gallery-group:last-child { margin-bottom: 0; }
+    .gallery-group-title {
+      font-family: 'Lobster', cursive;
+      font-size: 1.25rem;
+      color: var(--accent-color-complementary);
+      font-weight: 400;
+      text-align: center;
+      margin: 0 auto 0.8rem auto;
+      max-width: 600px;
+      line-height: 1.2;
     }
 
     /* ---- Grille de vignettes carrées (calée sur la rubrique Insta Behold) ---- */
@@ -263,21 +251,19 @@
         <a href="espace-choristes.html" class="gallery-upload-cta">+ Ajouter mes photos</a>
       </div>
 
-      <!-- Section : Galerie des choristes -->
+      <!-- Section : Galerie des choristes (groupée par concert, du plus récent au plus ancien) -->
       <section class="gallery-section" aria-label="Photos de concerts">
         <div class="home-section-divider"><h2>Galerie des choristes</h2></div>
 
-        <div class="gallery-filters" id="gallery-filters">
-          <button class="gallery-filter-btn active" data-key="">Tous les concerts</button>
-        </div>
-
-        <div class="photo-mosaic" id="photo-mosaic" aria-live="polite" aria-label="Galerie photos">
-          <div class="photo-skeleton"></div>
-          <div class="photo-skeleton"></div>
-          <div class="photo-skeleton"></div>
-          <div class="photo-skeleton"></div>
-          <div class="photo-skeleton"></div>
-          <div class="photo-skeleton"></div>
+        <div id="gallery-groups" aria-live="polite">
+          <div class="photo-mosaic">
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+          </div>
         </div>
       </section>
 
@@ -381,14 +367,12 @@
 
     // ---- Chargement initial ----
     async function loadGallery() {
-      const mosaic = document.getElementById('photo-mosaic');
+      const groupsEl = document.getElementById('gallery-groups');
 
-      mosaic.innerHTML = Array(8).fill(0).map(() =>
-        `<div class="photo-skeleton"></div>`
-      ).join('');
+      groupsEl.innerHTML = `<div class="photo-mosaic">${Array(6).fill('<div class="photo-skeleton"></div>').join('')}</div>`;
 
       if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
-        mosaic.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.<br>Déployez le script GAS et renseignez l\'URL dans galerie.html.</p></div>';
+        groupsEl.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.<br>Déployez le script GAS et renseignez l\'URL dans galerie.html.</p></div>';
         return;
       }
 
@@ -399,7 +383,7 @@
         const data = await res.json();
 
         if (!data.photos || !data.photos.length) {
-          mosaic.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
           return;
         }
 
@@ -407,86 +391,73 @@
         data.photos.forEach(p => { p._label = photoLabel(p); p._key = photoKey(p); });
 
         allPhotos = data.photos;
-        filteredPhotos = allPhotos;
-        renderMosaic(filteredPhotos);
-        buildFilters();
+        renderGroupedGalleries();
       } catch (e) {
-        mosaic.innerHTML = '<div class="gallery-empty"><p>Impossible de charger la galerie. Réessayez plus tard.</p></div>';
+        groupsEl.innerHTML = '<div class="gallery-empty"><p>Impossible de charger la galerie. Réessayez plus tard.</p></div>';
         console.error('Gallery load error', e);
       }
     }
 
-    // ---- Rendu mosaïque ----
-    function renderMosaic(photos) {
-      const mosaic = document.getElementById('photo-mosaic');
-      if (!photos.length) {
-        mosaic.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour ce concert.</p></div>';
-        return;
-      }
+    // ---- Rendu groupé par concert (du plus récent au plus ancien) ----
+    function renderGroupedGalleries() {
+      const groupsEl = document.getElementById('gallery-groups');
 
-      mosaic.innerHTML = photos.map((photo, i) => {
-        const thumb = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w600`;
-        const concert = (photo._label || photo.concert || '').replace(/</g,'&lt;');
-        const uploader = (photo.uploaderName || '').replace(/</g,'&lt;');
-        const description = (photo.description || '').replace(/</g,'&lt;');
-        const meta = [concert, uploader ? `par ${uploader}` : ''].filter(Boolean).join(' · ');
-        const capHtml = [
-          description ? `<span class="cap-desc">${description}</span>` : '',
-          meta ? `<span class="cap-meta">${meta}</span>` : ''
-        ].filter(Boolean).join('');
-        const altText = description || concert;
+      // Regroupe par clé concert
+      const groups = {};
+      allPhotos.forEach(p => {
+        if (!groups[p._key]) {
+          groups[p._key] = { key: p._key, label: p._label, date: photoDate(p), photos: [] };
+        }
+        groups[p._key].photos.push(p);
+      });
+      // Trie les concerts du plus récent au plus ancien (en n'incluant QUE ceux qui ont des photos)
+      const list = Object.values(groups)
+        .filter(g => g.photos.length > 0)
+        .sort((a, b) => b.date - a.date);
+
+      // Construit la liste à plat dans l'ordre d'affichage (pour les indices de lightbox)
+      filteredPhotos = list.flatMap(g => g.photos);
+
+      const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
+
+      let flatIndex = 0;
+      groupsEl.innerHTML = list.map(g => {
+        const figs = g.photos.map(photo => {
+          const i = flatIndex++;
+          const thumb = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w600`;
+          const uploader = esc(photo.uploaderName || '');
+          const description = esc(photo.description || '');
+          const meta = uploader ? `par ${uploader}` : '';
+          const capHtml = [
+            description ? `<span class="cap-desc">${description}</span>` : '',
+            meta ? `<span class="cap-meta">${meta}</span>` : ''
+          ].filter(Boolean).join('');
+          const altText = description || esc(g.label);
+          return `
+            <figure data-index="${i}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
+              <img src="${thumb}" alt="${altText}" loading="lazy" decoding="async"
+                onerror="this.parentElement.style.display='none'">
+              ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
+            </figure>`;
+        }).join('');
         return `
-          <figure data-index="${i}" role="button" tabindex="0"
-            aria-label="Photo ${i+1}${altText ? ' – ' + altText : ''}">
-            <img src="${thumb}" alt="${altText}"
-              loading="lazy" decoding="async"
-              onerror="this.parentElement.style.display='none'">
-            ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
-          </figure>`;
+          <div class="gallery-group">
+            <h3 class="gallery-group-title">${esc(g.label)}</h3>
+            <div class="photo-mosaic">${figs}</div>
+          </div>`;
       }).join('');
 
-      // Bind clicks et touches
-      mosaic.querySelectorAll('figure').forEach(fig => {
+      // Bind clicks et touches sur toutes les figures
+      groupsEl.querySelectorAll('figure').forEach(fig => {
         fig.addEventListener('click', () => openLightbox(Number(fig.dataset.index)));
         fig.addEventListener('keydown', e => {
           if (e.key === 'Enter' || e.key === ' ') openLightbox(Number(fig.dataset.index));
         });
       });
+
+      // Re-synchronise le gap sur Behold pour les nouvelles grilles
+      if (typeof syncYoutubeGapToBehold === 'function') syncYoutubeGapToBehold();
     }
-
-    // ---- Filtres concerts (construits côté client à partir des photos) ----
-    function buildFilters() {
-      const filtersEl = document.getElementById('gallery-filters');
-      // Regroupe les photos par concert (clé)
-      const groups = {};
-      allPhotos.forEach(p => {
-        if (!groups[p._key]) groups[p._key] = { key: p._key, label: p._label, date: photoDate(p) };
-      });
-      const list = Object.values(groups).sort((a, b) => b.date - a.date);
-      if (list.length < 2) return; // pas assez de concerts pour proposer un filtre
-
-      list.forEach(g => {
-        const btn = document.createElement('button');
-        btn.className = 'gallery-filter-btn';
-        btn.dataset.key = g.key;
-        btn.textContent = g.label;
-        btn.addEventListener('click', () => activateFilter(btn));
-        filtersEl.appendChild(btn);
-      });
-    }
-
-    function activateFilter(btn) {
-      document.querySelectorAll('.gallery-filter-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const key = btn.dataset.key;
-      filteredPhotos = key ? allPhotos.filter(p => p._key === key) : allPhotos;
-      renderMosaic(filteredPhotos);
-    }
-
-    // Bind du filtre "Tous"
-    document.querySelector('.gallery-filter-btn[data-key=""]').addEventListener('click', function() {
-      activateFilter(this);
-    });
 
     // ---- Lightbox ----
     function openLightbox(index) {
