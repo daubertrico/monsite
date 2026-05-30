@@ -454,25 +454,32 @@ function applySoulCurvedNav() {
   if (!links.length) return;
 
   // Arc dans un viewBox 380x380 — centre (190,190), rayon proche du bord du disque
-  // Arc serré sur la partie basse du disque, 55° de chaque côté → arc total 110°
+  // Arc large pour donner de la place au texte
   const cx = 190, cy = 190, r = 172;
-  const halfArc = 55 * Math.PI / 180;
+  const halfArc = 70 * Math.PI / 180;
   const startX = cx - r * Math.sin(halfArc);
   const endX   = cx + r * Math.sin(halfArc);
   const y      = cy + r * Math.cos(halfArc);
 
-  // Répartition des items le long de l'arc, avec marges
+  // Répartition des items le long de l'arc
   const N = links.length;
-  const margin = 0.14;     // 14% de marge à chaque extrémité
+  const margin = 0.18;
   const usable = 1 - 2 * margin;
   const offsets = links.map((_, i) => {
     if (N === 1) return 50;
     return (margin + (i / (N - 1)) * usable) * 100;
   });
 
+  // Libellés raccourcis pour tenir sur l'arc
+  const SHORT_LABELS = {
+    'Espace choristes': 'Choristes',
+    'La Voix Libre': 'Accueil'
+  };
+
   // Construction du SVG en chaîne — innerHTML est parsé correctement en namespace SVG
   const texts = links.map((a, i) => {
-    const txt = (a.textContent || '').trim();
+    const original = (a.textContent || '').trim();
+    const txt = SHORT_LABELS[original] || original;
     const href = a.getAttribute('href') || '#';
     const off  = offsets[i].toFixed(2);
     return `<a href="${href}"><text>
@@ -482,13 +489,48 @@ function applySoulCurvedNav() {
 
   const wrap = document.createElement('div');
   wrap.className = 'soul-curved-nav';
+  // sweep-flag = 0 → arc qui passe par le BAS du disque (forme de sourire / U)
   wrap.innerHTML = `<svg viewBox="0 0 380 380" xmlns="http://www.w3.org/2000/svg" aria-hidden="false">
     <defs>
-      <path id="soul-nav-arc" d="M ${startX.toFixed(2)},${y.toFixed(2)} A ${r},${r} 0 0 1 ${endX.toFixed(2)},${y.toFixed(2)}" fill="none"/>
+      <path id="soul-nav-arc" d="M ${startX.toFixed(2)},${y.toFixed(2)} A ${r},${r} 0 0 0 ${endX.toFixed(2)},${y.toFixed(2)}" fill="none"/>
     </defs>
     ${texts}
   </svg>`;
   header.appendChild(wrap);
+}
+
+// Mesure dynamique du gap Behold et application à la grille YouTube SOUL
+// (le widget Behold a son propre rendu en shadow DOM ; on copie son espacement à l'exécution)
+function syncSoulYoutubeGapToBehold() {
+  if (!document.body || !document.body.classList.contains('page-soul')) return;
+
+  function measureBeholdGap() {
+    const behold = document.querySelector('behold-widget');
+    if (!behold || !behold.shadowRoot) return null;
+    // Parcourt la shadow root pour trouver l'élément qui définit le gap (typiquement une grille CSS)
+    const candidates = behold.shadowRoot.querySelectorAll('*');
+    for (const el of candidates) {
+      const cs = getComputedStyle(el);
+      // On accepte gap ou column-gap non nul
+      const gap = cs.columnGap && cs.columnGap !== 'normal' ? cs.columnGap : cs.gap;
+      if (gap && gap !== 'normal' && parseFloat(gap) > 0) return gap;
+    }
+    return null;
+  }
+
+  function apply(gap) {
+    document.querySelectorAll('body.page-soul .youtube-grid').forEach(g => {
+      g.style.gap = gap;
+    });
+  }
+
+  let attempts = 0;
+  const max = 24;            // ≈ 12 secondes au total
+  const interval = setInterval(() => {
+    const gap = measureBeholdGap();
+    if (gap) { apply(gap); clearInterval(interval); }
+    else if (++attempts >= max) clearInterval(interval);
+  }, 500);
 }
 
 function renderFooter() {
@@ -986,6 +1028,27 @@ async function fetchPostsFromCSV(csvUrl) {
       return s;
     }
     function esc(s) { return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c)); }
+    // Sanitise une description d'événement Google Agenda en gardant les tags de formatage usuels
+    // (Google Agenda envoie souvent du HTML : <p>, <strong>, <br>, <a>, etc.)
+    function escDescHtml(html) {
+      if (!html) return '';
+      const ALLOWED = /^(p|br|strong|b|em|i|u|ul|ol|li|a|span)$/i;
+      // Retire tous les tags non autorisés et les attributs dangereux des tags autorisés
+      const cleaned = html.replace(/<\s*\/?\s*([a-zA-Z0-9]+)([^>]*)>/g, (_m, tag, attrs) => {
+        if (!ALLOWED.test(tag)) return '';
+        // Pour <a>, ne conserver que href (et forcer target/rel sécurisés)
+        if (/^a$/i.test(tag) && /^<\s*a\b/i.test(_m)) {
+          const hrefMatch = attrs.match(/href\s*=\s*['"]([^'"]+)['"]/i);
+          const href = hrefMatch ? hrefMatch[1] : '#';
+          if (!/^(https?:|mailto:|#)/i.test(href)) return '';
+          return `<a href="${href.replace(/"/g, '&quot;')}" target="_blank" rel="noopener noreferrer">`;
+        }
+        // Pour les autres, retirer tout attribut (pas de style/onclick/etc.)
+        return _m.startsWith('</') ? `</${tag.toLowerCase()}>` : `<${tag.toLowerCase()}>`;
+      });
+      // Si le HTML ne contient aucun saut de bloc, on traduit les \n en <br>
+      return /<\s*(p|br|div|li)\b/i.test(cleaned) ? cleaned : cleaned.replace(/\n/g, '<br>');
+    }
     function concertKey(ev) {
       const d = evDate(ev);
       return (ev.summary||'Concert') + ' – ' + _K_JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + _K_MOIS[d.getMonth()] + ' ' + d.getFullYear();
@@ -1038,7 +1101,7 @@ async function fetchPostsFromCSV(csvUrl) {
       const div  = document.createElement('div');
       div.className = 'event-card event-card--upcoming';
       const loc  = ev.location    ? `<div class="event-card-loc">📍 ${esc(ev.location)}</div>` : '';
-      const desc = ev.description ? `<div class="event-card-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
+      const desc = ev.description ? `<div class="event-card-desc">${escDescHtml(ev.description)}</div>` : '';
       div.innerHTML = `
         <div class="event-card-date">
           <div class="event-card-day">${d.getDate()}</div>
@@ -1058,7 +1121,7 @@ async function fetchPostsFromCSV(csvUrl) {
       const div = document.createElement('div');
       div.className = 'event-card event-card--past';
       const loc  = ev.location    ? ` · ${esc(ev.location)}` : '';
-      const desc = ev.description ? `<div class="event-card-desc">${esc(ev.description).replace(/\n/g,'<br>')}</div>` : '';
+      const desc = ev.description ? `<div class="event-card-desc">${escDescHtml(ev.description)}</div>` : '';
       div.innerHTML = `
         <div class="event-card-inner">
           <div class="event-card-date">
@@ -1232,17 +1295,26 @@ async function fetchPostsFromCSV(csvUrl) {
     // SOUL : layout dédié (présentation + calendrier SOUL + Insta + YouTube)
     // ====================================================================
     if (pageId === 'soul') {
-      // Présentation (paragraphes page_content)
+      // Présentation (paragraphes page_content + photo d'illustration)
       if (Array.isArray(page.page_content) && page.page_content.length) {
         const intro = document.createElement('div');
         intro.className = 'soul-intro';
-        intro.style.cssText = 'max-width:980px;margin:0 auto 1rem auto;';
+
+        const textCol = document.createElement('div');
+        textCol.className = 'soul-intro-text';
         page.page_content.forEach(txt => {
           if (!txt || !txt.trim()) return;
           const p = document.createElement('p');
           p.textContent = txt;
-          intro.appendChild(p);
+          textCol.appendChild(p);
         });
+
+        const imgCol = document.createElement('div');
+        imgCol.className = 'soul-intro-image';
+        imgCol.innerHTML = `<img src="${ASSETS_BASE_URL}images/soul-presentation.jpg" alt="SOUL en répétition à Rennes" loading="lazy" decoding="async">`;
+
+        intro.appendChild(textCol);
+        intro.appendChild(imgCol);
         contentContainer.appendChild(intro);
       }
 
@@ -1289,6 +1361,7 @@ async function fetchPostsFromCSV(csvUrl) {
         </div>`;
       contentContainer.appendChild(yt);
       if (typeof initYoutubeGrids === 'function') initYoutubeGrids();
+      if (typeof syncSoulYoutubeGapToBehold === 'function') syncSoulYoutubeGapToBehold();
 
       // Émet l'événement pour le footer SOUL custom + sortie : on ne fait pas le rendu générique
       try { document.dispatchEvent(new CustomEvent('site:content-rendered', { detail: { pageId } })); } catch(e) {}

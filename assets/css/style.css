@@ -1977,12 +1977,32 @@ body.page-soul .soul-intro p {
   letter-spacing: 0.005em;
 }
 
-/* === SOUL : sections recentrées et harmonisées (max 980px) === */
-body.page-soul .insta-section,
-body.page-soul .youtube-section,
+/* === SOUL : sections recentrées et harmonisées === */
 body.page-soul #soul-evenements {
   max-width: 980px;
   margin: 0 auto;
+}
+/* Insta et YouTube : sections étroites pour des vignettes compactes, alignées sur Behold (3 col par défaut) */
+body.page-soul .insta-section,
+body.page-soul .youtube-section {
+  max-width: 600px;
+  margin: 0 auto;
+}
+/* Grille YouTube : 3 colonnes comme Behold pour que les vignettes aient la même taille
+   Le gap exact est mesuré au runtime par syncSoulYoutubeGapToBehold (cf main.js).
+   La valeur ci-dessous est un fallback si le shadow DOM Behold est inaccessible. */
+body.page-soul .youtube-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+@media (max-width: 600px) {
+  body.page-soul .youtube-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+}
+/* Icône ▶ proportionnée aux vignettes plus petites */
+body.page-soul .youtube-grid .yt-play::after {
+  width: 44px;
+  height: 44px;
+  font-size: 1.1rem;
 }
 
 /* Carte comédie musicale */
