@@ -1616,18 +1616,29 @@ body.page-soul footer.main-footer {
     border-top: 1px solid rgba(255,255,255,0.04); /* hairline */
 }
 
-/* === Footer SOUL : pochette album simplifiée — logo centré + 2 blocs clairs === */
+/* === Footer SOUL : pochette album simplifiée === */
 body.page-soul .soul-footer-content {
-    max-width: 880px;
+    max-width: 980px;
     margin: 0 auto;
     padding: 0 1rem;
-    text-align: center;
     color: var(--soul-cream);
 }
 
-/* Bloc identité : logo + nom + tagline */
+/* Ligne principale : identité à gauche + blocs liens à droite */
+body.page-soul .soul-footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+
+/* Identité (logo + nom + tagline) — disposition horizontale */
 body.page-soul .soul-footer-brand {
-    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
 }
 body.page-soul .soul-footer-logo {
     width: 92px;
@@ -1635,8 +1646,13 @@ body.page-soul .soul-footer-logo {
     border-radius: 50%;
     object-fit: contain;
     display: block;
-    margin: 0 auto 12px auto;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.4), 0 0 0 1px rgba(245, 213, 110, 0.18);
+    flex-shrink: 0;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(245, 213, 110, 0.18);
+}
+body.page-soul .soul-footer-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 body.page-soul .soul-footer-name {
     font-family: 'Alfa Slab One', 'Playfair Display', serif;
@@ -1649,17 +1665,14 @@ body.page-soul .soul-footer-tag {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
     font-size: 0.92rem;
     color: rgba(254, 253, 229, 0.78);
-    margin-top: 4px;
     letter-spacing: 0.04em;
 }
 
 /* Deux colonnes "Suivre" et "Contact" */
 body.page-soul .soul-footer-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px 56px;
-    max-width: 600px;
-    margin: 0 auto;
+    grid-template-columns: max-content max-content;
+    gap: 12px 48px;
     text-align: left;
 }
 body.page-soul .soul-footer-block {
@@ -1708,14 +1721,23 @@ body.page-soul .soul-footer-meta {
     letter-spacing: 0.08em;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 720px) {
+    body.page-soul .soul-footer-row { gap: 1.8rem; }
+    body.page-soul .soul-footer-brand { flex-direction: column; text-align: center; gap: 10px; }
     body.page-soul .soul-footer-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-        max-width: 320px;
-        text-align: center;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 36px;
     }
     body.page-soul .soul-footer-links a:hover { transform: none; }
+}
+@media (max-width: 420px) {
+    body.page-soul .soul-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        justify-items: center;
+        text-align: center;
+    }
+    body.page-soul .soul-footer-label { text-align: center; }
 }
 
 /* Spacing inside cards */

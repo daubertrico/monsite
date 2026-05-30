@@ -556,27 +556,31 @@ function renderFooter() {
     const yt = ytCfg?.valeur || '';
     footer.innerHTML = `
       <div class="soul-footer-content">
-        <div class="soul-footer-brand">
-          <img src="/assets/images/soullogo.png" alt="S.O.U.L. — ensemble vocal a cappella à Rennes" class="soul-footer-logo">
-          <div class="soul-footer-name">S.O.U.L.</div>
-          <div class="soul-footer-tag">Ensemble vocal a cappella · Rennes</div>
-        </div>
-
-        <div class="soul-footer-grid">
-          <div class="soul-footer-block">
-            <div class="soul-footer-label">Suivre</div>
-            <ul class="soul-footer-links">
-              ${fb ? `<li><a href="${fb}" target="_blank" rel="noopener noreferrer">Facebook</a></li>` : ''}
-              ${ig ? `<li><a href="${ig}" target="_blank" rel="noopener noreferrer">Instagram</a></li>` : ''}
-              ${yt ? `<li><a href="${yt}" target="_blank" rel="noopener noreferrer">YouTube</a></li>` : ''}
-            </ul>
+        <div class="soul-footer-row">
+          <div class="soul-footer-brand">
+            <img src="/assets/images/soullogo.png" alt="S.O.U.L. — ensemble vocal a cappella à Rennes" class="soul-footer-logo">
+            <div class="soul-footer-brand-text">
+              <div class="soul-footer-name">S.O.U.L.</div>
+              <div class="soul-footer-tag">Ensemble vocal a cappella · Rennes</div>
+            </div>
           </div>
-          <div class="soul-footer-block">
-            <div class="soul-footer-label">Contact</div>
-            <ul class="soul-footer-links">
-              <li><a href="mailto:${email}">${email}</a></li>
-              <li><a href="#newsletter">S'inscrire à la newsletter</a></li>
-            </ul>
+
+          <div class="soul-footer-grid">
+            <div class="soul-footer-block">
+              <div class="soul-footer-label">Suivre</div>
+              <ul class="soul-footer-links">
+                ${fb ? `<li><a href="${fb}" target="_blank" rel="noopener noreferrer">Facebook</a></li>` : ''}
+                ${ig ? `<li><a href="${ig}" target="_blank" rel="noopener noreferrer">Instagram</a></li>` : ''}
+                ${yt ? `<li><a href="${yt}" target="_blank" rel="noopener noreferrer">YouTube</a></li>` : ''}
+              </ul>
+            </div>
+            <div class="soul-footer-block">
+              <div class="soul-footer-label">Contact</div>
+              <ul class="soul-footer-links">
+                <li><a href="mailto:${email}">${email}</a></li>
+                <li><a href="#newsletter">S'inscrire à la newsletter</a></li>
+              </ul>
+            </div>
           </div>
         </div>
 
