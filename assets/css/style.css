@@ -2535,3 +2535,11 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   font-size: .77rem; color: #aaa; margin: 5px 0 0 0; font-style: italic;
 }
 
+
+/* === Partitions interactives Flat : une page entière visible dans l'écran === */
+iframe[src*="flat.io/embed"] {
+  width: 100% !important;
+  height: min(92vh, 1500px) !important;
+  display: block;
+  border: 0;
+}
