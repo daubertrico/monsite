@@ -44,14 +44,17 @@
 
     /* ---- Sections principales : même gabarit ---- */
     .gallery-section,
-    .insta-section {
+    .insta-section,
+    .youtube-section {
       max-width: 1000px;
       margin: 0 auto;
       padding: 0;
     }
     .gallery-section { margin-bottom: 2.6rem; }
+    .insta-section   { margin-bottom: 2.6rem; }
     .gallery-section .home-section-divider,
-    .insta-section .home-section-divider {
+    .insta-section .home-section-divider,
+    .youtube-section .home-section-divider {
       margin: 0 0 1rem 0;
     }
 
@@ -285,7 +288,19 @@
       <section class="insta-section" aria-label="Actualités Instagram">
         <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
         <behold-widget feed-id="Qs11G0efmxRMWv05Chdt"></behold-widget>
-        <p class="insta-cta"><a href="https://www.instagram.com/chanterlavoixlibre/" target="_blank" rel="noopener noreferrer">Voir notre Instagram →</a></p>
+      </section>
+
+      <!-- Section : Nos enregistrements (playlist YouTube) -->
+      <section class="youtube-section" aria-label="Nos enregistrements YouTube">
+        <div class="home-section-divider"><h2>La Voix Libre sur YouTube — Enregistrements</h2></div>
+        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbZbzdhKFRSggddJz8wGXbog" data-limit="6" aria-live="polite">
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+        </div>
       </section>
 
     </div><!-- /#page-content-container -->

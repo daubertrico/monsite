@@ -818,13 +818,30 @@ async function fetchPostsFromCSV(csvUrl) {
       const insta = document.createElement('section');
       insta.className = 'insta-section';
       insta.setAttribute('aria-label', 'Actualités Instagram');
-      const igUrl  = (globalConfig?.find(i => i.section === 'footer' && i.champ === 'instagram')?.valeur) || 'https://www.instagram.com/chanterlavoixlibre/';
       const feedId = (typeof window !== 'undefined' && window.BEHOLD_FEED_ID && !window.BEHOLD_FEED_ID.startsWith('VOTRE_ID')) ? window.BEHOLD_FEED_ID : '';
       insta.innerHTML = `
         <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
-        ${feedId ? `<behold-widget feed-id="${feedId}"></behold-widget>` : `<p class="insta-fallback">Flux Instagram bientôt disponible.</p>`}
-        <p class="insta-cta"><a href="${igUrl}" target="_blank" rel="noopener noreferrer">Voir notre Instagram →</a></p>`;
+        ${feedId ? `<behold-widget feed-id="${feedId}"></behold-widget>` : `<p class="insta-fallback">Flux Instagram bientôt disponible.</p>`}`;
       homeContent.appendChild(insta);
+    }
+
+    // === SECTION 4 : Nos enregistrements (playlist YouTube), sous la rubrique Insta ===
+    if (homeContent) {
+      const yt = document.createElement('section');
+      yt.className = 'youtube-section';
+      yt.setAttribute('aria-label', 'Nos enregistrements YouTube');
+      yt.innerHTML = `
+        <div class="home-section-divider"><h2>La Voix Libre sur YouTube — Enregistrements</h2></div>
+        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbZbzdhKFRSggddJz8wGXbog" data-limit="6" aria-live="polite">
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+        </div>`;
+      homeContent.appendChild(yt);
+      if (typeof initYoutubeGrids === 'function') initYoutubeGrids();
     }
   }
 
@@ -844,10 +861,10 @@ async function fetchPostsFromCSV(csvUrl) {
 
     const section = document.createElement('section');
     section.id = 'evenements';
-    section.style.cssText = 'margin-top:40px;scroll-margin-top:80px;';
+    section.style.cssText = 'scroll-margin-top:80px;';
     section.innerHTML = `
-      <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-primary);font-size:1.9rem;margin:0 0 6px 0;">Concerts &amp; événements</h2>
-      <p style="color:#666;margin:0 0 22px 0;font-size:0.97rem;">Prochaines dates de La Voix Libre à Rennes et alentours.</p>
+      <div class="home-section-divider"><h2>Concerts &amp; événements</h2></div>
+      <p class="home-section-subtitle">Prochaines dates de La Voix Libre à Rennes et alentours.</p>
       <div id="home-events-upcoming"></div>`;
     container.appendChild(section);
 
@@ -1013,6 +1030,102 @@ async function fetchPostsFromCSV(csvUrl) {
       }
     }
   }
+
+  // ---------------------------------------------------------------
+  // Playlist YouTube : grille de 6 vignettes + lightbox au clic
+  // ---------------------------------------------------------------
+  async function loadYoutubePlaylist(grid, playlistId, limit) {
+    if (!grid || grid.dataset.initialized === '1') return;
+    grid.dataset.initialized = '1';
+
+    const KEY = (typeof window !== 'undefined' && window.YT_API_KEY) || 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+    const url = 'https://www.googleapis.com/youtube/v3/playlistItems'
+      + '?part=snippet&maxResults=50'
+      + '&playlistId=' + encodeURIComponent(playlistId)
+      + '&key=' + KEY;
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.error || !data.items) {
+        grid.innerHTML = '<p class="insta-fallback">Impossible de charger la playlist YouTube.</p>';
+        console.warn('YouTube API error', data.error);
+        return;
+      }
+      // Trie par date d'ajout dans la playlist, plus récent en premier
+      const items = data.items
+        .filter(it => it.snippet && it.snippet.resourceId && it.snippet.resourceId.videoId)
+        .sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt))
+        .slice(0, limit);
+
+      if (!items.length) {
+        grid.innerHTML = '<p class="insta-fallback">Aucune vidéo dans cette playlist pour le moment.</p>';
+        return;
+      }
+
+      const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
+      grid.innerHTML = items.map(it => {
+        const v = it.snippet.resourceId.videoId;
+        const t = esc(it.snippet.title || '');
+        const thumbs = it.snippet.thumbnails || {};
+        const thumb  = (thumbs.medium && thumbs.medium.url)
+                    || (thumbs.high   && thumbs.high.url)
+                    || (thumbs.default && thumbs.default.url) || '';
+        return `
+          <button class="yt-item" type="button" data-video-id="${v}" aria-label="Lire : ${t}">
+            <img src="${thumb}" alt="${t}" loading="lazy" decoding="async">
+            <span class="yt-play" aria-hidden="true"></span>
+          </button>`;
+      }).join('');
+
+      grid.querySelectorAll('.yt-item').forEach(btn => {
+        btn.addEventListener('click', () => openYoutubeLightbox(btn.dataset.videoId));
+      });
+    } catch (e) {
+      grid.innerHTML = '<p class="insta-fallback">Impossible de charger la playlist YouTube.</p>';
+      console.warn('YouTube fetch failed', e);
+    }
+  }
+
+  function ensureYoutubeLightbox() {
+    let lb = document.getElementById('yt-lightbox');
+    if (lb) return lb;
+    lb = document.createElement('div');
+    lb.id = 'yt-lightbox';
+    lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-modal', 'true');
+    lb.setAttribute('aria-label', 'Lecteur vidéo YouTube');
+    lb.innerHTML = `
+      <button id="yt-lb-close" type="button" aria-label="Fermer">&times;</button>
+      <div class="yt-lb-frame"><iframe id="yt-lb-iframe" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
+    document.body.appendChild(lb);
+    const close = () => {
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+      const f = document.getElementById('yt-lb-iframe');
+      if (f) f.src = ''; // stoppe la vidéo
+    };
+    lb.querySelector('#yt-lb-close').addEventListener('click', close);
+    lb.addEventListener('click', e => { if (e.target === lb) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && lb.classList.contains('open')) close(); });
+    return lb;
+  }
+
+  function openYoutubeLightbox(videoId) {
+    const lb = ensureYoutubeLightbox();
+    const f = document.getElementById('yt-lb-iframe');
+    f.src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) + '?autoplay=1&rel=0&modestbranding=1';
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function initYoutubeGrids() {
+    document.querySelectorAll('.youtube-grid[data-playlist]').forEach(grid => {
+      const playlist = grid.getAttribute('data-playlist');
+      const limit = parseInt(grid.getAttribute('data-limit') || '6', 10);
+      loadYoutubePlaylist(grid, playlist, limit);
+    });
+  }
+  if (typeof window !== 'undefined') window.initYoutubeGrids = initYoutubeGrids;
 
   function generatePageContent(pageId) {
     // L'espace choristes (partitions) a un contenu spécifique géré dans sa page dédiée
@@ -2036,6 +2149,8 @@ async function init() {
   ensureSeoMeta(currentPageId);
   // Load documents list for espace choristes (documents officiels)
   try { loadDocumentsOfficiels(); } catch(e) { /* ignore */ }
+  // Initialise les grilles YouTube présentes dans la page (statiques ou dynamiques)
+  try { initYoutubeGrids(); } catch(e) { /* ignore */ }
 }
 
 init();
