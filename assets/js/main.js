@@ -550,30 +550,39 @@ function renderFooter() {
   const isSoulSite = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
 
   if (isSoulSite) {
-    // Minimal, semantic tracklist-like footer for SOUL (two columns, compact)
-    // Use configured social links/email when available
-    const fb = fbCfg?.valeur || '#';
-    const ig = igCfg?.valeur || '#';
-    const yt = ytCfg?.valeur || '#';
-    const mail = `mailto:${email}`;
+    // Footer SOUL — esprit "verso de pochette vinyle" : sobre, lisible, deux blocs clairs
+    const fb = fbCfg?.valeur || '';
+    const ig = igCfg?.valeur || '';
+    const yt = ytCfg?.valeur || '';
     footer.innerHTML = `
-      <div class="soul-tracklist-container">
-        <div class="soul-tracklist-grid">
-          <div class="soul-side soul-side-a">
-            <div class="soul-track"><span class="track-num">A1</span><a class="track-link" href="${fb}" target="_blank" rel="noopener noreferrer"><span class="track-title">Facebook</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">A2</span><a class="track-link" href="${ig}" target="_blank" rel="noopener noreferrer"><span class="track-title">Instagram</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">A3</span><a class="track-link" href="${mail}"><span class="track-title">Contact</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
+      <div class="soul-footer-content">
+        <div class="soul-footer-brand">
+          <img src="/assets/images/soullogo.png" alt="S.O.U.L. — ensemble vocal a cappella à Rennes" class="soul-footer-logo">
+          <div class="soul-footer-name">S.O.U.L.</div>
+          <div class="soul-footer-tag">Ensemble vocal a cappella · Rennes</div>
+        </div>
+
+        <div class="soul-footer-grid">
+          <div class="soul-footer-block">
+            <div class="soul-footer-label">Suivre</div>
+            <ul class="soul-footer-links">
+              ${fb ? `<li><a href="${fb}" target="_blank" rel="noopener noreferrer">Facebook</a></li>` : ''}
+              ${ig ? `<li><a href="${ig}" target="_blank" rel="noopener noreferrer">Instagram</a></li>` : ''}
+              ${yt ? `<li><a href="${yt}" target="_blank" rel="noopener noreferrer">YouTube</a></li>` : ''}
+            </ul>
           </div>
-          <div class="soul-side soul-side-b">
-            <div class="soul-track"><span class="track-num">B1</span><a class="track-link" href="${yt}" target="_blank" rel="noopener noreferrer"><span class="track-title">YouTube</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">B2</span><span class="track-title">${email}</span><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">B3</span><a class="track-link" href="#newsletter"><span class="track-title">Newsletter</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
+          <div class="soul-footer-block">
+            <div class="soul-footer-label">Contact</div>
+            <ul class="soul-footer-links">
+              <li><a href="mailto:${email}">${email}</a></li>
+              <li><a href="#newsletter">S'inscrire à la newsletter</a></li>
+            </ul>
           </div>
         </div>
-        <div class="soul-tracklist-foot">© 2025 SOUL — Rennes • CAT. SOUL-001</div>
+
+        <div class="soul-footer-meta">© ${year} S.O.U.L. · Rennes</div>
       </div>
     `;
-    // Do not inject the big newsletter popup on the SOUL footer — the newsletter is a simple track link.
     return;
   }
 

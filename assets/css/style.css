@@ -1616,90 +1616,106 @@ body.page-soul footer.main-footer {
     border-top: 1px solid rgba(255,255,255,0.04); /* hairline */
 }
 
-body.page-soul .soul-tracklist-container {
-    max-width: 980px;
+/* === Footer SOUL : pochette album simplifiée — logo centré + 2 blocs clairs === */
+body.page-soul .soul-footer-content {
+    max-width: 880px;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* center foot under the grid */
+    padding: 0 1rem;
+    text-align: center;
+    color: var(--soul-cream);
 }
 
-body.page-soul .soul-tracklist-grid {
+/* Bloc identité : logo + nom + tagline */
+body.page-soul .soul-footer-brand {
+    margin-bottom: 2rem;
+}
+body.page-soul .soul-footer-logo {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 12px auto;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4), 0 0 0 1px rgba(245, 213, 110, 0.18);
+}
+body.page-soul .soul-footer-name {
+    font-family: 'Alfa Slab One', 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--soul-gold);
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+}
+body.page-soul .soul-footer-tag {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.92rem;
+    color: rgba(254, 253, 229, 0.78);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+}
+
+/* Deux colonnes "Suivre" et "Contact" */
+body.page-soul .soul-footer-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 48px;
-    align-items: start;
-    width: min(720px, 100%); /* constrain grid width so footer centers between columns */
+    gap: 32px 56px;
+    max-width: 600px;
     margin: 0 auto;
+    text-align: left;
 }
-
-body.page-soul .soul-side::before {
-    display: block;
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-    font-size: 0.82rem;
-    color: rgba(254,253,229,0.9);
-    letter-spacing: 0.18em;
-    margin-bottom: 6px;
-    font-weight: 700;
-}
-body.page-soul .soul-side-a::before { content: 'SIDE A'; }
-body.page-soul .soul-side-b::before { content: 'SIDE B'; }
-
-body.page-soul .soul-track {
+body.page-soul .soul-footer-block {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
-    padding: 6px 0;
+}
+body.page-soul .soul-footer-label {
+    font-family: 'Alfa Slab One', 'Playfair Display', serif;
+    font-size: 0.78rem;
+    color: var(--soul-gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(245, 213, 110, 0.25);
+    padding-bottom: 6px;
+}
+body.page-soul .soul-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+body.page-soul .soul-footer-links a {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
     font-size: 0.98rem;
-    line-height: 1.08;
+    color: var(--soul-cream) !important;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: inline-block;
+    padding: 2px 0;
+    word-break: break-word;
+}
+body.page-soul .soul-footer-links a:hover {
+    color: var(--soul-gold) !important;
+    transform: translateX(3px);
 }
 
-body.page-soul .track-num {
-    color: var(--soul-gold);
-    font-weight: 700;
-    width: 3ch;
-    flex: 0 0 auto;
-    text-align: left;
-    font-size: 0.95rem;
-}
-
-body.page-soul .track-title { color: var(--soul-cream); white-space: nowrap; }
-body.page-soul .track-link { color: inherit; text-decoration: none; }
-body.page-soul .track-link .track-title { color: var(--soul-cream); }
-body.page-soul .track-link:hover .track-title { color: var(--soul-gold); text-decoration: underline; text-decoration-thickness: 1px; }
-
-/* dotted leader between title and meta */
-body.page-soul .track-dots {
-    flex: 1 1 auto;
-    height: 1px;
-    margin: 0 10px;
-    background-image: radial-gradient(circle, rgba(233,186,96,0.86) 0.5px, rgba(0,0,0,0) 0.5px);
-    background-size: 6px 1px;
-    opacity: 0.28;
-}
-
-/* Hide the small oblique arrows in the SOUL footer tracklist */
-body.page-soul .track-meta { display: none; }
-
-body.page-soul .soul-tracklist-foot {
-    margin-top: 14px;
-    font-size: 0.9rem;
-    color: rgba(254,253,229,0.85);
+/* Mention finale */
+body.page-soul .soul-footer-meta {
+    margin-top: 2rem;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.82rem;
+    color: rgba(254, 253, 229, 0.55);
     letter-spacing: 0.08em;
-    max-width: 720px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
 }
 
-/* Tighten spacing for compact, printed look */
-body.page-soul .soul-tracklist-container .soul-track { padding-top: 4px; padding-bottom: 4px; }
-
-/* Ensure small screens stack nicely */
-@media (max-width: 720px) {
-    body.page-soul .soul-tracklist-grid { grid-template-columns: 1fr; gap: 18px; }
-    body.page-soul .track-num { width: 3.5ch; }
+@media (max-width: 600px) {
+    body.page-soul .soul-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        max-width: 320px;
+        text-align: center;
+    }
+    body.page-soul .soul-footer-links a:hover { transform: none; }
 }
 
 /* Spacing inside cards */

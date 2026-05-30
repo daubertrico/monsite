@@ -305,48 +305,8 @@
     body.page-soul footer.main-footer a,
     body.page-soul footer.main-footer .social-links a { font-weight: 700; }
 
-    /* ----- TRACKLIST footer SOUL : restyling typographique ----- */
-    body.page-soul .soul-tracklist-container { position: relative; z-index: 1; }
-    body.page-soul .soul-tracklist-grid { gap: 56px; }
-    body.page-soul .soul-side::before {
-      font-family: 'Alfa Slab One', 'Playfair Display', serif !important;
-      font-size: 0.95rem !important;
-      color: var(--soul-gold) !important;
-      letter-spacing: 0.24em !important;
-      margin-bottom: 14px !important;
-      text-transform: uppercase;
-      font-weight: 400 !important;
-    }
-    body.page-soul .soul-track {
-      padding: 7px 0;
-      font-size: 1.02rem;
-    }
-    body.page-soul .track-num {
-      color: var(--soul-gold);
-      font-family: 'Alfa Slab One', 'Playfair Display', serif !important;
-      font-weight: 400 !important;
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-    }
-    body.page-soul .track-link:hover .track-title {
-      color: var(--soul-gold);
-      text-decoration: none;
-    }
-    body.page-soul .track-dots {
-      background-image: radial-gradient(circle, rgba(233, 186, 96, 0.7) 0.6px, transparent 0.7px);
-      background-size: 7px 2px;
-      opacity: 0.42;
-    }
-    body.page-soul .soul-tracklist-foot {
-      color: var(--soul-gold) !important;
-      font-family: 'Alfa Slab One', 'Playfair Display', serif !important;
-      letter-spacing: 0.16em;
-      font-size: 0.78rem;
-      margin-top: 22px;
-      text-transform: uppercase;
-      font-weight: 400 !important;
-      opacity: 0.85;
-    }
+    /* Footer SOUL : positionner le contenu au-dessus du disque vinyle décoratif */
+    body.page-soul .soul-footer-content { position: relative; z-index: 1; }
   </style>
 </head>
 <body class="internal-page page-soul">
