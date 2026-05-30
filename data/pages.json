@@ -7,16 +7,92 @@
     "page_title": "La Voix Libre",
     "page_subtitle": "Chorale pop, mais pas que…",
     "page_content": [
-      "\"La Voix Libre\" est un chœur rennais né en mars 2017. Il est composé d’une cinquantaine de membres, hommes et femmes, tous passionnés et motivés.",
-      "Le chœur explore joyeusement un répertoire varié : gospel, chants du monde, chanson française, pop, classique...",
-      "Chaque nouvelle saison est un voyage unique aux mille sonorités.",
-      "Par ailleurs, l'accent est mis sur la précision rythmique à travers la percussion corporelle et le clapping.",
-      "L'exploration et l'improvisation collective sont régulièrement abordées sous forme d'exercices.",
-      "Débutants bienvenus.",
-      "Répétitions : lundi 20h–22h – 21 rue Papu, Rennes – 30€/mois"
+      "La Voix Libre est un chœur rennais fondé en mars 2017. Il réunit plus de 80 chanteur·euse·s passionné·e·s, de tous niveaux. Débutant·e·s bienvenu·e·s : ici, on progresse ensemble, dans la joie et la bienveillance.",
+      "Chaque saison, le chœur explore un répertoire riche et contrasté : gospel, chants du monde, chanson française, pop, classique… Un véritable voyage musical aux multiples couleurs.",
+      "Le travail rythmique est au cœur de notre pratique, avec notamment de la percussion corporelle et du clapping. L’exploration vocale et l’improvisation collective sont régulièrement abordées lors des séances.",
+      "Tout au long de l’année, La Voix Libre donne des concerts et s’associe à des événements publics, comme la Marche des Fiertés en 2023. Le plaisir de chanter ensemble va de pair avec un véritable engagement artistique.",
+  "Répétitions : tous les lundis de 19h30 à 21h30",
+  "Lieu : 47b rue Papu – L’Avenir de Rennes (métro Mabilais)",
+      "Tarif : 30 € / mois – engagement à l’année"
+    ],
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Infos pratiques :",
+        "items": [
+          "Tous niveaux - débutant-e-s accepté-e-s",
+          "Répétitions le lundi 19h30-21h30",
+          "47b rue Papu, Rennes (métro Mabillais)",
+          "2h00 - 30€/mois sur 1 an"
+        ]
+      },
+      {
+        "type": "gallery",
+        "title": "Galerie de concerts :",
+        "images": [
+          "choralepop.jpg",
+          "concerts.jpg",
+          "f88a4ce279824a5b95ef0b1eda8e8cfa~mv2.webp",
+          "d463f2b8e27c4563b208911ff85a88ef~mv2.jpg"
+        ],
+        "links": [
+          {
+            "title": "Un concert plein de chaleur et de joie",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/un-concert-plein-de-chaleur-et-de-joie-la-voix-libre-soul-%C3%A0-l-abe"
+          },
+          {
+            "title": "Concert itinérant centre ville de Rennes",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/concert-itin%C3%A9rant-centre-ville-de-rennes"
+          },
+          {
+            "title": "Le grand concert de Noël !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/15-d%C3%A9cembre-16h-le-grand-concert-de-no%C3%ABl"
+          },
+          {
+            "title": "Répétition porte-ouverte rentrée 2024",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/r%C3%A9p%C3%A9tition-porte-ouverte-rentr%C3%A9e-2024-le-09-septembre"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
     ],
     "tags": ["chorale_pop"],
     "display_posts": true
+  },
+  {
+    "id": "cours-de-chant-lyrique-rennes",
+    "image": "courschant.jpg",
+    "tile_overlay_title": "Cours de chant lyrique",
+    "tile_overlay_subtitle": "à Rennes",
+    "page_title": "Cours de chant lyrique à Rennes",
+    "page_subtitle": "Technique vocale et interprétation",
+    "page_content": [
+      "Cours individuels à Rennes : respiration, soutien, résonance, diction, musicalité.",
+      "Débutants et avancés bienvenus."
+    ],
+    "tags": ["cours_de_chant"],
+    "display_posts": false,
+    "hidden": true
+  },
+  {
+    "id": "chorale-rennes",
+    "image": "choralepop.jpg",
+    "tile_overlay_title": "Chorale à Rennes",
+    "tile_overlay_subtitle": "conviviale et inclusive",
+    "page_title": "Chorale à Rennes",
+    "page_subtitle": "Polyphonie pop, soul et gospel",
+    "page_content": [
+  "Répétitions le lundi 19h30–21h30, 47b rue Papu à Rennes.",
+      "Tous niveaux, sans audition."
+    ],
+    "tags": ["chorale_pop"],
+    "display_posts": false,
+    "hidden": true
   },
   {
     "id": "comedie-musicale",
@@ -26,27 +102,67 @@
     "page_title": "Comédie Musicale",
     "page_subtitle": "La Furie des Mers",
     "page_content": [
-      "Adaptée librement des Pirates de Penzance de Gilbert & Sullivan, cette comédie musicale déjantée raconte l'histoire de Mado et Frédéric, rencontrant les filles du Major Général.",
-      "Un spectacle pop, féministe, drôle et flamboyant, avec 14 interprètes et un pianiste bouillonnant."
+      "La Voix libre - Rennes présente La Furie des mers, une comédie musicale adaptée très librement des Pirates de Penzance, célèbre opérette anglaise du 19e siècle de Gilbert et Sullivan.",
+      "Quatorze interprètes prêt-e-s à tout et emmené-e-s par un pianiste bouillonnant offrent une comédie musicale enlevée, pleine de verve et de rebondissements, pour tous les spectateurs et spectatrices prêt-e-s à se laisser consumer au feu dévorant de la passion et de la liberté.",
+      "Suivez les péripéties hilarantes de Mado et de Frédéric, lors de leur rencontre avec les filles du Major Général et laissez vous embarquer par ce conte pop et féministe."
     ],
     "specific_content": [
       {
         "type": "list",
         "title": "Équipe artistique :",
         "items": [
-          "Vincent T-Dauberlieu (musique)",
-          "Claude Morin (mise en scène)",
+          "Vincent T-Dauberlieu (direction musicale, chant et adaptation)",
+          "Claude Morin (mise en scène et adaptation)",
           "Nino Deram (piano)"
         ]
       },
       {
-        "type": "paragraph",
-        "text": "Distribution : intégrée ou en lien"
+        "type": "list",
+        "title": "Distribution :",
+        "items": [
+          "Mado : Leila El Azhari / Alia Méliani",
+          "Frédéric : Arthur Noone",
+          "Le Major Général : Olivier Bourdon",
+          "Kate : Camille Barnique",
+          "Mirabelle : Nine Léna",
+          "Joanna : Emmanuelle Audrain",
+          "Garance : Florence Bérésina",
+          "Lise : Laure Floutier / Lila Noone",
+          "Le Roi des Pirates : Yann Le Cornec",
+          "Samuel : Thomas Veys",
+          "Rodriguez : Thibaut Tardieu",
+          "Niels : Christophe Floutier",
+          "Ralf : Bachir El Atlas"
+        ]
       },
       {
-        "type": "video",
-        "title": "Teaser vidéo 🎬 :",
-        "url": "https://youtu.be/UZv7l4vnReo"
+        "type": "list",
+        "title": "Costumes et décors :",
+        "items": [
+          "Costumes : Mathilde Lepage, Marie-Claire Laborde",
+          "Décors : Olivier Bourdon et Florence Bignon",
+          "Accessoires : Wendy Coffi"
+        ]
+      },
+      {
+        "type": "gallery",
+        "title": "Galerie du spectacle :",
+        "images": [
+          "comediemusicale.jpg",
+          "1e1e5bd323444787b8359f9fae1ac70d~mv2.jpg"
+        ],
+        "links": [
+          {
+            "title": "La Furie des Mers - dernière chance de voir la comédie musicale qui a enthousiasmé Rennes !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/atelier-com%C3%A9die-musicale-rennes"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
       }
     ],
     "tags": ["comedie"],
@@ -57,28 +173,48 @@
     "image": "courschant.jpg",
     "tile_overlay_title": "Cours de chant",
     "tile_overlay_subtitle": "Développez votre voix !",
-    "page_title": "Cours de chant lyrique",
+    "page_title": "Cours de chant",
     "page_subtitle": "entre autres styles !",
+    "hidden": true,
     "page_content": [
-      "Vincent est chanteur d’opéra et de jazz, professeur de chant, et chef de chœur.",
-      "Il a étudié la voix et la pédagogie vocale pendant plus de 10 ans, en France, en Allemagne, dans des conservatoires, des maisons d'opéra, des cabarets…",
-      "En 2017 il crée à Rennes \"La Voix Libre\", une école de chant pour tous.",
-      "Son approche : allier anatomie, souffle, conscience corporelle et expression artistique."
+  "À propos de Vincent Tricotel",
+  "Professeur de chant indépendant, Vincent accompagne La Voix Libre depuis sa création et participe à son développement en partenariat avec l’association.",
+  "Il a étudié la voix et la pédagogie vocale pendant plus de dix ans en France et en Allemagne, au sein de conservatoires, maisons d’opéra et cabarets. Sa formation l’a amené à travailler aux côtés de pédagogues de renom, mais aussi à enrichir sa pratique directement sur scène.",
+  "",
+  "Sa pédagogie",
+  "Passionné par le fonctionnement de la voix et sa transmission, Vincent développe une approche qui allie :",
+  "la physiologie et l’anatomie du chant (AFCM),",
+  "l’héritage des grands pédagogues lyriques italiens,",
+  "des incursions dans d’autres pratiques musicales et corporelles (percussions corporelles, yoga, ostéopathie).",
+  "Son objectif : aider chaque chanteur·euse à trouver l’union entre le corps, la voix et l’esprit pour chanter avec liberté, joie et confiance.",
+  "",
+  "Cours particuliers",
+  "Vincent propose également des cours individuels de chant (45 minutes), ouverts à tous les styles — jazz, pop, musique classique…",
+  "Chaque séance est un dialogue avec l'élève, construit autour :",
+  "d’exercices vocaux et respiratoires,",
+  "de mises en mouvement inspirées du yoga,",
+  "du travail du répertoire choisi, pour développer personnalité musicale, rythme et confiance en soi.",
+  "📩 Pour les cours particuliers, contactez-le directement : vincenttricotel@gmail.com"
     ],
     "specific_content": [
       {
-        "type": "list",
-        "title": "Cours :",
+          "type": "list",
+        "title": "Infos pratiques :",
         "items": [
-          "Cours de 45 min – 40 à 50 € selon régularité",
-          "À la carte possible",
-          "Pas de cours pendant les vacances scolaires"
+          "Les cours durent 45 minutes. Pour les tarifs et modalités d'inscription, consultez la page 'Nous rejoindre' (bouton ci‑dessous).",
+          "Il est possible de faire les cours 'à la carte', sans régularité, sur les créneaux qui restent disponibles.",
+          "Il n'y a pas de cours pendant les vacances scolaires."
         ]
       },
       {
         "type": "audio",
-        "title": "Portrait audio 🎧 :",
-        "url": "https://soundcloud.com/saint-senoux/vincent-tricotel-le-jardinier-de-la-voix"
+        "title": "Portrait audio :",
+        "url": "materielchansons/vincent-tricotel-le-jardinier-de-la-voix.mp3"
+      },
+      {
+        "type": "contact",
+        "email": "vincenttricotel@gmail.com",
+        "note": "Vincent est professeur de chant indépendant — contactez-le directement pour les cours particuliers."
       }
     ],
     "tags": ["cours_de_chant"],
@@ -89,37 +225,139 @@
     "image": "soul.jpg",
     "tile_overlay_title": "SOUL",
     "tile_overlay_subtitle": "Ensemble a cappella",
-    "page_title": "SOUL",
-    "page_subtitle": "Ensemble polyphonique a cappella",
+    "page_title": "S.O.U.L.",
+    "page_subtitle": "Ensemble vocal Soul a cappella",
     "page_content": [
-      "SOUL est un groupe vocal a cappella explorant un répertoire varié : soul, R&B, gospel, jazz, pop. Le groupe se produit régulièrement en concert, apportant une énergie unique à chaque performance. Nos arrangements sont originaux et mettent en valeur les harmonies vocales."
+      "S.O.U.L. est un ensemble vocal a capella qui reprend des standards soul/funk/gospel et parfois pop, constitué d'amateur.rices enthousiastes qui ont un goût pour les harmonies complexes et le body percu.",
+      "L'accent est mis sur l'énergie du groove et du rythme afin de servir les textes au mieux et de rendre hommage à des artistes tels que Otis Redding, Etta James, Aretha Franklin, Fontella Bass, the Temptation, mais aussi Lauryn Hill, ou Stevie Wonder.",
+      "Sous la direction de Vincent T-Dauberlieu, le groupe existe depuis 2019 et répète tous les mardis soirs à Rennes. Chaque année nous faisons des auditions en septembre afin d'accueillir de nouveaux membres. Si vous vous sentez capables d'assumer des solos, que la polyphonie ne vous fait pas peur et qu'en plus vous êtes amoureux d'Aretha F. et de Marvin G., n'hésitez pas à nous contacter !"
     ],
-    "tags": ["soul", "a_cappella"],
-    "display_posts": true
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Infos pratiques :",
+        "items": [
+          "Répétitions tous les mardis soirs à Rennes",
+          "Auditions chaque année en septembre",
+          "Solistes et amateurs de polyphonie bienvenus"
+        ]
+      },
+      {
+        "type": "gallery",
+        "title": "Galerie de concerts :",
+        "images": [
+          "soul.jpg",
+          "cd9d539265624af3a08e98f8ef58cdfa~mv2.jpg",
+          "60337a3020b94501b18188505870f6fb~mv2.jpg",
+          "aDAkEPC-c-E_maxresdefault.jpg"
+        ],
+        "links": [
+          {
+            "title": "Un concert plein de chaleur et de joie",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/un-concert-plein-de-chaleur-et-de-joie-la-voix-libre-soul-%C3%A0-l-abe"
+          },
+          {
+            "title": "S.O.U.L à Jazz sous les Pommiers 2025",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/s-o-u-l-%C3%A0-jazz-sous-les-pommiers-2025-%C3%A9motions-et-soul-en-normandie"
+          },
+          {
+            "title": "Sittin' on the dock of the Bay !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/sittin-on-the-dock-of-the-bay"
+          },
+          {
+            "title": "Célébrez le printemps avec S.O.U.L à Jazz sous les Pommiers !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/c%C3%A9lebrez-le-printemps-avec-s-o-u-l-%C3%A0-jazz-sous-les-pommiers"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
+    ],
+    "tags": ["soul"],
+    "hidden": true
   },
   {
     "id": "evenements",
-    "image": "concerts.jpg",
+    "image": "Design sans titre.png",
     "tile_overlay_title": "Événements",
-    "tile_overlay_subtitle": "Où et quand nous rencontrer ou nous écouter",
+    "tile_overlay_subtitle": "Où et quand nous écouter",
     "page_title": "Événements",
-    "page_subtitle": "Où et quand nous rencontrer ou nous écouter",
-    "page_content": [],
+    "page_subtitle": "Où et quand nous écouter",
+    "page_content": [
+      "Retrouvez ici tous les événements, concerts et rencontres de La Voix Libre et S.O.U.L à Rennes et ailleurs.",
+      "La Voix Libre organise des concerts tout au long de l'année, et accompagne des événements, tels que la marche des fiertés, le grand concert de Noël, et des concerts itinérants dans le centre-ville de Rennes."
+    ],
+    "specific_content": [
+      {
+        "type": "gallery",
+        "title": "Galerie des événements :",
+        "images": [
+          "concerts.jpg",
+          "cd9d539265624af3a08e98f8ef58cdfa~mv2.jpg",
+          "7e329bd8b39946638eedd577483f353f~mv2.jpg",
+          "f88a4ce279824a5b95ef0b1eda8e8cfa~mv2.webp"
+        ],
+        "links": [
+          {
+            "title": "Un concert plein de chaleur et de joie",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/un-concert-plein-de-chaleur-et-de-joie-la-voix-libre-soul-%C3%A0-l-abe"
+          },
+          {
+            "title": "Concert itinérant centre ville de Rennes",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/concert-itin%C3%A9rant-centre-ville-de-rennes"
+          },
+          {
+            "title": "Le grand concert de Noël !",
+            "url": "https://vincenttricotel.wixsite.com/chanterarennes/post/15-d%C3%A9cembre-16h-le-grand-concert-de-no%C3%ABl"
+          }
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
+    ],
     "tags": ["evenements"],
-    "display_posts": true,
-    "objective": "Liste automatique des concerts"
+    "display_posts": true
   },
   {
-    "id": "videos",
-    "image": "videosbackground.jpg",
-    "tile_overlay_title": "Vidéos",
-    "tile_overlay_subtitle": "Nos performances et concerts",
-    "page_title": "Vidéos",
-    "page_subtitle": "Les performances et concerts de la Voix Libre",
-    "page_content": [],
-    "tags": ["videos"],
-    "display_posts": true,
-    "objective": "Liste automatique des extraits vidéos"
+    "id": "galerie",
+    "image": "concerts.jpg",
+    "tile_overlay_title": "Galerie",
+    "tile_overlay_subtitle": "Nos moments en images",
+    "page_title": "Galerie",
+    "page_subtitle": "Nos photos et souvenirs",
+    "page_content": [
+      "Plongez dans la galerie visuelle de La Voix Libre.",
+      "Retrouvez les images de nos concerts, répétitions et moments forts.",
+      "Chaque photo raconte l’énergie partagée sur scène et en coulisses."
+    ],
+    "specific_content": [
+      {
+        "type": "list",
+        "title": "Dans cette galerie :",
+        "items": [
+          "Photos de concerts",
+          "Moments d’ateliers et de répétitions",
+          "Coulisses et ambiance conviviale",
+          "Souvenirs d’événements à Rennes"
+        ]
+      },
+      {
+        "type": "contact",
+        "email": "lavoixlibrerennes@gmail.com",
+        "facebook": "https://www.facebook.com/Chanter-La-Voix-Libre-683448778488477/",
+        "youtube": "https://youtube.com/@vincentt-dauberlieu7571"
+      }
+    ],
+    "tags": ["galerie"],
+    "display_posts": false
   },
   {
     "id": "partitions",
@@ -134,6 +372,56 @@
     "tags": ["partitions"],
     "display_posts": false,
     "is_protected": true,
-    "password": "chanter2025"
+    "password": "lavoixlibre2026"
+  },
+  {
+    "id": "nous-rejoindre",
+    "tile_overlay_title": "Nous rejoindre",
+    "tile_overlay_subtitle": "Rejoignez l’aventure !",
+    "page_title": "Nous rejoindre",
+    "page_subtitle": "Rejoignez l’aventure La Voix Libre",
+    "page_content": [],
+    "specific_content": [
+      {
+        "type": "sections",
+        "items": [
+          {
+            "title": "Grande Chorale La Voix Libre",
+            "image": "choralepop.jpg",
+            "description": "La grande chorale pop de La Voix Libre est ouverte à tou·te·s, sans audition, tous âges. Nous chantons de la pop, mais aussi des chants du monde, de la soul, du gospel, de la chanson française, du disco... avec pour seule limite notre imagination !",
+            "details": [
+              "Lieu : Rue Papu, Rennes",
+              "Horaires : Lundi soir 19h30-21h30",
+              "Tarif : 360€ l’année, mensualisable (30€/mois)",
+              "Inscription : Séance d’essai gratuite avant inscription"
+            ],
+            "newsletter": true
+          },
+          
+          {
+            "title": "Comédie Musicale",
+            "image": "comediemusicale.jpg",
+            "description": "Des projets uniques et parfois sur plusieurs années (ex : La Furie des Mers), ouverts aux amateur·rice·s motivé·e·s qui souhaitent s’investir dans une expérience humaine et théâtrale intense.",
+            "details": [
+              "Lieu : ABE, rue Papu, Rennes",
+              "Horaires : Un week-end par mois sur un an",
+              "Inscription : Sur audition"
+            ],
+            "newsletter": true
+          }
+        ]
+      },
+      {
+        "type": "faq",
+        "title": "Questions fréquentes",
+        "items": [
+          "Je ne sais pas lire la musique, est-ce un problème ? Pas du tout ! On apprend ensemble, dans la bonne humeur.",
+          "Faut-il auditionner ? La grande chorale pop est ouverte à tou·te·s, sans audition ! Pour SOUL et les projets comédie musicale, une audition est demandée pour garantir l’équilibre des voix.",
+          "Peut-on essayer avant de s’inscrire ? Bien sûr ! Des séances d’essai sont proposées pour la grande chorale pop et pour SOUL avant toute inscription. Venez tester l’ambiance et voir si ça vous plaît !"
+        ]
+      }
+    ],
+    "tags": [],
+    "display_posts": false
   }
 ]

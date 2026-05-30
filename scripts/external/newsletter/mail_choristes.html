@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mail choristes - Template</title>
+  <style>
+    .encart-shadow{box-shadow:0 6px 18px rgba(0,0,0,0.06);border-radius:8px;padding:12px;margin-bottom:14px}
+    .encart-titre{font-family:Raleway, Arial, sans-serif;color:#8844aa}
+    .encart-separator{border:none;border-top:1px solid #eee;margin:18px 0}
+    body{font-family:Arial,Helvetica,sans-serif;color:#222;line-height:1.4;margin:0;padding:0}
+    .wrapper{max-width:680px;margin:0 auto;padding:18px}
+    a{color:#8844aa}
+    p{margin:0 0 12px}
+    .email-header{background:#ff6699;color:#fff;padding:20px 18px;text-align:center;border-radius:12px 12px 0 0}
+    .header-content{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap}
+    .site-logo{height:80px;width:80px;border-radius:50%;border:3px solid #fff;object-fit:cover}
+    .site-title{font-family:'Lobster','Brush Script MT',cursive;font-size:32px;color:#fff;margin:0;line-height:1.1}
+    .site-subtitle{font-size:16px;color:#ffcccc;margin:4px 0 0}
+    .email-footer{background:#333;color:#f9f9f9;padding:20px 18px;text-align:center;border-radius:0 0 12px 12px;margin-top:26px}
+    .email-footer a{color:#ffcccc;text-decoration:none}
+    .social-links a{display:inline-block;background:#8844aa;color:#fff;padding:8px 14px;margin:0 6px;border-radius:5px;text-decoration:none;font-weight:bold}
+    .footer-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:#ff6699;color:#fff;font-family:'Open Sans',Arial,sans-serif;font-size:16px;font-weight:bold;border-radius:6px;padding:8px 16px;margin:6px;box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+    .footer-btn.secondary{background:#555}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="email-header">
+      <div class="header-content">
+        <a href="https://chanterlavoixlibre.fr" style="text-decoration:none;display:inline-block;">
+          <img src="https://chanterlavoixlibre.fr/assets/images/logo.png" alt="Logo La Voix Libre" class="site-logo">
+        </a>
+        <div class="site-titles">
+          <h1 class="site-title">La Voix Libre</h1>
+          <p class="site-subtitle">chant chorale à Rennes</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:justify;margin-bottom:14px">
+      <?!= intro ?>
+    </div>
+
+    <div>
+      <?!= encart_evenement ?>
+    </div>
+
+    <div style="margin-top:14px">
+      <?!= cta ?>
+    </div>
+
+    <div style="margin-top:26px;font-style:italic;color:#666;font-size:14px">Au plaisir de chanter ensemble,<br>La Voix Libre</div>
+
+    <div class="email-footer">
+      <p>&copy; 2026 La Voix Libre. Tous droits réservés.</p>
+      <p>Contact : <a href="mailto:lavoixlibrerennes@gmail.com">lavoixlibrerennes@gmail.com</a></p>
+      <div class="social-links" style="margin:12px 0;">
+        <a href="https://www.facebook.com/chanterlavoixlibre/" target="_blank" rel="noopener noreferrer" aria-label="Facebook La Voix Libre">Facebook</a>
+        <a href="https://www.instagram.com/chanterlavoixlibre/" target="_blank" rel="noopener noreferrer" aria-label="Instagram La Voix Libre">Instagram</a>
+        <a href="https://www.youtube.com/channel/UC5xRWArmPqnh_OdfvubC38Q" target="_blank" rel="noopener noreferrer" aria-label="YouTube La Voix Libre">YouTube</a>
+      </div>
+      <div style="margin-top:10px;">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfL9AlryY1tKMC46Tbx_n3jb_aLQ2h5dNR8jCUpNlEq6Nh0dQ/viewform?usp=header" class="footer-btn secondary" aria-label="Désinscription de la newsletter" target="_blank" rel="noopener noreferrer">Désinscription de la newsletter</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

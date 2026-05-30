@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SOUL La Voix Libre à Rennes : chorale, chant soul, gospel, polyphonie, ateliers vocaux, concerts, ambiance conviviale pour adultes débutants et avancés.">
+    <title>La Voix Libre - Soul</title>
+  <link rel="canonical" href="https://chanterlavoixlibre.fr/soul.html" />
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="La Voix Libre – chant chorale à Rennes">
+  <meta property="og:title" content="SOUL – La Voix Libre">
+  <meta property="og:description" content="Chorale SOUL à Rennes : chant soul, gospel, polyphonie, ateliers et concerts.">
+  <meta property="og:url" content="https://chanterlavoixlibre.fr/soul.html">
+  <meta property="og:image" content="https://chanterlavoixlibre.fr/assets/images/soul.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SOUL – La Voix Libre">
+  <meta name="twitter:description" content="Chorale SOUL à Rennes : chant soul, gospel, polyphonie, ateliers et concerts.">
+  <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/soul.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <!-- Fonts for SOUL page only -->
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+   <link rel="stylesheet" href="assets/css/style.css?v=20250811">
+   <!-- Google tag (gtag.js) -->
+   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
+   <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);} 
+     gtag('js', new Date());
+
+     gtag('config', 'AW-928718843');
+   </script>
+  <style>
+    /* =====================================================
+       SOUL : héritage visuel du logo (vinyle eggplant + coucher de soleil 70s)
+       Palette : disc #2e1f3f, sunset gold/orange/red, cream
+       ===================================================== */
+
+    /* ----- Fond global ----- */
+    body.page-soul {
+      background: linear-gradient(180deg, #2a1d3a 0%, #392c44 55%, #1a0f24 100%) fixed !important;
+      color: var(--soul-cream) !important;
+      min-height: 100vh;
+    }
+    body.page-soul .main-content { background: transparent !important; }
+    body.page-soul a { color: var(--soul-gold) !important; }
+
+    /* ----- HEADER : pas de fond, logo en hero, nav transparente flottante ----- */
+    body.page-soul .main-header.soul-header {
+      background: transparent !important;
+      color: var(--soul-cream);
+      padding: 0 !important;
+      display: block;
+      text-align: center;
+      box-shadow: none !important;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      position: relative;
+      overflow: visible;
+    }
+    /* Plus de pseudo-éléments décoratifs : le logo se suffit à lui-même */
+    body.page-soul .main-header.soul-header::before,
+    body.page-soul .main-header.soul-header::after { content: none !important; }
+
+    body.page-soul .main-header.soul-header .header-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: var(--soul-logo-top-pad, 4.5rem) 1rem 1.5rem;
+      max-width: none;
+    }
+
+    body.page-soul .main-header.soul-header .soul-logo-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: none;
+      width: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    body.page-soul .main-header.soul-header .site-logo {
+      height: var(--soul-logo-size, 380px) !important;
+      width: var(--soul-logo-size, 380px) !important;
+      max-width: 80vw !important;
+      max-height: 80vw !important;
+      border-radius: 50% !important;
+      border: none !important;
+      box-shadow:
+        0 18px 55px rgba(0, 0, 0, 0.55),
+        0 0 0 2px rgba(245, 213, 110, 0.18),
+        0 0 0 8px rgba(245, 213, 110, 0.05) !important;
+      background: transparent !important;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto !important;
+      transition: transform 0.5s ease;
+    }
+    body.page-soul .main-header.soul-header .site-logo:hover {
+      transform: scale(1.03) rotate(2deg);
+    }
+    /* Mobile (taille du logo + padding pilotés par les variables ci-dessous) */
+
+    /* Masquer titres dynamiques dans le header SOUL */
+    body.page-soul header .site-titles,
+    body.page-soul header #page-main-title,
+    body.page-soul header #page-subtitle { display: none !important; }
+
+    /* ----- NAV SOUL : texte courbe SVG "gravé" sur le bord inférieur du disque ----- */
+    /* Variables : taille du logo et hauteur du padding supérieur */
+    body.page-soul .main-header.soul-header {
+      --soul-logo-size: 380px;
+      --soul-logo-top-pad: 4.5rem;
+    }
+
+    /* La nav HTML d'origine reste invisible sur desktop SOUL — le SVG la remplace */
+    body.page-soul .main-header.soul-header .main-nav .nav-links { display: none; }
+    body.page-soul .main-header.soul-header .main-nav { position: static; padding: 0; margin: 0; border-top: none; }
+
+    /* Conteneur SVG positionné précisément sur le logo */
+    body.page-soul .soul-curved-nav {
+      position: absolute;
+      top: var(--soul-logo-top-pad, 4.5rem);
+      left: 50%;
+      width: var(--soul-logo-size, 380px);
+      height: var(--soul-logo-size, 380px);
+      transform: translateX(-50%);
+      z-index: 6;
+      pointer-events: none; /* SVG <a> capte les clics individuellement */
+    }
+    body.page-soul .soul-curved-nav svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+    body.page-soul .soul-curved-nav a {
+      pointer-events: auto;
+      cursor: pointer;
+      text-decoration: none;
+      outline: none;
+    }
+    body.page-soul .soul-curved-nav text {
+      font-family: 'Alfa Slab One', 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 400;
+      fill: var(--soul-cream);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6));
+      transition: fill 0.2s ease;
+    }
+    body.page-soul .soul-curved-nav a:hover text { fill: var(--soul-gold); }
+
+    /* ----- Mobile : retour au hamburger HTML, masquer le SVG ----- */
+    @media (max-width: 768px) {
+      body.page-soul .soul-curved-nav { display: none; }
+      body.page-soul .main-header.soul-header .main-nav {
+        position: absolute;
+        top: 0.6rem;
+        right: 0.6rem;
+        left: auto;
+        bottom: auto;
+        z-index: 5;
+      }
+      body.page-soul .main-header.soul-header .main-nav .nav-links { display: none; }
+      body.page-soul .main-header.soul-header .main-nav.open .nav-links { display: flex; }
+      body.page-soul .main-header.soul-header .main-nav .mobile-menu-toggle {
+        position: static;
+        background: rgba(20, 10, 30, 0.55);
+        border-color: rgba(245, 213, 110, 0.30);
+        color: var(--soul-cream);
+      }
+    }
+
+    /* Mobile : logo réduit (logo size + padding pilotés par variables) */
+    @media (max-width: 700px) {
+      body.page-soul .main-header.soul-header {
+        --soul-logo-size: 260px;
+        --soul-logo-top-pad: 3.8rem;
+      }
+      body.page-soul .soul-curved-nav text { font-size: 11px; }
+    }
+
+    /* ----- CONTENU ----- */
+    body.page-soul #page-content-container {
+      max-width: 980px;
+      margin: 2.4rem auto;
+      padding: 0 1rem;
+      color: var(--soul-cream);
+    }
+    body.page-soul #page-content-container p {
+      color: var(--soul-cream);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    /* Présentation : texte + photo côte à côte (desktop), empilés (mobile) */
+    body.page-soul .soul-intro {
+      display: flex;
+      gap: 26px;
+      align-items: flex-start;
+      max-width: 980px;
+      margin: 0 auto 2rem auto;
+    }
+    body.page-soul .soul-intro-text {
+      flex: 1 1 58%;
+      min-width: 0;
+    }
+    body.page-soul .soul-intro-image {
+      flex: 0 0 40%;
+      max-width: 40%;
+    }
+    body.page-soul .soul-intro-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 213, 110, 0.12);
+    }
+    @media (max-width: 768px) {
+      body.page-soul .soul-intro { flex-direction: column; gap: 18px; }
+      body.page-soul .soul-intro-image { flex: 0 0 auto; max-width: 100%; }
+    }
+
+    /* ----- FOOTER : eggplant + bande sunset en haut + clin d'œil vinyle ----- */
+    body.page-soul footer.main-footer {
+      background: linear-gradient(180deg, #2e1f3f 0%, #1a0f24 100%) !important;
+      color: var(--soul-cream) !important;
+      padding: 2.4rem 1.2rem 1.8rem !important;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.4);
+    }
+    /* Bande dégradée "sunset" en haut du footer */
+    body.page-soul footer.main-footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(245, 213, 110, 0.0) 5%,
+        rgba(245, 213, 110, 0.85) 25%,
+        rgba(232, 153, 67, 0.90) 50%,
+        rgba(196, 87, 76, 0.85) 75%,
+        rgba(245, 213, 110, 0.0) 95%,
+        transparent 100%
+      );
+      pointer-events: none;
+      z-index: 2;
+    }
+    /* Disque vinyle décoratif très subtil en arrière-plan, en bas à gauche */
+    body.page-soul footer.main-footer::after {
+      content: '';
+      position: absolute;
+      left: -100px;
+      bottom: -180px;
+      width: 340px;
+      height: 340px;
+      background:
+        radial-gradient(circle, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.15) 32%, transparent 36%),
+        repeating-radial-gradient(circle at center, rgba(245, 213, 110, 0.05) 0 2px, transparent 2px 12px);
+      border-radius: 50%;
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body.page-soul footer.main-footer .footer-content p { color: var(--soul-cream) !important; }
+    body.page-soul footer.main-footer .social-links a {
+      background: transparent !important;
+      color: var(--soul-cream) !important;
+      border: 1px solid rgba(233, 186, 96, 0.30);
+      padding: 0.5rem 1rem;
+    }
+    body.page-soul footer.main-footer .social-links a:hover {
+      color: var(--soul-vvd) !important;
+      background: linear-gradient(90deg, var(--soul-gold), var(--soul-orange));
+      border-color: transparent;
+    }
+    /* Newsletter button (au cas où il apparaît) */
+    body.page-soul #newsletter-btn,
+    body.page-soul .newsletter-link a {
+      background: linear-gradient(90deg, var(--soul-gold), var(--soul-orange)) !important;
+      color: var(--soul-vvd) !important;
+      box-shadow: 0 8px 28px rgba(233, 186, 96, 0.20) !important;
+      font-weight: 700;
+    }
+    body.page-soul #newsletter-btn:hover,
+    body.page-soul .newsletter-link a:hover { filter: brightness(1.06); }
+    body.page-soul footer.main-footer button,
+    body.page-soul footer.main-footer a,
+    body.page-soul footer.main-footer .social-links a { font-weight: 700; }
+
+    /* ----- TRACKLIST footer SOUL : restyling typographique ----- */
+    body.page-soul .soul-tracklist-container { position: relative; z-index: 1; }
+    body.page-soul .soul-tracklist-grid { gap: 56px; }
+    body.page-soul .soul-side::before {
+      font-family: 'Alfa Slab One', 'Playfair Display', serif !important;
+      font-size: 0.95rem !important;
+      color: var(--soul-gold) !important;
+      letter-spacing: 0.24em !important;
+      margin-bottom: 14px !important;
+      text-transform: uppercase;
+      font-weight: 400 !important;
+    }
+    body.page-soul .soul-track {
+      padding: 7px 0;
+      font-size: 1.02rem;
+    }
+    body.page-soul .track-num {
+      color: var(--soul-gold);
+      font-family: 'Alfa Slab One', 'Playfair Display', serif !important;
+      font-weight: 400 !important;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+    }
+    body.page-soul .track-link:hover .track-title {
+      color: var(--soul-gold);
+      text-decoration: none;
+    }
+    body.page-soul .track-dots {
+      background-image: radial-gradient(circle, rgba(233, 186, 96, 0.7) 0.6px, transparent 0.7px);
+      background-size: 7px 2px;
+      opacity: 0.42;
+    }
+    body.page-soul .soul-tracklist-foot {
+      color: var(--soul-gold) !important;
+      font-family: 'Alfa Slab One', 'Playfair Display', serif !important;
+      letter-spacing: 0.16em;
+      font-size: 0.78rem;
+      margin-top: 22px;
+      text-transform: uppercase;
+      font-weight: 400 !important;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body class="internal-page page-soul">
+
+  <header class="main-header soul-header" aria-label="Header SOUL">
+    <div class="header-content soul-logo-wrap">
+      <img src="/assets/images/soullogo.png" alt="SOUL" class="site-logo">
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div id="page-content-container"></div>
+  <!-- Flux Instagram Behold SOUL : remplacez VOTRE_ID_BEHOLD_SOUL par l'ID du flux Behold dédié à SOUL -->
+  <script>window.BEHOLD_SOUL_FEED_ID = 'VoBScwhUi0d1gGjxGft3';</script>
+  <script src="assets/js/main.js?v=20250811"></script>
+  <script>
+    // Ensure footer text is adjusted only on the SOUL page after dynamic render
+    function adjustSoulFooter(){
+      try {
+        const footer = document.querySelector('footer.main-footer');
+        if (!footer) return;
+        const footerContent = footer.querySelector('.footer-content');
+        if (!footerContent) return;
+        // Replace first paragraph with exact copyright line
+        const firstP = footerContent.querySelector('p');
+        if (firstP) firstP.innerHTML = '© 2025 SOUL. Tous droits réservés.';
+        // Ensure newsletter button uses correct colors (in case injected later)
+        const newsletter = document.getElementById('newsletter-btn') || footerContent.querySelector('#newsletter-btn');
+        if (newsletter) {
+          newsletter.style.background = 'linear-gradient(90deg, var(--soul-gold), var(--soul-orange))';
+          newsletter.style.color = 'var(--soul-cream)';
+          newsletter.style.fontWeight = '700';
+        }
+      } catch (e) { console.warn('adjustSoulFooter failed', e); }
+    }
+    // Try on the custom event emitted by main.js, and also on load as fallback
+    document.addEventListener('site:content-rendered', adjustSoulFooter);
+    window.addEventListener('load', function(){ setTimeout(adjustSoulFooter, 300); });
+  </script>
+</body>
+</html>

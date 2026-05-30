@@ -2,7 +2,7 @@
   {
     "section": "head",
     "champ": "site_title",
-    "valeur": "La Voix Libre – École de chant à Rennes"
+  "valeur": "La Voix Libre – chant chorale à Rennes"
   },
   {
     "section": "head",
@@ -17,7 +17,7 @@
   {
     "section": "head",
     "champ": "sub_title",
-    "valeur": "École de chant – Chorales – Rennes"
+  "valeur": "chant chorale à Rennes"
   },
   {
     "section": "footer",
@@ -38,5 +38,11 @@
     "section": "footer",
     "champ": "youtube",
     "valeur": "https://www.youtube.com/channel/UC5xRWArmPqnh_OdfvubC38Q"
+  }
+  ,
+  {
+    "section": "security",
+    "champ": "espace_choristes_password",
+    "valeur": "lavoixlibre2026"
   }
 ]

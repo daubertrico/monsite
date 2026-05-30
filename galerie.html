@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
+  <title>La Voix Libre – Galerie</title>
+  <link rel="canonical" href="https://chanterlavoixlibre.fr/galerie.html" />
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="La Voix Libre – chant chorale à Rennes">
+  <meta property="og:title" content="Galerie – La Voix Libre">
+  <meta property="og:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
+  <meta property="og:url" content="https://chanterlavoixlibre.fr/galerie.html">
+  <meta property="og:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Galerie – La Voix Libre">
+  <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
+  <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-928718843');
+  </script>
+  <style>
+    /* ---- Barre d'action en haut ---- */
+    .gallery-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      max-width: 1000px;
+      margin: 0 auto 1.6rem auto;
+    }
+    .gallery-actions-intro {
+      margin: 0;
+      color: #555;
+      font-size: 0.97rem;
+    }
+
+    /* ---- Section galerie : même largeur que Insta/YouTube ---- */
+    .gallery-section {
+      max-width: 600px;
+      margin: 0 auto 2.6rem auto;
+      padding: 0;
+    }
+    .insta-section   { margin-bottom: 2.6rem; }
+    .gallery-section .home-section-divider,
+    .insta-section .home-section-divider,
+    .youtube-section .home-section-divider {
+      margin: 0 0 1rem 0;
+    }
+
+    /* ---- Groupes par concert (titre + grille) ---- */
+    .gallery-group { margin: 0 0 2.2rem 0; }
+    .gallery-group:last-child { margin-bottom: 0; }
+    .gallery-group-title {
+      font-family: 'Lobster', cursive;
+      font-size: 1.25rem;
+      color: var(--accent-color-complementary);
+      font-weight: 400;
+      text-align: center;
+      margin: 0 auto 0.8rem auto;
+      max-width: 600px;
+      line-height: 1.2;
+    }
+
+    /* ---- Grille de vignettes carrées (calée sur la rubrique Insta Behold) ---- */
+    .photo-mosaic {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px; /* fallback ; sera synchronisé au runtime sur le gap Behold */
+      margin: 8px auto 0 auto;
+      max-width: 600px;
+    }
+    .photo-mosaic figure {
+      margin: 0;
+      border-radius: 0;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: #eee;
+      aspect-ratio: 1 / 1;
+    }
+    .photo-mosaic figure img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: opacity 0.2s ease;
+    }
+    .photo-mosaic figure:hover img {
+      opacity: 0.92;
+    }
+    .photo-mosaic figure figcaption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background: linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.15) 70%, transparent);
+      color: #fff;
+      font-size: 0.8rem;
+      padding: 24px 10px 9px 10px;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .photo-mosaic figure:hover figcaption,
+    .photo-mosaic figure:focus figcaption {
+      opacity: 1;
+    }
+    .photo-mosaic figcaption .cap-desc {
+      font-size: 0.88rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+    .photo-mosaic figcaption .cap-meta {
+      font-size: 0.76rem;
+      color: rgba(255,255,255,0.82);
+    }
+
+    /* ---- Skeleton loader ---- */
+    .photo-skeleton {
+      aspect-ratio: 1 / 1;
+      margin: 0;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ---- État vide / erreur ---- */
+    .gallery-empty {
+      text-align: center;
+      padding: 48px 16px;
+      color: #888;
+      font-size: 1.05rem;
+    }
+    .gallery-empty a {
+      color: var(--accent-color-primary);
+      font-weight: 700;
+    }
+
+    /* ---- Lightbox ---- */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.88);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 16px;
+    }
+    #lightbox.open {
+      display: flex;
+    }
+    #lightbox img {
+      max-width: min(92vw, 1200px);
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+    #lightbox-caption {
+      color: rgba(255,255,255,0.85);
+      margin-top: 14px;
+      font-size: 0.95rem;
+      text-align: center;
+      max-width: 600px;
+    }
+    #lightbox-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.75;
+      transition: opacity 0.2s;
+    }
+    #lightbox-close:hover { opacity: 1; }
+    #lightbox-prev, #lightbox-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    #lightbox-prev { left: 12px; }
+    #lightbox-next { right: 12px; }
+    #lightbox-prev:hover, #lightbox-next:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    @media (max-width: 600px) {
+      .photo-mosaic { grid-template-columns: repeat(2, 1fr); }
+      #lightbox-prev { left: 4px; }
+      #lightbox-next { right: 4px; }
+    }
+
+    /* ---- CTA upload ---- */
+    .gallery-upload-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-color-complementary);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 0.97rem;
+      transition: background 0.2s;
+      margin-bottom: 4px;
+    }
+    .gallery-upload-cta:hover { background: var(--accent-color-primary); color: #fff; }
+  </style>
+</head>
+<body class="internal-page">
+  <main class="main-content">
+    <div id="page-content-container" data-static="true">
+
+      <!-- Barre d'action -->
+      <div class="gallery-actions">
+        <p class="gallery-actions-intro">Photos partagées par les choristes et l'équipe.</p>
+        <a href="espace-choristes.html" class="gallery-upload-cta">+ Ajouter mes photos</a>
+      </div>
+
+      <!-- Section : Galerie des choristes (groupée par concert, du plus récent au plus ancien) -->
+      <section class="gallery-section" aria-label="Photos de concerts">
+        <div class="home-section-divider"><h2>Galerie des choristes</h2></div>
+
+        <div id="gallery-groups" aria-live="polite">
+          <div class="photo-mosaic">
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+            <div class="photo-skeleton"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section : Actualités Instagram (Behold) -->
+      <section class="insta-section" aria-label="Actualités Instagram">
+        <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
+        <behold-widget feed-id="3NHaPi1fOUn1HBKyIU0J"></behold-widget>
+      </section>
+
+      <!-- Section : Nos enregistrements (playlist YouTube) -->
+      <section class="youtube-section" aria-label="Nos enregistrements YouTube">
+        <div class="home-section-divider"><h2>La Voix Libre sur YouTube — Enregistrements</h2></div>
+        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbZbzdhKFRSggddJz8wGXbog" data-limit="6" aria-live="polite">
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+          <div class="youtube-skeleton"></div>
+        </div>
+      </section>
+
+    </div><!-- /#page-content-container -->
+  </main>
+
+  <!-- Lightbox -->
+  <div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo agrandie">
+    <button id="lightbox-close" aria-label="Fermer">&times;</button>
+    <button id="lightbox-prev" aria-label="Photo précédente">&#8249;</button>
+    <img id="lightbox-img" src="" alt="">
+    <div id="lightbox-caption"></div>
+    <button id="lightbox-next" aria-label="Photo suivante">&#8250;</button>
+  </div>
+
+  <!-- Widget Instagram Behold -->
+  <script type="module" src="https://w.behold.so/widget.js"></script>
+  <script src="assets/js/main.js?v=20250826-0755"></script>
+  <script>
+    // ---- Endpoint GAS (à remplir après déploiement) ----
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyq5Lxe3HzK-Da_xb010jMp2i_VF58Y3tPm4LvWq8RLz6qFSU5bEEXjXLQrXWo06tGz/exec';
+
+    // ---- État ----
+    let allPhotos = [];
+    let filteredPhotos = [];
+    let lightboxIndex = 0;
+    let eventMap = {}; // eventId -> { name, date }
+
+    // ---- Agenda La Voix Libre (pour résoudre le nom courant des concerts) ----
+    const CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+    const CALENDAR_ID = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
+
+    function formatConcertLabel(summary, date) {
+      const mois  = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+      const jours = ['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
+      return (summary || 'Concert')
+        + ' – ' + jours[date.getDay()]
+        + ' ' + date.getDate()
+        + ' ' + mois[date.getMonth()]
+        + ' ' + date.getFullYear();
+    }
+
+    async function loadEventMap() {
+      const timeMin = new Date(Date.now() - 5 * 365 * 24 * 3600 * 1000).toISOString();
+      const timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
+      try {
+        const url = 'https://www.googleapis.com/calendar/v3/calendars/'
+          + encodeURIComponent(CALENDAR_ID)
+          + '/events?key=' + CAL_API_KEY
+          + '&timeMin=' + encodeURIComponent(timeMin)
+          + '&timeMax=' + encodeURIComponent(timeMax)
+          + '&maxResults=250&orderBy=startTime&singleEvents=true';
+        const res  = await fetch(url);
+        const data = await res.json();
+        (data.items || []).forEach(ev => {
+          const start = ev.start && (ev.start.dateTime || ev.start.date);
+          if (!start) return;
+          eventMap[ev.id] = { name: ev.summary || 'Concert', date: new Date(start) };
+        });
+      } catch (e) {
+        console.warn('Calendar fetch failed', e);
+      }
+    }
+
+    // Clé de regroupement : id d'événement si dispo, sinon nom stocké (anciennes photos)
+    function photoKey(photo) {
+      return photo.eventId ? ('id:' + photo.eventId) : ('name:' + (photo.concert || 'Non précisé'));
+    }
+    // Libellé affiché : nom courant de l'agenda, sinon nom stocké à l'envoi
+    function photoLabel(photo) {
+      if (photo.eventId && eventMap[photo.eventId]) {
+        const ev = eventMap[photo.eventId];
+        return formatConcertLabel(ev.name, ev.date);
+      }
+      return photo.concert || 'Non précisé';
+    }
+    // Date utilisée pour le tri des catégories
+    function photoDate(photo) {
+      if (photo.eventId && eventMap[photo.eventId]) return eventMap[photo.eventId].date.getTime();
+      return photo.uploadDate ? new Date(photo.uploadDate).getTime() : 0;
+    }
+
+    // ---- Chargement initial ----
+    async function loadGallery() {
+      const groupsEl = document.getElementById('gallery-groups');
+
+      groupsEl.innerHTML = `<div class="photo-mosaic">${Array(6).fill('<div class="photo-skeleton"></div>').join('')}</div>`;
+
+      if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
+        groupsEl.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.<br>Déployez le script GAS et renseignez l\'URL dans galerie.html.</p></div>';
+        return;
+      }
+
+      try {
+        const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=gallery_list';
+        // Agenda + photos en parallèle
+        const [, res] = await Promise.all([ loadEventMap(), fetch(url, { cache: 'no-store' }) ]);
+        const data = await res.json();
+
+        if (!data.photos || !data.photos.length) {
+          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          return;
+        }
+
+        // Résout le libellé courant + la clé de regroupement de chaque photo
+        data.photos.forEach(p => { p._label = photoLabel(p); p._key = photoKey(p); });
+
+        allPhotos = data.photos;
+        renderGroupedGalleries();
+      } catch (e) {
+        groupsEl.innerHTML = '<div class="gallery-empty"><p>Impossible de charger la galerie. Réessayez plus tard.</p></div>';
+        console.error('Gallery load error', e);
+      }
+    }
+
+    // ---- Rendu groupé par concert (du plus récent au plus ancien) ----
+    function renderGroupedGalleries() {
+      const groupsEl = document.getElementById('gallery-groups');
+
+      // Regroupe par clé concert
+      const groups = {};
+      allPhotos.forEach(p => {
+        if (!groups[p._key]) {
+          groups[p._key] = { key: p._key, label: p._label, date: photoDate(p), photos: [] };
+        }
+        groups[p._key].photos.push(p);
+      });
+      // Trie les concerts du plus récent au plus ancien (en n'incluant QUE ceux qui ont des photos)
+      const list = Object.values(groups)
+        .filter(g => g.photos.length > 0)
+        .sort((a, b) => b.date - a.date);
+
+      // Construit la liste à plat dans l'ordre d'affichage (pour les indices de lightbox)
+      filteredPhotos = list.flatMap(g => g.photos);
+
+      const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
+
+      let flatIndex = 0;
+      groupsEl.innerHTML = list.map(g => {
+        const figs = g.photos.map(photo => {
+          const i = flatIndex++;
+          const thumb = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w600`;
+          const uploader = esc(photo.uploaderName || '');
+          const description = esc(photo.description || '');
+          const meta = uploader ? `par ${uploader}` : '';
+          const capHtml = [
+            description ? `<span class="cap-desc">${description}</span>` : '',
+            meta ? `<span class="cap-meta">${meta}</span>` : ''
+          ].filter(Boolean).join('');
+          const altText = description || esc(g.label);
+          return `
+            <figure data-index="${i}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
+              <img src="${thumb}" alt="${altText}" loading="lazy" decoding="async"
+                onerror="this.parentElement.style.display='none'">
+              ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
+            </figure>`;
+        }).join('');
+        return `
+          <div class="gallery-group">
+            <h3 class="gallery-group-title">${esc(g.label)}</h3>
+            <div class="photo-mosaic">${figs}</div>
+          </div>`;
+      }).join('');
+
+      // Bind clicks et touches sur toutes les figures
+      groupsEl.querySelectorAll('figure').forEach(fig => {
+        fig.addEventListener('click', () => openLightbox(Number(fig.dataset.index)));
+        fig.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') openLightbox(Number(fig.dataset.index));
+        });
+      });
+
+      // Re-synchronise le gap sur Behold pour les nouvelles grilles
+      if (typeof syncYoutubeGapToBehold === 'function') syncYoutubeGapToBehold();
+    }
+
+    // ---- Lightbox ----
+    function openLightbox(index) {
+      lightboxIndex = index;
+      showLightboxPhoto(index);
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function showLightboxPhoto(index) {
+      const photo = filteredPhotos[index];
+      if (!photo) return;
+      const full = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w1600`;
+      const img = document.getElementById('lightbox-img');
+      img.src = full;
+
+      const concert = (photo._label || photo.concert || '').replace(/</g,'&lt;');
+      const uploader = (photo.uploaderName || '').replace(/</g,'&lt;');
+      const description = (photo.description || '').replace(/</g,'&lt;');
+      img.alt = description || photo._label || photo.concert || '';
+      const meta = [concert, uploader ? `partagée par ${uploader}` : ''].filter(Boolean).join(' · ');
+      document.getElementById('lightbox-caption').innerHTML =
+        (description ? `<span style="display:block;font-size:1.08rem;color:#fff;margin-bottom:4px;">${description}</span>` : '')
+        + meta
+        + `<span style="color:rgba(255,255,255,0.4);margin-left:10px;">${index+1} / ${filteredPhotos.length}</span>`;
+
+      // Cacher flèches si une seule photo
+      document.getElementById('lightbox-prev').style.display = filteredPhotos.length > 1 ? '' : 'none';
+      document.getElementById('lightbox-next').style.display = filteredPhotos.length > 1 ? '' : 'none';
+    }
+
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+      if (e.target === this) closeLightbox();
+    });
+    document.getElementById('lightbox-prev').addEventListener('click', () => {
+      lightboxIndex = (lightboxIndex - 1 + filteredPhotos.length) % filteredPhotos.length;
+      showLightboxPhoto(lightboxIndex);
+    });
+    document.getElementById('lightbox-next').addEventListener('click', () => {
+      lightboxIndex = (lightboxIndex + 1) % filteredPhotos.length;
+      showLightboxPhoto(lightboxIndex);
+    });
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('lightbox').classList.contains('open')) return;
+      if (e.key === 'Escape')      closeLightbox();
+      if (e.key === 'ArrowLeft')  { lightboxIndex = (lightboxIndex - 1 + filteredPhotos.length) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
+      if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
+    });
+
+    // ---- Démarrage ----
+    loadGallery();
+  </script>
+</body>
+</html>

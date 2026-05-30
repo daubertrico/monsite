@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /espace-choristes.html
+
+# XML sitemap
+Sitemap: https://chanterlavoixlibre.fr/sitemap.xml
