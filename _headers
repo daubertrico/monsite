@@ -1,16 +1,21 @@
+# Images : cache long (1 an) — elles changent rarement
 /assets/images/*
-  Cache-Control: public, max-age=31536000
+  Cache-Control: public, max-age=31536000, immutable
 
+# CSS et JS : cache court (5 min) + revérification systématique
+# Le navigateur réutilise le cache pendant 5 min, puis demande au serveur
+# si une nouvelle version existe (304 Not Modified si rien n'a changé).
 /assets/css/*
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=300, must-revalidate
 
 /assets/js/*
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=300, must-revalidate
 
+# HTML et le reste : cache court (5 min) + revérification
 /*
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=300, must-revalidate
 
-#/sitemap.xml and robots.txt must have correct MIME types
+# sitemap.xml et robots.txt : MIME corrects + cache court
 /sitemap.xml
   Content-Type: application/xml; charset=utf-8
   Cache-Control: public, max-age=300
