@@ -4,7 +4,7 @@
     "image": "choralepop.jpg",
     "tile_overlay_title": "Chorale Pop",
     "tile_overlay_subtitle": "... mais pas que !",
-    "page_title": "La Voix Libre",
+    "page_title": "Chorale pop à Rennes",
     "page_subtitle": "Chorale pop, mais pas que…",
     "page_content": [
       "La Voix Libre est un chœur rennais fondé en mars 2017. Il réunit plus de 80 chanteur·euse·s passionné·e·s, de tous niveaux. Débutant·e·s bienvenu·e·s : ici, on progresse ensemble, dans la joie et la bienveillance.",
@@ -99,7 +99,7 @@
     "image": "comediemusicale.jpg",
     "tile_overlay_title": "Comédie Musicale",
     "tile_overlay_subtitle": "La Furie des Mers",
-    "page_title": "Comédie Musicale",
+    "page_title": "Comédie musicale amateur à Rennes",
     "page_subtitle": "La Furie des Mers",
     "page_content": [
       "La Voix libre - Rennes présente La Furie des mers, une comédie musicale adaptée très librement des Pirates de Penzance, célèbre opérette anglaise du 19e siècle de Gilbert et Sullivan.",
@@ -173,7 +173,7 @@
     "image": "courschant.jpg",
     "tile_overlay_title": "Cours de chant",
     "tile_overlay_subtitle": "Développez votre voix !",
-    "page_title": "Cours de chant",
+    "page_title": "Cours de chant à Rennes",
     "page_subtitle": "entre autres styles !",
     "hidden": true,
     "page_content": [
@@ -225,7 +225,7 @@
     "image": "soul.jpg",
     "tile_overlay_title": "SOUL",
     "tile_overlay_subtitle": "Ensemble a cappella",
-    "page_title": "S.O.U.L.",
+    "page_title": "S.O.U.L. — ensemble vocal a cappella à Rennes",
     "page_subtitle": "Ensemble vocal Soul a cappella",
     "page_content": [
       "S.O.U.L. est un ensemble vocal a capella qui reprend des standards soul/funk/gospel et parfois pop, constitué d'amateur.rices enthousiastes qui ont un goût pour les harmonies complexes et le body percu.",
@@ -285,7 +285,7 @@
     "image": "Design sans titre.png",
     "tile_overlay_title": "Événements",
     "tile_overlay_subtitle": "Où et quand nous écouter",
-    "page_title": "Événements",
+    "page_title": "Concerts et événements à Rennes",
     "page_subtitle": "Où et quand nous écouter",
     "page_content": [
       "Retrouvez ici tous les événements, concerts et rencontres de La Voix Libre et S.O.U.L à Rennes et ailleurs.",
@@ -331,7 +331,7 @@
     "image": "concerts.jpg",
     "tile_overlay_title": "Galerie",
     "tile_overlay_subtitle": "Nos moments en images",
-    "page_title": "Galerie",
+    "page_title": "Galerie photos — concerts à Rennes",
     "page_subtitle": "Nos photos et souvenirs",
     "page_content": [
       "Plongez dans la galerie visuelle de La Voix Libre.",
@@ -378,7 +378,7 @@
     "id": "nous-rejoindre",
     "tile_overlay_title": "Nous rejoindre",
     "tile_overlay_subtitle": "Rejoignez l’aventure !",
-    "page_title": "Nous rejoindre",
+    "page_title": "Rejoindre une chorale à Rennes",
     "page_subtitle": "Rejoignez l’aventure La Voix Libre",
     "page_content": [],
     "specific_content": [

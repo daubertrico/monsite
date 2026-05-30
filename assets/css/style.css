@@ -2543,3 +2543,16 @@ iframe[src*="flat.io/embed"] {
   display: block;
   border: 0;
 }
+
+/* === SEO/A11y : titre visible pour les moteurs de recherche et lecteurs d'écran, invisible pour les yeux === */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -100,10 +100,21 @@
     }
     /* Mobile (taille du logo + padding pilotés par les variables ci-dessous) */
 
-    /* Masquer titres dynamiques dans le header SOUL */
+    /* Titres dynamiques dans le header SOUL : invisibles visuellement (logo les remplace)
+       mais lisibles par Google et les lecteurs d'écran pour le SEO */
     body.page-soul header .site-titles,
     body.page-soul header #page-main-title,
-    body.page-soul header #page-subtitle { display: none !important; }
+    body.page-soul header #page-subtitle {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
 
     /* ----- NAV SOUL : texte courbe SVG "gravé" sur le bord inférieur du disque ----- */
     /* Variables : taille du logo et hauteur du padding supérieur */
@@ -342,11 +353,12 @@
 
   <header class="main-header soul-header" aria-label="Header SOUL">
     <div class="header-content soul-logo-wrap">
-      <img src="/assets/images/soullogo.png" alt="SOUL" class="site-logo">
+      <img src="/assets/images/soullogo.png" alt="Logo S.O.U.L. - ensemble vocal a cappella à Rennes" class="site-logo">
     </div>
   </header>
 
   <main class="main-content">
+    <h1 class="sr-only">S.O.U.L. — ensemble vocal a cappella à Rennes</h1>
     <div id="page-content-container"></div>
   <!-- Flux Instagram Behold SOUL : remplacez VOTRE_ID_BEHOLD_SOUL par l'ID du flux Behold dédié à SOUL -->
   <script>window.BEHOLD_SOUL_FEED_ID = 'VoBScwhUi0d1gGjxGft3';</script>

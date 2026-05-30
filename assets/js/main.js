@@ -801,7 +801,7 @@ async function fetchPostsFromCSV(csvUrl) {
         hero.innerHTML = `
           <picture>
             <source srcset="${imgWebp}" type="image/webp">
-            <img src="${imgJpg}" alt="${choralePopPage.page_title}" loading="eager" decoding="async">
+            <img src="${imgJpg}" alt="La Voix Libre, chorale pop polyphonique à Rennes en concert" loading="eager" decoding="async">
           </picture>
           <div class="home-hero-overlay">
             <p class="home-hero-tag">Chœur pop à Rennes depuis 2017</p>
@@ -866,7 +866,7 @@ async function fetchPostsFromCSV(csvUrl) {
         const imgWebp = imgJpg.replace('.jpg', '.webp');
         const imgWrap = document.createElement('div');
         imgWrap.className = 'home-comedie-img-wrap';
-        imgWrap.innerHTML = `<picture><source srcset="${imgWebp}" type="image/webp"><img src="${imgJpg}" alt="Comédie musicale La Voix Libre" loading="lazy" decoding="async"></picture>`;
+        imgWrap.innerHTML = `<picture><source srcset="${imgWebp}" type="image/webp"><img src="${imgJpg}" alt="Comédie musicale amateur La Voix Libre à Rennes - spectacle La Furie des Mers" loading="lazy" decoding="async"></picture>`;
         const body  = document.createElement('div');
         body.className = 'home-comedie-body';
         const desc  = document.createElement('p');
@@ -1396,7 +1396,7 @@ async function fetchPostsFromCSV(csvUrl) {
             const pic = document.createElement('picture');
             pic.innerHTML = `
               <source srcset="${imgWebp}" type="image/webp">
-              <img src="${imgJpg}" alt="Image principale de la page ${page.page_title}" class="page-hero-image" loading="lazy" decoding="async" style="width:380px;height:auto;object-fit:cover;border-radius:12px;">
+              <img src="${imgJpg}" alt="${page.page_title} - La Voix Libre, Rennes" class="page-hero-image" loading="lazy" decoding="async" style="width:380px;height:auto;object-fit:cover;border-radius:12px;">
             `;
             descriptionContainer.appendChild(pic);
           }
@@ -1740,7 +1740,7 @@ async function fetchPostsFromCSV(csvUrl) {
             const pic = document.createElement('picture');
             pic.innerHTML = `
               <source srcset="${imgWebp}" type="image/webp">
-              <img src="${imgJpg}" alt="Image principale de la page ${page.page_title}" class="page-hero-image" loading="lazy" decoding="async">
+              <img src="${imgJpg}" alt="${page.page_title} - La Voix Libre, Rennes" class="page-hero-image" loading="lazy" decoding="async">
             `;
             descriptionContainer.appendChild(pic);
           }
@@ -2314,33 +2314,41 @@ function injectEventsJsonLd(events, ensembleKey) {
       name: placeName,
       address: ev.location ? { '@type': 'PostalAddress', addressLocality: 'Rennes', addressCountry: 'FR' } : ctx.addrPapu
     };
+    // URL unique par événement (requis par Google pour les Carrousels d'événements)
+    const evIdSafe = (ev.id || String(i)).replace(/[^a-zA-Z0-9_-]/g, '');
+    const evUrl = (ctx.origin || '') + '/#event-' + evIdSafe;
+    const description = (ev.description || '').replace(/<[^>]+>/g, '').trim();
     return {
-      '@type': 'ListItem',
-      position: i + 1,
-      item: {
-        '@type': 'Event',
-        '@id': (ctx.origin || '') + '/#event-' + (ev.id || i),
-        name: ev.summary || 'Concert',
-        startDate: start,
-        endDate: end || undefined,
-        eventStatus: 'https://schema.org/EventScheduled',
-        eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-        location: place,
-        performer: performerLite,
-        organizer: { '@type': 'Organization', name: 'La Voix Libre', url: 'https://chanterlavoixlibre.fr/' },
-        description: (ev.description || '').replace(/<[^>]+>/g, '').trim() || undefined,
-        url: (ctx.origin || '') + '/#evenements'
+      '@type': 'Event',
+      '@id': evUrl,
+      url: evUrl,
+      name: ev.summary || 'Concert',
+      startDate: start,
+      endDate: end || undefined,
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: place,
+      image: performer.logo || performer.image || undefined,
+      performer: performerLite,
+      organizer: { '@type': 'Organization', name: 'La Voix Libre', url: 'https://chanterlavoixlibre.fr/' },
+      description: description || ((ev.summary || 'Concert') + ' — La Voix Libre, Rennes.'),
+      offers: {
+        '@type': 'Offer',
+        url: evUrl,
+        price: '0',
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        validFrom: start
       }
     };
   }).filter(Boolean);
 
   if (!items.length) return;
-  const ld = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    itemListElement: items
-  };
-  ctx.upsertJsonLd('ld-events-' + (ensembleKey || 'lvl'), ld);
+  // Google n'aime pas ItemList comme conteneur Carousel d'Events.
+  // On expose chaque Event en JSON-LD séparé (ce qui rend chaque concert éligible aux résultats enrichis d'Événements).
+  items.forEach((ev, i) => {
+    ctx.upsertJsonLd('ld-event-' + (ensembleKey || 'lvl') + '-' + i, ev);
+  });
 }
 
 
