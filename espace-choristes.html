@@ -2,26 +2,86 @@
 <html lang="fr">
 <head>
     <style>
-      /* Ensure tabs remain visible on narrow viewports / print (A4) */
-      .choristes-tabs { flex-wrap: wrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .choristes-tab { flex: 0 1 auto; min-width: 140px; box-sizing: border-box; white-space: nowrap; }
+      /* Barre d'onglets — desktop : ligne horizontale, mobile : grille 2x2 */
+      .choristes-tab-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 18px 0;
+      }
+      .choristes-tab {
+        flex: 1 1 auto;
+        min-width: 140px;
+        box-sizing: border-box;
+        white-space: nowrap;
+        padding: 10px 14px;
+        background: #eef5ff;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        color: #134;
+        font-weight: 600;
+        font-size: 0.98em;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+      }
+      .choristes-tab:hover { background: #dbeeff; }
+      .choristes-tab.active { background: #134; color: #fff; border-color: #134; }
       @media (max-width: 1100px) {
         .choristes-tab { padding: 12px 20px !important; font-size: 1.05em !important; }
       }
       @media print {
-        .choristes-tabs { overflow: visible !important; flex-wrap: wrap !important; }
+        .choristes-tab-bar { overflow: visible !important; flex-wrap: wrap !important; }
         .choristes-tab { display: inline-block !important; page-break-inside: avoid !important; color: #000 !important; background: #fff !important; }
       }
       @media (max-width: 700px) {
-        .choristes-tabs {
-          flex-direction: column !important;
-          gap: 0 !important;
+        /* Grille 2x2 — divise la hauteur par deux par rapport au stack vertical */
+        .choristes-tab-bar {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr !important;
+          gap: 10px !important;
+          margin-bottom: 14px;
         }
         .choristes-tab {
           width: 100%;
-          margin-bottom: 8px;
-          border-radius: 14px;
-          font-size: 1.15em !important;
+          min-width: 0 !important;
+          margin: 0 !important;
+          padding: 14px 8px !important;
+          border-radius: 12px;
+          font-size: 1em !important;
+          white-space: normal !important;
+          text-align: center;
+          line-height: 1.2;
+        }
+        /* Formulaire upload photo — version mobile aérée */
+        #photo-upload-form {
+          padding: 16px 14px !important;
+          border-radius: 12px;
+        }
+        #photo-upload-form > div { margin-bottom: 18px !important; }
+        #photo-upload-form input[type="text"],
+        #photo-upload-form select {
+          padding: 12px 14px !important;
+          font-size: 1rem !important;
+          min-height: 44px;
+        }
+        #photo-upload-form label {
+          font-size: 1rem !important;
+          margin-bottom: 8px !important;
+          display: block !important;
+        }
+        #photo-upload-form #photo-file-label {
+          padding: 22px 14px !important;
+          font-size: 1rem;
+          min-height: 56px;
+        }
+        #photo-upload-form #photo-submit {
+          padding: 14px !important;
+          font-size: 1.05rem !important;
+          min-height: 50px;
+          margin-top: 4px;
+        }
+        #photo-upload-form #photo-preview-grid {
+          grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important;
         }
         .choristes-tab-content {
           display: none !important;
@@ -159,7 +219,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260611">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260613">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -507,7 +567,7 @@
           <h2>Photos de concerts</h2>
           <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a>.</p>
 
-          <div style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
+          <div id="photo-upload-form" style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
             <h3 style="margin-top:0;color:#134;font-size:1.15rem;">Ajouter une photo</h3>
 
             <!-- Concert -->
@@ -1140,8 +1200,8 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260611"></script>
-  <script src="assets/js/main.js?v=20260611"></script>
+  <script src="assets/js/choristes.js?v=20260613"></script>
+  <script src="assets/js/main.js?v=20260613"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->

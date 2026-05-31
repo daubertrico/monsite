@@ -333,10 +333,13 @@ body {
     color: #fff;
     border: 1px solid rgba(255,255,255,0.6);
     border-radius: 10px;
-    padding: 0.4rem 0.7rem;
-    font-size: 1.15rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 1.35rem;
+    line-height: 1;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    min-width: 44px;
+    min-height: 44px;
 }
 
 @media (max-width: 768px) {
@@ -345,16 +348,19 @@ body {
         padding-top: 0.5rem;
     }
     .mobile-menu-toggle {
-        display: inline-block;
-        position: absolute;
-        right: 0.5rem;
-        top: -2.2rem; /* raise closer to header */
-        z-index: 3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        /* Bouton fixe en haut à gauche — laisse la place au badge auth à droite */
+        position: fixed;
+        left: 12px;
+        top: 12px;
+        z-index: 1400;
     }
     .main-nav .nav-links {
-        position: absolute;
-        right: 0.5rem;
-        top: 0.2rem;
+        position: fixed;
+        left: 12px;
+        top: 64px;
         display: none;
         flex-direction: column;
         align-items: stretch;
@@ -367,7 +373,7 @@ body {
         max-height: 72vh;
         overflow-y: auto;
         box-shadow: 0 10px 28px rgba(0,0,0,0.35);
-        z-index: 2;
+        z-index: 1399; /* juste sous le hamburger pour ne pas le recouvrir */
         backdrop-filter: blur(4px);
     }
     .main-nav.open .nav-links {
@@ -2258,9 +2264,8 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-@media (max-width: 600px) {
-  .youtube-grid { grid-template-columns: repeat(2, 1fr); }
-}
+/* On garde 3 colonnes même sur mobile pour s'aligner avec Behold (Instagram) */
+/* qui reste à 3 colonnes — sinon YT/photos paraissent plus gros qu'Insta sur téléphone */
 
 /* Lightbox YouTube */
 #yt-lightbox {

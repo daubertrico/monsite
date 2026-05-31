@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
   <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260611">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260613">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -238,7 +238,7 @@
     #lightbox-delete:disabled { opacity: 0.6; cursor: wait; }
 
     @media (max-width: 600px) {
-      .photo-mosaic { grid-template-columns: repeat(2, 1fr); }
+      /* On garde 3 colonnes pour s'aligner sur Behold */
       #lightbox-prev { left: 4px; }
       #lightbox-next { right: 4px; }
     }
@@ -377,7 +377,7 @@
 
   <!-- Widget Instagram Behold -->
   <script type="module" src="https://w.behold.so/widget.js"></script>
-  <script src="assets/js/main.js?v=20260611"></script>
+  <script src="assets/js/main.js?v=20260613"></script>
   <script>
     // ---- Endpoint GAS (à remplir après déploiement) ----
     const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw1hqV4qB2XH0iAD4IOQkNiouXiWegHjRiSbtcGC9VRySr94xUKUdOtb8wWvIoHokTb/exec';
