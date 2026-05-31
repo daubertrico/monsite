@@ -83,17 +83,22 @@
   .event-stats .count { font-weight:700; margin-right:12px; }
   .event-stats ul { margin:6px 0 0 18px; }
   .event-stats .by-pupitre { margin:4px 0 6px 0; color:#234; font-size:0.95em; }
-  /* Admin panel (chef only) */
-  #admin-panel { display:none; position:fixed; right:18px; bottom:18px; width:320px; z-index:9999; background:#ffffff; border:1.5px solid #b6e0fe; border-radius:12px; box-shadow:0 6px 24px #3981FF33; padding:14px; }
-  #admin-panel h4 { margin:0 0 8px 0; font-size:1.05em; color:#134; }
-  #admin-panel .row { display:flex; gap:8px; align-items:center; margin:6px 0; }
-  #admin-panel label { font-size:0.9em; color:#345; min-width:72px; }
-  #admin-panel input, #admin-panel select { flex:1; padding:6px 8px; border:1px solid #cfe3ff; border-radius:8px; }
-  #admin-panel .actions { display:flex; gap:8px; margin-top:8px; }
-  #admin-panel button { padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:600; }
-  #btn-download-att { background:#eef5ff; color:#134; border:2px solid #98bfff; }
-  #btn-purge-event { background:#ffecec; color:#511; border:2px solid #feb6b6; }
-  body.role-chef #admin-panel { display:block; }
+  /* Bouton "📊 Statistiques" dans les contrôles de présence (visible aux membres du bureau uniquement) */
+  .att-stats-btn { display:none; margin-left:8px; padding:6px 12px; background:#eef5ff; color:#134; border:2px solid #98bfff; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.92em; transition: background .15s, transform .1s; }
+  .att-stats-btn:hover { background:#dbeeff; }
+  .att-stats-btn:active { transform: scale(0.97); }
+  body.role-chef .att-stats-btn { display:inline-block; }
+  /* Stats hiérarchiques drill-down */
+  .stat-hier { margin-top:8px; font-size:0.95em; color:#234; }
+  .stat-hier button.stat-node { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #cfe3ff; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:0.95em; color:#134; font-weight:600; transition: background .15s; }
+  .stat-hier button.stat-node:hover { background:#f3f7ff; }
+  .stat-hier button.stat-node .chev { display:inline-block; transition: transform .2s; font-size:0.8em; opacity:0.6; }
+  .stat-hier button.stat-node[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .stat-hier .stat-children { margin: 6px 0 8px 18px; display:none; padding-left:10px; border-left:2px solid #dbeeff; }
+  .stat-hier .stat-children.open { display:block; }
+  .stat-hier ul.stat-names { list-style:none; padding:0; margin:6px 0 0 0; }
+  .stat-hier ul.stat-names li { padding:3px 0; color:#345; font-weight:400; }
+  .stat-hier .stat-loading, .stat-hier .stat-empty { color:#789; font-style:italic; padding:4px 0; }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -593,7 +598,7 @@
                       var att=isPast?'':'<div class="att-controls" data-calendar="grandechorale" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
                         +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
                         +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
-                        +'<span class="att-status">Enregistré ✓</span></div>';
+                        +'<span class="att-status">Enregistré ✓</span><button type="button" class="att-stats-btn chef-only" data-action="show-stats">📊 Statistiques</button></div>';
                       return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="grandechorale" data-eventid="'+eid+'">'
                         +'<div class="cal-event-date">'+ds+'</div>'
                         +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
@@ -647,7 +652,7 @@
                       var att=isPast?'':'<div class="att-controls" data-calendar="soul" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
                         +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
                         +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
-                        +'<span class="att-status">Enregistré ✓</span></div>';
+                        +'<span class="att-status">Enregistré ✓</span><button type="button" class="att-stats-btn chef-only" data-action="show-stats">📊 Statistiques</button></div>';
                       return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="soul" data-eventid="'+eid+'">'
                         +'<div class="cal-event-date">'+ds+'</div>'
                         +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
@@ -662,34 +667,6 @@
           </div>
         </div>
       </div>    </main>
-    <!-- Admin (chef) floating panel -->
-    <div id="admin-panel" aria-live="polite" aria-label="Panneau admin présences">
-      <h4>Admin présences (chef)</h4>
-      <div class="row">
-        <label for="admin-calendar">Agenda</label>
-        <select id="admin-calendar">
-          <option value="grandechorale">Grande chorale</option>
-          <option value="soul">SOUL</option>
-        </select>
-      </div>
-      <div class="row">
-        <label for="admin-eventid">Event ID</label>
-        <input id="admin-eventid" type="text" placeholder="Sélectionnez un événement…">
-      </div>
-      <div class="actions">
-        <button type="button" id="btn-download-att" title="Télécharger toutes les présences (JSON)">Télécharger JSON</button>
-        <button type="button" id="btn-purge-event" title="Supprimer toutes les réponses de cet événement">Purger l’événement</button>
-      </div>
-        <hr style="margin:10px 0;border:none;border-top:1px solid #e5e7eb;">
-        <h4 style="margin-top:8px;">Essais Grande Chorale</h4>
-        <div class="actions">
-          <button type="button" id="btn-tryout-refresh" title="Voir les inscrits (emails)">Voir emails</button>
-          <button type="button" id="btn-tryout-download" title="Télécharger les emails (CSV)">Télécharger CSV</button>
-        </div>
-        <div id="tryout-list" style="max-height:160px;overflow:auto;margin-top:6px;border:1px solid #eef2ff;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:0.92em;display:none;"></div>
-      <div id="admin-hint" style="font-size:0.85em;color:#456;margin-top:6px;">Astuce: cliquez un événement pour préremplir.</div>
-    </div>
-    
     <script>
       // Configurer ci-dessous l'URL du Web App Google Apps Script (à déployer) pour l'enregistrement des présences
   const ATTENDANCE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
@@ -920,50 +897,69 @@
         return (s||'').toString().replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c); });
       }
       function renderStats(statsDiv, stats){
+        // Rendu hiérarchique drill-down :
+        // [Réponses : N] → clic → [Présents : M] → clic → [Basse : x] [Alto : y] … → clic → liste des noms
         const presents = Array.isArray(stats.present) ? stats.present : [];
-        const absents = Array.isArray(stats.absent) ? stats.absent : [];
-        // Comptage par pupitre (case-insensitive, normalisé visuellement)
-        function countByPup(list){
-          const m = {};
-          list.forEach(p => {
-            const label = (p.pupitre || '').toString().trim();
-            const key = label.toLowerCase();
-            if (!key) return;
-            m[key] = (m[key] || 0) + 1;
+        const absents  = Array.isArray(stats.absent) ? stats.absent : [];
+        const total = presents.length + absents.length;
+
+        // Regroupe les présents par pupitre
+        const presentsByPup = {};
+        presents.forEach(p => {
+          const key = (p.pupitre || '').toString().trim().toLowerCase() || 'non précisé';
+          if (!presentsByPup[key]) presentsByPup[key] = [];
+          presentsByPup[key].push(p);
+        });
+        const ORDER = ['soprane','alto','ténor','tenor','basse','non précisé'];
+        const LABEL = { soprane:'Soprane', alto:'Alto', ténor:'Ténor', tenor:'Ténor', basse:'Basse' };
+        const sortedKeys = Object.keys(presentsByPup).sort((a,b) => (ORDER.indexOf(a)+99) - (ORDER.indexOf(b)+99));
+
+        function pupNode(key, list){
+          const label = LABEL[key] || (key.charAt(0).toUpperCase() + key.slice(1));
+          const names = list
+            .slice()
+            .sort((a,b) => (a.nom||'').localeCompare(b.nom||''))
+            .map(p => '<li>' + escapeHtml(p.prenom||'') + ' ' + escapeHtml(p.nom||'') + '</li>')
+            .join('');
+          return ''
+            + '<div class="stat-level" data-level="pupitre">'
+            +   '<button type="button" class="stat-node" aria-expanded="false">'
+            +     escapeHtml(label) + ' : ' + list.length + ' <span class="chev" aria-hidden="true">▾</span>'
+            +   '</button>'
+            +   '<div class="stat-children"><ul class="stat-names">' + names + '</ul></div>'
+            + '</div>';
+        }
+        const pupBlocks = sortedKeys.map(k => pupNode(k, presentsByPup[k])).join('');
+        const presentsEmpty = presents.length === 0 ? '<div class="stat-empty">Aucun présent déclaré.</div>' : '';
+
+        statsDiv.innerHTML = ''
+          + '<div class="stat-hier">'
+          +   '<div class="stat-level" data-level="responses">'
+          +     '<button type="button" class="stat-node" aria-expanded="false">'
+          +       'Réponses : ' + total + ' <span class="chev" aria-hidden="true">▾</span>'
+          +     '</button>'
+          +     '<div class="stat-children">'
+          +       '<div class="stat-level" data-level="presents">'
+          +         '<button type="button" class="stat-node" aria-expanded="false">'
+          +           'Présents : ' + presents.length + ' <span class="chev" aria-hidden="true">▾</span>'
+          +         '</button>'
+          +         '<div class="stat-children">' + (presentsEmpty || pupBlocks) + '</div>'
+          +       '</div>'
+          +     '</div>'
+          +   '</div>'
+          + '</div>';
+
+        // Délégation locale : chaque bouton de niveau ouvre/ferme son .stat-children direct
+        statsDiv.querySelectorAll('.stat-hier button.stat-node').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const lvl = btn.parentElement;
+            const children = lvl.querySelector(':scope > .stat-children');
+            if (!children) return;
+            const open = children.classList.toggle('open');
+            btn.setAttribute('aria-expanded', String(open));
           });
-          return m;
-        }
-        const order = ['soprane','alto','ténor','tenor','basse'];
-        const labelMap = { soprane: 'Soprane', alto: 'Alto', ténor: 'Ténor', tenor: 'Ténor', basse: 'Basse' };
-        function formatPupCounts(map){
-          return Object.keys(map)
-            .sort((a,b) => (order.indexOf(a)+99) - (order.indexOf(b)+99))
-            .map(k => (labelMap[k] || (k.charAt(0).toUpperCase()+k.slice(1))) + ': ' + map[k])
-            .join(' · ');
-        }
-        const presentByPup = formatPupCounts(countByPup(presents));
-        const absentByPup  = formatPupCounts(countByPup(absents));
-
-        const counts = '<span class="count">Présents: ' + presents.length + '</span><span class="count">Absents: ' + absents.length + '</span>';
-        const byPresents = presentByPup ? '<div class="by-pupitre">Présents par pupitre — ' + presentByPup + '</div>' : '';
-        const byAbsents  = absentByPup  ? '<div class="by-pupitre">Absents par pupitre — ' + absentByPup  + '</div>' : '';
-
-        const listPresent = presents.length
-          ? ('<ul>' + presents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>')
-          : '<em>Aucun présent pour le moment.</em>';
-        const listAbsent = absents.length
-          ? ('<ul>' + absents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>')
-          : '<em>Aucun absent déclaré.</em>';
-
-        statsDiv.innerHTML = [
-          counts,
-          byPresents,
-          byAbsents,
-          '<div style="margin-top:6px;"><strong>Liste des présents</strong></div>',
-          '<div>' + listPresent + '</div>',
-          '<div style="margin-top:6px;"><strong>Liste des absents</strong></div>',
-          '<div>' + listAbsent + '</div>'
-        ].join('');
+        });
       }
       async function fetchEventStats(calendar, eventId){
         if (!ATTENDANCE_ENDPOINT) throw new Error('backend absent');
@@ -998,167 +994,16 @@
           refreshEventStats(li);
         }
       }
-      // Délégation de clic: en mode chef, cliquer une ligne d'événement ouvre/ferme les stats
+      // Délégation de clic : seul le bouton "📊 Statistiques" déclenche le toggle
       document.addEventListener('click', function(e){
-        if (!window.IS_CHEF) return;
-        const li = e.target.closest && e.target.closest('.event-item');
-        if (!li) return;
-        // Éviter d'interférer avec un clic sur les radios de présence
-        if (e.target && (e.target.tagName === 'INPUT' || e.target.closest('.att-controls'))) return;
-        toggleStatsForEvent(li);
-        // Pré-remplir le panneau admin avec l'événement sélectionné
-        try {
-          const selCal = document.getElementById('admin-calendar');
-          const selEid = document.getElementById('admin-eventid');
-          if (selCal && selEid) {
-            selCal.value = li.getAttribute('data-calendar') || selCal.value;
-            selEid.value = li.getAttribute('data-eventid') || '';
-          }
-        } catch {}
+        const btn = e.target.closest && e.target.closest('.att-stats-btn');
+        if (!btn) return;
+        e.preventDefault();
+        // Trouve la carte d'événement (deux structures possibles : .cal-event-card ou .event-item)
+        const card = btn.closest('.cal-event-card, .event-item');
+        if (!card) return;
+        toggleStatsForEvent(card);
       });
-    </script>
-    <script>
-      // Admin actions (chef only)
-      (function(){
-        const ADMIN_KEY = 'chefdechoeur'; // même mot de passe que l’accès chef
-        async function fetchTryoutList(){
-          // Mode local forcé: ?local=1
-          try {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('local') === '1') {
-              const local = JSON.parse(localStorage.getItem('tryoutsLocal') || '[]');
-              return { items: local };
-            }
-          } catch {}
-          const endpoint = TRYOUT_ENDPOINT || ATTENDANCE_ENDPOINT;
-          if (!endpoint) throw new Error('Backend indisponible');
-          const url = endpoint + (endpoint.includes('?') ? '&' : '?') + 'action=tryout_list' + (isGASEndpoint(endpoint) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');
-          try {
-            const res = await fetch(url, { cache: 'no-store', headers: isGASEndpoint(endpoint) ? {} : { 'X-Admin-Key': ADMIN_KEY } });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            // Essayer JSON direct, sinon tenter texte->JSON
-            try { return await res.json(); } catch(e) {
-              const txt = await res.text();
-              try { return JSON.parse(txt); } catch { throw new Error('Format de réponse inattendu'); }
-            }
-          } catch (e) {
-            // Fallback local pour tests Live Server
-            try {
-              const local = JSON.parse(localStorage.getItem('tryoutsLocal') || '[]');
-              return { items: local };
-            } catch { throw e; }
-          }
-        }
-        function renderTryoutList(container, arr){
-          const list = Array.isArray(arr) ? arr : (Array.isArray(arr.items) ? arr.items : []);
-          if (!list.length){ container.innerHTML = '<em>Aucune inscription à afficher.</em>'; container.style.display='block'; return; }
-          const rows = list.map(it => {
-            const nom = [it.prenom||'', it.nom||''].join(' ').trim();
-            const email = it.email || '';
-            const tel = it.telephone || '';
-            const date = it.date || '';
-            return '<div style="display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px dashed #e5e7eb;">'
-              + '<span style="flex:1 1 auto;min-width:120px;"><strong>' + (nom||'(Sans nom)') + '</strong></span>'
-              + '<span style="color:#134;">' + email + '</span>'
-              + (tel ? '<span style="color:#456;"> · ' + tel + '</span>' : '')
-              + (date ? '<span style="color:#456;"> · ' + date + '</span>' : '')
-              + '</div>';
-          }).join('');
-          container.innerHTML = '<div style="margin-bottom:6px;">Total: <strong>' + list.length + '</strong></div>' + rows;
-          container.style.display = 'block';
-        }
-        function downloadCSVFromList(arr){
-          const list = Array.isArray(arr) ? arr : (Array.isArray(arr.items) ? arr.items : []);
-          const headers = ['prenom','nom','email','telephone','date','pupitre','message','ts'];
-          const esc = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
-          const csv = [headers.join(',')].concat(list.map(it => headers.map(h => esc(it[h])).join(','))).join('\n');
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url; a.download = 'essais-emails.csv';
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(()=>URL.revokeObjectURL(url), 500);
-        }
-        function downloadAll(){
-          if (!ATTENDANCE_ENDPOINT) { alert('Backend indisponible.'); return; }
-          const url = ATTENDANCE_ENDPOINT + (ATTENDANCE_ENDPOINT.includes('?') ? '&' : '?') + 'action=download' + (isGASEndpoint(ATTENDANCE_ENDPOINT) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');
-          fetch(url, { cache: 'no-store', headers: isGASEndpoint(ATTENDANCE_ENDPOINT) ? {} : { 'X-Admin-Key': ADMIN_KEY } })
-            .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.blob(); })
-            .then(blob => {
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url; a.download = 'attendance.json';
-              document.body.appendChild(a); a.click(); a.remove();
-              setTimeout(() => URL.revokeObjectURL(url), 1000);
-            })
-            .catch(err => { console.error(err); alert('Téléchargement impossible.'); });
-        }
-        async function purgeEvent(){
-          if (!ATTENDANCE_ENDPOINT) { alert('Backend indisponible.'); return; }
-          const cal = document.getElementById('admin-calendar').value;
-          const eid = document.getElementById('admin-eventid').value.trim();
-          if (!cal || !eid) { alert('Choisissez un agenda et un Event ID.'); return; }
-          if (!confirm('Confirmer la purge des réponses pour cet événement ?')) return;
-          try {
-            let res;
-            if (isGASEndpoint(ATTENDANCE_ENDPOINT)) {
-              const params = new URLSearchParams();
-              params.set('action','purge');
-              params.set('adminPass', ADMIN_KEY);
-              params.set('calendar', cal);
-              params.set('eventId', eid);
-              res = await fetch(ATTENDANCE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
-            } else {
-              res = await fetch(ATTENDANCE_ENDPOINT + '?action=purge', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
-                body: JSON.stringify({ calendar: cal, eventId: eid })
-              });
-            }
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
-            alert('Purge terminée. Supprimés: ' + (data.removed || 0));
-            // Si des stats sont affichées pour cet event, rafraîchir
-            const open = document.querySelector('.event-item[data-calendar="' + cal + '"][data-eventid="' + eid + '"] .event-stats');
-            if (open && open.style.display === 'block') {
-              const li = open.closest('.event-item');
-              if (li) { try { await refreshEventStats(li); } catch {} }
-            }
-          } catch (e) {
-            console.error(e);
-            alert('Purge échouée.');
-          }
-        }
-        document.addEventListener('DOMContentLoaded', function(){
-          const btnDl = document.getElementById('btn-download-att');
-          const btnPg = document.getElementById('btn-purge-event');
-          const btnTryR = document.getElementById('btn-tryout-refresh');
-          const btnTryD = document.getElementById('btn-tryout-download');
-          const tryList = document.getElementById('tryout-list');
-          if (btnDl) btnDl.addEventListener('click', downloadAll);
-          if (btnPg) btnPg.addEventListener('click', purgeEvent);
-          if (btnTryR) btnTryR.addEventListener('click', async () => {
-            tryList.style.display = 'block';
-            tryList.innerHTML = 'Chargement…';
-            try {
-              const data = await fetchTryoutList();
-              renderTryoutList(tryList, data);
-            } catch(e) {
-              console.error(e);
-              tryList.innerHTML = '<em>Liste indisponible (backend non configuré).</em>';
-            }
-          });
-          if (btnTryD) btnTryD.addEventListener('click', async () => {
-            try {
-              const data = await fetchTryoutList();
-              downloadCSVFromList(data);
-            } catch(e) {
-              console.error(e);
-              alert('Export impossible.');
-            }
-          });
-        });
-      })();
     </script>
   <script>
     // Small helper to (re)bind choristes tabs reliably, including the newly added 'asso' tab.

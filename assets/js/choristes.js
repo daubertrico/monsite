@@ -343,7 +343,7 @@
         const correctRaw = await getPartitionPassword();
         const correct    = correctRaw ? normalizeInput(correctRaw) : null;
         let role = null;
-        if (entered === 'chefdechoeur') role = 'chef';
+        if (entered === 'bureau') role = 'chef';
         else if (!correct || entered === correct) role = 'member';
 
         if (role) {

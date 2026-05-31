@@ -306,12 +306,12 @@ function createChoristesModal() {
   ok.addEventListener('click', () => {
     const val = (input.value || '').trim();
     const expected = getGlobalConfigValue('security', 'espace_choristes_password') || 'lavoixlibre2026';
-    const adminPasswords = ['chefdechoeur'];
+    const adminPasswords = ['bureau'];
     if (val === expected || adminPasswords.includes(val)) {
       // save role for the choristes page (choristes.js expects 'choristesRole')
       if (adminPasswords.includes(val)) {
         sessionStorage.setItem('choristesRole', 'chef');
-        sessionStorage.setItem('espace_choristes_role', 'chefdechoeur');
+        sessionStorage.setItem('espace_choristes_role', 'bureau');
       } else {
         sessionStorage.setItem('choristesRole', 'member');
         sessionStorage.setItem('espace_choristes_role', 'choriste');
