@@ -160,6 +160,82 @@
   .stat-hier ul.stat-names li { padding:3px 0; color:#345; font-weight:400; }
   .stat-hier .stat-loading, .stat-hier .stat-empty { color:#789; font-style:italic; padding:4px 0; }
 
+  /* ---- Sections de l'onglet "Infos & liens" : cartes lisibles ---- */
+  .espace-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid var(--accent-color-complementary, #8844aa);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 0 0 18px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .espace-section > h3:first-child {
+    font-family: 'Lobster', cursive;
+    color: var(--accent-color-complementary, #8844aa);
+    font-size: 1.35rem;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .espace-section > h3 {
+    color: #234;
+    font-size: 1.05rem;
+    margin: 14px 0 6px 0;
+  }
+  .espace-section p { margin: 0 0 10px 0; line-height: 1.55; color: #2a2440; }
+  .espace-section p:last-child { margin-bottom: 0; }
+  .espace-section a { color: var(--accent-color-primary, #ff6699); font-weight: 600; word-break: break-word; }
+  .espace-section ul { margin: 4px 0 10px 22px; padding: 0; }
+  .espace-section li { margin: 4px 0; line-height: 1.5; }
+  .espace-section details {
+    margin: 10px 0 0 0;
+    padding: 10px 12px;
+    background: #fafbff;
+    border: 1px solid #e0e7ff;
+    border-radius: 8px;
+  }
+  .espace-section details > summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #3981FF;
+    padding: 4px 0;
+    user-select: none;
+  }
+  .espace-section details[open] > summary { margin-bottom: 8px; }
+  /* Sous-rubriques dans le contenu déplié (Feuille d'engagement etc.) */
+  .espace-section details h2 {
+    font-family: 'Lobster', cursive;
+    color: var(--accent-color-complementary, #8844aa);
+    font-size: 1.15rem;
+    margin: 6px 0 14px 0;
+    line-height: 1.25;
+  }
+  .espace-section details h2 small { font-size: 0.85em; color: #789; display: block; margin-top: 2px; }
+  .espace-section details h3 {
+    color: #134;
+    font-size: 1rem;
+    margin: 16px 0 4px 0;
+    padding-top: 12px;
+    border-top: 1px dashed #d8d2e4;
+    font-weight: 700;
+  }
+  .espace-section details h3:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .espace-section details ul ul { margin-top: 4px; }
+  .espace-section details p, .espace-section details li {
+    font-size: 0.95rem;
+    color: #2a2440;
+  }
+
+  @media (max-width: 700px) {
+    .espace-section {
+      padding: 14px 14px;
+      border-left-width: 5px;
+    }
+    .espace-section > h3:first-child { font-size: 1.2rem; }
+    .espace-section ul { margin-left: 18px; }
+  }
+
   /* ---- Affichages — Vie administrative : lisibilité des posts ---- */
   /* Désactive le layout CSS Grid hérité de #posts-container (qui force des colonnes étroites de 220px) */
   #affichages-section #posts-container {
@@ -219,7 +295,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260613">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260615">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -527,12 +603,6 @@
             </details>
           </section>
 
-          <section class="espace-section">
-            <h3>Cours individuels</h3>
-            <p>Prendre RDV pour un cours de chant avec Vincent :
-              <a href="mailto:vincenttricotel@gmail.com">Contacter Vincent par e‑mail</a>
-            </p>
-          </section>
 <hr style="margin:28px 0;border:none;border-top:1px solid rgba(0,0,0,.07);">
 <h3 style="font-family:'Lobster',cursive;color:#8844aa;font-size:1.3rem;margin:0 0 14px 0;">Documents &amp; vie de l'asso</h3>
           <p>Espace dédié aux documents officiels de l'association. Les fichiers listés ci-dessous sont ceux présents dans le dossier <code>docs asso/</code>.</p>
@@ -1200,8 +1270,8 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260613"></script>
-  <script src="assets/js/main.js?v=20260613"></script>
+  <script src="assets/js/choristes.js?v=20260615"></script>
+  <script src="assets/js/main.js?v=20260615"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
