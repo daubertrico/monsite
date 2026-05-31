@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
   <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260602">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260604">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -216,6 +216,26 @@
     #lightbox-prev:hover, #lightbox-next:hover {
       background: rgba(255,255,255,0.25);
     }
+    /* Bouton supprimer (visible uniquement pour le propriétaire ou un chef) */
+    #lightbox-delete {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      background: rgba(239, 68, 68, 0.85);
+      border: none;
+      color: #fff;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s;
+    }
+    #lightbox-delete:hover { background: rgba(220, 38, 38, 0.95); }
+    #lightbox-delete:disabled { opacity: 0.6; cursor: wait; }
 
     @media (max-width: 600px) {
       .photo-mosaic { grid-template-columns: repeat(2, 1fr); }
@@ -239,6 +259,58 @@
       margin-bottom: 4px;
     }
     .gallery-upload-cta:hover { background: var(--accent-color-primary); color: #fff; }
+
+    /* ---- Bouton "Supprimer des photos" (membres bureau uniquement) ---- */
+    #gallery-select-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      color: #b91c1c;
+      border: 2px solid #b91c1c;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+    #gallery-select-btn:hover { background: #fef2f2; }
+    body.role-chef #gallery-select-btn { display: inline-flex; }
+    body.gallery-select-mode #gallery-select-btn.has-selection {
+      background: #b91c1c; color: #fff;
+    }
+    body.gallery-select-mode #gallery-select-btn.has-selection:hover { background: #991b1b; }
+
+    /* ---- Encoches de sélection sur les vignettes ---- */
+    .photo-mosaic figure .photo-check {
+      display: none;
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      border: 2px solid #b91c1c;
+      align-items: center;
+      justify-content: center;
+      color: #b91c1c;
+      font-weight: 900;
+      font-size: 1rem;
+      z-index: 2;
+      pointer-events: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    body.gallery-select-mode .photo-mosaic figure .photo-check { display: flex; }
+    body.gallery-select-mode .photo-mosaic figure.selected .photo-check {
+      background: #b91c1c; color: #fff;
+    }
+    body.gallery-select-mode .photo-mosaic figure.selected {
+      outline: 3px solid #b91c1c;
+      outline-offset: -3px;
+    }
+    body.gallery-select-mode .photo-mosaic figure { cursor: pointer; }
   </style>
 </head>
 <body class="internal-page">
@@ -249,7 +321,10 @@
       <!-- Barre d'action -->
       <div class="gallery-actions">
         <p class="gallery-actions-intro">Photos partagées par les choristes et l'équipe.</p>
-        <a href="espace-choristes.html" class="gallery-upload-cta">+ Ajouter mes photos</a>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <button type="button" id="gallery-select-btn" aria-label="Supprimer des photos">🗑 Supprimer des photos</button>
+          <a href="espace-choristes.html" class="gallery-upload-cta">+ Ajouter mes photos</a>
+        </div>
       </div>
 
       <!-- Section : Galerie des choristes (groupée par concert, du plus récent au plus ancien) -->
@@ -293,6 +368,7 @@
   <!-- Lightbox -->
   <div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo agrandie">
     <button id="lightbox-close" aria-label="Fermer">&times;</button>
+    <button id="lightbox-delete" aria-label="Supprimer cette photo">🗑 Supprimer</button>
     <button id="lightbox-prev" aria-label="Photo précédente">&#8249;</button>
     <img id="lightbox-img" src="" alt="">
     <div id="lightbox-caption"></div>
@@ -301,16 +377,40 @@
 
   <!-- Widget Instagram Behold -->
   <script type="module" src="https://w.behold.so/widget.js"></script>
-  <script src="assets/js/main.js?v=20260602"></script>
+  <script src="assets/js/main.js?v=20260604"></script>
   <script>
     // ---- Endpoint GAS (à remplir après déploiement) ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyq5Lxe3HzK-Da_xb010jMp2i_VF58Y3tPm4LvWq8RLz6qFSU5bEEXjXLQrXWo06tGz/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw1hqV4qB2XH0iAD4IOQkNiouXiWegHjRiSbtcGC9VRySr94xUKUdOtb8wWvIoHokTb/exec';
 
     // ---- État ----
     let allPhotos = [];
     let filteredPhotos = [];
     let lightboxIndex = 0;
     let eventMap = {}; // eventId -> { name, date }
+    const selectedIds = new Set(); // fileIds sélectionnés en mode bureau
+
+    // ---- Identité utilisateur (depuis l'espace choristes) ----
+    function getCurrentUserName() {
+      try {
+        const p = JSON.parse(localStorage.getItem('choristeProfile') || '{}');
+        const full = ((p.prenom || '') + ' ' + (p.nom || '')).trim();
+        return full;
+      } catch { return ''; }
+    }
+    function isChef() {
+      try { return sessionStorage.getItem('choristesRole') === 'chef'; } catch { return false; }
+    }
+    function normName(s) {
+      return (s || '').toString()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+    function canDeletePhoto(photo) {
+      if (isChef()) return true;
+      const me = normName(getCurrentUserName());
+      if (!me) return false;
+      return normName(photo.uploaderName) === me;
+    }
 
     // ---- Agenda La Voix Libre (pour résoudre le nom courant des concerts) ----
     const CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
@@ -434,8 +534,10 @@
             meta ? `<span class="cap-meta">${meta}</span>` : ''
           ].filter(Boolean).join('');
           const altText = description || esc(g.label);
+          const selectedCls = selectedIds.has(photo.fileId) ? ' selected' : '';
           return `
-            <figure data-index="${i}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
+            <figure class="${selectedCls.trim()}" data-index="${i}" data-file-id="${esc(photo.fileId)}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
+              <span class="photo-check" aria-hidden="true">✓</span>
               <img src="${thumb}" alt="${altText}" loading="lazy" decoding="async"
                 onerror="this.parentElement.style.display='none'">
               ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
@@ -450,9 +552,16 @@
 
       // Bind clicks et touches sur toutes les figures
       groupsEl.querySelectorAll('figure').forEach(fig => {
-        fig.addEventListener('click', () => openLightbox(Number(fig.dataset.index)));
+        const handle = () => {
+          if (document.body.classList.contains('gallery-select-mode')) {
+            toggleSelectFigure(fig);
+          } else {
+            openLightbox(Number(fig.dataset.index));
+          }
+        };
+        fig.addEventListener('click', handle);
         fig.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') openLightbox(Number(fig.dataset.index));
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handle(); }
         });
       });
 
@@ -493,9 +602,63 @@
       // Cacher flèches si une seule photo
       document.getElementById('lightbox-prev').style.display = filteredPhotos.length > 1 ? '' : 'none';
       document.getElementById('lightbox-next').style.display = filteredPhotos.length > 1 ? '' : 'none';
+
+      // Bouton supprimer : visible uniquement si propriétaire ou chef
+      const delBtn = document.getElementById('lightbox-delete');
+      delBtn.style.display = canDeletePhoto(photo) ? 'inline-flex' : 'none';
+      delBtn.disabled = false;
+      delBtn.textContent = '🗑 Supprimer';
+    }
+
+    // ---- Suppression d'une photo ----
+    async function deleteCurrentPhoto() {
+      const photo = filteredPhotos[lightboxIndex];
+      if (!photo || !photo.fileId) return;
+      if (!canDeletePhoto(photo)) return;
+
+      const me = getCurrentUserName();
+      const ok = confirm('Supprimer définitivement cette photo ?\n\nElle sera retirée de la galerie et mise à la corbeille Drive.');
+      if (!ok) return;
+
+      const delBtn = document.getElementById('lightbox-delete');
+      delBtn.disabled = true;
+      delBtn.textContent = 'Suppression…';
+
+      try {
+        const params = new URLSearchParams();
+        params.set('action', 'delete_photo');
+        params.set('data', JSON.stringify({
+          fileId: photo.fileId,
+          uploaderName: me,
+          adminPassword: isChef() ? 'bureau' : ''
+        }));
+        const res = await fetch(PHOTOS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString()
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        // Retire la photo localement et rafraîchit l'affichage
+        allPhotos = allPhotos.filter(p => p.fileId !== photo.fileId);
+        closeLightbox();
+        if (allPhotos.length === 0) {
+          document.getElementById('gallery-groups').innerHTML =
+            '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+        } else {
+          renderGroupedGalleries();
+        }
+      } catch (e) {
+        console.error('Delete error', e);
+        alert('Échec de la suppression : ' + (e.message || 'erreur réseau'));
+        delBtn.disabled = false;
+        delBtn.textContent = '🗑 Supprimer';
+      }
     }
 
     document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox-delete').addEventListener('click', deleteCurrentPhoto);
     document.getElementById('lightbox').addEventListener('click', function(e) {
       if (e.target === this) closeLightbox();
     });
@@ -513,6 +676,111 @@
       if (e.key === 'ArrowLeft')  { lightboxIndex = (lightboxIndex - 1 + filteredPhotos.length) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
       if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
     });
+
+    // ---- Mode sélection (membres bureau uniquement) ----
+    function updateSelectBtn() {
+      const btn = document.getElementById('gallery-select-btn');
+      if (!btn) return;
+      const inMode = document.body.classList.contains('gallery-select-mode');
+      const n = selectedIds.size;
+      if (!inMode) {
+        btn.textContent = '🗑 Supprimer des photos';
+        btn.classList.remove('has-selection');
+        return;
+      }
+      if (n === 0) {
+        btn.textContent = '✕ Annuler la sélection';
+        btn.classList.remove('has-selection');
+      } else {
+        btn.textContent = '🗑 Supprimer la sélection (' + n + ')';
+        btn.classList.add('has-selection');
+      }
+    }
+
+    function toggleSelectFigure(fig) {
+      const id = fig.dataset.fileId;
+      if (!id) return;
+      if (selectedIds.has(id)) {
+        selectedIds.delete(id);
+        fig.classList.remove('selected');
+      } else {
+        selectedIds.add(id);
+        fig.classList.add('selected');
+      }
+      updateSelectBtn();
+    }
+
+    async function deleteSelectedPhotos() {
+      const ids = Array.from(selectedIds);
+      if (!ids.length) return;
+      const ok = confirm('Supprimer ' + ids.length + ' photo(s) ?\n\nElles seront retirées de la galerie et mises à la corbeille Drive.');
+      if (!ok) return;
+
+      const btn = document.getElementById('gallery-select-btn');
+      btn.disabled = true;
+      const total = ids.length;
+      let done = 0, failed = 0;
+
+      for (const fileId of ids) {
+        btn.textContent = 'Suppression… (' + (done + 1) + '/' + total + ')';
+        try {
+          const params = new URLSearchParams();
+          params.set('action', 'delete_photo');
+          params.set('data', JSON.stringify({
+            fileId: fileId,
+            uploaderName: getCurrentUserName(),
+            adminPassword: 'bureau'
+          }));
+          const res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+          allPhotos = allPhotos.filter(p => p.fileId !== fileId);
+          done++;
+        } catch (e) {
+          console.error('Delete failed for ' + fileId, e);
+          failed++;
+        }
+      }
+
+      selectedIds.clear();
+      document.body.classList.remove('gallery-select-mode');
+      btn.disabled = false;
+      updateSelectBtn();
+
+      if (allPhotos.length === 0) {
+        document.getElementById('gallery-groups').innerHTML =
+          '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+      } else {
+        renderGroupedGalleries();
+      }
+
+      if (failed > 0) {
+        alert(failed + ' suppression(s) ont échoué sur ' + total + '. Les autres ont bien été supprimées.');
+      }
+    }
+
+    document.getElementById('gallery-select-btn').addEventListener('click', function() {
+      const inMode = document.body.classList.contains('gallery-select-mode');
+      if (!inMode) {
+        document.body.classList.add('gallery-select-mode');
+        selectedIds.clear();
+        updateSelectBtn();
+        return;
+      }
+      if (selectedIds.size === 0) {
+        document.body.classList.remove('gallery-select-mode');
+        updateSelectBtn();
+        return;
+      }
+      deleteSelectedPhotos();
+    });
+
+    // Active le bouton "Supprimer" pour les chefs (session héritée d'espace-choristes)
+    if (isChef()) document.body.classList.add('role-chef');
 
     // ---- Démarrage ----
     loadGallery();

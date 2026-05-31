@@ -482,29 +482,29 @@
             <!-- Prénom (champ caché, rempli automatiquement depuis le profil) -->
             <input type="hidden" id="photo-uploader">
 
-            <!-- Fichier -->
+            <!-- Fichier (multi-sélection) -->
             <div style="margin-bottom:14px;">
-              <label style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Photo</label>
+              <label style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Photos</label>
               <label for="photo-file" id="photo-file-label"
                 style="display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border:2px dashed #98bfff;border-radius:10px;cursor:pointer;background:#fff;color:#3981FF;font-weight:700;transition:background 0.2s;">
                 <span style="font-size:1.5rem;">📷</span>
-                <span id="photo-file-label-text">Choisir une photo</span>
+                <span id="photo-file-label-text">Choisir une ou plusieurs photos</span>
               </label>
-              <input type="file" id="photo-file" accept="image/*"
+              <input type="file" id="photo-file" accept="image/*" multiple
                 style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
             </div>
 
-            <!-- Aperçu -->
+            <!-- Aperçu (grille de miniatures) -->
             <div id="photo-preview-wrap" style="display:none;margin-bottom:14px;text-align:center;">
-              <img id="photo-preview" alt="Aperçu" style="max-width:100%;max-height:220px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
-              <p id="photo-size-info" style="font-size:0.85rem;color:#666;margin:6px 0 0 0;"></p>
+              <div id="photo-preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;justify-items:center;"></div>
+              <p id="photo-size-info" style="font-size:0.85rem;color:#666;margin:8px 0 0 0;"></p>
             </div>
 
             <!-- Bouton envoyer -->
             <button id="photo-submit"
               style="width:100%;padding:12px;background:#3981FF;color:#fff;font-weight:700;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:background 0.2s;"
               disabled>
-              Envoyer la photo
+              Envoyer les photos
             </button>
 
             <!-- Barre de progression -->
@@ -1099,7 +1099,7 @@
   <!-- ============================================================ -->
   <script>
     // ---- À remplir après déploiement du GAS ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyq5Lxe3HzK-Da_xb010jMp2i_VF58Y3tPm4LvWq8RLz6qFSU5bEEXjXLQrXWo06tGz/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw1hqV4qB2XH0iAD4IOQkNiouXiWegHjRiSbtcGC9VRySr94xUKUdOtb8wWvIoHokTb/exec';
 
     // ---- Compression côté client (Canvas) ----
     function compressImage(file, maxWidth, quality) {
@@ -1217,42 +1217,81 @@
       var fileLabel    = document.getElementById('photo-file-label');
       var labelText    = document.getElementById('photo-file-label-text');
       var previewWrap  = document.getElementById('photo-preview-wrap');
-      var previewImg   = document.getElementById('photo-preview');
       var sizeInfo     = document.getElementById('photo-size-info');
       var submitBtn    = document.getElementById('photo-submit');
       var progressWrap = document.getElementById('photo-progress');
       var progressBar  = document.getElementById('photo-progress-bar');
       var statusText   = document.getElementById('photo-status');
       var successWrap  = document.getElementById('photo-success');
-      var addAnotherBtn= document.getElementById('photo-add-another');
 
       if (!fileInput) return; // page non initialisée
+
+      // Réinitialise le formulaire (appelé par le bouton "Ajouter d'autres photos" généré dynamiquement)
+      function resetUploadForm() {
+        fileInput.value = '';
+        var descField = document.getElementById('photo-description');
+        if (descField) descField.value = '';
+        previewWrap.style.display  = 'none';
+        successWrap.style.display  = 'none';
+        progressWrap.style.display = 'none';
+        progressBar.style.width    = '0%';
+        progressBar.style.background = 'linear-gradient(90deg,#3981FF,#8844aa)';
+        labelText.textContent  = 'Choisir une ou plusieurs photos';
+        fileLabel.style.borderColor = '#98bfff';
+        fileLabel.style.background  = '#fff';
+        submitBtn.textContent = 'Envoyer les photos';
+        submitBtn.disabled = true;
+      }
+      function rebindAddAnother() {
+        var btn = document.getElementById('photo-add-another');
+        if (btn) btn.addEventListener('click', resetUploadForm);
+      }
+      // Bind initial (le bouton est dans le HTML statique au départ)
+      rebindAddAnother();
 
       // NB : le <label for="photo-file"> ouvre nativement le sélecteur de fichier.
       // On n'ajoute PAS de handler JS qui rappelle fileInput.click(), sinon le clic
       // est déclenché deux fois (la 1ʳᵉ sélection est alors ignorée).
 
-      // Prévisualisation à la sélection
-      fileInput.addEventListener('change', function() {
-        var file = fileInput.files[0];
-        if (!file) return;
+      var previewGrid = document.getElementById('photo-preview-grid');
 
-        // Aperçu
-        var url = URL.createObjectURL(file);
-        previewImg.src = url;
+      // Prévisualisation à la sélection (multi-fichiers)
+      fileInput.addEventListener('change', function() {
+        var files = Array.from(fileInput.files || []);
+        if (!files.length) return;
+
+        // Construit la grille de miniatures
+        previewGrid.innerHTML = '';
+        var totalSize = 0;
+        files.forEach(function(file) {
+          totalSize += file.size;
+          var thumb = document.createElement('img');
+          thumb.src = URL.createObjectURL(file);
+          thumb.alt = file.name;
+          thumb.style.cssText = 'width:90px;height:90px;object-fit:cover;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.12);';
+          previewGrid.appendChild(thumb);
+        });
+
         previewWrap.style.display = 'block';
-        sizeInfo.textContent = 'Fichier original : ' + formatBytes(file.size) + ' — sera compressé avant envoi';
-        labelText.textContent = file.name;
+        sizeInfo.textContent = files.length + ' photo' + (files.length > 1 ? 's' : '')
+          + ' sélectionnée' + (files.length > 1 ? 's' : '')
+          + ' · ' + formatBytes(totalSize) + ' au total — chaque photo sera compressée avant envoi';
+        labelText.textContent = files.length === 1
+          ? files[0].name
+          : files.length + ' photos sélectionnées';
         fileLabel.style.borderColor = '#3981FF';
         fileLabel.style.background  = '#eef5ff';
 
+        submitBtn.textContent = files.length > 1
+          ? 'Envoyer les ' + files.length + ' photos'
+          : 'Envoyer la photo';
         submitBtn.disabled = false;
       });
 
-      // Envoi
+      // Envoi (séquentiel — toutes les photos pour le même concert)
       submitBtn.addEventListener('click', async function() {
-        var file = fileInput.files[0];
-        if (!file) return;
+        var files = Array.from(fileInput.files || []);
+        if (!files.length) return;
 
         var concertSelect = document.getElementById('photo-concert');
         var eventId       = (concertSelect.value || '').trim();
@@ -1274,7 +1313,7 @@
         if (concertErr) concertErr.style.display = 'none';
 
         if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
-          alert('L\'endpoint GAS n\'est pas encore configuré. Déployez le script et renseignez l\'URL dans espace-choristes.html.');
+          alert('L\'endpoint GAS n\'est pas encore configuré.');
           return;
         }
 
@@ -1282,76 +1321,86 @@
         submitBtn.disabled = true;
         progressWrap.style.display = 'block';
         successWrap.style.display  = 'none';
-        progressBar.style.width = '10%';
-        statusText.textContent  = 'Compression de la photo…';
+        progressBar.style.background = 'linear-gradient(90deg,#3981FF,#8844aa)';
 
-        try {
-          // 1. Compression
-          var compressed = await compressImage(file, 1600, 0.72);
-          progressBar.style.width = '35%';
-          statusText.textContent = 'Encodage… (' + formatBytes(compressed.size) + ' après compression)';
+        var sanitizedConcert = concertLabel.replace(/[^a-zA-Z0-9àâäéèêëïîôöùûüçœÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ\s_-]/g, '');
+        var successCount = 0;
+        var firstError = null;
 
-          // 2. Base64
-          var base64 = await blobToBase64(compressed);
-          progressBar.style.width = '55%';
-          statusText.textContent = 'Envoi en cours…';
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var pct = function(part) {
+            // part: 0..1 dans la photo courante ; on agrège sur les fichiers déjà traités
+            return Math.round(((i + part) / files.length) * 100);
+          };
 
-          // 3. Envoi au GAS
-          var params = new URLSearchParams();
-          params.set('action', 'upload_photo');
-          params.set('data', JSON.stringify({
-            base64:       base64,
-            mimeType:     'image/jpeg',
-            filename:     concertLabel.replace(/[^a-zA-Z0-9àâäéèêëïîôöùûüçœÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ\s_-]/g, '') + '_' + Date.now() + '.jpg',
-            concert:      concertLabel,
-            eventId:      eventId,
-            uploaderName: uploaderName,
-            description:  description
-          }));
+          try {
+            progressBar.style.width = pct(0.05) + '%';
+            statusText.textContent = 'Photo ' + (i + 1) + '/' + files.length + ' — compression…';
 
-          progressBar.style.width = '75%';
-          var res  = await fetch(PHOTOS_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
-          });
-          var data = await res.json();
+            var compressed = await compressImage(file, 1600, 0.72);
+            progressBar.style.width = pct(0.35) + '%';
+            statusText.textContent  = 'Photo ' + (i + 1) + '/' + files.length + ' — encodage… (' + formatBytes(compressed.size) + ')';
 
-          progressBar.style.width = '100%';
+            var base64 = await blobToBase64(compressed);
+            progressBar.style.width = pct(0.6) + '%';
+            statusText.textContent  = 'Photo ' + (i + 1) + '/' + files.length + ' — envoi…';
 
-          if (data.error) throw new Error(data.error);
+            var params = new URLSearchParams();
+            params.set('action', 'upload_photo');
+            params.set('data', JSON.stringify({
+              base64:       base64,
+              mimeType:     'image/jpeg',
+              filename:     sanitizedConcert + '_' + Date.now() + '_' + (i + 1) + '.jpg',
+              concert:      concertLabel,
+              eventId:      eventId,
+              uploaderName: uploaderName,
+              description:  description
+            }));
 
-          // Succès
+            var res  = await fetch(PHOTOS_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            var data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            successCount++;
+            progressBar.style.width = pct(1) + '%';
+          } catch (err) {
+            console.error('Upload error photo ' + (i + 1), err);
+            if (!firstError) firstError = err;
+            // On continue avec les photos suivantes — un échec individuel ne bloque pas le batch
+          }
+        }
+
+        // Bilan
+        if (successCount === files.length) {
           statusText.textContent = '';
           progressWrap.style.display = 'none';
-          successWrap.style.display  = 'block';
-
-        } catch (err) {
-          progressBar.style.width    = '100%';
-          progressBar.style.background = '#ef4444';
-          statusText.textContent     = 'Erreur : ' + (err.message || 'Envoi impossible. Réessayez.');
+          var msg = successWrap.querySelector('span.success-msg, [data-msg]') || successWrap;
+          // Met à jour le texte du message succès
+          successWrap.firstChild && (successWrap.firstChild.nodeValue = '');
+          successWrap.innerHTML = (files.length > 1
+              ? '✅ ' + files.length + ' photos envoyées ! Elles apparaissent maintenant dans la '
+              : '✅ Photo envoyée ! Elle apparaît maintenant dans la ')
+            + '<a href="galerie.html" style="color:#047857;">galerie</a>.'
+            + '<br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter d\'autres photos</button>';
+          successWrap.style.display = 'block';
+          // re-bind le bouton "Ajouter d'autres" (nouveau noeud DOM)
+          rebindAddAnother();
+        } else if (successCount > 0) {
+          progressBar.style.background = '#f59e0b';
+          statusText.innerHTML = successCount + '/' + files.length + ' photos envoyées. Une ou plusieurs ont échoué : '
+            + (firstError && firstError.message ? firstError.message : 'erreur réseau');
           submitBtn.disabled = false;
-          console.error('Upload error', err);
+        } else {
+          progressBar.style.background = '#ef4444';
+          statusText.textContent = 'Échec : ' + (firstError && firstError.message ? firstError.message : 'aucune photo envoyée');
+          submitBtn.disabled = false;
         }
       });
-
-      // Réinitialiser le formulaire
-      if (addAnotherBtn) {
-        addAnotherBtn.addEventListener('click', function() {
-          fileInput.value       = '';
-          var descField = document.getElementById('photo-description');
-          if (descField) descField.value = '';
-          previewWrap.style.display  = 'none';
-          successWrap.style.display  = 'none';
-          progressWrap.style.display = 'none';
-          progressBar.style.width    = '0%';
-          progressBar.style.background = 'linear-gradient(90deg,#3981FF,#8844aa)';
-          labelText.textContent  = 'Choisir une photo';
-          fileLabel.style.borderColor = '#98bfff';
-          fileLabel.style.background  = '#fff';
-          submitBtn.disabled = true;
-        });
-      }
 
       // Charger les concerts depuis Google Agenda quand l'onglet Photos est ouvert
       var photosTabBtn = document.querySelector('.choristes-tab[data-tab="photos"]');

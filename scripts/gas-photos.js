@@ -27,11 +27,25 @@ function doPost(e) {
     const data = params.data ? JSON.parse(params.data) : {};
 
     if (action === 'upload_photo') return uploadPhoto(data);
+    if (action === 'delete_photo') return deletePhoto(data);
 
     return jsonOk({ error: 'Action inconnue : ' + action });
   } catch (err) {
     return jsonOk({ error: err.toString() });
   }
+}
+
+// Mot de passe admin (cohérent avec espace-choristes.html)
+const ADMIN_PASSWORD = 'bureau';
+
+// Normalisation pour comparaison de noms (sans accents/casse/espaces multiples)
+function normName(s) {
+  return (s || '').toString()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
 // ------- Point d'entrée GET (lecture galerie) -------
@@ -89,6 +103,56 @@ function uploadPhoto(data) {
   ]);
 
   return jsonOk({ success: true, fileId: file.getId() });
+}
+
+// ------- Suppression d'une photo -------
+//   Autorisée si :
+//     - le nom fourni correspond (insensible casse/accents) au uploaderName stocké, OU
+//     - le mot de passe admin ('bureau') est fourni.
+
+function deletePhoto(data) {
+  const { fileId, uploaderName, adminPassword } = data;
+  if (!fileId) return jsonOk({ error: 'fileId manquant' });
+
+  const sheet = getOrCreateSheet();
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return jsonOk({ error: 'Photo introuvable' });
+
+  const headers = values[0];
+  const fileCol = headers.indexOf('fileId');
+  const upCol   = headers.indexOf('uploaderName');
+  if (fileCol < 0) return jsonOk({ error: 'Colonne fileId absente' });
+
+  let targetRow = -1;
+  let storedUploader = '';
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][fileCol]) === String(fileId)) {
+      targetRow = i + 1; // 1-based row index for Sheet API
+      storedUploader = upCol >= 0 ? String(values[i][upCol] || '') : '';
+      break;
+    }
+  }
+  if (targetRow < 0) return jsonOk({ error: 'Photo introuvable dans la feuille' });
+
+  const isAdmin = (adminPassword || '') === ADMIN_PASSWORD;
+  const isOwner = uploaderName && storedUploader
+    && normName(uploaderName) === normName(storedUploader);
+
+  if (!isAdmin && !isOwner) {
+    return jsonOk({ error: "Suppression refusée : seul l'auteur de la photo peut la retirer." });
+  }
+
+  // Met le fichier Drive à la corbeille (réversible 30j)
+  try {
+    DriveApp.getFileById(fileId).setTrashed(true);
+  } catch (e) {
+    // fichier déjà absent — on continue pour nettoyer la ligne
+  }
+
+  // Supprime la ligne du manifeste
+  sheet.deleteRow(targetRow);
+
+  return jsonOk({ success: true });
 }
 
 // ------- Liste des photos (optionnellement filtrée par concert) -------
