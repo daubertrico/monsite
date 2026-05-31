@@ -1038,8 +1038,8 @@ async function fetchPostsFromCSV(csvUrl) {
     // Tri : à venir du plus proche au plus lointain, passés du plus récent au plus ancien
     const upcoming = allEvents.filter(ev => ev._ts >= now.getTime()).sort((a,b) => a._ts - b._ts);
     const pastAll  = allEvents.filter(ev => ev._ts <  now.getTime()).sort((a,b) => b._ts - a._ts);
-    // Un seul événement passé (le dernier), affiché en grisé après les à venir
-    const lastPast = pastAll.length ? [pastAll[0]] : [];
+    // 3 derniers événements passés (du plus récent au plus ancien)
+    const lastPast = pastAll.slice(0, 3);
 
     // ---- Helpers ----
     function evDate(ev) { return new Date(ev.start.dateTime || ev.start.date); }
@@ -1121,7 +1121,27 @@ async function fetchPostsFromCSV(csvUrl) {
       return wrap;
     }
 
+    // Rend la carte cliquable : toggle .event-card--open pour afficher/masquer .event-card-details
+    function bindCardToggle(card) {
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-expanded', 'false');
+      card.setAttribute('tabindex', '0');
+      const toggle = () => {
+        const open = card.classList.toggle('event-card--open');
+        card.setAttribute('aria-expanded', String(open));
+      };
+      card.addEventListener('click', e => {
+        // Évite de déclencher le toggle si on clique sur un lien ou une miniature de photo
+        if (e.target.closest('a, img')) return;
+        toggle();
+      });
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    }
+
     // ---- Carte événement à venir ----
+    // Les détails sont toujours visibles (pas de pli) — les visiteurs veulent voir tout de suite.
     function createCardUp(ev) {
       const d    = evDate(ev);
       const div  = document.createElement('div');
@@ -1157,9 +1177,12 @@ async function fetchPostsFromCSV(csvUrl) {
           <div class="event-card-body">
             <div class="event-card-title">${esc(ev.summary||'')}</div>
             <div class="event-card-fulldate">${_JOURS[d.getDay()]} ${d.getDate()} ${_MOIS_L[d.getMonth()]} ${d.getFullYear()}${loc}</div>
-            ${desc}
+            <div class="event-card-details">${desc}</div>
           </div>
+          <span class="event-card-chevron" aria-hidden="true">▾</span>
         </div>`;
+      // Les événements passés sont toujours cliquables (photos potentielles à révéler)
+      bindCardToggle(div);
       return div;
     }
 
@@ -1170,11 +1193,16 @@ async function fetchPostsFromCSV(csvUrl) {
         upEl.innerHTML = '<p style="color:#888;font-style:italic;padding:6px 0;">Aucun concert annoncé pour le moment. Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
       } else {
         upcoming.forEach(ev => upEl.appendChild(createCardUp(ev)));
-        // Dernier événement passé à la fin, grisé
+        // 3 derniers événements passés à la fin, en grisé
         lastPast.forEach(ev => {
           const card   = createCardPast(ev);
           const photos = photosByKey['id:' + ev.id] || photosByKey['name:' + concertKey(ev)] || [];
-          if (photos.length) card.appendChild(createThumbs(photos));
+          // Les miniatures vont dans .event-card-details pour qu'elles s'affichent au clic
+          if (photos.length) {
+            const details = card.querySelector('.event-card-details');
+            if (details) details.appendChild(createThumbs(photos));
+            else card.appendChild(createThumbs(photos));
+          }
           upEl.appendChild(card);
         });
       }

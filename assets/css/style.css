@@ -697,28 +697,8 @@ body {
     font-size: 1.35rem;
 }
 
-.event-card-details {
-    grid-column: 1 / -1;
-    grid-row: 1 / -1;
-    position: relative;
-    z-index: 2;
-    background: #ffffff;
-    padding: 1.5rem;
-    overflow-y: auto;
-    max-height: 0;
-    opacity: 0;
-    transition: max-height 0.35s ease, opacity 0.25s ease;
-    border-radius: var(--border-radius);
-}
-
-.blog-post.event-card.expanded .event-card-details {
-    max-height: 600px;
-    opacity: 1;
-}
-
-.blog-post.event-card.expanded .event-card-container {
-    display: none;
-}
+/* (Anciennes règles .event-card-details du système blog-posts supprimées —
+    le nouveau système de dépli est défini plus bas avec scope .event-card .event-card-details) */
 
 /* Styles pour le wrapper interne du post, pour la disposition média/texte */
 .blog-post .post-wrapper {
@@ -1931,6 +1911,35 @@ body.page-soul .home-section-subtitle { color: rgba(254,253,229,0.78); }
   line-height: 1.5;
 }
 .event-card--past .event-card-desc { font-size: 0.82rem; color: #666; margin-top: 4px; }
+
+/* === Cartes événements : repli / dépli au clic === */
+.event-card[role="button"] { cursor: pointer; position: relative; padding-right: 36px; }
+.event-card .event-card-details {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+.event-card.event-card--open .event-card-details {
+  max-height: 1500px; /* assez grand pour accueillir la description + plusieurs miniatures */
+  padding-top: 8px;
+}
+
+/* Chevron : tourne au clic */
+.event-card .event-card-chevron {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 1.1rem;
+  color: var(--accent-color-complementary);
+  transition: transform 0.25s ease, color 0.2s ease;
+  pointer-events: none;
+  line-height: 1;
+}
+.event-card.event-card--open .event-card-chevron { transform: rotate(180deg); }
+.event-card--past .event-card-chevron { color: #888; font-size: 1rem; top: 12px; right: 12px; }
+.event-card--past .event-card-inner { position: relative; padding-right: 32px; }
+body.page-soul .event-card .event-card-chevron { color: var(--soul-gold); }
 
 /* === SOUL : ré-habillage des cartes (dark + or) === */
 body.page-soul .event-card--upcoming {

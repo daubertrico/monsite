@@ -102,7 +102,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260601">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260602">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -578,7 +578,7 @@
                     var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
                     upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
                     pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
-                    var items=upcoming.concat(pastAll.length?[pastAll[0]]:[]);
+                    var items=upcoming;
                     if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
                     box.innerHTML=items.map(function(ev){
                       var start=ev.start.dateTime||ev.start.date;
@@ -632,7 +632,7 @@
                     var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
                     upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
                     pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
-                    var items=upcoming.concat(pastAll.length?[pastAll[0]]:[]);
+                    var items=upcoming;
                     if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
                     box.innerHTML=items.map(function(ev){
                       var start=ev.start.dateTime||ev.start.date;
@@ -1246,8 +1246,8 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260601"></script>
-  <script src="assets/js/main.js?v=20260601"></script>
+  <script src="assets/js/choristes.js?v=20260602"></script>
+  <script src="assets/js/main.js?v=20260602"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
