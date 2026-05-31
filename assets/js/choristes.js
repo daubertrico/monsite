@@ -278,6 +278,8 @@
         if (errEl) errEl.style.display = 'none';
 
         setProf({ prenom, nom, pupitre });
+        // Met à jour le badge global maintenant que prénom/nom sont connus
+        if (typeof window.renderAuthBadge === 'function') window.renderAuthBadge();
 
         // Mettre à jour aussi les champs profil du calendrier (présences)
         [['choriste-prenom','choriste-nom','choriste-pupitre'],
@@ -309,8 +311,16 @@
       });
     }
 
-    // ---- Restauration de session ----
-    const storedRole = sessionStorage.getItem('choristesRole');
+    // ---- Restauration de session (persistante via localStorage) ----
+    // Migration douce : reprend l'ancien sessionStorage s'il existait
+    try {
+      const legacy = sessionStorage.getItem('choristesRole');
+      if (legacy && !localStorage.getItem('choristesRole')) {
+        localStorage.setItem('choristesRole', legacy);
+        sessionStorage.removeItem('choristesRole');
+      }
+    } catch {}
+    const storedRole = localStorage.getItem('choristesRole');
     if (storedRole === 'member' || storedRole === 'chef') {
       window.IS_CHEF = (storedRole === 'chef');
       if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
@@ -347,7 +357,7 @@
         else if (!correct || entered === correct) role = 'member';
 
         if (role) {
-          sessionStorage.setItem('choristesRole', role);
+          localStorage.setItem('choristesRole', role);
           window.IS_CHEF = (role === 'chef');
           if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
           if (hasProf()) showTabs();
@@ -364,15 +374,20 @@
     const logoutBtn = document.getElementById('logout-role');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', function(){
-        try { sessionStorage.removeItem('choristesRole'); } catch {}
+        try {
+          localStorage.removeItem('choristesRole');
+          localStorage.removeItem('espace_choristes_role');
+          localStorage.removeItem('espace_choristes_authed');
+          // Important : sur un ordinateur partagé, on efface aussi le profil utilisateur
+          localStorage.removeItem('choristeProfile');
+          sessionStorage.removeItem('choristesRole');
+          sessionStorage.removeItem('espace_choristes_role');
+          sessionStorage.removeItem('espace_choristes_authed');
+        } catch {}
         window.IS_CHEF = false;
         if (document.body) document.body.classList.remove('role-chef');
-        if (tabsWrap)          tabsWrap.style.display = 'none';
-        if (profileStep)       profileStep.style.display = 'none';
-        if (passwordContainer) passwordContainer.style.display = '';
-        const err = document.getElementById('partition-error');
-        if (err) err.style.display = 'none';
-        if (passwordInput) { passwordInput.value = ''; passwordInput.focus(); }
+        // Redirection vers la page d'accueil après déconnexion
+        location.href = 'index.html';
       });
     }
 

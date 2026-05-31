@@ -223,6 +223,68 @@ function renderHeader(currentPageId) {
   `;
 }
 
+// ---- Badge d'identité (uniquement sur espace-choristes et galerie) ----
+function renderAuthBadge() {
+  let badge = document.getElementById('auth-badge');
+
+  // Le badge ne s'affiche que sur les pages où la session est pertinente
+  const path = (location.pathname || '').toLowerCase();
+  const allowed = /(espace-choristes|galerie)\.html$/.test(path);
+  if (!allowed) {
+    if (badge) badge.remove();
+    return;
+  }
+
+  const role = (function(){
+    try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); }
+    catch { return null; }
+  })();
+  let profile = {};
+  try { profile = JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch {}
+  const fullName = ((profile.prenom || '') + ' ' + (profile.nom || '')).trim();
+
+  // Pas connecté ou profil pas encore renseigné → on masque/supprime le badge
+  if ((role !== 'member' && role !== 'chef') || !fullName) {
+    if (badge) badge.remove();
+    return;
+  }
+
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'auth-badge';
+    document.body.appendChild(badge);
+  }
+
+  const tag = role === 'chef' ? ' <span class="auth-badge-tag">bureau</span>' : '';
+  badge.innerHTML =
+    '<span class="auth-badge-icon" aria-hidden="true">👤</span>' +
+    '<span class="auth-badge-name">' + fullName.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '</span>' +
+    tag +
+    ' <button type="button" class="auth-badge-logout" aria-label="Se déconnecter">Déconnexion</button>';
+
+  badge.querySelector('.auth-badge-logout').addEventListener('click', function() {
+    if (!confirm('Se déconnecter de l\'espace choristes ?\n\nVotre profil (prénom, nom, pupitre) sera également effacé pour cet appareil.')) return;
+    try {
+      localStorage.removeItem('choristesRole');
+      localStorage.removeItem('espace_choristes_role');
+      localStorage.removeItem('espace_choristes_authed');
+      // Important : sur un ordinateur partagé, on efface aussi le profil utilisateur
+      localStorage.removeItem('choristeProfile');
+      sessionStorage.removeItem('choristesRole');
+      sessionStorage.removeItem('espace_choristes_role');
+      sessionStorage.removeItem('espace_choristes_authed');
+    } catch {}
+    window.IS_CHEF = false;
+    document.body.classList.remove('role-chef');
+    renderAuthBadge();
+    // Si on est dans l'espace choristes, on renvoie vers la page d'accueil
+    if (/espace-choristes\.html$/.test(location.pathname)) {
+      location.href = 'index.html';
+    }
+  });
+}
+if (typeof window !== 'undefined') window.renderAuthBadge = renderAuthBadge;
+
 // ---- Espace choristes password gate ----
 function getGlobalConfigValue(section, champ) {
   try {
@@ -310,14 +372,15 @@ function createChoristesModal() {
     if (val === expected || adminPasswords.includes(val)) {
       // save role for the choristes page (choristes.js expects 'choristesRole')
       if (adminPasswords.includes(val)) {
-        sessionStorage.setItem('choristesRole', 'chef');
-        sessionStorage.setItem('espace_choristes_role', 'bureau');
+        localStorage.setItem('choristesRole', 'chef');
+        localStorage.setItem('espace_choristes_role', 'bureau');
       } else {
-        sessionStorage.setItem('choristesRole', 'member');
-        sessionStorage.setItem('espace_choristes_role', 'choriste');
+        localStorage.setItem('choristesRole', 'member');
+        localStorage.setItem('espace_choristes_role', 'choriste');
       }
       // also set a simple authed flag to avoid any other gate checks
-      sessionStorage.setItem('espace_choristes_authed', '1');
+      localStorage.setItem('espace_choristes_authed', '1');
+      if (typeof window.renderAuthBadge === 'function') window.renderAuthBadge();
       const target = overlay.dataset.targetHref;
       overlay.remove();
       if (target) window.location.href = target;
@@ -346,6 +409,9 @@ function initEspaceChoristesGate() {
       if (!a) return;
       const href = (a.getAttribute('href') || '').replace(/^\.\//, '');
       if (href.indexOf('espace-choristes.html') !== -1) {
+        // Si déjà authentifié (session persistante), on ne redemande pas le mdp
+        const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
+        if (role === 'chef' || role === 'member') return;
         e.preventDefault();
         const modal = createChoristesModal();
         modal.dataset.targetHref = a.href || href;
@@ -2529,6 +2595,7 @@ async function init() {
   renderHeader(currentPageId);
   renderNav(currentPageId);
   renderFooter();
+  renderAuthBadge();
   
   // Apply global config (sets document.title, logo fallback, social links if present)
   applyGlobalConfig();
@@ -2576,6 +2643,12 @@ function delegatedNavHandler(e) {
     }
     // Espace choristes -> open modal (use existing createChoristesModal)
     if (href.indexOf('espace-choristes.html') !== -1 || href.indexOf('partitions') !== -1) {
+      // Si déjà authentifié (session persistante), on ne redemande pas le mdp
+      const role = (function(){
+        try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); }
+        catch { return null; }
+      })();
+      if (role === 'chef' || role === 'member') return;
       e.preventDefault();
       const modal = createChoristesModal();
       modal.dataset.targetHref = a.href || href;
@@ -2596,7 +2669,20 @@ function attachDirectHandlers() {
     // Espace choristes anchors
     document.querySelectorAll('a[href*="espace-choristes.html"], a[href*="espace-choristes"], a[href*="partitions"]').forEach(a => {
       a.addEventListener('click', function(e){
-        try { e.preventDefault(); const modal = createChoristesModal(); modal.dataset.targetHref = a.href || a.getAttribute('href'); if (!document.body.contains(modal)) document.body.appendChild(modal); const input = modal.querySelector('#choristes-password-input'); if (input) setTimeout(()=>input.focus(),50); } catch(err) { console.warn('choristes anchor handler', err); }
+        try {
+          // Si déjà authentifié (session persistante), on ne redemande pas le mdp
+          const role = (function(){
+            try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); }
+            catch { return null; }
+          })();
+          if (role === 'chef' || role === 'member') return;
+          e.preventDefault();
+          const modal = createChoristesModal();
+          modal.dataset.targetHref = a.href || a.getAttribute('href');
+          if (!document.body.contains(modal)) document.body.appendChild(modal);
+          const input = modal.querySelector('#choristes-password-input');
+          if (input) setTimeout(()=>input.focus(),50);
+        } catch(err) { console.warn('choristes anchor handler', err); }
       }, { capture: true });
     });
 
