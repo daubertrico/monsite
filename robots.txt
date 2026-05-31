@@ -1,9 +1,8 @@
 User-agent: *
 Allow: /
 
-# Pages privées (accès choristes par mot de passe)
+# Page privée (accès choristes par mot de passe)
 Disallow: /espace-choristes.html
-Disallow: /partitions.html
 
 # Endpoints API et scripts internes (pas du contenu utilisateur)
 Disallow: /api/

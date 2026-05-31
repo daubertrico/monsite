@@ -151,10 +151,16 @@ function mapPageIdToHref(id) {
 }
 
 function navLabelForPage(page) {
-  // Default to page_title from JSON; apply small overrides to keep legacy labels
   if (!page) return '';
-  // 'videos' (Nous entendre) removed from nav labels per request
-  if (page.id === 'evenements') return 'Événements/Concerts';
+  // Libellés courts pour le menu (les page_title longs restent en H1 / <title> pour le SEO)
+  const MENU_LABELS = {
+    'nous-rejoindre': 'Nous rejoindre',
+    'galerie':        'Galerie',
+    'soul':           'S.O.U.L.',
+    'evenements':     'Événements/Concerts',
+    'partitions':     'Espace choristes'
+  };
+  if (MENU_LABELS[page.id]) return MENU_LABELS[page.id];
   if (page.page_title) return page.page_title;
   return page.id;
 }
