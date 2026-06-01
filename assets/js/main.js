@@ -228,8 +228,9 @@ function renderAuthBadge() {
   let badge = document.getElementById('auth-badge');
 
   // Le badge ne s'affiche que sur les pages où la session est pertinente
+  // Cloudflare Pages sert les URLs sans .html → on accepte les 2 formes
   const path = (location.pathname || '').toLowerCase();
-  const allowed = /(espace-choristes|galerie)\.html$/.test(path);
+  const allowed = /(espace-choristes|galerie)(\.html)?\/?$/.test(path);
   if (!allowed) {
     if (badge) badge.remove();
     return;
@@ -278,7 +279,7 @@ function renderAuthBadge() {
     document.body.classList.remove('role-chef');
     renderAuthBadge();
     // Si on est dans l'espace choristes, on renvoie vers la page d'accueil
-    if (/espace-choristes\.html$/.test(location.pathname)) {
+    if (/espace-choristes(\.html)?\/?$/.test(location.pathname)) {
       location.href = 'index.html';
     }
   });
