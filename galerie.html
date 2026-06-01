@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
   <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260619">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260621">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -26,6 +26,60 @@
     gtag('config', 'AW-928718843');
   </script>
   <style>
+    /* ---- Fond pastel chaleureux ---- */
+    body.internal-page {
+      background: #fdfafe;
+    }
+
+    /* ---- Bandeau d'ouverture (hero) ---- */
+    .gallery-hero {
+      text-align: center;
+      padding: 2.2rem 1.2rem 1.6rem;
+      background: linear-gradient(135deg, rgba(255,102,153,0.07) 0%, rgba(136,68,170,0.09) 100%);
+      border-radius: 24px;
+      margin: 0 auto 2.2rem auto;
+      max-width: 1000px;
+      border: 1px solid rgba(136,68,170,0.10);
+    }
+    .gallery-hero h1.gallery-hero-title {
+      font-family: 'Lobster', cursive;
+      font-size: clamp(1.7rem, 5vw, 2.5rem);
+      margin: 0 0 6px 0;
+      line-height: 1.15;
+      background: linear-gradient(90deg, var(--accent-color-primary), var(--accent-color-complementary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 0.5px;
+    }
+    .gallery-hero-subtitle {
+      color: #6b5e7a;
+      font-size: 1.02rem;
+      margin: 0 0 14px 0;
+    }
+    .gallery-hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 8px 18px;
+      flex-wrap: wrap;
+      font-size: 0.92rem;
+      color: #6b5e7a;
+      margin: 14px 0 0 0;
+    }
+    .gallery-hero-stats .stat {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(136,68,170,0.18);
+      border-radius: 999px;
+      padding: 6px 14px;
+      backdrop-filter: blur(4px);
+    }
+    .gallery-hero-stats .stat strong {
+      color: var(--accent-color-complementary);
+      font-weight: 700;
+      font-size: 1.05em;
+      margin-right: 4px;
+    }
+
     /* ---- Barre d'action en haut ---- */
     .gallery-actions {
       display: flex;
@@ -55,21 +109,145 @@
       margin: 0 0 1rem 0;
     }
 
-    /* ---- Groupes par concert (titre + grille) ---- */
+    /* ---- Groupes par concert ---- */
     .gallery-group { margin: 0 0 2.2rem 0; }
     .gallery-group:last-child { margin-bottom: 0; }
-    .gallery-group-title {
+
+    /* En-tête riche : emoji saison + titre + chips date relative & nb photos */
+    .gallery-group-header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 0 auto 14px auto;
+      padding: 14px 20px;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #f0e8f5;
+      border-left: 4px solid var(--accent-color-complementary);
+      box-shadow: 0 2px 10px rgba(136,68,170,0.06);
+      max-width: 1000px;
+    }
+    .gallery-group-header .ggh-emoji {
+      font-size: 1.6rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .gallery-group-header .ggh-title {
       font-family: 'Lobster', cursive;
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       color: var(--accent-color-complementary);
       font-weight: 400;
-      text-align: center;
-      margin: 0 auto 0.8rem auto;
-      max-width: 1000px;
+      margin: 0;
+      flex: 1 1 auto;
+      min-width: 200px;
       line-height: 1.2;
     }
+    .gallery-group-header .ggh-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .gallery-group-header .ggh-chip {
+      background: #f7eff8;
+      border: 1px solid #ead7ee;
+      color: #5b3870;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .gallery-group-header .ggh-chip.ggh-chip-count { color: var(--accent-color-primary); }
 
-    /* ---- Mosaïque (masonry) — photos en vraies proportions, vraiment collées ---- */
+    /* ---- Photo "à la une" (1ère du groupe) ---- */
+    .gallery-feature {
+      margin: 0 auto 4px auto;
+      max-width: 1000px;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: #eee;
+      box-shadow: 0 6px 24px rgba(136,68,170,0.13);
+      aspect-ratio: 16 / 9;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: photoFadeIn 0.55s ease-out forwards;
+    }
+    .gallery-feature img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+    .gallery-feature:hover img { transform: scale(1.025); }
+    .gallery-feature .feature-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      letter-spacing: 0.4px;
+    }
+    .gallery-feature .feature-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 28px 16px 14px 16px;
+      color: #fff;
+      background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.2) 60%, transparent);
+      transform: translateY(100%);
+      transition: transform 0.35s ease;
+    }
+    .gallery-feature:hover .feature-caption { transform: translateY(0); }
+    .gallery-feature .feature-caption .fc-desc {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 2px 0;
+    }
+    .gallery-feature .feature-caption .fc-meta {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.85);
+      margin: 0;
+    }
+    @media (max-width: 600px) {
+      .gallery-feature { aspect-ratio: 4 / 3; }
+      .gallery-feature .feature-caption { transform: translateY(0); }
+    }
+
+    /* ---- Séparateur décoratif entre concerts (♪ avec traits pointillés) ---- */
+    .gallery-group-sep {
+      position: relative;
+      text-align: center;
+      margin: 2.4rem auto 2rem auto;
+      max-width: 1000px;
+      font-size: 1.35rem;
+      color: rgba(136,68,170,0.5);
+      line-height: 1;
+    }
+    .gallery-group-sep::before,
+    .gallery-group-sep::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 28%;
+      max-width: 220px;
+      border-top: 1px dashed rgba(136,68,170,0.28);
+    }
+    .gallery-group-sep::before { right: calc(50% + 22px); }
+    .gallery-group-sep::after  { left:  calc(50% + 22px); }
+
+    /* ---- Mosaïque (masonry) — photos en vraies proportions, collées ---- */
     .photo-mosaic {
       column-count: 3;
       column-gap: 0;
@@ -80,21 +258,47 @@
       margin: 0;
       border-radius: 0;
       overflow: hidden;
-      cursor: pointer;
+      cursor: zoom-in;
       position: relative;
       background: #eee;
       break-inside: avoid;
       display: block;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: photoFadeIn 0.5s ease-out forwards;
+      transition: box-shadow 0.25s ease, transform 0.25s ease, z-index 0s linear 0.25s;
+      z-index: 0;
+    }
+    .photo-mosaic figure:hover {
+      transform: translateY(-2px) scale(1.015);
+      box-shadow: 0 8px 22px rgba(136,68,170,0.35);
+      z-index: 2;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
     .photo-mosaic figure img {
       width: 100%;
-      height: auto;          /* vraies proportions */
+      height: auto;
       display: block;
       transition: opacity 0.2s ease;
     }
-    .photo-mosaic figure:hover img {
-      opacity: 0.92;
+    .photo-mosaic figure:hover img { opacity: 0.95; }
+    /* Petit ❤️ qui apparaît en haut-droite au survol */
+    .photo-mosaic figure::after {
+      content: '❤';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      color: #fff;
+      font-size: 1.05rem;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      pointer-events: none;
     }
+    .photo-mosaic figure:hover::after { opacity: 1; transform: scale(1); }
+
+    /* Caption — slide-up depuis le bas (au lieu d'apparaître brutalement) */
     .photo-mosaic figure figcaption {
       position: absolute;
       bottom: 0;
@@ -103,16 +307,18 @@
       display: flex;
       flex-direction: column;
       gap: 2px;
-      background: linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.15) 70%, transparent);
+      background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.18) 70%, transparent);
       color: #fff;
       font-size: 0.8rem;
-      padding: 24px 10px 9px 10px;
+      padding: 26px 10px 10px 10px;
+      transform: translateY(100%);
       opacity: 0;
-      transition: opacity 0.25s;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
     .photo-mosaic figure:hover figcaption,
     .photo-mosaic figure:focus figcaption {
       opacity: 1;
+      transform: translateY(0);
     }
     .photo-mosaic figcaption .cap-desc {
       font-size: 0.88rem;
@@ -123,6 +329,12 @@
       font-size: 0.76rem;
       color: rgba(255,255,255,0.82);
     }
+
+    /* Cascade fade-in : décalage par photo défini en JS via --i */
+    @keyframes photoFadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .photo-mosaic figure { animation-delay: calc(var(--i, 0) * 35ms); }
 
     /* ---- Skeleton loader ---- */
     .photo-skeleton {
@@ -138,16 +350,91 @@
       100% { background-position: -200% 0; }
     }
 
-    /* ---- État vide / erreur ---- */
+    /* ---- État vide illustré ---- */
     .gallery-empty {
       text-align: center;
-      padding: 48px 16px;
-      color: #888;
-      font-size: 1.05rem;
+      padding: 48px 24px;
+      color: #6b5e7a;
+      font-size: 1.02rem;
+      background: linear-gradient(135deg, rgba(255,102,153,0.05), rgba(136,68,170,0.06));
+      border: 1px dashed rgba(136,68,170,0.25);
+      border-radius: 20px;
+      max-width: 520px;
+      margin: 0 auto;
     }
+    .gallery-empty svg { display: block; margin: 0 auto 14px; }
+    .gallery-empty h3 {
+      font-family: 'Lobster', cursive;
+      color: var(--accent-color-complementary);
+      font-size: 1.4rem;
+      margin: 0 0 6px 0;
+      font-weight: 400;
+    }
+    .gallery-empty p { margin: 0 0 18px 0; }
     .gallery-empty a {
-      color: var(--accent-color-primary);
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
+      color: #fff !important;
+      padding: 10px 20px;
+      border-radius: 999px;
       font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(136,68,170,0.2);
+    }
+
+    /* ---- FAB mobile (bouton flottant "+ photo") ---- */
+    .fab-add {
+      display: none;
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
+      color: #fff;
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      text-decoration: none;
+      box-shadow: 0 6px 18px rgba(136,68,170,0.45);
+      z-index: 1300;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fab-add:hover { transform: scale(1.08); box-shadow: 0 8px 22px rgba(136,68,170,0.55); }
+    @media (max-width: 768px) {
+      .fab-add { display: inline-flex; }
+    }
+
+    /* ---- Bouton ❤ dans la lightbox ---- */
+    #lightbox-like {
+      position: absolute;
+      bottom: 110px;
+      right: 24px;
+      background: rgba(255,255,255,0.14);
+      border: none;
+      color: #fff;
+      font-size: 1.4rem;
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s, transform 0.18s;
+      backdrop-filter: blur(6px);
+    }
+    #lightbox-like:hover { background: rgba(255,255,255,0.26); transform: scale(1.05); }
+    #lightbox-like.liked { background: rgba(255,102,153,0.85); }
+    #lightbox-like.liked .lb-like-icon { animation: heartPop 0.4s ease; }
+    @keyframes heartPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+    #lightbox-like .lb-like-count { font-size: 0.9rem; font-weight: 700; }
+    @media (max-width: 600px) {
+      #lightbox-like { bottom: 80px; right: 12px; padding: 8px 12px; font-size: 1.2rem; }
     }
 
     /* ---- Lightbox ---- */
@@ -318,12 +605,23 @@
     <h1 class="sr-only">Galerie photos — concerts La Voix Libre à Rennes</h1>
     <div id="page-content-container" data-static="true">
 
+      <!-- Bandeau d'ouverture -->
+      <header class="gallery-hero" id="gallery-hero">
+        <h1 class="gallery-hero-title">La famille La Voix Libre en images</h1>
+        <p class="gallery-hero-subtitle">Souvenirs de concerts, répétitions et moments partagés. ✨</p>
+        <div class="gallery-hero-stats" id="gallery-hero-stats" aria-live="polite">
+          <span class="stat"><strong>—</strong> photos</span>
+          <span class="stat"><strong>—</strong> concerts</span>
+          <span class="stat"><strong>—</strong> contributeurs</span>
+        </div>
+      </header>
+
       <!-- Barre d'action -->
       <div class="gallery-actions">
-        <p class="gallery-actions-intro">Photos partagées par les choristes et l'équipe.</p>
+        <p class="gallery-actions-intro">Vos photos racontent notre histoire — partagez-les !</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
           <button type="button" id="gallery-select-btn" aria-label="Supprimer des photos">🗑 Supprimer des photos</button>
-          <a href="espace-choristes.html" class="gallery-upload-cta">+ Ajouter mes photos</a>
+          <a href="espace-choristes.html" class="gallery-upload-cta">📸 Partager mes souvenirs</a>
         </div>
       </div>
 
@@ -365,6 +663,9 @@
     </div><!-- /#page-content-container -->
   </main>
 
+  <!-- FAB mobile -->
+  <a href="espace-choristes.html" class="fab-add" aria-label="Partager une photo">📸</a>
+
   <!-- Lightbox -->
   <div id="lightbox" role="dialog" aria-modal="true" aria-label="Photo agrandie">
     <button id="lightbox-close" aria-label="Fermer">&times;</button>
@@ -372,12 +673,16 @@
     <button id="lightbox-prev" aria-label="Photo précédente">&#8249;</button>
     <img id="lightbox-img" src="" alt="">
     <div id="lightbox-caption"></div>
+    <button id="lightbox-like" aria-label="J'aime cette photo" type="button">
+      <span class="lb-like-icon">♡</span>
+      <span class="lb-like-count">0</span>
+    </button>
     <button id="lightbox-next" aria-label="Photo suivante">&#8250;</button>
   </div>
 
   <!-- Widget Instagram Behold -->
   <script type="module" src="https://w.behold.so/widget.js"></script>
-  <script src="assets/js/main.js?v=20260619"></script>
+  <script src="assets/js/main.js?v=20260621"></script>
   <script>
     // ---- Endpoint GAS (à remplir après déploiement) ----
     const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw1hqV4qB2XH0iAD4IOQkNiouXiWegHjRiSbtcGC9VRySr94xUKUdOtb8wWvIoHokTb/exec';
@@ -387,7 +692,76 @@
     let filteredPhotos = [];
     let lightboxIndex = 0;
     let eventMap = {}; // eventId -> { name, date }
-    const selectedIds = new Set(); // fileIds sélectionnés en mode bureau
+    const selectedIds = new Set();
+
+    // ---- Likes (localStorage, par appareil) ----
+    function getLikes() {
+      try { return JSON.parse(localStorage.getItem('photoLikes') || '{}'); } catch { return {}; }
+    }
+    function setLikes(o) { try { localStorage.setItem('photoLikes', JSON.stringify(o)); } catch {} }
+    function getMyLikedSet() {
+      try { return new Set(JSON.parse(localStorage.getItem('photoMyLikes') || '[]')); } catch { return new Set(); }
+    }
+    function setMyLikedSet(set) {
+      try { localStorage.setItem('photoMyLikes', JSON.stringify([...set])); } catch {}
+    }
+    function photoLikeCount(fileId) { return getLikes()[fileId] || 0; }
+    function isLikedByMe(fileId) { return getMyLikedSet().has(fileId); }
+    function toggleLike(fileId) {
+      const likes = getLikes();
+      const mine = getMyLikedSet();
+      if (mine.has(fileId)) {
+        mine.delete(fileId);
+        likes[fileId] = Math.max(0, (likes[fileId] || 1) - 1);
+      } else {
+        mine.add(fileId);
+        likes[fileId] = (likes[fileId] || 0) + 1;
+      }
+      setLikes(likes);
+      setMyLikedSet(mine);
+      return { count: likes[fileId], liked: mine.has(fileId) };
+    }
+
+    // ---- Helpers de présentation ----
+    function relativeDate(date) {
+      if (!date) return '';
+      const diff = Date.now() - date.getTime();
+      const days = Math.floor(diff / 86400000);
+      if (days < 0) return 'à venir';
+      if (days < 1) return "aujourd'hui";
+      if (days < 7) return 'il y a ' + days + ' jour' + (days > 1 ? 's' : '');
+      const w = Math.floor(days / 7);
+      if (days < 30) return 'il y a ' + w + ' semaine' + (w > 1 ? 's' : '');
+      const m = Math.floor(days / 30);
+      if (days < 365) return 'il y a ' + m + ' mois';
+      const y = Math.floor(days / 365);
+      return 'il y a ' + y + ' an' + (y > 1 ? 's' : '');
+    }
+    function seasonEmoji(date) {
+      if (!date) return '🎵';
+      const m = date.getMonth();
+      if (m >= 2 && m <= 4) return '🌸';
+      if (m >= 5 && m <= 7) return '☀️';
+      if (m >= 8 && m <= 10) return '🍂';
+      return '❄️';
+    }
+    // Empty state illustré
+    const EMPTY_STATE_HTML = `
+      <div class="gallery-empty">
+        <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="14" y="32" width="82" height="58" rx="10" fill="#fff" stroke="#8844aa" stroke-width="2.5"/>
+          <rect x="36" y="24" width="38" height="14" rx="3" fill="#fff" stroke="#8844aa" stroke-width="2.5"/>
+          <circle cx="55" cy="62" r="17" fill="#fdfafe" stroke="#ff6699" stroke-width="2.5"/>
+          <circle cx="55" cy="62" r="9" fill="#ff6699" opacity="0.25"/>
+          <circle cx="83" cy="46" r="3" fill="#8844aa"/>
+          <path d="M82 18 L82 8 L94 5 L94 17" stroke="#8844aa" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <circle cx="80" cy="20" r="3.5" fill="#8844aa"/>
+          <circle cx="92" cy="19" r="3.5" fill="#8844aa"/>
+        </svg>
+        <h3>Pas encore de souvenirs ici…</h3>
+        <p>Soyez la première personne à partager une photo ✨</p>
+        <a href="espace-choristes.html">📸 Partager une photo</a>
+      </div>`;
 
     // ---- Identité utilisateur (depuis l'espace choristes) ----
     function getCurrentUserName() {
@@ -501,7 +875,7 @@
         const data = await res.json();
 
         if (!data.photos || !data.photos.length) {
-          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          groupsEl.innerHTML = EMPTY_STATE_HTML;
           return;
         }
 
@@ -514,7 +888,7 @@
         });
 
         if (!photos.length) {
-          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          groupsEl.innerHTML = EMPTY_STATE_HTML;
           return;
         }
 
@@ -529,7 +903,22 @@
       }
     }
 
-    // ---- Rendu groupé par concert (du plus récent au plus ancien) ----
+    // Choisit la photo "à la une" : celle avec le plus de likes, sinon la plus récente.
+    function pickFeaturedPhoto(photos) {
+      const liked = photos
+        .map(p => ({ p, likes: photoLikeCount(p.fileId) }))
+        .filter(x => x.likes > 0)
+        .sort((a, b) => b.likes - a.likes);
+      if (liked.length > 0) return liked[0].p;
+      // Fallback : la plus récente par uploadDate
+      return photos.slice().sort((a, b) => {
+        const da = a.uploadDate ? new Date(a.uploadDate).getTime() : 0;
+        const db = b.uploadDate ? new Date(b.uploadDate).getTime() : 0;
+        return db - da;
+      })[0];
+    }
+
+    // ---- Rendu groupé par concert ----
     function renderGroupedGalleries() {
       const groupsEl = document.getElementById('gallery-groups');
 
@@ -541,20 +930,32 @@
         }
         groups[p._key].photos.push(p);
       });
-      // Trie les concerts du plus récent au plus ancien (en n'incluant QUE ceux qui ont des photos)
       const list = Object.values(groups)
         .filter(g => g.photos.length > 0)
         .sort((a, b) => b.date - a.date);
 
-      // Construit la liste à plat dans l'ordre d'affichage (pour les indices de lightbox)
+      // Mise à jour des stats du hero
+      updateHeroStats(list);
+
+      if (list.length === 0) {
+        groupsEl.innerHTML = EMPTY_STATE_HTML;
+        return;
+      }
+
+      // Construit la liste à plat dans l'ordre d'affichage (pour les indices de lightbox).
       filteredPhotos = list.flatMap(g => g.photos);
 
       const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
 
       let flatIndex = 0;
-      groupsEl.innerHTML = list.map(g => {
-        const figs = g.photos.map(photo => {
-          const i = flatIndex++;
+      const html = list.map((g, gi) => {
+        const eventDate = g.date ? new Date(g.date) : null;
+        const emoji = seasonEmoji(eventDate);
+        const rel = relativeDate(eventDate);
+        const count = g.photos.length;
+
+        const figs = g.photos.map((photo, i) => {
+          const idx = flatIndex++;
           const thumb = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w600`;
           const uploader = esc(photo.uploaderName || '');
           const description = esc(photo.description || '');
@@ -566,22 +967,36 @@
           const altText = description || esc(g.label);
           const selectedCls = selectedIds.has(photo.fileId) ? ' selected' : '';
           return `
-            <figure class="${selectedCls.trim()}" data-index="${i}" data-file-id="${esc(photo.fileId)}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
+            <figure class="${selectedCls.trim()}" style="--i:${i}" data-index="${idx}" data-file-id="${esc(photo.fileId)}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
               <span class="photo-check" aria-hidden="true">✓</span>
               <img src="${thumb}" alt="${altText}" loading="lazy" decoding="async"
                 onerror="this.parentElement.style.display='none'">
               ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
             </figure>`;
         }).join('');
-        return `
+
+        const groupHeader = `
+          <div class="gallery-group-header">
+            <span class="ggh-emoji" aria-hidden="true">${emoji}</span>
+            <h3 class="ggh-title">${esc(g.label)}</h3>
+            <div class="ggh-meta">
+              ${rel ? `<span class="ggh-chip">${rel}</span>` : ''}
+              <span class="ggh-chip ggh-chip-count">📷 ${count} photo${count > 1 ? 's' : ''}</span>
+            </div>
+          </div>`;
+
+        const sep = gi > 0 ? '<div class="gallery-group-sep" aria-hidden="true">♪</div>' : '';
+        return sep + `
           <div class="gallery-group">
-            <h3 class="gallery-group-title">${esc(g.label)}</h3>
-            <div class="photo-mosaic">${figs}</div>
+            ${groupHeader}
+            ${figs ? `<div class="photo-mosaic">${figs}</div>` : ''}
           </div>`;
       }).join('');
 
-      // Bind clicks et touches sur toutes les figures
-      groupsEl.querySelectorAll('figure').forEach(fig => {
+      groupsEl.innerHTML = html;
+
+      // Bind clicks + touches sur figures (featured + masonry)
+      groupsEl.querySelectorAll('figure[data-index]').forEach(fig => {
         const handle = () => {
           if (document.body.classList.contains('gallery-select-mode')) {
             toggleSelectFigure(fig);
@@ -595,8 +1010,24 @@
         });
       });
 
-      // Re-synchronise le gap sur Behold pour les nouvelles grilles
       if (typeof syncYoutubeGapToBehold === 'function') syncYoutubeGapToBehold();
+    }
+
+    // ---- Stats du hero ----
+    function updateHeroStats(list) {
+      const el = document.getElementById('gallery-hero-stats');
+      if (!el) return;
+      const total = list.reduce((s, g) => s + g.photos.length, 0);
+      const concerts = list.length;
+      const uploaders = new Set();
+      list.forEach(g => g.photos.forEach(p => {
+        const n = (p.uploaderName || '').trim().toLowerCase();
+        if (n) uploaders.add(n);
+      }));
+      el.innerHTML =
+        `<span class="stat"><strong>${total}</strong> photo${total > 1 ? 's' : ''}</span>` +
+        `<span class="stat"><strong>${concerts}</strong> concert${concerts > 1 ? 's' : ''}</span>` +
+        `<span class="stat"><strong>${uploaders.size}</strong> contributeur${uploaders.size > 1 ? 's' : ''}</span>`;
     }
 
     // ---- Lightbox ----
@@ -638,6 +1069,29 @@
       delBtn.style.display = canDeletePhoto(photo) ? 'inline-flex' : 'none';
       delBtn.disabled = false;
       delBtn.textContent = '🗑 Supprimer';
+
+      // Bouton ❤️ : compteur + état liké
+      updateLightboxLike(photo);
+    }
+
+    function updateLightboxLike(photo) {
+      const btn = document.getElementById('lightbox-like');
+      if (!btn || !photo) return;
+      const count = photoLikeCount(photo.fileId);
+      const liked = isLikedByMe(photo.fileId);
+      btn.querySelector('.lb-like-icon').textContent = liked ? '❤' : '♡';
+      btn.querySelector('.lb-like-count').textContent = count;
+      btn.classList.toggle('liked', liked);
+    }
+
+    function handleLightboxLike() {
+      const photo = filteredPhotos[lightboxIndex];
+      if (!photo || !photo.fileId) return;
+      toggleLike(photo.fileId);
+      updateLightboxLike(photo);
+      // Le featured peut changer si on a liké/déliké → on recalcule l'affichage
+      // mais on évite de re-render pendant que la lightbox est ouverte
+      // → on re-renderra à la fermeture pour ne pas casser la navigation.
     }
 
     // ---- Suppression d'une photo ----
@@ -675,7 +1129,7 @@
         closeLightbox();
         if (allPhotos.length === 0) {
           document.getElementById('gallery-groups').innerHTML =
-            '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+            EMPTY_STATE_HTML;
         } else {
           renderGroupedGalleries();
         }
@@ -689,6 +1143,7 @@
 
     document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
     document.getElementById('lightbox-delete').addEventListener('click', deleteCurrentPhoto);
+    document.getElementById('lightbox-like').addEventListener('click', handleLightboxLike);
     document.getElementById('lightbox').addEventListener('click', function(e) {
       if (e.target === this) closeLightbox();
     });
@@ -783,7 +1238,7 @@
 
       if (allPhotos.length === 0) {
         document.getElementById('gallery-groups').innerHTML =
-          '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          EMPTY_STATE_HTML;
       } else {
         renderGroupedGalleries();
       }
