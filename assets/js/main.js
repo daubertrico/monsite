@@ -453,6 +453,10 @@ function renderNav(currentPageId) {
     const a  = document.createElement('a');
     a.href = mapPageIdToHref(page.id);
     a.textContent = navLabelForPage(page);
+    // Sur le site SOUL, le lien "Galerie" pointe vers la galerie SOUL dédiée
+    if (_isSoulNav && page.id === 'galerie') {
+      a.href = 'galerie-soul.html';
+    }
     const isActive = (currentPageId === page.id);
     if (isActive) return; // ne pas afficher la page courante
     li.appendChild(a);
@@ -2481,10 +2485,14 @@ async function init() {
     try {
       const hostname = (window.location && window.location.hostname) ? window.location.hostname.toLowerCase() : '';
       const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '';
-      const isSoulSite = hostname.includes('soulrennes') || pathname.startsWith('/soul') || (hostname.includes('chanterlavoixlibre') && pathname.startsWith('/soul'));
+      // SOUL si on est sur soulrennes.fr, ou si l'URL démarre par /soul, ou sur une page dédiée SOUL
+      // comme galerie-soul.html, soul.html, etc.
+      const isSoulPath = pathname.startsWith('/soul') || /\/(soul|galerie-soul)(\.html)?$/.test(pathname);
+      const isSoulSite = hostname.includes('soulrennes') || isSoulPath;
       if (isSoulSite) {
         // Remove pages that should not be accessible from the SOUL domain/subpath
-        const banned = ['chorale-pop', 'comedie-musicale', 'cours-de-chant', 'evenements', 'videos', 'galerie', 'nous-rejoindre'];
+        // ('galerie' est gardé : sur SOUL, le lien est intercepté pour pointer vers galerie-soul.html)
+        const banned = ['chorale-pop', 'comedie-musicale', 'cours-de-chant', 'evenements', 'videos', 'nous-rejoindre'];
         if (Array.isArray(pagesData)) {
           pagesData = pagesData.filter(p => !banned.includes(p.id));
         }

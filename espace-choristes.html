@@ -295,7 +295,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260616">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260619">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -640,12 +640,22 @@
           <div id="photo-upload-form" style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
             <h3 style="margin-top:0;color:#134;font-size:1.15rem;">Ajouter une photo</h3>
 
+            <!-- Ensemble (Chorale / SOUL) — détermine le calendrier des concerts -->
+            <div style="margin-bottom:14px;">
+              <label for="photo-ensemble" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Ensemble</label>
+              <select id="photo-ensemble"
+                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
+                <option value="chorale">La Voix Libre (chorale pop)</option>
+                <option value="soul">S.O.U.L.</option>
+              </select>
+            </div>
+
             <!-- Concert -->
             <div style="margin-bottom:14px;">
               <label for="photo-concert" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Concert / Événement</label>
               <select id="photo-concert"
                 style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
-                <option value="">Chargement des concerts…</option>
+                <option value="">Choisissez un ensemble d'abord…</option>
               </select>
               <p id="photo-concert-error" style="display:none;color:#ef4444;font-size:0.85rem;margin:4px 0 0 0;">Veuillez choisir un concert.</p>
             </div>
@@ -1270,8 +1280,8 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260616"></script>
-  <script src="assets/js/main.js?v=20260616"></script>
+  <script src="assets/js/choristes.js?v=20260619"></script>
+  <script src="assets/js/main.js?v=20260619"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
@@ -1319,29 +1329,25 @@
       return (b/1024/1024).toFixed(1) + ' Mo';
     }
 
-    // ---- Chargement des concerts depuis Google Agenda ----
-    var _concertsLoaded = false;
+    // ---- Chargement des concerts depuis Google Agenda (filtré par ensemble) ----
+    var CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+    var CAL_IDS = {
+      chorale: '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com',
+      soul:    '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com'
+    };
+    var _concertsCache = {}; // { chorale: [...], soul: [...] }
 
-    async function loadConcertsForUpload() {
-      if (_concertsLoaded) return;
-      var select = document.getElementById('photo-concert');
-      if (!select) return;
-
-      var CAL_API_KEY  = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-      // Uniquement l'agenda La Voix Libre (pas SOUL)
-      var CALENDAR_ID  = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
-      // Filtre identique à celui de l'onglet Calendrier
+    async function fetchConcerts(ensemble) {
+      if (_concertsCache[ensemble]) return _concertsCache[ensemble];
+      var calId = CAL_IDS[ensemble];
+      if (!calId) return [];
       var kw = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pic[- ]?nic|pique[- ]?nique)/i;
-
-      // Récupère les 2 dernières années + 1 an à venir
       var timeMin = new Date(Date.now() - 2 * 365 * 24 * 3600 * 1000).toISOString();
       var timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
-
-      var allConcerts = [];
-
+      var list = [];
       try {
         var url = 'https://www.googleapis.com/calendar/v3/calendars/'
-          + encodeURIComponent(CALENDAR_ID)
+          + encodeURIComponent(calId)
           + '/events?key=' + CAL_API_KEY
           + '&timeMin=' + encodeURIComponent(timeMin)
           + '&timeMax=' + encodeURIComponent(timeMax)
@@ -1353,32 +1359,55 @@
           var start = ev.start.dateTime || ev.start.date;
           var d = new Date(start);
           var label = formatConcertLabel(ev.summary, d);
-          // Déduplique par id d'événement
-          if (!allConcerts.find(function(c){ return c.id === ev.id; })) {
-            allConcerts.push({ id: ev.id, label: label, date: d, summary: ev.summary });
+          if (!list.find(function(c){ return c.id === ev.id; })) {
+            list.push({ id: ev.id, label: label, date: d, summary: ev.summary });
           }
         });
       } catch (e) {
-        console.warn('Calendar fetch failed', e);
+        console.warn('Calendar fetch failed for ' + ensemble, e);
       }
+      list.sort(function(a, b) { return b.date - a.date; });
+      _concertsCache[ensemble] = list;
+      return list;
+    }
 
-      // Trie du plus récent au plus ancien
-      allConcerts.sort(function(a, b) { return b.date - a.date; });
+    async function loadConcertsForUpload() {
+      var select   = document.getElementById('photo-concert');
+      var ensSel   = document.getElementById('photo-ensemble');
+      if (!select || !ensSel) return;
+      var ensemble = ensSel.value || 'chorale';
 
-      // Remplit le select : valeur = id de l'événement, texte = libellé courant
+      select.innerHTML = '<option value="">Chargement des concerts…</option>';
+      var concerts = await fetchConcerts(ensemble);
+
       select.innerHTML = '<option value="">— Choisissez un concert —</option>';
-      if (!allConcerts.length) {
+      if (!concerts.length) {
         select.innerHTML += '<option value="" disabled>Aucun concert trouvé dans l\'agenda</option>';
       } else {
-        allConcerts.forEach(function(c) {
+        concerts.forEach(function(c) {
           var opt = document.createElement('option');
           opt.value = c.id;
           opt.textContent = c.label;
           select.appendChild(opt);
         });
       }
-      _concertsLoaded = true;
     }
+
+    // Recharge la liste des concerts quand l'utilisateur change d'ensemble
+    document.addEventListener('DOMContentLoaded', function() {
+      var ensSel = document.getElementById('photo-ensemble');
+      if (ensSel) {
+        ensSel.addEventListener('change', loadConcertsForUpload);
+        // Pré-sélectionne SOUL si le profil contient seulement SOUL
+        try {
+          var prof = JSON.parse(localStorage.getItem('choristeProfile') || '{}');
+          var ens = prof.ensembles || [];
+          if (Array.isArray(ens) && ens.length === 1 && ens[0] === 'soul') {
+            ensSel.value = 'soul';
+          }
+        } catch (e) {}
+      }
+    });
 
     function formatConcertLabel(summary, date) {
       var mois = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
@@ -1473,6 +1502,8 @@
         if (!files.length) return;
 
         var concertSelect = document.getElementById('photo-concert');
+        var ensembleSelect = document.getElementById('photo-ensemble');
+        var ensemble     = (ensembleSelect && ensembleSelect.value) || 'chorale';
         var eventId       = (concertSelect.value || '').trim();
         var concertLabel  = eventId && concertSelect.selectedIndex >= 0
           ? (concertSelect.options[concertSelect.selectedIndex].text || '').trim()
@@ -1533,6 +1564,7 @@
               filename:     sanitizedConcert + '_' + Date.now() + '_' + (i + 1) + '.jpg',
               concert:      concertLabel,
               eventId:      eventId,
+              ensemble:     ensemble,
               uploaderName: uploaderName,
               description:  description
             }));

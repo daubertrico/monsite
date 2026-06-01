@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
-  <title>Galerie photos – concerts La Voix Libre à Rennes</title>
-  <link rel="canonical" href="https://chanterlavoixlibre.fr/galerie.html" />
+  <meta name="description" content="Galerie photo S.O.U.L. : souvenirs de concerts a cappella, gospel et soul à Rennes.">
+  <title>Galerie photos – concerts S.O.U.L. à Rennes</title>
+  <link rel="canonical" href="https://chanterlavoixlibre.fr/galerie-soul.html" />
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="La Voix Libre – chant chorale à Rennes">
-  <meta property="og:title" content="Galerie photos – concerts La Voix Libre à Rennes">
-  <meta property="og:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
-  <meta property="og:url" content="https://chanterlavoixlibre.fr/galerie.html">
-  <meta property="og:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <meta property="og:site_name" content="S.O.U.L. – ensemble vocal a cappella à Rennes">
+  <meta property="og:title" content="Galerie photos – concerts S.O.U.L. à Rennes">
+  <meta property="og:description" content="Galerie photo S.O.U.L. : souvenirs de concerts a cappella, gospel et soul à Rennes.">
+  <meta property="og:url" content="https://chanterlavoixlibre.fr/galerie-soul.html">
+  <meta property="og:image" content="https://chanterlavoixlibre.fr/assets/images/soullogo.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Galerie photos – concerts La Voix Libre à Rennes">
-  <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
-  <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <meta name="twitter:title" content="Galerie photos – concerts S.O.U.L. à Rennes">
+  <meta name="twitter:description" content="Galerie photo S.O.U.L. : souvenirs de concerts a cappella, gospel et soul à Rennes.">
+  <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/soullogo.png">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=20260619">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
@@ -88,7 +88,7 @@
     }
     .photo-mosaic figure img {
       width: 100%;
-      height: auto;          /* vraies proportions */
+      height: auto;
       display: block;
       transition: opacity 0.2s ease;
     }
@@ -215,7 +215,6 @@
     #lightbox-prev:hover, #lightbox-next:hover {
       background: rgba(255,255,255,0.25);
     }
-    /* Bouton supprimer (visible uniquement pour le propriétaire ou un chef) */
     #lightbox-delete {
       position: absolute;
       top: 16px;
@@ -237,7 +236,6 @@
     #lightbox-delete:disabled { opacity: 0.6; cursor: wait; }
 
     @media (max-width: 600px) {
-      /* Mosaïque : 2 colonnes sur mobile pour plus de respiration sur les portraits */
       .photo-mosaic { column-count: 2; column-gap: 0; }
       #lightbox-prev { left: 4px; }
       #lightbox-next { right: 4px; }
@@ -313,23 +311,23 @@
     body.gallery-select-mode .photo-mosaic figure { cursor: pointer; }
   </style>
 </head>
-<body class="internal-page">
+<body class="page-soul internal-page">
   <main class="main-content">
-    <h1 class="sr-only">Galerie photos — concerts La Voix Libre à Rennes</h1>
+    <h1 class="sr-only">Galerie photos — concerts S.O.U.L. à Rennes</h1>
     <div id="page-content-container" data-static="true">
 
       <!-- Barre d'action -->
       <div class="gallery-actions">
-        <p class="gallery-actions-intro">Photos partagées par les choristes et l'équipe.</p>
+        <p class="gallery-actions-intro">Photos partagées par les choristes S.O.U.L. et l'équipe.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
           <button type="button" id="gallery-select-btn" aria-label="Supprimer des photos">🗑 Supprimer des photos</button>
           <a href="espace-choristes.html" class="gallery-upload-cta">+ Ajouter mes photos</a>
         </div>
       </div>
 
-      <!-- Section : Galerie des choristes (groupée par concert, du plus récent au plus ancien) -->
-      <section class="gallery-section" aria-label="Photos de concerts">
-        <div class="home-section-divider"><h2>Galerie des choristes</h2></div>
+      <!-- Section : Galerie SOUL des choristes -->
+      <section class="gallery-section" aria-label="Photos de concerts S.O.U.L.">
+        <div class="home-section-divider"><h2>Galerie S.O.U.L.</h2></div>
 
         <div id="gallery-groups" aria-live="polite">
           <div class="photo-mosaic">
@@ -343,23 +341,10 @@
         </div>
       </section>
 
-      <!-- Section : Actualités Instagram (Behold) -->
-      <section class="insta-section" aria-label="Actualités Instagram">
-        <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
-        <behold-widget feed-id="3NHaPi1fOUn1HBKyIU0J"></behold-widget>
-      </section>
-
-      <!-- Section : Nos enregistrements (playlist YouTube) -->
-      <section class="youtube-section" aria-label="Nos enregistrements YouTube">
-        <div class="home-section-divider"><h2>La Voix Libre sur YouTube — Enregistrements</h2></div>
-        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbZbzdhKFRSggddJz8wGXbog" data-limit="6" aria-live="polite">
-          <div class="youtube-skeleton"></div>
-          <div class="youtube-skeleton"></div>
-          <div class="youtube-skeleton"></div>
-          <div class="youtube-skeleton"></div>
-          <div class="youtube-skeleton"></div>
-          <div class="youtube-skeleton"></div>
-        </div>
+      <!-- Section : Instagram SOUL (Behold) -->
+      <section class="insta-section" aria-label="Actualités Instagram S.O.U.L.">
+        <div class="home-section-divider"><h2>S.O.U.L. sur Insta — Actualités</h2></div>
+        <behold-widget feed-id="VoBScwhUi0d1gGjxGft3"></behold-widget>
       </section>
 
     </div><!-- /#page-content-container -->
@@ -377,19 +362,21 @@
 
   <!-- Widget Instagram Behold -->
   <script type="module" src="https://w.behold.so/widget.js"></script>
+  <!-- Force le rendu SOUL (logo, thème) — main.js détecte sinon via le pathname /soul/* -->
+  <script>window.__isSoulSite = true; window.BEHOLD_SOUL_FEED_ID = 'VoBScwhUi0d1gGjxGft3';</script>
   <script src="assets/js/main.js?v=20260619"></script>
   <script>
-    // ---- Endpoint GAS (à remplir après déploiement) ----
+    // ---- Endpoint GAS (identique à galerie.html — mêmes photos en base, filtrées côté client) ----
     const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw1hqV4qB2XH0iAD4IOQkNiouXiWegHjRiSbtcGC9VRySr94xUKUdOtb8wWvIoHokTb/exec';
 
     // ---- État ----
     let allPhotos = [];
     let filteredPhotos = [];
     let lightboxIndex = 0;
-    let eventMap = {}; // eventId -> { name, date }
-    const selectedIds = new Set(); // fileIds sélectionnés en mode bureau
+    let eventMap = {};
+    const selectedIds = new Set();
 
-    // ---- Identité utilisateur (depuis l'espace choristes) ----
+    // ---- Identité utilisateur ----
     function getCurrentUserName() {
       try {
         const p = JSON.parse(localStorage.getItem('choristeProfile') || '{}');
@@ -415,13 +402,10 @@
       return normName(photo.uploaderName) === me;
     }
 
-    // ---- Agendas (LVL = source de cette galerie, SOUL = pour exclure ces photos) ----
+    // ---- Agendas : SOUL = source de cette galerie ----
     const CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-    const CALENDAR_ID = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
     const SOUL_CALENDAR_ID = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
-    // Ensemble cible pour cette galerie : 'lvl' (chorale) — l'autre galerie est galerie-soul.html
-    const GALLERY_ENSEMBLE = 'lvl';
-    const soulEventIds = new Set();
+    const soulEventIds = new Set(); // events SOUL → on garde ces photos
 
     function formatConcertLabel(summary, date) {
       const mois  = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
@@ -433,43 +417,32 @@
         + ' ' + date.getFullYear();
     }
 
-    async function fetchCalendarEvents(calId) {
+    async function loadEventMap() {
       const timeMin = new Date(Date.now() - 5 * 365 * 24 * 3600 * 1000).toISOString();
       const timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
-      const url = 'https://www.googleapis.com/calendar/v3/calendars/'
-        + encodeURIComponent(calId)
-        + '/events?key=' + CAL_API_KEY
-        + '&timeMin=' + encodeURIComponent(timeMin)
-        + '&timeMax=' + encodeURIComponent(timeMax)
-        + '&maxResults=250&orderBy=startTime&singleEvents=true';
-      const res  = await fetch(url);
-      const data = await res.json();
-      return data.items || [];
-    }
-
-    async function loadEventMap() {
       try {
-        // Charge en parallèle LVL (pour les libellés) et SOUL (pour exclure)
-        const [lvlItems, soulItems] = await Promise.all([
-          fetchCalendarEvents(CALENDAR_ID).catch(() => []),
-          fetchCalendarEvents(SOUL_CALENDAR_ID).catch(() => [])
-        ]);
-        lvlItems.forEach(ev => {
+        const url = 'https://www.googleapis.com/calendar/v3/calendars/'
+          + encodeURIComponent(SOUL_CALENDAR_ID)
+          + '/events?key=' + CAL_API_KEY
+          + '&timeMin=' + encodeURIComponent(timeMin)
+          + '&timeMax=' + encodeURIComponent(timeMax)
+          + '&maxResults=250&orderBy=startTime&singleEvents=true';
+        const res  = await fetch(url);
+        const data = await res.json();
+        (data.items || []).forEach(ev => {
           const start = ev.start && (ev.start.dateTime || ev.start.date);
-          if (!start) return;
+          if (!start || !ev.id) return;
+          soulEventIds.add(ev.id);
           eventMap[ev.id] = { name: ev.summary || 'Concert', date: new Date(start) };
         });
-        soulItems.forEach(ev => { if (ev.id) soulEventIds.add(ev.id); });
       } catch (e) {
         console.warn('Calendar fetch failed', e);
       }
     }
 
-    // Clé de regroupement : id d'événement si dispo, sinon nom stocké (anciennes photos)
     function photoKey(photo) {
       return photo.eventId ? ('id:' + photo.eventId) : ('name:' + (photo.concert || 'Non précisé'));
     }
-    // Libellé affiché : nom courant de l'agenda, sinon nom stocké à l'envoi
     function photoLabel(photo) {
       if (photo.eventId && eventMap[photo.eventId]) {
         const ev = eventMap[photo.eventId];
@@ -477,7 +450,6 @@
       }
       return photo.concert || 'Non précisé';
     }
-    // Date utilisée pour le tri des catégories
     function photoDate(photo) {
       if (photo.eventId && eventMap[photo.eventId]) return eventMap[photo.eventId].date.getTime();
       return photo.uploadDate ? new Date(photo.uploadDate).getTime() : 0;
@@ -490,37 +462,29 @@
       groupsEl.innerHTML = `<div class="photo-mosaic">${Array(6).fill('<div class="photo-skeleton"></div>').join('')}</div>`;
 
       if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
-        groupsEl.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.<br>Déployez le script GAS et renseignez l\'URL dans galerie.html.</p></div>';
+        groupsEl.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.</p></div>';
         return;
       }
 
       try {
         const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=gallery_list';
-        // Agenda + photos en parallèle
         const [, res] = await Promise.all([ loadEventMap(), fetch(url, { cache: 'no-store' }) ]);
         const data = await res.json();
 
         if (!data.photos || !data.photos.length) {
-          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo S.O.U.L. pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
           return;
         }
 
-        // Filtre : on garde les photos liées au calendrier La Voix Libre (ou sans eventId — legacy).
-        // On exclut explicitement les photos rattachées au calendrier SOUL.
-        const photos = data.photos.filter(p => {
-          if (!p.eventId) return true; // legacy : pas de rattachement → visible ici
-          if (soulEventIds.has(p.eventId)) return false; // photo SOUL → exclue
-          return true; // soit dans LVL, soit dans un autre calendrier inconnu → visible
-        });
+        // Filtre : on garde UNIQUEMENT les photos rattachées au calendrier SOUL.
+        const photos = data.photos.filter(p => p.eventId && soulEventIds.has(p.eventId));
 
         if (!photos.length) {
-          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          groupsEl.innerHTML = '<div class="gallery-empty"><p>Aucune photo S.O.U.L. pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
           return;
         }
 
-        // Résout le libellé courant + la clé de regroupement de chaque photo
         photos.forEach(p => { p._label = photoLabel(p); p._key = photoKey(p); });
-
         allPhotos = photos;
         renderGroupedGalleries();
       } catch (e) {
@@ -529,11 +493,8 @@
       }
     }
 
-    // ---- Rendu groupé par concert (du plus récent au plus ancien) ----
     function renderGroupedGalleries() {
       const groupsEl = document.getElementById('gallery-groups');
-
-      // Regroupe par clé concert
       const groups = {};
       allPhotos.forEach(p => {
         if (!groups[p._key]) {
@@ -541,12 +502,10 @@
         }
         groups[p._key].photos.push(p);
       });
-      // Trie les concerts du plus récent au plus ancien (en n'incluant QUE ceux qui ont des photos)
       const list = Object.values(groups)
         .filter(g => g.photos.length > 0)
         .sort((a, b) => b.date - a.date);
 
-      // Construit la liste à plat dans l'ordre d'affichage (pour les indices de lightbox)
       filteredPhotos = list.flatMap(g => g.photos);
 
       const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
@@ -580,7 +539,6 @@
           </div>`;
       }).join('');
 
-      // Bind clicks et touches sur toutes les figures
       groupsEl.querySelectorAll('figure').forEach(fig => {
         const handle = () => {
           if (document.body.classList.contains('gallery-select-mode')) {
@@ -595,7 +553,6 @@
         });
       });
 
-      // Re-synchronise le gap sur Behold pour les nouvelles grilles
       if (typeof syncYoutubeGapToBehold === 'function') syncYoutubeGapToBehold();
     }
 
@@ -606,12 +563,10 @@
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
-
     function closeLightbox() {
       document.getElementById('lightbox').classList.remove('open');
       document.body.style.overflow = '';
     }
-
     function showLightboxPhoto(index) {
       const photo = filteredPhotos[index];
       if (!photo) return;
@@ -629,18 +584,15 @@
         + meta
         + `<span style="color:rgba(255,255,255,0.4);margin-left:10px;">${index+1} / ${filteredPhotos.length}</span>`;
 
-      // Cacher flèches si une seule photo
       document.getElementById('lightbox-prev').style.display = filteredPhotos.length > 1 ? '' : 'none';
       document.getElementById('lightbox-next').style.display = filteredPhotos.length > 1 ? '' : 'none';
 
-      // Bouton supprimer : visible uniquement si propriétaire ou chef
       const delBtn = document.getElementById('lightbox-delete');
       delBtn.style.display = canDeletePhoto(photo) ? 'inline-flex' : 'none';
       delBtn.disabled = false;
       delBtn.textContent = '🗑 Supprimer';
     }
 
-    // ---- Suppression d'une photo ----
     async function deleteCurrentPhoto() {
       const photo = filteredPhotos[lightboxIndex];
       if (!photo || !photo.fileId) return;
@@ -670,12 +622,11 @@
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
-        // Retire la photo localement et rafraîchit l'affichage
         allPhotos = allPhotos.filter(p => p.fileId !== photo.fileId);
         closeLightbox();
         if (allPhotos.length === 0) {
           document.getElementById('gallery-groups').innerHTML =
-            '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+            '<div class="gallery-empty"><p>Aucune photo S.O.U.L. pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
         } else {
           renderGroupedGalleries();
         }
@@ -707,7 +658,7 @@
       if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
     });
 
-    // ---- Mode sélection (membres bureau uniquement) ----
+    // ---- Mode sélection (bureau uniquement) ----
     function updateSelectBtn() {
       const btn = document.getElementById('gallery-select-btn');
       if (!btn) return;
@@ -726,7 +677,6 @@
         btn.classList.add('has-selection');
       }
     }
-
     function toggleSelectFigure(fig) {
       const id = fig.dataset.fileId;
       if (!id) return;
@@ -739,7 +689,6 @@
       }
       updateSelectBtn();
     }
-
     async function deleteSelectedPhotos() {
       const ids = Array.from(selectedIds);
       if (!ids.length) return;
@@ -783,7 +732,7 @@
 
       if (allPhotos.length === 0) {
         document.getElementById('gallery-groups').innerHTML =
-          '<div class="gallery-empty"><p>Aucune photo pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
+          '<div class="gallery-empty"><p>Aucune photo S.O.U.L. pour le moment.<br><a href="espace-choristes.html">Soyez le premier à en partager une !</a></p></div>';
       } else {
         renderGroupedGalleries();
       }
@@ -809,7 +758,6 @@
       deleteSelectedPhotos();
     });
 
-    // Active le bouton "Supprimer" pour les chefs (session héritée d'espace-choristes)
     if (isChef()) document.body.classList.add('role-chef');
 
     // ---- Démarrage ----
