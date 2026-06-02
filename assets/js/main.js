@@ -200,13 +200,20 @@ function renderHeader(currentPageId) {
     <ul class="nav-links" id="main-menu"></ul>\
   </nav>';
 
-  // If we're on the Soul site, use the soullogo at site root and do not wrap it in a link
+  // If we're on the Soul site, use the soullogo at site root.
+  // On la page de présentation SOUL elle-même, on n'enveloppe pas dans un lien (ça serait redondant).
+  // Sur les autres pages SOUL (galerie-soul.html, etc.), le logo renvoie vers la page de présentation SOUL.
   const isSoulSite = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
   const soulLogoPath = '/assets/images/soullogo.png';
   let logoHtml = '';
   if (isSoulSite) {
     const alt = 'SOUL';
-    logoHtml = `<img src="${soulLogoPath}" alt="${alt}" class="site-logo" decoding="async">`;
+    const isSoulHome = (currentPageId === 'soul');
+    if (isSoulHome) {
+      logoHtml = `<img src="${soulLogoPath}" alt="${alt}" class="site-logo" decoding="async">`;
+    } else {
+      logoHtml = `<a href="soul.html" class="site-logo-link" aria-label="Retour à la page S.O.U.L."><img src="${soulLogoPath}" alt="${alt}" class="site-logo" decoding="async"></a>`;
+    }
   } else {
     logoHtml = `<a href="${mapPageIdToHref('index')}" class="site-logo-link">\n  <img src="${logoUrlCfg ? logoUrlCfg.valeur : ''}" alt="Logo ${siteTitleCfg ? siteTitleCfg.valeur : 'La Voix Libre'}" class="site-logo" decoding="async">\n      </a>`;
   }
