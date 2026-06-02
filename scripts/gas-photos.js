@@ -28,6 +28,7 @@ function doPost(e) {
 
     if (action === 'upload_photo') return uploadPhoto(data);
     if (action === 'delete_photo') return deletePhoto(data);
+    if (action === 'approve_photo') return approvePhoto(data);
 
     return jsonOk({ error: 'Action inconnue : ' + action });
   } catch (err) {
@@ -61,6 +62,12 @@ function doGet(e) {
     if (action === 'concerts_list') {
       return getConcertsList();
     }
+    if (action === 'pending_list') {
+      // Liste des photos en attente — réservée aux admins
+      const pwd = (e.parameter && e.parameter.adminPassword) || '';
+      if (pwd !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+      return getPendingList();
+    }
 
     return jsonOk({ error: 'Action inconnue : ' + action });
   } catch (err) {
@@ -90,19 +97,83 @@ function uploadPhoto(data) {
   // Accès public en lecture (pour les miniatures dans la galerie)
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-  // Enregistrement dans la feuille manifeste
+  // Enregistrement dans la feuille manifeste — toutes les nouvelles photos sont en attente
   const sheet = getOrCreateSheet();
-  sheet.appendRow([
-    file.getId(),
-    filename,
-    (concert || 'Non précisé').trim(),
-    (uploaderName || 'Anonyme').trim(),
-    new Date().toISOString(),
-    (description || '').toString().trim().slice(0, 300),
-    (eventId || '').toString().trim()
-  ]);
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const row = [];
+  headers.forEach(h => {
+    switch (h) {
+      case 'fileId':       row.push(file.getId()); break;
+      case 'filename':     row.push(filename); break;
+      case 'concert':      row.push((concert || 'Non précisé').trim()); break;
+      case 'uploaderName': row.push((uploaderName || 'Anonyme').trim()); break;
+      case 'uploadDate':   row.push(new Date().toISOString()); break;
+      case 'description':  row.push((description || '').toString().trim().slice(0, 300)); break;
+      case 'eventId':      row.push((eventId || '').toString().trim()); break;
+      case 'status':       row.push('pending'); break;
+      default:             row.push('');
+    }
+  });
+  sheet.appendRow(row);
 
-  return jsonOk({ success: true, fileId: file.getId() });
+  return jsonOk({ success: true, fileId: file.getId(), status: 'pending' });
+}
+
+// ------- Validation d'une photo (admin uniquement) -------
+function approvePhoto(data) {
+  const { fileId, adminPassword } = data;
+  if (!fileId) return jsonOk({ error: 'fileId manquant' });
+  if ((adminPassword || '') !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+
+  const sheet = getOrCreateSheet();
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return jsonOk({ error: 'Photo introuvable' });
+
+  const headers = values[0];
+  const fileCol   = headers.indexOf('fileId');
+  const statusCol = headers.indexOf('status');
+  if (fileCol < 0)   return jsonOk({ error: 'Colonne fileId absente' });
+  if (statusCol < 0) return jsonOk({ error: 'Colonne status absente — feuille non migrée' });
+
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][fileCol]) === String(fileId)) {
+      sheet.getRange(i + 1, statusCol + 1).setValue('approved');
+      return jsonOk({ success: true });
+    }
+  }
+  return jsonOk({ error: 'Photo introuvable dans la feuille' });
+}
+
+// ------- Liste des photos en attente (admin uniquement) -------
+function getPendingList() {
+  const sheet = getOrCreateSheet();
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return jsonOk({ photos: [] });
+
+  const headers = values[0];
+  const statusCol = headers.indexOf('status');
+
+  let photos = values.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[String(h)] = row[i]; });
+    return obj;
+  });
+
+  // Pending = photos dont le status est explicitement "pending"
+  // (les anciennes photos sans status sont implicitement "approved")
+  photos = photos.filter(p => statusCol >= 0 && String(p.status || '').toLowerCase() === 'pending');
+
+  // Vérifie que le fichier Drive est toujours là
+  photos = photos.filter(p => {
+    if (!p.fileId) return false;
+    try {
+      const f = DriveApp.getFileById(p.fileId);
+      return f && !f.isTrashed();
+    } catch (e) { return false; }
+  });
+
+  photos.reverse(); // plus récente en premier
+  return jsonOk({ photos });
 }
 
 // ------- Suppression d'une photo -------
@@ -162,11 +233,18 @@ function getGalleryList(concertFilter) {
   const values = sheet.getDataRange().getValues();
   if (values.length < 2) return jsonOk({ photos: [] });
 
-  const headers = values[0]; // ['fileId','filename','concert','uploaderName','uploadDate']
+  const headers = values[0];
   let photos = values.slice(1).map(row => {
     const obj = {};
     headers.forEach((h, i) => { obj[String(h)] = row[i]; });
     return obj;
+  });
+
+  // Filtre modération : seules les photos approuvées sont publiques.
+  // Les anciennes photos sans status explicite restent visibles (rétrocompat).
+  photos = photos.filter(p => {
+    const s = String(p.status || '').toLowerCase();
+    return s === '' || s === 'approved';
   });
 
   if (concertFilter) {
@@ -180,7 +258,7 @@ function getGalleryList(concertFilter) {
       const f = DriveApp.getFileById(p.fileId);
       return f && !f.isTrashed();
     } catch (e) {
-      return false; // fichier introuvable (supprimé définitivement)
+      return false;
     }
   });
 
@@ -231,7 +309,7 @@ function getOrCreateSheet() {
   let sheet = ss.getSheetByName('Photos');
   if (!sheet) {
     sheet = ss.insertSheet('Photos');
-    sheet.appendRow(['fileId', 'filename', 'concert', 'uploaderName', 'uploadDate', 'description', 'eventId']);
+    sheet.appendRow(['fileId', 'filename', 'concert', 'uploaderName', 'uploadDate', 'description', 'eventId', 'status']);
     sheet.setFrozenRows(1);
     // Largeurs de colonnes confortables
     sheet.setColumnWidth(1, 180); // fileId
@@ -244,11 +322,12 @@ function getOrCreateSheet() {
   } else {
     // Migration : ajoute les colonnes manquantes aux feuilles déjà existantes
     let header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    ['description', 'eventId'].forEach(name => {
+    ['description', 'eventId', 'status'].forEach(name => {
       if (header.indexOf(name) < 0) {
         const col = header.length + 1;
         sheet.getRange(1, col).setValue(name);
-        sheet.setColumnWidth(col, name === 'eventId' ? 260 : 320);
+        const w = name === 'eventId' ? 260 : (name === 'status' ? 110 : 320);
+        sheet.setColumnWidth(col, w);
         header.push(name);
       }
     });

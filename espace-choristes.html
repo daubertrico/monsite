@@ -295,7 +295,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260621">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260624">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -635,7 +635,7 @@
         <!-- ============================================================ -->
         <div id="tab-content-photos" class="choristes-tab-content" style="display:none;">
           <h2>Photos de concerts</h2>
-          <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a>.</p>
+          <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a> après validation par un membre du bureau.</p>
 
           <div id="photo-upload-form" style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
             <h3 style="margin-top:0;color:#134;font-size:1.15rem;">Ajouter une photo</h3>
@@ -708,7 +708,7 @@
 
             <!-- Message succès -->
             <div id="photo-success" style="display:none;margin-top:14px;padding:12px 16px;background:#e8f7ee;border:1px solid #8fd5a6;border-radius:8px;color:#064e3b;font-weight:600;text-align:center;">
-              ✅ Photo envoyée ! Elle apparaît maintenant dans la <a href="galerie.html" style="color:#047857;">galerie</a>.
+              ✅ Photo envoyée ! Elle apparaîtra dans la <a href="galerie.html" style="color:#047857;">galerie</a> dès qu'un membre du bureau l'aura validée.
               <br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter une autre photo</button>
             </div>
           </div>
@@ -1280,15 +1280,15 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260621"></script>
-  <script src="assets/js/main.js?v=20260621"></script>
+  <script src="assets/js/choristes.js?v=20260624"></script>
+  <script src="assets/js/main.js?v=20260624"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
   <!-- ============================================================ -->
   <script>
     // ---- À remplir après déploiement du GAS ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw1hqV4qB2XH0iAD4IOQkNiouXiWegHjRiSbtcGC9VRySr94xUKUdOtb8wWvIoHokTb/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw47zHZJxDOwKYCCJux7BrE8G_CqHm1DaRPiZ4goLto5QZpFLIBr0m5epSY8JO6bqS2/exec';
 
     // ---- Compression côté client (Canvas) ----
     function compressImage(file, maxWidth, quality) {
@@ -1594,9 +1594,9 @@
           // Met à jour le texte du message succès
           successWrap.firstChild && (successWrap.firstChild.nodeValue = '');
           successWrap.innerHTML = (files.length > 1
-              ? '✅ ' + files.length + ' photos envoyées ! Elles apparaissent maintenant dans la '
-              : '✅ Photo envoyée ! Elle apparaît maintenant dans la ')
-            + '<a href="galerie.html" style="color:#047857;">galerie</a>.'
+              ? '✅ ' + files.length + ' photos envoyées ! Elles apparaîtront dans la '
+              : '✅ Photo envoyée ! Elle apparaîtra dans la ')
+            + '<a href="galerie.html" style="color:#047857;">galerie</a> dès qu\'un membre du bureau les aura validées.'
             + '<br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter d\'autres photos</button>';
           successWrap.style.display = 'block';
           // re-bind le bouton "Ajouter d'autres" (nouveau noeud DOM)

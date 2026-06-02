@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Galerie photo S.O.U.L. : souvenirs de concerts a cappella, gospel et soul à Rennes.">
   <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/soullogo.png">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260621">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260624">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -442,6 +442,44 @@
       outline-offset: -3px;
     }
     body.gallery-select-mode .photo-mosaic figure { cursor: pointer; }
+
+    /* ---- Section bureau : photos à valider (visible uniquement role-chef) ---- */
+    #photo-moderation { display: none; max-width: 1000px; margin: 0 auto 2rem auto; padding: 16px 18px;
+      border: 2px solid #fde68a; background: #fffbeb; border-radius: 14px; }
+    body.role-chef #photo-moderation { display: block; }
+    #photo-moderation .pm-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    #photo-moderation h2 {
+      margin: 0; color: #92400e; font-size: 1.15rem;
+      font-family: 'Lobster', cursive; font-weight: 400;
+    }
+    #photo-moderation #pending-count {
+      background: #f59e0b; color: #fff; padding: 2px 10px; border-radius: 999px;
+      font-size: 0.85rem; margin-left: 6px; font-family: inherit;
+    }
+    #pending-refresh {
+      background: #fff; border: 1.5px solid #f59e0b; color: #92400e;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+    }
+    #photo-moderation .pm-hint { margin: 0 0 12px 0; color: #5b3a00; font-size: 0.92rem; }
+    #pending-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .pending-card { background: #fff; border: 1px solid #fde68a; border-radius: 10px; overflow: hidden;
+      position: relative; box-shadow: 0 2px 6px rgba(146,64,14,0.1); }
+    .pending-card .pc-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #f4f1ec; }
+    .pending-card .pc-info { padding: 8px 10px 0 10px; font-size: 0.82rem; color: #444; line-height: 1.35; }
+    .pending-card .pc-info strong { color: #92400e; display: block; margin-bottom: 2px; font-size: 0.86rem; }
+    .pending-card .pc-info em { color: #6b6b6b; font-style: italic; font-size: 0.78rem; display: block; margin-top: 2px; }
+    .pending-card .pc-actions { display: flex; gap: 6px; padding: 8px 10px 10px 10px; }
+    .pending-card .pc-btn { flex: 1 1 auto; padding: 6px 8px; border-radius: 6px; font-weight: 700;
+      font-size: 0.82rem; cursor: pointer; border: none; transition: background 0.15s; }
+    .pending-card .pc-btn.pc-approve { background: #16a34a; color: #fff; }
+    .pending-card .pc-btn.pc-approve:hover { background: #15803d; }
+    .pending-card .pc-btn.pc-reject { background: #fff; color: #b91c1c; border: 1.5px solid #ef4444; }
+    .pending-card .pc-btn.pc-reject:hover { background: #fef2f2; }
+    .pending-card .pc-btn:disabled { opacity: 0.5; cursor: wait; }
+    .pending-empty { color: #92400e; font-style: italic; padding: 10px 4px; grid-column: 1 / -1; }
   </style>
 </head>
 <body class="page-soul internal-page">
@@ -468,6 +506,16 @@
           <a href="espace-choristes.html" class="gallery-upload-cta">📸 Partager mes souvenirs</a>
         </div>
       </div>
+
+      <!-- Section bureau : photos SOUL à valider -->
+      <section id="photo-moderation" aria-label="Photos en attente de validation">
+        <div class="pm-head">
+          <h2>🛂 Photos S.O.U.L. à valider <span id="pending-count">…</span></h2>
+          <button type="button" id="pending-refresh">🔄 Rafraîchir</button>
+        </div>
+        <p class="pm-hint">Photos S.O.U.L. envoyées par les choristes en attente de votre validation.</p>
+        <div id="pending-list"></div>
+      </section>
 
       <!-- Section : Galerie SOUL des choristes -->
       <section class="gallery-section" aria-label="Photos de concerts S.O.U.L.">
@@ -515,10 +563,10 @@
   <script type="module" src="https://w.behold.so/widget.js"></script>
   <!-- Force le rendu SOUL (logo, thème) — main.js détecte sinon via le pathname /soul/* -->
   <script>window.__isSoulSite = true; window.BEHOLD_SOUL_FEED_ID = 'VoBScwhUi0d1gGjxGft3';</script>
-  <script src="assets/js/main.js?v=20260621"></script>
+  <script src="assets/js/main.js?v=20260624"></script>
   <script>
     // ---- Endpoint GAS (identique à galerie.html — mêmes photos en base, filtrées côté client) ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw1hqV4qB2XH0iAD4IOQkNiouXiWegHjRiSbtcGC9VRySr94xUKUdOtb8wWvIoHokTb/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw47zHZJxDOwKYCCJux7BrE8G_CqHm1DaRPiZ4goLto5QZpFLIBr0m5epSY8JO6bqS2/exec';
 
     // ---- État ----
     let allPhotos = [];
@@ -1039,8 +1087,110 @@
 
     if (isChef()) document.body.classList.add('role-chef');
 
+    // ---- Modération : photos SOUL en attente (chef uniquement) ----
+    async function loadPendingPhotos() {
+      if (!isChef()) return;
+      const listEl  = document.getElementById('pending-list');
+      const countEl = document.getElementById('pending-count');
+      if (!listEl) return;
+      listEl.innerHTML = '<p class="pending-empty">Chargement…</p>';
+      countEl.textContent = '…';
+
+      try {
+        const url = PHOTOS_ENDPOINT
+          + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?')
+          + 'action=pending_list&adminPassword=bureau';
+        const res = await fetch(url, { cache: 'no-store' });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        // Filtre : on garde uniquement les photos SOUL (eventId dans soulEventIds)
+        let photos = (data.photos || []).filter(p => p.eventId && soulEventIds.has(p.eventId));
+        countEl.textContent = photos.length;
+
+        if (photos.length === 0) {
+          listEl.innerHTML = '<p class="pending-empty">Aucune photo S.O.U.L. en attente. ✨</p>';
+          return;
+        }
+
+        const esc = s => (s || '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
+        listEl.innerHTML = photos.map(p => {
+          const thumb = 'https://drive.google.com/thumbnail?id=' + p.fileId + '&sz=w400';
+          const desc  = p.description ? '<em>' + esc(p.description) + '</em>' : '';
+          const d     = p.uploadDate ? new Date(p.uploadDate) : null;
+          const dStr  = d && !isNaN(d) ? d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}) + ' à ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'}) : '';
+          const concertName = (p.eventId && eventMap[p.eventId])
+            ? formatConcertLabel(eventMap[p.eventId].name, eventMap[p.eventId].date)
+            : (p.concert || 'Concert non précisé');
+          return '<div class="pending-card" data-file-id="' + esc(p.fileId) + '">'
+            + '<img class="pc-img" src="' + thumb + '" alt="" loading="lazy">'
+            + '<div class="pc-info">'
+              + '<strong>' + esc(concertName) + '</strong>'
+              + 'par ' + esc(p.uploaderName || 'Anonyme')
+              + (dStr ? ' · ' + dStr : '')
+              + desc
+            + '</div>'
+            + '<div class="pc-actions">'
+              + '<button class="pc-btn pc-approve">✓ Valider</button>'
+              + '<button class="pc-btn pc-reject">✗ Refuser</button>'
+            + '</div>'
+          + '</div>';
+        }).join('');
+
+        listEl.querySelectorAll('.pending-card').forEach(card => {
+          const fileId = card.dataset.fileId;
+          card.querySelector('.pc-approve').addEventListener('click', () => handlePendingAction(fileId, 'approve', card));
+          card.querySelector('.pc-reject').addEventListener('click', () => {
+            if (!confirm('Refuser définitivement cette photo ?\n\nElle sera supprimée (corbeille Drive).')) return;
+            handlePendingAction(fileId, 'reject', card);
+          });
+        });
+      } catch (err) {
+        console.error('pending list error', err);
+        listEl.innerHTML = '<p class="pending-empty">⚠️ Impossible de charger : ' + (err.message || 'erreur réseau') + '</p>';
+        countEl.textContent = '?';
+      }
+    }
+
+    async function handlePendingAction(fileId, action, cardEl) {
+      const btns = cardEl.querySelectorAll('.pc-btn');
+      btns.forEach(b => b.disabled = true);
+      try {
+        const params = new URLSearchParams();
+        params.set('action', action === 'approve' ? 'approve_photo' : 'delete_photo');
+        params.set('data', JSON.stringify({ fileId: fileId, adminPassword: 'bureau' }));
+        const res = await fetch(PHOTOS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString()
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        cardEl.style.transition = 'opacity 0.3s, transform 0.3s';
+        cardEl.style.opacity = '0';
+        cardEl.style.transform = 'scale(0.92)';
+        setTimeout(() => {
+          cardEl.remove();
+          const listEl  = document.getElementById('pending-list');
+          const countEl = document.getElementById('pending-count');
+          const remaining = listEl ? listEl.querySelectorAll('.pending-card').length : 0;
+          countEl.textContent = remaining;
+          if (remaining === 0 && listEl) {
+            listEl.innerHTML = '<p class="pending-empty">Aucune photo S.O.U.L. en attente. ✨</p>';
+          }
+          if (action === 'approve') loadGallery();
+        }, 300);
+      } catch (err) {
+        alert('Échec : ' + (err.message || 'erreur réseau'));
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+
+    document.getElementById('pending-refresh').addEventListener('click', loadPendingPhotos);
+
     // ---- Démarrage ----
-    loadGallery();
+    loadGallery().then(() => { if (isChef()) loadPendingPhotos(); });
   </script>
 </body>
 </html>
