@@ -17,7 +17,7 @@
   <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
   <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260632">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260635">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -109,25 +109,38 @@
       margin: 0 0 1rem 0;
     }
 
-    /* ---- Groupes par concert ---- */
-    .gallery-group { margin: 0 0 2.2rem 0; }
+    /* ---- Groupes par concert : "bouquets" ---- */
+    .gallery-group {
+      margin: 0 0 1.6rem 0;
+      background: #fff;
+      border: 1px solid #f0e8f5;
+      border-radius: 18px;
+      padding: 12px 12px 6px 12px;
+      box-shadow: 0 3px 12px rgba(136,68,170,0.08);
+      opacity: 0;
+      transform: scale(0.96) translateY(8px);
+      animation: bouquetBloom 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
     .gallery-group:last-child { margin-bottom: 0; }
+    @keyframes bouquetBloom {
+      0%   { opacity: 0; transform: scale(0.92) translateY(8px); }
+      60%  { opacity: 1; transform: scale(1.01) translateY(0); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
 
     /* En-tête riche : emoji saison + titre + chips date relative & nb photos */
     .gallery-group-header {
       display: flex;
       align-items: center;
       justify-content: flex-start;
-      gap: 14px;
+      gap: 12px;
       flex-wrap: wrap;
-      margin: 0 auto 14px auto;
-      padding: 14px 20px;
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #f0e8f5;
-      border-left: 4px solid var(--accent-color-complementary);
-      box-shadow: 0 2px 10px rgba(136,68,170,0.06);
-      max-width: 1000px;
+      margin: 0 0 10px 0;
+      padding: 4px 6px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
     }
     .gallery-group-header .ggh-emoji {
       font-size: 1.6rem;
@@ -247,12 +260,33 @@
     .gallery-group-sep::before { right: calc(50% + 22px); }
     .gallery-group-sep::after  { left:  calc(50% + 22px); }
 
-    /* ---- Mosaïque (masonry) — photos en vraies proportions, collées ---- */
+    /* ---- Mosaïque "bouquet" — Grid asymétrique avec photo centrale + spans calculés en JS ---- */
     .photo-mosaic {
-      column-count: 3;
-      column-gap: 0;
-      margin: 8px auto 0 auto;
-      max-width: 1000px;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-auto-rows: 12px;
+      grid-auto-flow: dense;
+      gap: 1px;
+      margin: 0;
+      max-width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .photo-mosaic figure.bouquet-center { grid-column: span 2; }
+    /* Mobile : on revient au masonry en colonnes (aligné, c'est ce qui plaît au téléphone) */
+    @media (max-width: 600px) {
+      .photo-mosaic {
+        display: block;
+        column-count: 4;
+        column-gap: 0;
+        grid-template-columns: initial;
+        grid-auto-rows: initial;
+      }
+      .photo-mosaic figure { grid-row: initial !important; grid-column: initial !important; }
+      .photo-mosaic figure.bouquet-center { grid-column: initial; }
+    }
+    @media (max-width: 400px) {
+      .photo-mosaic { column-count: 3; }
     }
     .photo-mosaic figure {
       margin: 0;
@@ -277,9 +311,15 @@
     }
     .photo-mosaic figure img {
       width: 100%;
-      height: auto;
+      height: 100%;
       display: block;
+      object-fit: cover;
       transition: opacity 0.2s ease;
+    }
+    /* Sur mobile (masonry colonnes), on garde les vraies proportions sans crop */
+    @media (max-width: 600px) {
+      .photo-mosaic figure { break-inside: avoid; }
+      .photo-mosaic figure img { height: auto; object-fit: initial; }
     }
     .photo-mosaic figure:hover img { opacity: 0.95; }
     /* Petit ❤️ qui apparaît en haut-droite au survol */
@@ -523,11 +563,17 @@
     #lightbox-delete:hover { background: rgba(220, 38, 38, 0.95); }
     #lightbox-delete:disabled { opacity: 0.6; cursor: wait; }
 
+    @media (max-width: 900px) {
+      .photo-mosaic { column-count: 5; }
+    }
     @media (max-width: 600px) {
-      /* Mosaïque : 2 colonnes sur mobile pour plus de respiration sur les portraits */
-      .photo-mosaic { column-count: 2; column-gap: 0; }
+      .photo-mosaic { column-count: 4; }
+      .gallery-group { padding: 10px 10px 4px 10px; border-radius: 14px; }
       #lightbox-prev { left: 4px; }
       #lightbox-next { right: 4px; }
+    }
+    @media (max-width: 400px) {
+      .photo-mosaic { column-count: 3; }
     }
 
     /* ---- CTA upload ---- */
@@ -738,7 +784,7 @@
 
   <!-- Widget Instagram Behold -->
   <script type="module" src="https://w.behold.so/widget.js"></script>
-  <script src="assets/js/main.js?v=20260632"></script>
+  <script src="assets/js/main.js?v=20260635"></script>
   <script>
     // ---- Endpoint GAS (à remplir après déploiement) ----
     const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw7r-LkBva25U-YKVADJFj-3Cg461sSotu_mt9y97rV4RvFDT3HYkqvCS5zGStuqFZ8/exec';
@@ -1066,8 +1112,52 @@
         });
       });
 
+      // ---- Layout "bouquet" : première photo de chaque groupe en centre + spans dynamiques ----
+      groupsEl.querySelectorAll('.photo-mosaic').forEach(mosaic => {
+        const figs = mosaic.querySelectorAll('figure');
+        if (figs.length > 0) figs[0].classList.add('bouquet-center');
+        arrangeBouquet(mosaic);
+      });
+
       if (typeof syncYoutubeGapToBehold === 'function') syncYoutubeGapToBehold();
     }
+
+    // Calcule grid-row span de chaque photo d'après ses vraies proportions (desktop uniquement)
+    function arrangeBouquet(mosaic) {
+      if (window.matchMedia('(max-width: 600px)').matches) return; // mobile = masonry, on ne touche pas
+      const figs = Array.from(mosaic.querySelectorAll('figure'));
+      const containerWidth = mosaic.offsetWidth;
+      if (!containerWidth) return;
+      const cols = 8;
+      const rowHeight = 12; // doit matcher grid-auto-rows
+      const gap = 1;
+      const colWidth = (containerWidth - gap * (cols - 1)) / cols;
+
+      figs.forEach(fig => {
+        const img = fig.querySelector('img');
+        if (!img) return;
+        const apply = () => {
+          const w = img.naturalWidth, h = img.naturalHeight;
+          if (!w || !h) return;
+          const spanCols = fig.classList.contains('bouquet-center') ? 2 : 1;
+          const cellWidth = colWidth * spanCols + gap * (spanCols - 1);
+          const targetHeight = cellWidth * (h / w);
+          const rowSpan = Math.max(2, Math.round((targetHeight + gap) / (rowHeight + gap)));
+          fig.style.gridRow = 'span ' + rowSpan;
+        };
+        if (img.complete && img.naturalWidth) apply();
+        else img.addEventListener('load', apply, { once: true });
+      });
+    }
+
+    // Recalcule les spans à chaque changement de taille (debounced)
+    let _resizeT;
+    window.addEventListener('resize', () => {
+      clearTimeout(_resizeT);
+      _resizeT = setTimeout(() => {
+        document.querySelectorAll('.photo-mosaic').forEach(arrangeBouquet);
+      }, 200);
+    });
 
     // ---- Stats du hero ----
     function updateHeroStats(list) {
