@@ -29,6 +29,10 @@ function doPost(e) {
     if (action === 'upload_photo') return uploadPhoto(data);
     if (action === 'delete_photo') return deletePhoto(data);
     if (action === 'approve_photo') return approvePhoto(data);
+    if (action === 'register_profile') return registerProfile(data);
+    if (action === 'upload_profile_photo') return uploadProfilePhoto(data);
+    if (action === 'delete_profile_photo') return deleteProfilePhoto(data);
+    if (action === 'bulk_register_profiles') return bulkRegisterProfiles(data);
 
     return jsonOk({ error: 'Action inconnue : ' + action });
   } catch (err) {
@@ -67,6 +71,18 @@ function doGet(e) {
       const pwd = (e.parameter && e.parameter.adminPassword) || '';
       if (pwd !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
       return getPendingList();
+    }
+    if (action === 'trombinoscope_list') {
+      // Avant de retourner la liste, on tente de synchroniser depuis la feuille des présences.
+      // Si ATTENDANCE_SHEET_ID n'est pas configuré, ou si on a déjà synchronisé récemment, on saute.
+      try { maybeSyncFromAttendance(); } catch (e) { /* silencieux */ }
+      return getTrombinoscope();
+    }
+    if (action === 'force_sync_attendance') {
+      // Force la sync (admin uniquement)
+      const pwd = (e.parameter && e.parameter.adminPassword) || '';
+      if (pwd !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+      return syncFromAttendance(true);
     }
 
     return jsonOk({ error: 'Action inconnue : ' + action });
@@ -334,6 +350,296 @@ function getOrCreateSheet() {
   }
 
   return sheet;
+}
+
+// ============================================================
+// TROMBINOSCOPE — profils des choristes + photos optionnelles
+// ============================================================
+
+function getTrombinoSheet() {
+  const props = PropertiesService.getScriptProperties();
+  let ssId = props.getProperty('PHOTOS_SHEET_ID');
+  if (!ssId) {
+    getOrCreateSheet(); // force la création du SS principal
+    ssId = props.getProperty('PHOTOS_SHEET_ID');
+  }
+  const ss = SpreadsheetApp.openById(ssId);
+  let sheet = ss.getSheetByName('Trombinoscope');
+  if (!sheet) {
+    sheet = ss.insertSheet('Trombinoscope');
+    sheet.appendRow(['key', 'prenom', 'nom', 'pupitre', 'ensembles', 'photoFileId', 'joinedAt', 'updatedAt']);
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 220);
+    sheet.setColumnWidth(2, 120);
+    sheet.setColumnWidth(3, 140);
+    sheet.setColumnWidth(4, 100);
+    sheet.setColumnWidth(5, 140);
+    sheet.setColumnWidth(6, 200);
+    sheet.setColumnWidth(7, 180);
+    sheet.setColumnWidth(8, 180);
+  }
+  return sheet;
+}
+
+function makeProfileKey(prenom, nom) {
+  return normName(prenom) + '|' + normName(nom);
+}
+
+function findProfileRow(sheet, key) {
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (String(values[i][0]) === key) {
+      return { row: i + 1, data: values[i] };
+    }
+  }
+  return null;
+}
+
+// Upsert d'un profil choriste (sans toucher à la photo)
+function registerProfile(data) {
+  const { prenom, nom, pupitre, ensembles } = data;
+  if (!prenom || !nom) return jsonOk({ error: 'Prénom/nom manquants' });
+
+  const sheet = getTrombinoSheet();
+  const key = makeProfileKey(prenom, nom);
+  const existing = findProfileRow(sheet, key);
+  const now = new Date().toISOString();
+  const ensembleStr = (Array.isArray(ensembles) ? ensembles : (ensembles ? [ensembles] : [])).join(',');
+
+  if (existing) {
+    sheet.getRange(existing.row, 2).setValue((prenom || '').trim());
+    sheet.getRange(existing.row, 3).setValue((nom || '').trim());
+    sheet.getRange(existing.row, 4).setValue((pupitre || '').trim());
+    sheet.getRange(existing.row, 5).setValue(ensembleStr);
+    sheet.getRange(existing.row, 8).setValue(now);
+  } else {
+    sheet.appendRow([
+      key,
+      (prenom || '').trim(),
+      (nom || '').trim(),
+      (pupitre || '').trim(),
+      ensembleStr,
+      '',
+      now,
+      now
+    ]);
+  }
+  return jsonOk({ success: true });
+}
+
+// Upload de la photo de profil — remplace la précédente si elle existe
+function uploadProfilePhoto(data) {
+  const { base64, mimeType, prenom, nom } = data;
+  if (!prenom || !nom) return jsonOk({ error: 'Prénom/nom manquants' });
+  if (!base64) return jsonOk({ error: 'Image manquante' });
+
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes((mimeType || '').toLowerCase())) {
+    return jsonOk({ error: 'Type de fichier non autorisé' });
+  }
+
+  const sheet = getTrombinoSheet();
+  const key = makeProfileKey(prenom, nom);
+  let existing = findProfileRow(sheet, key);
+  if (!existing) {
+    // Crée une ligne si elle n'existe pas encore
+    const now = new Date().toISOString();
+    sheet.appendRow([key, prenom.trim(), nom.trim(), '', '', '', now, now]);
+    existing = findProfileRow(sheet, key);
+  }
+
+  // Supprime l'ancienne photo si présente
+  const prevId = String(existing.data[5] || '');
+  if (prevId) {
+    try { DriveApp.getFileById(prevId).setTrashed(true); } catch (e) {}
+  }
+
+  // Upload la nouvelle photo
+  const bytes = Utilities.base64Decode(base64);
+  const filename = 'trombi_' + key.replace(/[^a-zA-Z0-9]/g, '_') + '_' + Date.now() + '.jpg';
+  const blob = Utilities.newBlob(bytes, mimeType, filename);
+  const folder = DriveApp.getFolderById(PHOTO_FOLDER_ID);
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  sheet.getRange(existing.row, 6).setValue(file.getId());
+  sheet.getRange(existing.row, 8).setValue(new Date().toISOString());
+
+  return jsonOk({ success: true, fileId: file.getId() });
+}
+
+// Suppression de la photo de profil (par le propriétaire ou un admin)
+function deleteProfilePhoto(data) {
+  const { prenom, nom, adminPassword } = data;
+  if (!prenom || !nom) return jsonOk({ error: 'Prénom/nom manquants' });
+
+  const sheet = getTrombinoSheet();
+  const key = makeProfileKey(prenom, nom);
+  const existing = findProfileRow(sheet, key);
+  if (!existing) return jsonOk({ error: 'Profil introuvable' });
+
+  const isAdmin = (adminPassword || '') === ADMIN_PASSWORD;
+  const sameOwner = normName(existing.data[1]) === normName(prenom)
+                 && normName(existing.data[2]) === normName(nom);
+  if (!isAdmin && !sameOwner) return jsonOk({ error: 'Suppression refusée' });
+
+  const prevId = String(existing.data[5] || '');
+  if (prevId) {
+    try { DriveApp.getFileById(prevId).setTrashed(true); } catch (e) {}
+  }
+  sheet.getRange(existing.row, 6).setValue('');
+  sheet.getRange(existing.row, 8).setValue(new Date().toISOString());
+  return jsonOk({ success: true });
+}
+
+// Sync auto depuis la feuille des présences : extrait les uniques (prénom, nom, pupitre)
+// et les upsert dans Trombinoscope. Throttle : 1 fois par 10 minutes max.
+function maybeSyncFromAttendance() {
+  const props = PropertiesService.getScriptProperties();
+  const last = Number(props.getProperty('LAST_ATT_SYNC') || 0);
+  if (Date.now() - last < 10 * 60 * 1000) return null; // < 10 min → skip
+  return syncFromAttendance(false);
+}
+
+function syncFromAttendance(force) {
+  const props = PropertiesService.getScriptProperties();
+  const attSheetId = props.getProperty('ATTENDANCE_SHEET_ID');
+  if (!attSheetId) {
+    return jsonOk({ error: 'ATTENDANCE_SHEET_ID non configuré (Properties du script)' });
+  }
+  let attSs;
+  try { attSs = SpreadsheetApp.openById(attSheetId); }
+  catch (e) { return jsonOk({ error: 'Feuille attendance introuvable : ' + e.toString() }); }
+
+  // Parcourt toutes les feuilles du spreadsheet (peut y avoir une feuille par calendrier)
+  const sheets = attSs.getSheets();
+  const seen = new Map(); // key -> { prenom, nom, pupitre, ensembles:Set }
+
+  sheets.forEach(s => {
+    const values = s.getDataRange().getValues();
+    if (values.length < 2) return;
+    const headers = values[0].map(h => String(h).toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, ''));
+    const findCol = (names) => {
+      for (const name of names) {
+        const i = headers.indexOf(name);
+        if (i >= 0) return i;
+      }
+      return -1;
+    };
+    const pCol  = findCol(['prenom', 'firstname', 'first_name']);
+    const nCol  = findCol(['nom', 'lastname', 'last_name', 'name']);
+    const puCol = findCol(['pupitre', 'voice', 'voix']);
+    const calCol = findCol(['calendar', 'calendrier', 'ensemble']);
+    if (pCol < 0 || nCol < 0) return; // feuille non exploitable
+
+    for (let i = 1; i < values.length; i++) {
+      const prenom = String(values[i][pCol] || '').trim();
+      const nom    = String(values[i][nCol] || '').trim();
+      if (!prenom || !nom) continue;
+      const pupitre = puCol >= 0 ? String(values[i][puCol] || '').trim() : '';
+      const cal     = calCol >= 0 ? String(values[i][calCol] || '').toLowerCase().trim() : '';
+      const key = makeProfileKey(prenom, nom);
+      if (!seen.has(key)) {
+        seen.set(key, { prenom, nom, pupitre, ensembles: new Set() });
+      }
+      const entry = seen.get(key);
+      if (pupitre && !entry.pupitre) entry.pupitre = pupitre;
+      if (cal) {
+        if (cal.includes('soul')) entry.ensembles.add('soul');
+        else entry.ensembles.add('chorale');
+      } else {
+        // Fallback : le nom de la feuille peut indiquer l'ensemble
+        const sn = (s.getName() || '').toLowerCase();
+        if (sn.includes('soul')) entry.ensembles.add('soul');
+        else if (sn) entry.ensembles.add('chorale');
+      }
+    }
+  });
+
+  // Upsert dans Trombinoscope
+  const tromb = getTrombinoSheet();
+  const now = new Date().toISOString();
+  let added = 0, updated = 0;
+  seen.forEach((entry, key) => {
+    const existing = findProfileRow(tromb, key);
+    const ensStr = Array.from(entry.ensembles).join(',');
+    if (existing) {
+      // On ne modifie le pupitre que s'il était vide (pour ne pas écraser une saisie utilisateur)
+      const currentPup = String(existing.data[3] || '').trim();
+      if (!currentPup && entry.pupitre) {
+        tromb.getRange(existing.row, 4).setValue(entry.pupitre);
+      }
+      const currentEns = String(existing.data[4] || '').trim();
+      if (!currentEns && ensStr) {
+        tromb.getRange(existing.row, 5).setValue(ensStr);
+      }
+      tromb.getRange(existing.row, 8).setValue(now);
+      updated++;
+    } else {
+      tromb.appendRow([key, entry.prenom, entry.nom, entry.pupitre, ensStr, '', now, now]);
+      added++;
+    }
+  });
+
+  props.setProperty('LAST_ATT_SYNC', String(Date.now()));
+  return jsonOk({ success: true, added: added, updated: updated, total: seen.size });
+}
+
+// Bulk-register : ajout en masse de plusieurs choristes (admin uniquement)
+// Utile pour seed le trombinoscope rétrospectivement.
+function bulkRegisterProfiles(data) {
+  const { profiles, adminPassword } = data;
+  if ((adminPassword || '') !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+  if (!Array.isArray(profiles) || profiles.length === 0) return jsonOk({ error: 'Liste vide' });
+
+  const sheet = getTrombinoSheet();
+  const now = new Date().toISOString();
+  let added = 0, updated = 0, skipped = 0;
+
+  profiles.forEach(p => {
+    const prenom  = (p.prenom || '').trim();
+    const nom     = (p.nom || '').trim();
+    const pupitre = (p.pupitre || '').trim();
+    if (!prenom || !nom) { skipped++; return; }
+    const ensembleStr = Array.isArray(p.ensembles) ? p.ensembles.join(',') : '';
+    const key = makeProfileKey(prenom, nom);
+    const existing = findProfileRow(sheet, key);
+    if (existing) {
+      sheet.getRange(existing.row, 2).setValue(prenom);
+      sheet.getRange(existing.row, 3).setValue(nom);
+      if (pupitre) sheet.getRange(existing.row, 4).setValue(pupitre);
+      if (ensembleStr) sheet.getRange(existing.row, 5).setValue(ensembleStr);
+      sheet.getRange(existing.row, 8).setValue(now);
+      updated++;
+    } else {
+      sheet.appendRow([key, prenom, nom, pupitre, ensembleStr, '', now, now]);
+      added++;
+    }
+  });
+
+  return jsonOk({ success: true, added: added, updated: updated, skipped: skipped });
+}
+
+// Liste publique (pour les choristes connectés) du trombinoscope
+function getTrombinoscope() {
+  const sheet = getTrombinoSheet();
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return jsonOk({ choristes: [] });
+  const headers = values[0];
+
+  let choristes = values.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[String(h)] = row[i]; });
+    return {
+      prenom: String(obj.prenom || ''),
+      nom: String(obj.nom || ''),
+      pupitre: String(obj.pupitre || ''),
+      ensembles: String(obj.ensembles || '').split(',').map(s => s.trim()).filter(Boolean),
+      photoFileId: String(obj.photoFileId || '')
+    };
+  }).filter(c => c.prenom && c.nom);
+
+  return jsonOk({ choristes });
 }
 
 // ------- Helper JSON -------

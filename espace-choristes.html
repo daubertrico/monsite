@@ -227,6 +227,117 @@
     color: #2a2440;
   }
 
+  /* ---- Trombinoscope ---- */
+  .trombino-section { margin: 0 0 28px 0; }
+  .trombino-section-title {
+    font-family: 'Lobster', cursive;
+    font-size: 1.35rem;
+    color: var(--accent-color-complementary, #8844aa);
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .trombino-section-title .trombino-count {
+    font-family: inherit;
+    background: #f7eff8;
+    color: #5b3870;
+    border: 1px solid #ead7ee;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .trombino-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .trombino-card {
+    background: #fff;
+    border: 1px solid #ecebf3;
+    border-radius: 14px;
+    padding: 14px 10px 12px 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(136,68,170,0.06);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .trombino-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(136,68,170,0.15);
+  }
+  .trombino-avatar {
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 8px;
+    display: block;
+    background: linear-gradient(135deg, #f7eff8, #ead7ee);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(136,68,170,0.15);
+  }
+  .trombino-avatar.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.6rem;
+    line-height: 1;
+  }
+  /* Avatar éditable : indication visuelle au survol */
+  .trombino-avatar-wrap {
+    position: relative;
+    width: 92px; height: 92px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+  }
+  .trombino-avatar-wrap .trombino-avatar { margin: 0; }
+  .trombino-avatar-wrap.editable { cursor: pointer; }
+  .trombino-avatar-wrap.editable::after {
+    content: '📷';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 1.4rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .trombino-avatar-wrap.editable:hover::after { opacity: 1; }
+  .trombino-avatar-wrap.uploading::after { content: '⏳'; opacity: 1; background: rgba(0,0,0,0.55); }
+  @media (max-width: 600px) {
+    .trombino-avatar-wrap { width: 76px; height: 76px; }
+  }
+  .trombino-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2a2440;
+    line-height: 1.25;
+    margin: 4px 0 0 0;
+  }
+  .trombino-name .firstname { color: var(--accent-color-complementary, #8844aa); }
+  .trombino-ens {
+    font-size: 0.72rem;
+    color: #888;
+    margin-top: 3px;
+  }
+  .trombino-empty {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 30px 10px;
+  }
+  @media (max-width: 600px) {
+    .trombino-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .trombino-avatar { width: 76px; height: 76px; }
+    .trombino-card { padding: 10px 8px 10px 8px; }
+  }
+
+
   @media (max-width: 700px) {
     .espace-section {
       padding: 14px 14px;
@@ -295,7 +406,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260624">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260631">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -335,6 +446,20 @@
             <option>Ténor</option>
             <option>Basse</option>
           </select>
+
+          <!-- Photo de profil (facultative) -->
+          <div style="margin:8px 0; text-align:center;">
+            <label for="profile-step-photo" id="profile-step-photo-label"
+              style="display:inline-flex; align-items:center; gap:10px; cursor:pointer; padding:10px 16px;
+                     border:1.5px dashed #98bfff; border-radius:10px; color:#3981FF; font-weight:600; background:#fff;">
+              <span id="profile-step-photo-icon" style="font-size:1.4rem;">📷</span>
+              <span id="profile-step-photo-text">Ajouter une photo (facultatif)</span>
+            </label>
+            <input type="file" id="profile-step-photo" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+            <img id="profile-step-photo-preview" alt="" style="display:none;width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid #98bfff;margin:10px auto 0;">
+            <p id="profile-step-photo-hint" style="font-size:0.82rem;color:#789;margin:6px 0 0 0;">Permettra de t'identifier dans le trombinoscope de la chorale.</p>
+          </div>
+
           <button id="profile-step-submit">Accéder à l'espace choristes →</button>
         </div>
         <div id="profile-step-error" class="gate-error">Merci de renseigner tous les champs.</div>
@@ -346,6 +471,7 @@
           <button class="choristes-tab" data-tab="calendrier">📅 Calendrier</button>
           <button class="choristes-tab" data-tab="infos">ℹ️ Infos & liens</button>
           <button class="choristes-tab" data-tab="photos">📷 Photos</button>
+          <button class="choristes-tab" data-tab="trombinoscope">👥 Trombinoscope</button>
         </div>
         <div id="tab-content-chansons" class="choristes-tab-content"></div>
         <div id="tab-content-infos" class="choristes-tab-content" style="display:none;">
@@ -719,6 +845,19 @@
           </p>
         </div>
         <!-- FIN ONGLET PHOTOS -->
+
+        <!-- ============================================================ -->
+        <!-- ONGLET TROMBINOSCOPE                                          -->
+        <!-- ============================================================ -->
+        <div id="tab-content-trombinoscope" class="choristes-tab-content" style="display:none;">
+          <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-complementary);font-size:1.6rem;margin:0 0 8px 0;">Trombinoscope</h2>
+          <p style="color:#555;margin:0 0 18px 0;">Mettez un visage sur chaque voix. Pour apparaître ici, ajoutez votre photo lors de la connexion ou en modifiant votre profil.</p>
+
+          <div id="trombino-content" aria-live="polite">
+            <p style="color:#888;font-style:italic;">Chargement…</p>
+          </div>
+        </div>
+        <!-- FIN ONGLET TROMBINOSCOPE -->
 
         <div id="tab-content-calendrier" class="choristes-tab-content" style="display:none;">
           <!-- Bandeau profil courant -->
@@ -1280,15 +1419,65 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260624"></script>
-  <script src="assets/js/main.js?v=20260624"></script>
+  <script src="assets/js/choristes.js?v=20260631"></script>
+  <script src="assets/js/main.js?v=20260631"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
   <!-- ============================================================ -->
   <script>
     // ---- À remplir après déploiement du GAS ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw47zHZJxDOwKYCCJux7BrE8G_CqHm1DaRPiZ4goLto5QZpFLIBr0m5epSY8JO6bqS2/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw7r-LkBva25U-YKVADJFj-3Cg461sSotu_mt9y97rV4RvFDT3HYkqvCS5zGStuqFZ8/exec';
+
+    // ---- Sync profil vers GAS (déclenché par choristes.js — listener posé tôt pour ne pas rater l'event) ----
+    document.addEventListener('choriste:profile-saved', async function(ev) {
+      var detail = ev.detail || {};
+      if (!detail.prenom || !detail.nom) return;
+      try {
+        var fullProf = {};
+        try { fullProf = JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch {}
+        var ensembles = Array.isArray(fullProf.ensembles) ? fullProf.ensembles : [];
+
+        // 1) Enregistre le profil dans le trombinoscope
+        var p = new URLSearchParams();
+        p.set('action', 'register_profile');
+        p.set('data', JSON.stringify({
+          prenom: detail.prenom, nom: detail.nom, pupitre: detail.pupitre, ensembles: ensembles
+        }));
+        try {
+          var r1 = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: p.toString()
+          });
+          var d1 = await r1.json();
+          if (d1.error) console.warn('register_profile error:', d1.error);
+        } catch (e) {
+          console.warn('register_profile network error', e);
+        }
+
+        // 2) Si une photo de profil est sélectionnée, on l'upload
+        var input = document.getElementById('profile-step-photo');
+        var file = input && input.files && input.files[0];
+        if (!file) return;
+
+        var compressed = await compressImage(file, 600, 0.82);
+        var base64 = await blobToBase64(compressed);
+        var p2 = new URLSearchParams();
+        p2.set('action', 'upload_profile_photo');
+        p2.set('data', JSON.stringify({
+          prenom: detail.prenom, nom: detail.nom,
+          base64: base64, mimeType: 'image/jpeg'
+        }));
+        await fetch(PHOTOS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: p2.toString()
+        });
+      } catch (e) {
+        console.warn('Sync profil/trombinoscope échouée', e);
+      }
+    });
 
     // ---- Compression côté client (Canvas) ----
     function compressImage(file, maxWidth, quality) {
@@ -1620,6 +1809,198 @@
           loadConcertsForUpload();
         });
       }
+
+      // ---- Charge le trombinoscope quand l'onglet est ouvert ----
+      var trombinoTab = document.querySelector('.choristes-tab[data-tab="trombinoscope"]');
+      if (trombinoTab) trombinoTab.addEventListener('click', loadTrombinoscope);
+
+      // ---- Photo de profil : preview à la sélection ----
+      var profilePhotoInput = document.getElementById('profile-step-photo');
+      if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', function() {
+          var file = profilePhotoInput.files && profilePhotoInput.files[0];
+          var preview = document.getElementById('profile-step-photo-preview');
+          var text    = document.getElementById('profile-step-photo-text');
+          var icon    = document.getElementById('profile-step-photo-icon');
+          if (!file) { preview.style.display = 'none'; return; }
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            text.textContent = 'Photo choisie — cliquer pour changer';
+            icon.textContent = '✓';
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // ---- Trombinoscope ----
+      var _trombinoLoaded = false;
+      async function loadTrombinoscope(forceReload) {
+        var el = document.getElementById('trombino-content');
+        if (!el) return;
+        if (_trombinoLoaded && !forceReload) return;
+        el.innerHTML = '<p style="color:#888;font-style:italic;">Chargement…</p>';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=trombinoscope_list';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          renderTrombinoscope(data.choristes || []);
+          _trombinoLoaded = true;
+        } catch (err) {
+          console.error('trombinoscope error', err);
+          el.innerHTML = '<p style="color:#b91c1c;">Impossible de charger le trombinoscope (' + (err.message || 'erreur réseau') + ').</p>';
+        }
+      }
+
+      // Avatars animaux déterministes (pas de réseau, juste de l'emoji)
+      var ANIMAL_EMOJIS = ['🐱','🐶','🦊','🐼','🐻','🦉','🐰','🐸','🦁','🐨','🐹','🐺'];
+      var ANIMAL_BG = ['#fde2e4','#fad2e1','#cddafd','#bee1e6','#e2ece9','#fff1e6','#dbe7e4','#e8d6ec','#ffeacc','#d4f4dd','#ddd6f3','#ffe5d9'];
+      function _hashStr(s) {
+        var h = 0;
+        for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+        return Math.abs(h);
+      }
+      function animalAvatar(prenom, nom) {
+        var key = ((prenom || '') + '|' + (nom || '')).toLowerCase();
+        var idx = _hashStr(key) % ANIMAL_EMOJIS.length;
+        return { emoji: ANIMAL_EMOJIS[idx], bg: ANIMAL_BG[idx] };
+      }
+
+      // Normalisation pour comparer prénom/nom
+      function _normName(s) {
+        return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/\s+/g, ' ').trim().toLowerCase();
+      }
+      function isCurrentChoriste(c) {
+        try {
+          var p = JSON.parse(localStorage.getItem('choristeProfile') || '{}');
+          return _normName(p.prenom) === _normName(c.prenom)
+              && _normName(p.nom) === _normName(c.nom);
+        } catch { return false; }
+      }
+      function isChefMode() {
+        try { return localStorage.getItem('choristesRole') === 'chef' || sessionStorage.getItem('choristesRole') === 'chef'; }
+        catch { return false; }
+      }
+      function canEditPhotoOf(c) { return isChefMode() || isCurrentChoriste(c); }
+
+      function renderTrombinoscope(choristes) {
+        var el = document.getElementById('trombino-content');
+        if (!el) return;
+        if (!choristes.length) {
+          el.innerHTML = '<p class="trombino-empty">Personne dans le trombinoscope pour le moment. ✨<br>Soyez la première personne à apparaître en ajoutant votre photo à la connexion.</p>';
+          return;
+        }
+        var ORDER = ['Soprane', 'Alto', 'Ténor', 'Basse'];
+        var groups = {};
+        ORDER.forEach(function(p){ groups[p] = []; });
+        choristes.forEach(function(c) {
+          var key = c.pupitre && groups[c.pupitre] ? c.pupitre : 'Autres';
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(c);
+        });
+        Object.keys(groups).forEach(function(k) {
+          groups[k].sort(function(a, b) {
+            return (a.prenom || '').localeCompare(b.prenom || '', 'fr', { sensitivity: 'base' });
+          });
+        });
+
+        var esc = function(s){ return (s || '').toString().replace(/[&<>"]/g, function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c);
+        }); };
+
+        var PUPITRE_EMOJI = { 'Soprane':'🎀', 'Alto':'🌸', 'Ténor':'🌿', 'Basse':'🎩', 'Autres':'🎵' };
+
+        var allKeys = ORDER.concat(Object.keys(groups).filter(function(k){ return ORDER.indexOf(k) < 0; }));
+        var html = allKeys.map(function(pupitre) {
+          var list = groups[pupitre] || [];
+          if (!list.length) return '';
+          var cards = list.map(function(c) {
+            var animal = animalAvatar(c.prenom, c.nom);
+            var avatar;
+            if (c.photoFileId) {
+              avatar = '<img class="trombino-avatar" src="https://drive.google.com/thumbnail?id=' + esc(c.photoFileId) + '&sz=w200" alt="">';
+            } else {
+              avatar = '<div class="trombino-avatar placeholder" style="background:' + animal.bg + '" aria-label="Avatar de ' + esc(c.prenom) + '">' + animal.emoji + '</div>';
+            }
+            var editable = canEditPhotoOf(c);
+            var wrapClass = editable ? 'trombino-avatar-wrap editable' : 'trombino-avatar-wrap';
+            var titleAttr = editable
+              ? (isCurrentChoriste(c) ? 'title="Cliquer pour changer ta photo"' : 'title="Cliquer pour ajouter/changer la photo de ' + esc(c.prenom) + '"')
+              : '';
+            var ensTag = '';
+            if (Array.isArray(c.ensembles) && c.ensembles.length > 0) {
+              ensTag = '<div class="trombino-ens">' + c.ensembles.map(function(e){
+                return e === 'soul' ? 'S.O.U.L.' : 'Chorale';
+              }).join(' · ') + '</div>';
+            }
+            return '<div class="trombino-card" data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '">'
+              + '<div class="' + wrapClass + '" ' + titleAttr + '>' + avatar + '</div>'
+              + '<p class="trombino-name"><span class="firstname">' + esc(c.prenom) + '</span><br>' + esc(c.nom) + '</p>'
+              + ensTag
+              + '</div>';
+          }).join('');
+          return '<section class="trombino-section">'
+            + '<h3 class="trombino-section-title">' + (PUPITRE_EMOJI[pupitre] || '🎵') + ' ' + esc(pupitre)
+            + ' <span class="trombino-count">' + list.length + '</span></h3>'
+            + '<div class="trombino-grid">' + cards + '</div>'
+            + '</section>';
+        }).join('');
+        el.innerHTML = html;
+
+        // Bind clic sur avatars éditables
+        el.querySelectorAll('.trombino-avatar-wrap.editable').forEach(function(wrap) {
+          wrap.addEventListener('click', function() { openAvatarUpload(wrap); });
+        });
+      }
+
+      // ---- Upload de photo de profil depuis le trombinoscope ----
+      function openAvatarUpload(wrapEl) {
+        var card = wrapEl.closest('.trombino-card');
+        if (!card) return;
+        var prenom = card.dataset.prenom;
+        var nom = card.dataset.nom;
+
+        // Crée un input file à la volée
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.addEventListener('change', async function() {
+          var file = input.files && input.files[0];
+          input.remove();
+          if (!file) return;
+          wrapEl.classList.add('uploading');
+          try {
+            var compressed = await compressImage(file, 600, 0.82);
+            var base64 = await blobToBase64(compressed);
+            var params = new URLSearchParams();
+            params.set('action', 'upload_profile_photo');
+            params.set('data', JSON.stringify({
+              prenom: prenom, nom: nom,
+              base64: base64, mimeType: 'image/jpeg'
+            }));
+            var res = await fetch(PHOTOS_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            var data = await res.json();
+            if (data.error) throw new Error(data.error);
+            // Recharge le trombinoscope pour afficher la nouvelle photo
+            loadTrombinoscope(true);
+          } catch (err) {
+            console.error('upload avatar', err);
+            alert('Échec de l\'envoi : ' + (err.message || 'erreur réseau'));
+            wrapEl.classList.remove('uploading');
+          }
+        });
+        input.click();
+      }
+
     });
   </script>
   </body>

@@ -280,6 +280,8 @@
         setProf({ prenom, nom, pupitre });
         // Met à jour le badge global maintenant que prénom/nom sont connus
         if (typeof window.renderAuthBadge === 'function') window.renderAuthBadge();
+        // Signal espace-choristes.html pour synchroniser le profil côté serveur (+ photo si choisie)
+        try { document.dispatchEvent(new CustomEvent('choriste:profile-saved', { detail: { prenom, nom, pupitre } })); } catch (e) {}
 
         // Mettre à jour aussi les champs profil du calendrier (présences)
         [['choriste-prenom','choriste-nom','choriste-pupitre'],
@@ -324,8 +326,18 @@
     if (storedRole === 'member' || storedRole === 'chef') {
       window.IS_CHEF = (storedRole === 'chef');
       if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
-      if (hasProf()) showTabs();
-      else           showProfileStep(false);
+      if (hasProf()) {
+        showTabs();
+        // Sync silencieuse du profil vers le trombinoscope (au cas où ce n'est pas encore fait)
+        const _p = getProf();
+        try {
+          document.dispatchEvent(new CustomEvent('choriste:profile-saved', {
+            detail: { prenom: _p.prenom, nom: _p.nom, pupitre: _p.pupitre }
+          }));
+        } catch (e) {}
+      } else {
+        showProfileStep(false);
+      }
     } else {
       if (passwordContainer) passwordContainer.style.display = '';
       if (tabsWrap)          tabsWrap.style.display = 'none';
