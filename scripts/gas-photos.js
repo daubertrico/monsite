@@ -35,6 +35,7 @@ function doPost(e) {
     if (action === 'delete_profile') return deleteProfile(data);
     if (action === 'purge_choriste') return purgeChoriste(data);
     if (action === 'bulk_purge_choristes') return bulkPurgeChoristes(data);
+    if (action === 'merge_choristes') return mergeChoristes(data);
     if (action === 'bulk_register_profiles') return bulkRegisterProfiles(data);
 
     return jsonOk({ error: 'Action inconnue : ' + action });
@@ -584,6 +585,110 @@ function purgeChoriste(data) {
   } catch (e) {}
 
   return jsonOk({ success: true, profile: profile, photos: photos, attendance: attendance });
+}
+
+// Fusion de deux profils : reclasse les photos uploadées et les présences du slave sous le nom du master,
+// transfère la photo/pupitre du slave si master n'en a pas, puis supprime le slave du trombinoscope.
+function mergeChoristes(data) {
+  const { masterPrenom, masterNom, slavePrenom, slaveNom, adminPassword } = data;
+  if ((adminPassword || '') !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+  if (!masterPrenom || !masterNom || !slavePrenom || !slaveNom) return jsonOk({ error: 'Profils incomplets' });
+
+  const tromb = getTrombinoSheet();
+  const masterKey = makeProfileKey(masterPrenom, masterNom);
+  const slaveKey  = makeProfileKey(slavePrenom, slaveNom);
+  if (masterKey === slaveKey) return jsonOk({ error: 'Master et slave identiques' });
+
+  const master = findProfileRow(tromb, masterKey);
+  const slave  = findProfileRow(tromb, slaveKey);
+  if (!master) return jsonOk({ error: 'Profil master introuvable' });
+  if (!slave)  return jsonOk({ error: 'Profil slave introuvable' });
+
+  // 1) Transfert du pupitre si master vide
+  const masterPupitre = String(master.data[3] || '').trim();
+  const slavePupitre  = String(slave.data[3]  || '').trim();
+  if (!masterPupitre && slavePupitre) {
+    tromb.getRange(master.row, 4).setValue(slavePupitre);
+  }
+
+  // 2) Transfert des ensembles si master vide ou différent
+  const masterEns = String(master.data[4] || '').trim();
+  const slaveEns  = String(slave.data[4]  || '').trim();
+  if (!masterEns && slaveEns) {
+    tromb.getRange(master.row, 5).setValue(slaveEns);
+  } else if (masterEns && slaveEns && masterEns !== slaveEns) {
+    // Union (pour ne pas perdre d'info)
+    const merged = Array.from(new Set((masterEns + ',' + slaveEns).split(',').map(s => s.trim()).filter(Boolean))).join(',');
+    tromb.getRange(master.row, 5).setValue(merged);
+  }
+
+  // 3) Photo de profil : master prioritaire, sinon prend celle du slave
+  const masterPhoto = String(master.data[5] || '').trim();
+  const slavePhoto  = String(slave.data[5]  || '').trim();
+  if (!masterPhoto && slavePhoto) {
+    tromb.getRange(master.row, 6).setValue(slavePhoto);
+    // ne pas trash : photo réassignée au master
+  } else if (slavePhoto && masterPhoto && slavePhoto !== masterPhoto) {
+    // Master a déjà une photo, on jette celle du slave
+    try { DriveApp.getFileById(slavePhoto).setTrashed(true); } catch (e) {}
+  }
+
+  // 4) Réattribue les photos uploadées du slave au master (uploaderName)
+  const slaveFullName  = (slavePrenom + ' ' + slaveNom).trim();
+  const masterFullName = (masterPrenom + ' ' + masterNom).trim();
+  let photosReassigned = 0;
+  try {
+    const photoSheet = getOrCreateSheet();
+    const photoValues = photoSheet.getDataRange().getValues();
+    if (photoValues.length >= 2) {
+      const headers = photoValues[0];
+      const upCol = headers.indexOf('uploaderName');
+      if (upCol >= 0) {
+        for (let i = 1; i < photoValues.length; i++) {
+          if (normName(photoValues[i][upCol]) === normName(slaveFullName)) {
+            photoSheet.getRange(i + 1, upCol + 1).setValue(masterFullName);
+            photosReassigned++;
+          }
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 5) Réattribue les présences du slave au master
+  let attendanceReassigned = 0;
+  try {
+    const attSheetId = PropertiesService.getScriptProperties().getProperty('ATTENDANCE_SHEET_ID') || DEFAULT_ATTENDANCE_SHEET_ID;
+    if (attSheetId) {
+      const attSs = SpreadsheetApp.openById(attSheetId);
+      const slavePN  = normName(slavePrenom);
+      const slaveNN  = normName(slaveNom);
+      attSs.getSheets().forEach(s => {
+        const values = s.getDataRange().getValues();
+        if (values.length < 2) return;
+        const headers = values[0].map(h => String(h).toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, ''));
+        const findCol = (names) => { for (const n of names) { const i = headers.indexOf(n); if (i >= 0) return i; } return -1; };
+        const pCol = findCol(['prenom', 'firstname', 'first_name']);
+        const nCol = findCol(['nom', 'lastname', 'last_name', 'name']);
+        if (pCol < 0 || nCol < 0) return;
+        for (let i = 1; i < values.length; i++) {
+          if (normName(values[i][pCol]) === slavePN && normName(values[i][nCol]) === slaveNN) {
+            s.getRange(i + 1, pCol + 1).setValue(masterPrenom);
+            s.getRange(i + 1, nCol + 1).setValue(masterNom);
+            attendanceReassigned++;
+          }
+        }
+      });
+    }
+  } catch (e) {}
+
+  // 6) Supprime la ligne du slave (photo de profil déjà gérée plus haut)
+  tromb.deleteRow(slave.row);
+
+  return jsonOk({
+    success: true,
+    photosReassigned: photosReassigned,
+    attendanceReassigned: attendanceReassigned
+  });
 }
 
 // Purge en masse : prend une liste de profils, exécute purgeChoriste sur chacun, retourne le bilan agrégé

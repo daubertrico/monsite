@@ -383,6 +383,65 @@
     .admin-users-table td:nth-child(2) { grid-row: span 3; }
   }
 
+  /* Doublons : cartes côte-à-côte */
+  .dup-pair {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: stretch;
+    background: #fafbff;
+    border: 1px solid #e0e7ff;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .dup-mini {
+    display: flex; gap: 12px; align-items: center;
+    background: #fff; border: 1px solid #ecebf3; border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .dup-mini.selected { border-color: #16a34a; box-shadow: 0 0 0 2px rgba(22,163,74,0.18); }
+  .dup-mini .dup-avatar {
+    width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+    background: linear-gradient(135deg,#f7eff8,#ead7ee); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  }
+  .dup-mini .dup-info { flex: 1; min-width: 0; }
+  .dup-mini .dup-name { font-weight: 700; color: #2a2440; font-size: 0.95rem; }
+  .dup-mini .dup-meta { color: #6b6b6b; font-size: 0.78rem; margin-top: 2px; }
+  .dup-mini .dup-meta strong { color: #5b3870; font-weight: 600; }
+  .dup-mini .dup-pick {
+    background: #fff; border: 1.5px solid #16a34a; color: #16a34a;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    font-weight: 700; font-size: 0.8rem; white-space: nowrap;
+  }
+  .dup-mini .dup-pick:hover { background: #f0fdf4; }
+  .dup-mini.selected .dup-pick { background: #16a34a; color: #fff; }
+  .dup-vs {
+    align-self: center; color: #8844aa; font-weight: 700; font-size: 1.2rem;
+    font-family: 'Lobster', cursive;
+  }
+  .dup-actions {
+    grid-column: 1 / -1;
+    display: flex; gap: 8px; justify-content: center; padding-top: 8px;
+    border-top: 1px dashed #d8d2e4; margin-top: 4px;
+  }
+  .dup-merge-btn {
+    background: #16a34a; color: #fff; border: none;
+    padding: 8px 18px; border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 0.92rem;
+  }
+  .dup-merge-btn:hover { background: #15803d; }
+  .dup-merge-btn:disabled { opacity: 0.5; cursor: wait; }
+  .dup-distance {
+    color: #888; font-size: 0.78rem; font-style: italic;
+    display: flex; align-items: center;
+  }
+  @media (max-width: 700px) {
+    .dup-pair { grid-template-columns: 1fr; }
+    .dup-vs { text-align: center; }
+  }
+
   /* Bouton supprimer choriste (bureau uniquement) */
   .trombino-card { position: relative; }
   .trombino-delete-btn {
@@ -501,7 +560,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260650">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260652">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -959,6 +1018,15 @@
             </h3>
             <p style="margin:0 0 10px 0;color:#5b3a00;font-size:0.9rem;">Les photos uploadées par les choristes attendent ta validation pour apparaître dans les galeries. Tu peux aussi valider directement depuis les pages <a href="galerie.html" style="color:var(--accent-color-primary);">galerie</a> et <a href="galerie-soul.html" style="color:var(--accent-color-primary);">galerie SOUL</a>.</p>
             <div id="admin-pending-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;"></div>
+          </section>
+
+          <!-- Doublons probables -->
+          <section class="admin-section" id="admin-duplicates-section">
+            <h3>🔍 Doublons probables <span id="admin-duplicates-count" class="badge">…</span>
+              <button type="button" id="admin-duplicates-refresh" style="margin-left:auto;background:#fff;border:1.5px solid #8844aa;color:#5b3870;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">🔄</button>
+            </h3>
+            <p style="margin:0 0 10px 0;color:#555;font-size:0.9rem;">Profils probablement créés en double (faute de frappe, accents, majuscules). Choisis le profil à conserver — l'autre est fusionné dedans (photos uploadées et présences réattribuées).</p>
+            <div id="admin-duplicates-list"></div>
           </section>
 
           <!-- Choristes inscrits -->
@@ -1550,15 +1618,15 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260650"></script>
-  <script src="assets/js/main.js?v=20260650"></script>
+  <script src="assets/js/choristes.js?v=20260652"></script>
+  <script src="assets/js/main.js?v=20260652"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
   <!-- ============================================================ -->
   <script>
     // ---- À remplir après déploiement du GAS ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn0a2f3mlOJgIfyS54KxylUftDAo53nc1uyIvzqS02rDSnkA5XWKzlt7_W1-poHbEw/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzQMQWjD6dL5fKaRPagrSE7tCquOCQpRTL9TSv7jhsQew34AZ4cXysEW32hHb167ZY-/exec';
 
     // ---- Sync profil vers GAS (déclenché par choristes.js — listener posé tôt pour ne pas rater l'event) ----
     document.addEventListener('choriste:profile-saved', async function(ev) {
@@ -1962,6 +2030,8 @@
       if (adminUsersRefresh) adminUsersRefresh.addEventListener('click', function(){ loadAdminUsers(true); });
       var adminBulkDeleteBtn = document.getElementById('admin-bulk-delete-btn');
       if (adminBulkDeleteBtn) adminBulkDeleteBtn.addEventListener('click', bulkPurgeSelected);
+      var adminDupRefresh = document.getElementById('admin-duplicates-refresh');
+      if (adminDupRefresh) adminDupRefresh.addEventListener('click', function(){ renderAdminDuplicates(_adminUsersCache); });
       var adminSyncBtn = document.getElementById('admin-sync-btn');
       if (adminSyncBtn) adminSyncBtn.addEventListener('click', async function() {
         var out = document.getElementById('admin-sync-result');
@@ -2116,6 +2186,7 @@
       async function loadAdminUsers(force) {
         if (_adminUsersLoaded && !force) {
           renderAdminUsers(_adminUsersCache, '');
+          renderAdminDuplicates(_adminUsersCache);
           return;
         }
         var wrap = document.getElementById('admin-users-table-wrap');
@@ -2136,6 +2207,7 @@
           _adminUsersLoaded = true;
           var searchEl = document.getElementById('admin-users-search');
           renderAdminUsers(_adminUsersCache, searchEl ? searchEl.value : '');
+          renderAdminDuplicates(_adminUsersCache);
         } catch (err) {
           wrap.innerHTML = '<p style="color:#b91c1c;">Impossible de charger : ' + (err.message || 'erreur réseau') + '</p>';
         }
@@ -2225,6 +2297,167 @@
           });
         });
         updateBulkBtn();
+      }
+
+      // ---- Détection de doublons probables ----
+      function _normForCompare(s) {
+        return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/\s+/g, ' ').trim().toLowerCase();
+      }
+      function _levenshtein(a, b) {
+        if (a === b) return 0;
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        var m = a.length, n = b.length;
+        var dp = new Array(n + 1);
+        for (var j = 0; j <= n; j++) dp[j] = j;
+        for (var i = 1; i <= m; i++) {
+          var prev = dp[0];
+          dp[0] = i;
+          for (var j = 1; j <= n; j++) {
+            var tmp = dp[j];
+            if (a[i-1] === b[j-1]) dp[j] = prev;
+            else dp[j] = 1 + Math.min(prev, dp[j-1], dp[j]);
+            prev = tmp;
+          }
+        }
+        return dp[n];
+      }
+      function findDuplicates(users) {
+        // Compare chaque paire ; on garde celles dont la distance Levenshtein sur le nom complet ≤ 2
+        // ET dont la longueur du nom est > 5 (évite les faux positifs sur noms courts)
+        var pairs = [];
+        for (var i = 0; i < users.length; i++) {
+          var a = users[i];
+          var aFull = _normForCompare(a.prenom + ' ' + a.nom);
+          if (aFull.length < 5) continue;
+          for (var j = i + 1; j < users.length; j++) {
+            var b = users[j];
+            var bFull = _normForCompare(b.prenom + ' ' + b.nom);
+            if (bFull.length < 5) continue;
+            if (aFull === bFull) continue; // exact = déjà fusionné côté backend par makeProfileKey
+            var d = _levenshtein(aFull, bFull);
+            var maxLen = Math.max(aFull.length, bFull.length);
+            // Seuil : <= 2 différences absolues, OU ratio <= 0.15 pour noms longs
+            if (d <= 2 || (d / maxLen) <= 0.15) {
+              pairs.push({ a: a, b: b, distance: d });
+            }
+          }
+        }
+        pairs.sort(function(x, y) { return x.distance - y.distance; });
+        return pairs;
+      }
+
+      function renderAdminDuplicates(users) {
+        var listEl = document.getElementById('admin-duplicates-list');
+        var countEl = document.getElementById('admin-duplicates-count');
+        if (!listEl) return;
+        // Applique le filtre LVL aussi sur les doublons
+        var lvlUsers = (users || []).filter(function(c) {
+          if (!c.ensembles || !c.ensembles.length) return true;
+          return c.ensembles.indexOf('chorale') !== -1;
+        });
+        var pairs = findDuplicates(lvlUsers);
+        if (countEl) countEl.textContent = pairs.length;
+        if (pairs.length === 0) {
+          listEl.innerHTML = '<p style="color:#888;font-style:italic;padding:6px 4px;">Aucun doublon détecté. ✨</p>';
+          return;
+        }
+        var esc = function(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c);
+        }); };
+        function miniCard(c, side) {
+          var avatar;
+          if (c.photoFileId) {
+            avatar = '<img class="dup-avatar" src="https://drive.google.com/thumbnail?id=' + esc(c.photoFileId) + '&sz=w120" alt="">';
+          } else {
+            var animal = animalAvatar(c.prenom, c.nom);
+            avatar = '<div class="dup-avatar" style="background:' + animal.bg + '">' + animal.emoji + '</div>';
+          }
+          var hasPhoto = c.photoFileId ? '📷' : '—';
+          var ensList = (Array.isArray(c.ensembles) && c.ensembles.length) ? c.ensembles.join(', ') : 'aucun';
+          return '<div class="dup-mini" data-side="' + side + '">'
+            + avatar
+            + '<div class="dup-info">'
+              + '<div class="dup-name">' + esc(c.prenom) + ' ' + esc(c.nom) + '</div>'
+              + '<div class="dup-meta">Pupitre : <strong>' + esc(c.pupitre || '—') + '</strong> · Photo : ' + hasPhoto + ' · Ens. : ' + esc(ensList) + '</div>'
+            + '</div>'
+            + '<button class="dup-pick" data-action="pick">À garder</button>'
+            + '</div>';
+        }
+        listEl.innerHTML = pairs.slice(0, 50).map(function(pair, pi) {
+          return '<div class="dup-pair" data-pair-idx="' + pi + '">'
+            + miniCard(pair.a, 'a')
+            + '<div class="dup-vs">VS</div>'
+            + miniCard(pair.b, 'b')
+            + '<div class="dup-actions">'
+              + '<span class="dup-distance">distance Levenshtein : ' + pair.distance + '</span>'
+              + '<button class="dup-merge-btn" data-action="merge" disabled>↔ Fusionner</button>'
+              + '</div>'
+            + '</div>';
+        }).join('');
+
+        // Bind clic sur "À garder"
+        listEl.querySelectorAll('.dup-pair').forEach(function(pairEl, pi) {
+          var pair = pairs[pi];
+          var minis = pairEl.querySelectorAll('.dup-mini');
+          var mergeBtn = pairEl.querySelector('.dup-merge-btn');
+          minis.forEach(function(mini) {
+            mini.querySelector('.dup-pick').addEventListener('click', function() {
+              minis.forEach(function(m){ m.classList.remove('selected'); });
+              mini.classList.add('selected');
+              mergeBtn.disabled = false;
+              mergeBtn.dataset.master = mini.dataset.side;
+            });
+          });
+          mergeBtn.addEventListener('click', function() {
+            var masterSide = mergeBtn.dataset.master;
+            if (!masterSide) return;
+            var master = masterSide === 'a' ? pair.a : pair.b;
+            var slave  = masterSide === 'a' ? pair.b : pair.a;
+            mergeDuplicates(master, slave, pairEl);
+          });
+        });
+      }
+
+      async function mergeDuplicates(master, slave, pairEl) {
+        var msg = 'Fusionner ' + slave.prenom + ' ' + slave.nom + ' DANS ' + master.prenom + ' ' + master.nom + ' ?\n\n'
+          + '• Le profil "' + slave.prenom + ' ' + slave.nom + '" sera supprimé\n'
+          + '• Toutes ses photos uploadées seront ré-attribuées à "' + master.prenom + ' ' + master.nom + '"\n'
+          + '• Toutes ses présences aussi\n'
+          + '• Si le master n\'a pas de pupitre/photo, ceux du slave seront récupérés\n\n'
+          + 'Confirmer la fusion ?';
+        if (!confirm(msg)) return;
+        var mergeBtn = pairEl.querySelector('.dup-merge-btn');
+        mergeBtn.disabled = true;
+        mergeBtn.textContent = '⏳ Fusion…';
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'merge_choristes');
+          params.set('data', JSON.stringify({
+            masterPrenom: master.prenom, masterNom: master.nom,
+            slavePrenom: slave.prenom, slaveNom: slave.nom,
+            adminPassword: 'bureau'
+          }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          alert('✅ Fusion OK :\n• ' + (data.photosReassigned || 0) + ' photos ré-attribuées\n• ' + (data.attendanceReassigned || 0) + ' présences ré-attribuées\nLe profil "' + slave.prenom + ' ' + slave.nom + '" a été supprimé.');
+          pairEl.style.transition = 'opacity 0.3s';
+          pairEl.style.opacity = '0';
+          setTimeout(function(){
+            loadAdminUsers(true);
+            loadTrombinoscope(true);
+          }, 300);
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+          mergeBtn.disabled = false;
+          mergeBtn.textContent = '↔ Fusionner';
+        }
       }
 
       // ---- Multi-sélection admin ----
