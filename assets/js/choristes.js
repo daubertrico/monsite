@@ -365,11 +365,16 @@
         const correctRaw = await getPartitionPassword();
         const correct    = correctRaw ? normalizeInput(correctRaw) : null;
         let role = null;
+        let ensembleHint = null;
         if (entered === 'bureau') role = 'chef';
-        else if (!correct || entered === correct) role = 'member';
+        else if (entered === 'soul2026') { role = 'member'; ensembleHint = 'soul'; }
+        else if (!correct || entered === correct) { role = 'member'; ensembleHint = 'chorale'; }
 
         if (role) {
           localStorage.setItem('choristesRole', role);
+          if (ensembleHint) {
+            localStorage.setItem('choristesEnsembleHint', ensembleHint);
+          }
           window.IS_CHEF = (role === 'chef');
           if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
           if (hasProf()) showTabs();

@@ -377,7 +377,8 @@ function createChoristesModal() {
     const val = (input.value || '').trim();
     const expected = getGlobalConfigValue('security', 'espace_choristes_password') || 'lavoixlibre2026';
     const adminPasswords = ['bureau'];
-    if (val === expected || adminPasswords.includes(val)) {
+    const soulPasswords  = ['soul2026'];
+    if (val === expected || adminPasswords.includes(val) || soulPasswords.includes(val)) {
       // save role for the choristes page (choristes.js expects 'choristesRole')
       if (adminPasswords.includes(val)) {
         localStorage.setItem('choristesRole', 'chef');
@@ -385,6 +386,8 @@ function createChoristesModal() {
       } else {
         localStorage.setItem('choristesRole', 'member');
         localStorage.setItem('espace_choristes_role', 'choriste');
+        // Hint d'ensemble : SOUL si mdp soul2026, sinon chorale (LVL)
+        localStorage.setItem('choristesEnsembleHint', soulPasswords.includes(val) ? 'soul' : 'chorale');
       }
       // also set a simple authed flag to avoid any other gate checks
       localStorage.setItem('espace_choristes_authed', '1');

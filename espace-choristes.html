@@ -309,6 +309,101 @@
   }
   .trombino-avatar-wrap.editable:hover::after { opacity: 1; }
   .trombino-avatar-wrap.uploading::after { content: '⏳'; opacity: 1; background: rgba(0,0,0,0.55); }
+  /* Onglet Admin visible uniquement pour le bureau */
+  .chef-only-tab { display: none !important; }
+  body.role-chef .chef-only-tab { display: inline-block !important; }
+
+  /* ---- Onglet Admin : sections ---- */
+  .admin-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin: 0 0 18px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .admin-section > h3 {
+    font-family: 'Lobster', cursive;
+    color: var(--accent-color-complementary, #8844aa);
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin: 0 0 12px 0;
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+  }
+  .admin-section h3 .badge {
+    font-family: inherit;
+    background: var(--accent-color-complementary, #8844aa);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .admin-section h3 .badge.warn { background: #f59e0b; }
+  /* Liste des users en table compact */
+  .admin-users-search {
+    width: 100%; max-width: 360px; padding: 8px 12px; box-sizing: border-box;
+    border: 1.5px solid #e0e7ff; border-radius: 8px; font-size: 0.95rem; margin-bottom: 10px;
+  }
+  .admin-users-table {
+    width: 100%; border-collapse: collapse; font-size: 0.92rem;
+  }
+  .admin-users-table th, .admin-users-table td {
+    padding: 8px 10px; text-align: left; border-bottom: 1px solid #f0e8f5;
+  }
+  .admin-users-table th {
+    background: #fafbff; color: #234; font-weight: 700; font-size: 0.85rem;
+  }
+  .admin-users-table tr:hover td { background: #fdfafe; }
+  .admin-users-table .au-avatar {
+    width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block;
+    background: linear-gradient(135deg,#f7eff8,#ead7ee);
+  }
+  .admin-users-table .au-avatar.placeholder {
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  }
+  .admin-users-table .au-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+  .admin-users-table .au-btn {
+    border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .admin-users-table .au-btn.au-photo { background: #eef5ff; color: #134; border: 1px solid #98bfff; }
+  .admin-users-table .au-btn.au-photo:hover { background: #dbeeff; }
+  .admin-users-table .au-btn.au-del { background: #fff; color: #b91c1c; border: 1.5px solid #ef4444; }
+  .admin-users-table .au-btn.au-del:hover { background: #fef2f2; }
+  @media (max-width: 700px) {
+    .admin-users-table thead { display: none; }
+    .admin-users-table tr {
+      display: grid; grid-template-columns: 24px 36px 1fr; gap: 6px;
+      padding: 8px 0; border-bottom: 1px solid #f0e8f5; align-items: center;
+    }
+    .admin-users-table td { border: none; padding: 2px 4px; }
+    .admin-users-table td:first-child { grid-row: span 3; }
+    .admin-users-table td:nth-child(2) { grid-row: span 3; }
+  }
+
+  /* Bouton supprimer choriste (bureau uniquement) */
+  .trombino-card { position: relative; }
+  .trombino-delete-btn {
+    display: none;
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #b91c1c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    z-index: 3;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .trombino-delete-btn:hover { background: #991b1b; transform: scale(1.1); }
+  body.role-chef .trombino-delete-btn { display: flex; align-items: center; justify-content: center; }
   @media (max-width: 600px) {
     .trombino-avatar-wrap { width: 76px; height: 76px; }
   }
@@ -406,7 +501,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260635">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260650">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -472,6 +567,7 @@
           <button class="choristes-tab" data-tab="infos">ℹ️ Infos & liens</button>
           <button class="choristes-tab" data-tab="photos">📷 Photos</button>
           <button class="choristes-tab" data-tab="trombinoscope">👥 Trombinoscope</button>
+          <button class="choristes-tab chef-only-tab" data-tab="admin">🛠️ Admin</button>
         </div>
         <div id="tab-content-chansons" class="choristes-tab-content"></div>
         <div id="tab-content-infos" class="choristes-tab-content" style="display:none;">
@@ -849,6 +945,41 @@
         <!-- ============================================================ -->
         <!-- ONGLET TROMBINOSCOPE                                          -->
         <!-- ============================================================ -->
+        <!-- ============================================================ -->
+        <!-- ONGLET ADMIN (bureau uniquement)                              -->
+        <!-- ============================================================ -->
+        <div id="tab-content-admin" class="choristes-tab-content" style="display:none;">
+          <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-complementary);font-size:1.6rem;margin:0 0 8px 0;">Espace bureau</h2>
+          <p style="color:#555;margin:0 0 18px 0;">Toutes les actions d'administration centralisées ici.</p>
+
+          <!-- Photos à valider -->
+          <section class="admin-section" id="admin-pending-section">
+            <h3>🛂 Photos à valider <span id="admin-pending-count" class="badge warn">…</span>
+              <button type="button" id="admin-pending-refresh" style="margin-left:auto;background:#fff;border:1.5px solid #f59e0b;color:#92400e;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">🔄</button>
+            </h3>
+            <p style="margin:0 0 10px 0;color:#5b3a00;font-size:0.9rem;">Les photos uploadées par les choristes attendent ta validation pour apparaître dans les galeries. Tu peux aussi valider directement depuis les pages <a href="galerie.html" style="color:var(--accent-color-primary);">galerie</a> et <a href="galerie-soul.html" style="color:var(--accent-color-primary);">galerie SOUL</a>.</p>
+            <div id="admin-pending-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;"></div>
+          </section>
+
+          <!-- Choristes inscrits -->
+          <section class="admin-section" id="admin-users-section">
+            <h3>👥 Choristes inscrits <span id="admin-users-count" class="badge">…</span>
+              <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" id="admin-sync-btn" style="background:#fff;border:1.5px solid #f59e0b;color:#92400e;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">📥 Importer (photos + présences)</button>
+                <button type="button" id="admin-users-refresh" style="background:#fff;border:1.5px solid #8844aa;color:#5b3870;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">🔄</button>
+              </div>
+            </h3>
+            <p style="margin:0 0 10px 0;color:#555;font-size:0.9rem;">Liste complète des choristes du trombinoscope. <strong>Importer</strong> ajoute les personnes connues via leurs photos uploadées et leurs inscriptions aux concerts (peut prendre plusieurs secondes).</p>
+            <p id="admin-sync-result" style="margin:0 0 10px 0;font-size:0.88rem;display:none;"></p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
+              <input type="text" id="admin-users-search" class="admin-users-search" placeholder="🔍 Rechercher (prénom, nom, pupitre…)" style="flex:1 1 240px;min-width:200px;">
+              <button type="button" id="admin-bulk-delete-btn" style="display:none;background:#b91c1c;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;">🗑 Supprimer la sélection (<span id="admin-bulk-count">0</span>)</button>
+            </div>
+            <div id="admin-users-table-wrap" style="overflow-x:auto;"></div>
+          </section>
+        </div>
+        <!-- FIN ONGLET ADMIN -->
+
         <div id="tab-content-trombinoscope" class="choristes-tab-content" style="display:none;">
           <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-complementary);font-size:1.6rem;margin:0 0 8px 0;">Trombinoscope</h2>
           <p style="color:#555;margin:0 0 18px 0;">Mettez un visage sur chaque voix. Pour apparaître ici, ajoutez votre photo lors de la connexion ou en modifiant votre profil.</p>
@@ -1419,15 +1550,15 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260635"></script>
-  <script src="assets/js/main.js?v=20260635"></script>
+  <script src="assets/js/choristes.js?v=20260650"></script>
+  <script src="assets/js/main.js?v=20260650"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
   <!-- ============================================================ -->
   <script>
     // ---- À remplir après déploiement du GAS ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbw7r-LkBva25U-YKVADJFj-3Cg461sSotu_mt9y97rV4RvFDT3HYkqvCS5zGStuqFZ8/exec';
+    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwn0a2f3mlOJgIfyS54KxylUftDAo53nc1uyIvzqS02rDSnkA5XWKzlt7_W1-poHbEw/exec';
 
     // ---- Sync profil vers GAS (déclenché par choristes.js — listener posé tôt pour ne pas rater l'event) ----
     document.addEventListener('choriste:profile-saved', async function(ev) {
@@ -1436,7 +1567,12 @@
       try {
         var fullProf = {};
         try { fullProf = JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch {}
-        var ensembles = Array.isArray(fullProf.ensembles) ? fullProf.ensembles : [];
+        var ensembles = Array.isArray(fullProf.ensembles) ? fullProf.ensembles.slice() : [];
+        // Si la connexion s'est faite avec un mdp d'ensemble (chorale / soul), on définit l'ensemble
+        // (override de la liste : la dernière connexion fait foi pour déterminer l'appartenance)
+        var hint = null;
+        try { hint = localStorage.getItem('choristesEnsembleHint'); } catch {}
+        if (hint) ensembles = [hint];
 
         // 1) Enregistre le profil dans le trombinoscope
         var p = new URLSearchParams();
@@ -1814,6 +1950,58 @@
       var trombinoTab = document.querySelector('.choristes-tab[data-tab="trombinoscope"]');
       if (trombinoTab) trombinoTab.addEventListener('click', loadTrombinoscope);
 
+      // ---- Charge le panneau Admin quand l'onglet est ouvert ----
+      var adminTab = document.querySelector('.choristes-tab[data-tab="admin"]');
+      if (adminTab) adminTab.addEventListener('click', function() {
+        loadAdminPending();
+        loadAdminUsers();
+      });
+      var adminPendingRefresh = document.getElementById('admin-pending-refresh');
+      if (adminPendingRefresh) adminPendingRefresh.addEventListener('click', function(){ loadAdminPending(true); });
+      var adminUsersRefresh = document.getElementById('admin-users-refresh');
+      if (adminUsersRefresh) adminUsersRefresh.addEventListener('click', function(){ loadAdminUsers(true); });
+      var adminBulkDeleteBtn = document.getElementById('admin-bulk-delete-btn');
+      if (adminBulkDeleteBtn) adminBulkDeleteBtn.addEventListener('click', bulkPurgeSelected);
+      var adminSyncBtn = document.getElementById('admin-sync-btn');
+      if (adminSyncBtn) adminSyncBtn.addEventListener('click', async function() {
+        var out = document.getElementById('admin-sync-result');
+        adminSyncBtn.disabled = true;
+        var origText = adminSyncBtn.textContent;
+        adminSyncBtn.textContent = '⏳ Import en cours…';
+        out.style.display = 'block';
+        out.style.color = '#5b3a00';
+        out.textContent = 'Lecture des photos et des présences en cours, ça peut prendre 10-30 secondes…';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=sync_all&adminPassword=bureau';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var p = data.photos || {};
+          var a = data.attendance || {};
+          var pAdded = (p.added != null) ? p.added : 0;
+          var aAdded = (a.added != null) ? a.added : 0;
+          var aUpd   = (a.updated != null) ? a.updated : 0;
+          var msg = '✅ Import terminé : ';
+          msg += '<strong>' + pAdded + '</strong> ajouté(s) depuis les photos, ';
+          msg += '<strong>' + aAdded + '</strong> ajouté(s) + ' + aUpd + ' mis à jour depuis les présences.';
+          if (p.error) msg += '<br><span style="color:#b91c1c;">Photos : ' + p.error + '</span>';
+          if (a.error) msg += '<br><span style="color:#b91c1c;">Présences : ' + a.error + '</span>';
+          out.style.color = '#047857';
+          out.innerHTML = msg;
+          loadAdminUsers(true);
+        } catch (err) {
+          out.style.color = '#b91c1c';
+          out.textContent = '❌ Échec : ' + (err.message || 'erreur réseau');
+        } finally {
+          adminSyncBtn.disabled = false;
+          adminSyncBtn.textContent = origText;
+        }
+      });
+      var adminUsersSearch = document.getElementById('admin-users-search');
+      if (adminUsersSearch) adminUsersSearch.addEventListener('input', function(){
+        renderAdminUsers(_adminUsersCache, adminUsersSearch.value);
+      });
+
       // ---- Photo de profil : preview à la sélection ----
       var profilePhotoInput = document.getElementById('profile-step-photo');
       if (profilePhotoInput) {
@@ -1832,6 +2020,338 @@
           };
           reader.readAsDataURL(file);
         });
+      }
+
+      // ---- Onglet Admin : photos à valider ----
+      var _adminPendingLoaded = false;
+      async function loadAdminPending(force) {
+        if (_adminPendingLoaded && !force) return;
+        var listEl = document.getElementById('admin-pending-list');
+        var countEl = document.getElementById('admin-pending-count');
+        if (!listEl) return;
+        listEl.innerHTML = '<p style="color:#92400e;font-style:italic;padding:6px 4px;grid-column:1/-1;">Chargement…</p>';
+        countEl.textContent = '…';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=pending_list&adminPassword=bureau';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var photos = data.photos || [];
+          countEl.textContent = photos.length;
+          if (photos.length === 0) {
+            listEl.innerHTML = '<p style="color:#92400e;font-style:italic;padding:6px 4px;grid-column:1/-1;">Aucune photo en attente. ✨</p>';
+            _adminPendingLoaded = true;
+            return;
+          }
+          var esc = function(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c);
+          }); };
+          listEl.innerHTML = photos.map(function(p) {
+            var thumb = 'https://drive.google.com/thumbnail?id=' + p.fileId + '&sz=w400';
+            var desc = p.description ? '<em style="color:#666;font-style:italic;font-size:0.78rem;display:block;margin-top:2px;">' + esc(p.description) + '</em>' : '';
+            var d = p.uploadDate ? new Date(p.uploadDate) : null;
+            var dStr = d && !isNaN(d) ? d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}) : '';
+            return '<div class="pending-card" data-file-id="' + esc(p.fileId) + '" style="background:#fff;border:1px solid #fde68a;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(146,64,14,0.1);">'
+              + '<img src="' + thumb + '" alt="" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#f4f1ec;">'
+              + '<div style="padding:8px 10px;font-size:0.8rem;color:#444;line-height:1.35;">'
+                + '<strong style="color:#92400e;display:block;font-size:0.84rem;">' + esc(p.concert || 'Concert non précisé') + '</strong>'
+                + 'par ' + esc(p.uploaderName || 'Anonyme') + (dStr ? ' · ' + dStr : '')
+                + desc
+              + '</div>'
+              + '<div style="display:flex;gap:6px;padding:6px 10px 10px 10px;">'
+                + '<button class="pc-approve" style="flex:1;background:#16a34a;color:#fff;border:none;padding:6px;border-radius:6px;font-weight:700;font-size:0.78rem;cursor:pointer;">✓ Valider</button>'
+                + '<button class="pc-reject" style="flex:1;background:#fff;color:#b91c1c;border:1.5px solid #ef4444;padding:6px;border-radius:6px;font-weight:700;font-size:0.78rem;cursor:pointer;">✗ Refuser</button>'
+              + '</div>'
+            + '</div>';
+          }).join('');
+          listEl.querySelectorAll('.pending-card').forEach(function(card) {
+            var fileId = card.dataset.fileId;
+            card.querySelector('.pc-approve').addEventListener('click', function(){ handleAdminPending(fileId, 'approve', card); });
+            card.querySelector('.pc-reject').addEventListener('click', function() {
+              if (!confirm('Refuser définitivement cette photo ?\n\nElle sera supprimée (corbeille Drive).')) return;
+              handleAdminPending(fileId, 'reject', card);
+            });
+          });
+          _adminPendingLoaded = true;
+        } catch (err) {
+          listEl.innerHTML = '<p style="color:#b91c1c;font-style:italic;padding:6px 4px;grid-column:1/-1;">⚠️ Impossible de charger : ' + (err.message || 'erreur réseau') + '</p>';
+          countEl.textContent = '?';
+        }
+      }
+
+      async function handleAdminPending(fileId, action, cardEl) {
+        var btns = cardEl.querySelectorAll('button');
+        btns.forEach(function(b){ b.disabled = true; });
+        try {
+          var params = new URLSearchParams();
+          params.set('action', action === 'approve' ? 'approve_photo' : 'delete_photo');
+          params.set('data', JSON.stringify({ fileId: fileId, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          cardEl.style.transition = 'opacity 0.25s, transform 0.25s';
+          cardEl.style.opacity = '0';
+          cardEl.style.transform = 'scale(0.92)';
+          setTimeout(function() {
+            cardEl.remove();
+            var remaining = document.querySelectorAll('#admin-pending-list .pending-card').length;
+            document.getElementById('admin-pending-count').textContent = remaining;
+            if (remaining === 0) {
+              document.getElementById('admin-pending-list').innerHTML = '<p style="color:#92400e;font-style:italic;padding:6px 4px;grid-column:1/-1;">Aucune photo en attente. ✨</p>';
+            }
+          }, 260);
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+          btns.forEach(function(b){ b.disabled = false; });
+        }
+      }
+
+      // ---- Onglet Admin : liste des choristes inscrits ----
+      var _adminUsersCache = [];
+      var _adminUsersLoaded = false;
+      async function loadAdminUsers(force) {
+        if (_adminUsersLoaded && !force) {
+          renderAdminUsers(_adminUsersCache, '');
+          return;
+        }
+        var wrap = document.getElementById('admin-users-table-wrap');
+        if (!wrap) return;
+        wrap.innerHTML = '<p style="color:#888;font-style:italic;">Chargement…</p>';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=trombinoscope_list';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          _adminUsersCache = (data.choristes || []).slice();
+          // Trie par nom, prénom
+          _adminUsersCache.sort(function(a, b) {
+            var byNom = (a.nom || '').localeCompare(b.nom || '', 'fr', { sensitivity: 'base' });
+            if (byNom !== 0) return byNom;
+            return (a.prenom || '').localeCompare(b.prenom || '', 'fr', { sensitivity: 'base' });
+          });
+          _adminUsersLoaded = true;
+          var searchEl = document.getElementById('admin-users-search');
+          renderAdminUsers(_adminUsersCache, searchEl ? searchEl.value : '');
+        } catch (err) {
+          wrap.innerHTML = '<p style="color:#b91c1c;">Impossible de charger : ' + (err.message || 'erreur réseau') + '</p>';
+        }
+      }
+
+      function renderAdminUsers(users, query) {
+        var wrap = document.getElementById('admin-users-table-wrap');
+        var countEl = document.getElementById('admin-users-count');
+        if (!wrap) return;
+        // Filtre : on garde uniquement les choristes La Voix Libre
+        //  - ensembles vide → legacy/profil incomplet, on garde par défaut
+        //  - contient 'chorale' → on garde (même s'ils sont aussi SOUL)
+        //  - uniquement 'soul' → on exclut
+        var lvlUsers = users.filter(function(c) {
+          if (!c.ensembles || !c.ensembles.length) return true;
+          return c.ensembles.indexOf('chorale') !== -1;
+        });
+        var q = (query || '').toLowerCase().trim();
+        var filtered = !q ? lvlUsers : lvlUsers.filter(function(c) {
+          return ((c.prenom||'') + ' ' + (c.nom||'') + ' ' + (c.pupitre||'')).toLowerCase().indexOf(q) !== -1;
+        });
+        if (countEl) countEl.textContent = filtered.length + (q ? ' / ' + lvlUsers.length : '');
+        if (filtered.length === 0) {
+          wrap.innerHTML = '<p style="color:#888;font-style:italic;">Aucun choriste ' + (q ? 'ne correspond à la recherche' : 'inscrit') + '.</p>';
+          return;
+        }
+        var esc = function(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c);
+        }); };
+        var rows = filtered.map(function(c) {
+          var avatar;
+          if (c.photoFileId) {
+            avatar = '<img class="au-avatar" src="https://drive.google.com/thumbnail?id=' + esc(c.photoFileId) + '&sz=w80" alt="">';
+          } else {
+            var animal = animalAvatar(c.prenom, c.nom);
+            avatar = '<div class="au-avatar placeholder" style="background:' + animal.bg + '">' + animal.emoji + '</div>';
+          }
+          var key = (c.prenom + '|' + c.nom).toLowerCase();
+          var checked = _adminSelected.has(key) ? ' checked' : '';
+          return '<tr data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '" data-key="' + esc(key) + '">'
+            + '<td><input type="checkbox" class="au-check" aria-label="Sélectionner"' + checked + '></td>'
+            + '<td>' + avatar + '</td>'
+            + '<td><strong>' + esc(c.prenom) + ' ' + esc(c.nom) + '</strong></td>'
+            + '<td>' + esc(c.pupitre || '—') + '</td>'
+            + '<td class="au-actions">'
+              + '<button class="au-btn au-photo" data-action="photo">📷 Photo</button>'
+              + '<button class="au-btn au-del" data-action="purge" title="Supprimer entièrement (profil + photos uploadées + présences)">✗ Tout supprimer</button>'
+            + '</td>'
+          + '</tr>';
+        }).join('');
+        var allCheckedInFiltered = filtered.length > 0 && filtered.every(function(c) {
+          return _adminSelected.has((c.prenom + '|' + c.nom).toLowerCase());
+        });
+        wrap.innerHTML = '<table class="admin-users-table">'
+          + '<thead><tr><th><input type="checkbox" id="au-check-all" aria-label="Tout sélectionner"' + (allCheckedInFiltered ? ' checked' : '') + '></th><th></th><th>Nom</th><th>Pupitre</th><th>Actions</th></tr></thead>'
+          + '<tbody>' + rows + '</tbody>'
+          + '</table>';
+
+        // Bind master checkbox (sélectionne / désélectionne tous les filtrés)
+        var checkAll = wrap.querySelector('#au-check-all');
+        if (checkAll) {
+          checkAll.addEventListener('change', function() {
+            filtered.forEach(function(c) {
+              var k = (c.prenom + '|' + c.nom).toLowerCase();
+              if (checkAll.checked) _adminSelected.add(k);
+              else _adminSelected.delete(k);
+            });
+            wrap.querySelectorAll('input.au-check').forEach(function(cb){ cb.checked = checkAll.checked; });
+            updateBulkBtn();
+          });
+        }
+
+        wrap.querySelectorAll('tr[data-prenom]').forEach(function(tr) {
+          var prenom = tr.dataset.prenom, nom = tr.dataset.nom, key = tr.dataset.key;
+          // Checkbox de ligne
+          var cb = tr.querySelector('input.au-check');
+          if (cb) cb.addEventListener('change', function() {
+            if (cb.checked) _adminSelected.add(key);
+            else _adminSelected.delete(key);
+            updateBulkBtn();
+          });
+          tr.querySelector('[data-action="photo"]').addEventListener('click', function() {
+            openAdminPhotoUpload(prenom, nom);
+          });
+          tr.querySelector('[data-action="purge"]').addEventListener('click', function() {
+            purgeChoriste(prenom, nom, tr);
+          });
+        });
+        updateBulkBtn();
+      }
+
+      // ---- Multi-sélection admin ----
+      var _adminSelected = new Set(); // keys ("prenom|nom" lowercase) des choristes sélectionnés
+      function updateBulkBtn() {
+        var btn = document.getElementById('admin-bulk-delete-btn');
+        var countEl = document.getElementById('admin-bulk-count');
+        if (!btn || !countEl) return;
+        var n = _adminSelected.size;
+        countEl.textContent = n;
+        btn.style.display = n > 0 ? 'inline-block' : 'none';
+      }
+      async function bulkPurgeSelected() {
+        if (_adminSelected.size === 0) return;
+        // Reconstitue la liste {prenom, nom} depuis le cache
+        var selectedProfiles = _adminUsersCache.filter(function(c) {
+          var k = (c.prenom + '|' + c.nom).toLowerCase();
+          return _adminSelected.has(k);
+        }).map(function(c){ return { prenom: c.prenom, nom: c.nom }; });
+        var n = selectedProfiles.length;
+        var names = selectedProfiles.slice(0, 6).map(function(p){ return p.prenom + ' ' + p.nom; }).join(', ');
+        if (n > 6) names += '… (+' + (n - 6) + ')';
+        var msg = 'SUPPRESSION TOTALE de ' + n + ' choriste(s) :\n\n' + names + '\n\n'
+          + 'Pour chacun : profil + toutes les photos uploadées + toutes les présences.\n'
+          + 'Photos → corbeille Drive (récupérables 30 jours).\n\n'
+          + 'Confirmer ?';
+        if (!confirm(msg)) return;
+
+        var btn = document.getElementById('admin-bulk-delete-btn');
+        btn.disabled = true;
+        var orig = btn.innerHTML;
+        btn.textContent = '⏳ Suppression en cours…';
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'bulk_purge_choristes');
+          params.set('data', JSON.stringify({ profiles: selectedProfiles, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var bilan = '✅ ' + (data.count || n) + ' choriste(s) supprimé(s) :\n'
+            + '• Profils : ' + (data.profile || 0) + '\n'
+            + '• Photos uploadées : ' + (data.photos || 0) + '\n'
+            + '• Présences : ' + (data.attendance || 0)
+            + (data.failed ? '\n\n⚠️ ' + data.failed + ' échec(s)' : '');
+          alert(bilan);
+          _adminSelected.clear();
+          loadAdminUsers(true);
+          loadTrombinoscope(true);
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = orig;
+          updateBulkBtn();
+        }
+      }
+
+      async function purgeChoriste(prenom, nom, rowEl) {
+        var msg = 'SUPPRESSION TOTALE de ' + prenom + ' ' + nom + ' ?\n\n'
+          + 'Cela va effacer :\n'
+          + '  • Son profil dans le trombinoscope + sa photo de profil\n'
+          + '  • Toutes les photos qu\'il/elle a uploadées dans les galeries\n'
+          + '  • Toutes ses inscriptions à des concerts\n\n'
+          + 'Les photos vont à la corbeille Drive (récupérables 30 jours).\n'
+          + 'Cette action est définitive sur le site.';
+        if (!confirm(msg)) return;
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'purge_choriste');
+          params.set('data', JSON.stringify({ prenom: prenom, nom: nom, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          alert('✅ ' + prenom + ' ' + nom + ' supprimé(e) :\n'
+            + '• Profil : ' + (data.profile || 0) + '\n'
+            + '• Photos uploadées : ' + (data.photos || 0) + '\n'
+            + '• Présences : ' + (data.attendance || 0));
+          if (rowEl) {
+            rowEl.style.transition = 'opacity 0.25s';
+            rowEl.style.opacity = '0';
+            setTimeout(function(){ loadAdminUsers(true); loadTrombinoscope(true); }, 250);
+          } else {
+            loadAdminUsers(true); loadTrombinoscope(true);
+          }
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+        }
+      }
+
+      function openAdminPhotoUpload(prenom, nom) {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.addEventListener('change', async function() {
+          var file = input.files && input.files[0];
+          input.remove();
+          if (!file) return;
+          try {
+            var compressed = await compressImage(file, 600, 0.82);
+            var base64 = await blobToBase64(compressed);
+            var params = new URLSearchParams();
+            params.set('action', 'upload_profile_photo');
+            params.set('data', JSON.stringify({ prenom: prenom, nom: nom, base64: base64, mimeType: 'image/jpeg' }));
+            var res = await fetch(PHOTOS_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            var data = await res.json();
+            if (data.error) throw new Error(data.error);
+            loadAdminUsers(true);
+            loadTrombinoscope(true);
+          } catch (err) {
+            alert('Échec : ' + (err.message || 'erreur réseau'));
+          }
+        });
+        input.click();
       }
 
       // ---- Trombinoscope ----
@@ -1889,6 +2409,11 @@
       function renderTrombinoscope(choristes) {
         var el = document.getElementById('trombino-content');
         if (!el) return;
+        // Filtre : trombinoscope La Voix Libre uniquement (exclut les SOUL-only)
+        choristes = (choristes || []).filter(function(c) {
+          if (!c.ensembles || !c.ensembles.length) return true;
+          return c.ensembles.indexOf('chorale') !== -1;
+        });
         if (!choristes.length) {
           el.innerHTML = '<p class="trombino-empty">Personne dans le trombinoscope pour le moment. ✨<br>Soyez la première personne à apparaître en ajoutant votre photo à la connexion.</p>';
           return;
@@ -1937,6 +2462,7 @@
               }).join(' · ') + '</div>';
             }
             return '<div class="trombino-card" data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '">'
+              + '<button type="button" class="trombino-delete-btn" title="Supprimer ce choriste" aria-label="Supprimer ce choriste">×</button>'
               + '<div class="' + wrapClass + '" ' + titleAttr + '>' + avatar + '</div>'
               + '<p class="trombino-name"><span class="firstname">' + esc(c.prenom) + '</span><br>' + esc(c.nom) + '</p>'
               + ensTag
@@ -1954,6 +2480,59 @@
         el.querySelectorAll('.trombino-avatar-wrap.editable').forEach(function(wrap) {
           wrap.addEventListener('click', function() { openAvatarUpload(wrap); });
         });
+        // Bind clic sur boutons supprimer (bureau uniquement — affichés via CSS)
+        el.querySelectorAll('.trombino-delete-btn').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var card = btn.closest('.trombino-card');
+            if (!card) return;
+            deleteChoriste(card.dataset.prenom, card.dataset.nom, card);
+          });
+        });
+      }
+
+      async function deleteChoriste(prenom, nom, cardEl) {
+        // Suppression totale : sinon une re-sync depuis les photos uploadées ferait revenir la personne
+        var msg = 'SUPPRESSION TOTALE de ' + prenom + ' ' + nom + ' ?\n\n'
+          + 'Cela va effacer :\n'
+          + '  • Son profil dans le trombinoscope + sa photo\n'
+          + '  • Toutes les photos qu\'il/elle a uploadées dans les galeries\n'
+          + '  • Toutes ses inscriptions à des concerts\n\n'
+          + 'Photos → corbeille Drive (récupérables 30 jours).\n'
+          + 'Cette action est définitive sur le site.';
+        if (!confirm(msg)) return;
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'purge_choriste');
+          params.set('data', JSON.stringify({ prenom: prenom, nom: nom, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var bilan = '✅ ' + prenom + ' ' + nom + ' supprimé(e) :\n'
+            + '• Profil : ' + (data.profile || 0) + '\n'
+            + '• Photos uploadées : ' + (data.photos || 0) + '\n'
+            + '• Présences : ' + (data.attendance || 0);
+          if (cardEl) {
+            cardEl.style.transition = 'opacity 0.25s, transform 0.25s';
+            cardEl.style.opacity = '0';
+            cardEl.style.transform = 'scale(0.85)';
+            setTimeout(function(){
+              alert(bilan);
+              loadTrombinoscope(true);
+              if (typeof loadAdminUsers === 'function') loadAdminUsers(true);
+            }, 250);
+          } else {
+            alert(bilan);
+            loadTrombinoscope(true);
+            if (typeof loadAdminUsers === 'function') loadAdminUsers(true);
+          }
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+        }
       }
 
       // ---- Upload de photo de profil depuis le trombinoscope ----

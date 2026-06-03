@@ -32,6 +32,9 @@ function doPost(e) {
     if (action === 'register_profile') return registerProfile(data);
     if (action === 'upload_profile_photo') return uploadProfilePhoto(data);
     if (action === 'delete_profile_photo') return deleteProfilePhoto(data);
+    if (action === 'delete_profile') return deleteProfile(data);
+    if (action === 'purge_choriste') return purgeChoriste(data);
+    if (action === 'bulk_purge_choristes') return bulkPurgeChoristes(data);
     if (action === 'bulk_register_profiles') return bulkRegisterProfiles(data);
 
     return jsonOk({ error: 'Action inconnue : ' + action });
@@ -73,10 +76,22 @@ function doGet(e) {
       return getPendingList();
     }
     if (action === 'trombinoscope_list') {
-      // Avant de retourner la liste, on tente de synchroniser depuis la feuille des présences.
-      // Si ATTENDANCE_SHEET_ID n'est pas configuré, ou si on a déjà synchronisé récemment, on saute.
-      try { maybeSyncFromAttendance(); } catch (e) { /* silencieux */ }
+      // Retour immédiat — la sync est déclenchée explicitement via "sync_all" (bureau)
       return getTrombinoscope();
+    }
+    if (action === 'force_sync_photos') {
+      const pwd = (e.parameter && e.parameter.adminPassword) || '';
+      if (pwd !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+      return syncFromPhotos(true);
+    }
+    if (action === 'sync_all') {
+      // Lance les deux syncs en une seule requête, admin uniquement
+      const pwd = (e.parameter && e.parameter.adminPassword) || '';
+      if (pwd !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+      let resPhotos = null, resAtt = null;
+      try { resPhotos = JSON.parse(syncFromPhotos(true).getContent()); } catch (e2) { resPhotos = { error: e2.toString() }; }
+      try { resAtt    = JSON.parse(syncFromAttendance(true).getContent()); } catch (e2) { resAtt    = { error: e2.toString() }; }
+      return jsonOk({ success: true, photos: resPhotos, attendance: resAtt });
     }
     if (action === 'force_sync_attendance') {
       // Force la sync (admin uniquement)
@@ -492,6 +507,192 @@ function deleteProfilePhoto(data) {
   return jsonOk({ success: true });
 }
 
+// Suppression totale d'un choriste : profil trombinoscope + toutes ses photos uploadées + toutes ses présences
+function purgeChoriste(data) {
+  const { prenom, nom, adminPassword } = data;
+  if ((adminPassword || '') !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+  if (!prenom || !nom) return jsonOk({ error: 'Prénom/nom manquants' });
+
+  const normP   = normName(prenom);
+  const normNom = normName(nom);
+  const normFull = normName(prenom + ' ' + nom);
+  let profile = 0, photos = 0, attendance = 0;
+
+  // 1) Trombinoscope : supprime la ligne + photo de profil
+  try {
+    const tromb = getTrombinoSheet();
+    const key = makeProfileKey(prenom, nom);
+    const existing = findProfileRow(tromb, key);
+    if (existing) {
+      const photoId = String(existing.data[5] || '');
+      if (photoId) {
+        try { DriveApp.getFileById(photoId).setTrashed(true); } catch (e) {}
+      }
+      tromb.deleteRow(existing.row);
+      profile = 1;
+    }
+  } catch (e) {}
+
+  // 2) Photos uploadées : on parcourt la feuille Photos, on trash les fichiers Drive et on supprime les lignes
+  try {
+    const photoSheet = getOrCreateSheet();
+    const values = photoSheet.getDataRange().getValues();
+    if (values.length >= 2) {
+      const headers = values[0];
+      const fileCol = headers.indexOf('fileId');
+      const upCol   = headers.indexOf('uploaderName');
+      if (upCol >= 0) {
+        for (let i = values.length - 1; i >= 1; i--) {
+          const up = String(values[i][upCol] || '');
+          if (normName(up) === normFull) {
+            const fileId = fileCol >= 0 ? String(values[i][fileCol] || '') : '';
+            if (fileId) {
+              try { DriveApp.getFileById(fileId).setTrashed(true); } catch (e) {}
+            }
+            photoSheet.deleteRow(i + 1);
+            photos++;
+          }
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 3) Présences : on parcourt toutes les feuilles de la spreadsheet attendance
+  try {
+    const attSheetId = PropertiesService.getScriptProperties().getProperty('ATTENDANCE_SHEET_ID') || DEFAULT_ATTENDANCE_SHEET_ID;
+    if (attSheetId) {
+      const attSs = SpreadsheetApp.openById(attSheetId);
+      attSs.getSheets().forEach(s => {
+        const values = s.getDataRange().getValues();
+        if (values.length < 2) return;
+        const headers = values[0].map(h => String(h).toLowerCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, ''));
+        const findCol = (names) => {
+          for (const name of names) { const i = headers.indexOf(name); if (i >= 0) return i; }
+          return -1;
+        };
+        const pCol = findCol(['prenom', 'firstname', 'first_name']);
+        const nCol = findCol(['nom', 'lastname', 'last_name', 'name']);
+        if (pCol < 0 || nCol < 0) return;
+        for (let i = values.length - 1; i >= 1; i--) {
+          if (normName(values[i][pCol]) === normP && normName(values[i][nCol]) === normNom) {
+            s.deleteRow(i + 1);
+            attendance++;
+          }
+        }
+      });
+    }
+  } catch (e) {}
+
+  return jsonOk({ success: true, profile: profile, photos: photos, attendance: attendance });
+}
+
+// Purge en masse : prend une liste de profils, exécute purgeChoriste sur chacun, retourne le bilan agrégé
+function bulkPurgeChoristes(data) {
+  const { profiles, adminPassword } = data;
+  if ((adminPassword || '') !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+  if (!Array.isArray(profiles) || profiles.length === 0) return jsonOk({ error: 'Liste vide' });
+
+  let totalProfile = 0, totalPhotos = 0, totalAttendance = 0, failed = 0;
+  const details = [];
+  profiles.forEach(p => {
+    try {
+      const r = JSON.parse(purgeChoriste({
+        prenom: p.prenom, nom: p.nom, adminPassword: adminPassword
+      }).getContent());
+      if (r.error) { failed++; details.push({ name: p.prenom + ' ' + p.nom, error: r.error }); }
+      else {
+        totalProfile += (r.profile || 0);
+        totalPhotos += (r.photos || 0);
+        totalAttendance += (r.attendance || 0);
+      }
+    } catch (e) {
+      failed++;
+      details.push({ name: p.prenom + ' ' + p.nom, error: e.toString() });
+    }
+  });
+  return jsonOk({
+    success: true,
+    count: profiles.length,
+    profile: totalProfile,
+    photos: totalPhotos,
+    attendance: totalAttendance,
+    failed: failed,
+    details: details
+  });
+}
+
+// Sync depuis les uploaders de photos : extrait les noms uniques de la feuille Photos
+// et les ajoute au trombinoscope (sans toucher aux profils déjà existants).
+function maybeSyncFromPhotos() {
+  const props = PropertiesService.getScriptProperties();
+  const last = Number(props.getProperty('LAST_PHOTOS_SYNC') || 0);
+  if (Date.now() - last < 10 * 60 * 1000) return null; // throttle 10 min
+  return syncFromPhotos(false);
+}
+
+function syncFromPhotos(force) {
+  const sheet = getOrCreateSheet(); // feuille "Photos"
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return jsonOk({ added: 0 });
+
+  const headers = values[0];
+  const upCol = headers.indexOf('uploaderName');
+  if (upCol < 0) return jsonOk({ error: 'Colonne uploaderName absente' });
+
+  const seen = new Set();
+  const candidates = [];
+  for (let i = 1; i < values.length; i++) {
+    const fullName = String(values[i][upCol] || '').trim();
+    if (!fullName) continue;
+    if (fullName.toLowerCase() === 'anonyme') continue;
+    // Sépare prénom / nom au premier espace
+    const parts = fullName.split(/\s+/);
+    if (parts.length < 2) continue;
+    const prenom = parts[0];
+    const nom = parts.slice(1).join(' ');
+    const key = makeProfileKey(prenom, nom);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    candidates.push({ prenom, nom, key });
+  }
+
+  const tromb = getTrombinoSheet();
+  const now = new Date().toISOString();
+  let added = 0;
+  candidates.forEach(c => {
+    const existing = findProfileRow(tromb, c.key);
+    if (!existing) {
+      // Pas de pupitre disponible depuis les photos — on laisse vide
+      tromb.appendRow([c.key, c.prenom, c.nom, '', '', '', now, now]);
+      added++;
+    }
+    // Si le profil existe déjà, on ne touche à rien (l'utilisateur peut avoir mis à jour pupitre/photo)
+  });
+
+  PropertiesService.getScriptProperties().setProperty('LAST_PHOTOS_SYNC', String(Date.now()));
+  return jsonOk({ success: true, added: added, totalUniqueUploaders: candidates.length });
+}
+
+// Suppression complète d'un profil (admin uniquement) — supprime la photo + la ligne
+function deleteProfile(data) {
+  const { prenom, nom, adminPassword } = data;
+  if ((adminPassword || '') !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+  if (!prenom || !nom) return jsonOk({ error: 'Prénom/nom manquants' });
+
+  const sheet = getTrombinoSheet();
+  const key = makeProfileKey(prenom, nom);
+  const existing = findProfileRow(sheet, key);
+  if (!existing) return jsonOk({ error: 'Profil introuvable' });
+
+  // Met la photo à la corbeille si présente
+  const photoId = String(existing.data[5] || '');
+  if (photoId) {
+    try { DriveApp.getFileById(photoId).setTrashed(true); } catch (e) {}
+  }
+  sheet.deleteRow(existing.row);
+  return jsonOk({ success: true });
+}
+
 // Sync auto depuis la feuille des présences : extrait les uniques (prénom, nom, pupitre)
 // et les upsert dans Trombinoscope. Throttle : 1 fois par 10 minutes max.
 function maybeSyncFromAttendance() {
@@ -501,11 +702,14 @@ function maybeSyncFromAttendance() {
   return syncFromAttendance(false);
 }
 
+// ID de la Spreadsheet des présences (peut être surchargé via Properties du script)
+const DEFAULT_ATTENDANCE_SHEET_ID = '1xUQwtyLf_cT-5xCR27uILIcp-VxEFaE99PpMbVJPQa4';
+
 function syncFromAttendance(force) {
   const props = PropertiesService.getScriptProperties();
-  const attSheetId = props.getProperty('ATTENDANCE_SHEET_ID');
+  const attSheetId = props.getProperty('ATTENDANCE_SHEET_ID') || DEFAULT_ATTENDANCE_SHEET_ID;
   if (!attSheetId) {
-    return jsonOk({ error: 'ATTENDANCE_SHEET_ID non configuré (Properties du script)' });
+    return jsonOk({ error: 'ATTENDANCE_SHEET_ID non configuré' });
   }
   let attSs;
   try { attSs = SpreadsheetApp.openById(attSheetId); }
