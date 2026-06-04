@@ -2688,17 +2688,10 @@
             var titleAttr = editable
               ? (isCurrentChoriste(c) ? 'title="Cliquer pour changer ta photo"' : 'title="Cliquer pour ajouter/changer la photo de ' + esc(c.prenom) + '"')
               : '';
-            var ensTag = '';
-            if (Array.isArray(c.ensembles) && c.ensembles.length > 0) {
-              ensTag = '<div class="trombino-ens">' + c.ensembles.map(function(e){
-                return e === 'soul' ? 'S.O.U.L.' : 'Chorale';
-              }).join(' · ') + '</div>';
-            }
             return '<div class="trombino-card" data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '">'
               + '<button type="button" class="trombino-delete-btn" title="Supprimer ce choriste" aria-label="Supprimer ce choriste">×</button>'
               + '<div class="' + wrapClass + '" ' + titleAttr + '>' + avatar + '</div>'
               + '<p class="trombino-name"><span class="firstname">' + esc(c.prenom) + '</span><br>' + esc(c.nom) + '</p>'
-              + ensTag
               + '</div>';
           }).join('');
           return '<section class="trombino-section">'
