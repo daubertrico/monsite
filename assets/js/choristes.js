@@ -233,6 +233,13 @@
 
       showTab('chansons');
       generateChansonsContent();
+      // Afficher le sondage réinscription si pas encore répondu (seulement chorale + bureau)
+      const _hint = localStorage.getItem('choristesEnsembleHint');
+      if (window.IS_CHEF || _hint === 'chorale') {
+        if (typeof window.showSurveyIfNeeded === 'function') {
+          window.showSurveyIfNeeded();
+        }
+      }
     }
 
     // ---- Afficher l'étape profil ----
