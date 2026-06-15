@@ -2073,7 +2073,7 @@ async function fetchPostsFromCSV(csvUrl) {
             <div class="reinscription-promo">
               <span class="reinscription-promo-icon" aria-hidden="true">🎁</span>
               <div>
-                <strong>Membres actuels de la chorale :</strong> bénéficiez de <strong>18&nbsp;€ de réduction</strong> en vous réinscrivant avant le <strong>13&nbsp;juillet</strong>.
+                <strong>Membres actuels de la chorale :</strong> bénéficiez de <strong>5&nbsp;% de réduction</strong> en vous réinscrivant avant le <strong>13&nbsp;juillet</strong>.
                 Saisissez le code <strong class="reinscription-code">PREINSCRIP</strong> dans le formulaire ci-dessous.
               </div>
             </div>
