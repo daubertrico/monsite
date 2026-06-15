@@ -2462,6 +2462,139 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   .nr-card-body { padding: 16px; }
 }
 
+/* Section séances d'essai */
+.nr-essai-card {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+  border: 1.5px solid #b8d9f5;
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 8px;
+}
+.nr-essai-intro { margin-bottom: 18px; }
+.nr-essai-intro p { margin: 0 0 8px 0; color: #333; line-height: 1.65; }
+.nr-essai-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.nr-essai-date-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: .97rem;
+  color: #1a3a5c;
+}
+.nr-essai-date-icon { font-size: 1.15rem; flex-shrink: 0; margin-top: 1px; }
+
+/* Modal formulaire d'essai */
+.tryout-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9990;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.tryout-dialog {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 26px 22px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+}
+.tryout-close {
+  position: absolute;
+  top: 12px; right: 14px;
+  background: none; border: none;
+  font-size: 1.6rem; cursor: pointer;
+  color: #888; line-height: 1;
+}
+.tryout-close:hover { color: #333; }
+.tryout-field { margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
+.tryout-field label { font-size: .88rem; font-weight: 600; color: #444; }
+.tryout-field input,
+.tryout-field select,
+.tryout-field textarea {
+  padding: 9px 12px;
+  border: 1.5px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: .97rem;
+  font-family: inherit;
+  transition: border-color .2s;
+}
+.tryout-field input:focus,
+.tryout-field select:focus,
+.tryout-field textarea:focus { outline: none; border-color: #8844aa; }
+.tryout-field-row { display: flex; gap: 12px; }
+.tryout-field-row .tryout-field { flex: 1; }
+
+/* Panneau admin inscriptions essai */
+.tryout-admin-panel {
+  margin-top: 18px;
+  border: 1.5px dashed #8844aa;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fdf8ff;
+}
+.tryout-admin-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f3e8ff;
+  font-size: .93rem;
+  color: #4a1a6b;
+}
+.tryout-admin-icon { font-size: 1.1rem; }
+.tryout-admin-refresh {
+  margin-left: auto;
+  background: #8844aa;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: .85rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.tryout-admin-refresh:hover { background: #6a2f8a; }
+.tryout-admin-refresh:disabled { opacity: .6; cursor: default; }
+.tryout-admin-sheet-link {
+  padding: 14px 16px 16px;
+}
+.tryout-admin-sheet-link p {
+  margin: 0 0 10px 0;
+  font-size: .9rem;
+  color: #555;
+}
+.tryout-admin-sheet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #8844aa;
+  color: #fff;
+  text-decoration: none;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: .92rem;
+  transition: background .2s;
+}
+.tryout-admin-sheet-btn:hover { background: #6a2f8a; }
+.tryout-admin-hint {
+  margin: 10px 0 0 0 !important;
+  font-size: .82rem !important;
+  color: #999 !important;
+  font-style: italic;
+}
+
 /* Encart promo réinscription */
 .nr-promo-notice {
   background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
