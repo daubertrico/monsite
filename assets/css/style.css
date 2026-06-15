@@ -2536,6 +2536,32 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
 .tryout-field-row .tryout-field { flex: 1; }
 
 /* Panneau admin inscriptions essai */
+/* Bandeau "déjà inscrit" */
+.nr-essai-already {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #edfaf3;
+  border: 1.5px solid #6fcf97;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: .95rem;
+  color: #1a6b3a;
+}
+.nr-essai-already-cancel {
+  background: none;
+  border: 1px solid #6fcf97;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: .82rem;
+  color: #3a8a5a;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.nr-essai-already-cancel:hover { background: #d4f5e2; }
+
+/* Panneau admin inscriptions essai */
 .tryout-admin-panel {
   margin-top: 18px;
   border: 1.5px dashed #8844aa;
@@ -2593,6 +2619,97 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   font-size: .82rem !important;
   color: #999 !important;
   font-style: italic;
+}
+
+/* ---- Bloc réinscription 2026-2027 (partagé nous-rejoindre + espace-choristes) ---- */
+.reinscription-bloc {
+  background: #fff;
+  border: 2px solid #3981FF;
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 18px rgba(57,129,255,.10);
+}
+.reinscription-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.reinscription-badge {
+  background: #3981FF;
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.reinscription-titre {
+  margin: 0;
+  font-family: 'Lobster', cursive;
+  color: #3981FF;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+.reinscription-promo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #fffbea;
+  border: 1.5px solid #f0c040;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: .96rem;
+  color: #5a4000;
+}
+.reinscription-promo-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+.reinscription-code {
+  display: inline-block;
+  background: #fff;
+  border: 2px dashed #f0c040;
+  border-radius: 5px;
+  padding: 1px 8px;
+  font-family: monospace;
+  font-size: 1.05rem;
+  letter-spacing: .06em;
+}
+.reinscription-alerte {
+  background: #fff5f5;
+  border: 2px solid #e74c3c;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: .94rem;
+  color: #333;
+}
+.reinscription-alerte-titre {
+  font-weight: 700;
+  color: #c0392b;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.reinscription-alerte p { margin: 0 0 8px 0; line-height: 1.6; }
+.reinscription-alerte p:last-of-type { margin-bottom: 6px; }
+.reinscription-steps {
+  margin: 6px 0 0 0;
+  padding-left: 22px;
+  line-height: 1.8;
+}
+.reinscription-steps li { margin-bottom: 2px; }
+.reinscription-steps strong { color: #c0392b; }
+.reinscription-widget-wrap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e0e8ff;
+}
+@media (max-width: 600px) {
+  .reinscription-bloc { padding: 16px 14px; }
+  .reinscription-titre { font-size: 1.2rem; }
+  .reinscription-header { flex-wrap: wrap; }
 }
 
 /* Encart promo réinscription */

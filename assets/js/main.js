@@ -1896,6 +1896,24 @@ async function fetchPostsFromCSV(csvUrl) {
               </div>`;
             contentContainer.appendChild(essaiSection);
 
+            // ---- Confirmation persistante ----
+            const alreadyRegistered = (function(){ try { return localStorage.getItem('tryout_registered'); } catch(e){ return null; } })();
+            if (alreadyRegistered) {
+              const btn = document.getElementById('open-tryout-form');
+              if (btn) {
+                const confirm = document.createElement('div');
+                confirm.className = 'nr-essai-already';
+                confirm.innerHTML = `✅ <strong>Vous êtes déjà inscrit·e</strong> à la séance du <strong>${alreadyRegistered}</strong>. À très vite !
+                  <button type="button" class="nr-essai-already-cancel">Me désinscrire / corriger</button>`;
+                btn.replaceWith(confirm);
+                confirm.querySelector('.nr-essai-already-cancel').addEventListener('click', function() {
+                  try { localStorage.removeItem('tryout_registered'); } catch(e) {}
+                  confirm.replaceWith(btn);
+                  btn.addEventListener('click', openTryout);
+                });
+              }
+            }
+
             // ---- Modal formulaire ----
             function buildTryoutModal() {
               if (document.getElementById('tryout-overlay')) return;
@@ -1995,6 +2013,7 @@ async function fetchPostsFromCSV(csvUrl) {
                   });
                   form.style.display = 'none';
                   document.getElementById('egm-confirm').style.display = 'block';
+                  try { localStorage.setItem('tryout_registered', date); } catch(e) {}
                   try { document.dispatchEvent(new CustomEvent('tryout:success')); } catch(ex) {}
                 } catch(err) {
                   errEl.textContent = 'Une erreur est survenue. Réessayez ou contactez-nous par email.';
@@ -2005,13 +2024,15 @@ async function fetchPostsFromCSV(csvUrl) {
               });
             }
 
-            document.getElementById('open-tryout-form').addEventListener('click', function() {
+            function openTryout() {
               buildTryoutModal();
               const overlay = document.getElementById('tryout-overlay');
               overlay.style.display = 'flex';
               document.body.style.overflow = 'hidden';
               setTimeout(() => { const f = overlay.querySelector('#tryout-prenom'); if (f) f.focus(); }, 80);
-            });
+            }
+            const openBtn = document.getElementById('open-tryout-form');
+            if (openBtn) openBtn.addEventListener('click', openTryout);
 
             // ---- Panneau admin (bureau uniquement) ----
             const role = (function(){ try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); } catch(e){ return null; } })();
@@ -2046,17 +2067,28 @@ async function fetchPostsFromCSV(csvUrl) {
           inscriptionDivider.innerHTML = '<h2>Inscription — Saison 2026-2027</h2>';
           inscriptionSection.appendChild(inscriptionDivider);
 
-          const promoNotice = document.createElement('div');
-          promoNotice.className = 'nr-promo-notice';
-          promoNotice.innerHTML = `
-            <div class="nr-promo-inner">
-              <span class="nr-promo-icon" aria-hidden="true">🎉</span>
-              <div class="nr-promo-text">
+          const inscriptionBloc = document.createElement('div');
+          inscriptionBloc.className = 'reinscription-bloc';
+          inscriptionBloc.innerHTML = `
+            <div class="reinscription-promo">
+              <span class="reinscription-promo-icon" aria-hidden="true">🎁</span>
+              <div>
                 <strong>Membres actuels de la chorale :</strong> bénéficiez de <strong>18&nbsp;€ de réduction</strong> en vous réinscrivant avant le <strong>13&nbsp;juillet</strong>.
-                Saisissez le code promo <strong class="nr-promo-code">PREINSCRIP</strong> lors de votre inscription ci-dessous.
+                Saisissez le code <strong class="reinscription-code">PREINSCRIP</strong> dans le formulaire ci-dessous.
               </div>
-            </div>`;
-          inscriptionSection.appendChild(promoNotice);
+            </div>
+            <div class="reinscription-alerte">
+              <div class="reinscription-alerte-titre">⚠️ Important — Contribution HelloAsso : mettez-la à 0&nbsp;€</div>
+              <p>HelloAsso ajoute automatiquement une contribution à son financement (environ 11&nbsp;€) lors de votre paiement. <strong>La chorale verse déjà une contribution annuelle à HelloAsso</strong> — vous n'avez donc pas à payer cette somme en plus.</p>
+              <p><strong>Pour ne pas payer cette contribution supplémentaire, suivez ces 3 étapes au moment du paiement :</strong></p>
+              <ol class="reinscription-steps">
+                <li>Repérez la ligne <em>"Votre contribution au fonctionnement de HelloAsso"</em> en bas du formulaire.</li>
+                <li>Cliquez sur le lien <strong>"Modifier ma contribution"</strong>.</li>
+                <li>Saisissez <strong>0</strong> dans le champ ou décochez la case, puis validez.</li>
+              </ol>
+            </div>
+            <div class="reinscription-widget-wrap"></div>`;
+          inscriptionSection.appendChild(inscriptionBloc);
 
           const haFrame = document.createElement('iframe');
           haFrame.id = 'haWidget';
@@ -2075,7 +2107,7 @@ async function fetchPostsFromCSV(csvUrl) {
               } catch(err) {}
             });
           });
-          inscriptionSection.appendChild(haFrame);
+          inscriptionBloc.querySelector('.reinscription-widget-wrap').appendChild(haFrame);
           contentContainer.appendChild(inscriptionSection);
 
         } else {

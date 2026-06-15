@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <style>
@@ -159,51 +159,6 @@
   .stat-hier ul.stat-names { list-style:none; padding:0; margin:6px 0 0 0; }
   .stat-hier ul.stat-names li { padding:3px 0; color:#345; font-weight:400; }
   .stat-hier .stat-loading, .stat-hier .stat-empty { color:#789; font-style:italic; padding:4px 0; }
-
-  /* ---- Sondage réinscription — overlay & modal ---- */
-  #sondage-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 9999;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-  #sondage-overlay.visible { display: flex; }
-  #sondage-modal {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.28);
-    padding: 32px 28px;
-    max-width: 530px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  .sondage-radio-label {
-    display: flex; align-items: flex-start; gap: 10px;
-    padding: 11px 14px;
-    border-radius: 10px;
-    border: 2px solid #e5e7eb;
-    cursor: pointer;
-    transition: background 0.12s, border-color 0.12s;
-    margin-bottom: 8px;
-    font-size: 0.97rem;
-    color: #222;
-  }
-  .sondage-radio-label:hover { background: #f3f7ff; border-color: #98bfff; }
-  .sondage-radio-label input[type="radio"] { margin-top: 2px; accent-color: #3981FF; flex-shrink: 0; }
-  .sondage-radio-label.selected { background: #eef5ff; border-color: #3981FF; }
-  .sondage-sous-q { margin-bottom: 18px; }
-  .sondage-sous-q p { font-weight: 600; color: #334; margin: 0 0 8px 0; font-size: 0.93rem; line-height: 1.45; }
-  .sondage-oui-non { display: flex; gap: 14px; flex-wrap: wrap; }
-  .sondage-oui-non label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.95rem; padding: 7px 14px; border-radius: 8px; border: 2px solid #e5e7eb; transition: background 0.12s, border-color 0.12s; }
-  .sondage-oui-non label:hover { background: #f3f7ff; border-color: #98bfff; }
-  .sondage-oui-non input[type="radio"] { accent-color: #3981FF; }
-  .sondage-checkbox-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 11px 14px; border-radius: 10px; border: 2px solid #e5e7eb; font-size: 0.93rem; color: #334; transition: background 0.12s; }
-  .sondage-checkbox-label:hover { background: #f3f7ff; border-color: #98bfff; }
-  .sondage-checkbox-label input[type="checkbox"] { margin-top: 3px; accent-color: #3981FF; flex-shrink: 0; }
 
   /* ---- Sections de l'onglet "Infos & liens" : cartes lisibles ---- */
   .espace-section {
@@ -597,6 +552,7 @@
   #affichages-section .blog-post p:last-child { margin-bottom: 0; }
   /* Annule le hover translate qui n'a pas de sens dans cette section */
   #affichages-section .blog-post:hover { transform: none; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -665,6 +621,50 @@
       </div>
 
       <div id="tabs-container" style="display:none;max-width:1100px;margin:0 auto;">
+
+        <!-- ===== BLOC REINSCRIPTION 2026-2027 ===== -->
+        <div class="reinscription-bloc" id="reinscription-bloc">
+          <div class="reinscription-header">
+            <span class="reinscription-badge">Nouveau</span>
+            <h2 class="reinscription-titre">🎶 Réinscription — Saison 2026-2027</h2>
+          </div>
+
+          <!-- Promo code -->
+          <div class="reinscription-promo">
+            <span class="reinscription-promo-icon">🎁</span>
+            <div>
+              <strong>18&nbsp;€ de réduction</strong> pour les membres qui se réinscrivent avant le <strong>13&nbsp;juillet</strong>.
+              Saisissez le code <strong class="reinscription-code">PREINSCRIP</strong> dans le formulaire ci-dessous.
+            </div>
+          </div>
+
+          <!-- Avertissement HelloAsso -->
+          <div class="reinscription-alerte">
+            <div class="reinscription-alerte-titre">⚠️ Important — Contribution HelloAsso : mettez-la à 0&nbsp;€</div>
+            <p>HelloAsso ajoute automatiquement une contribution à son financement (environ 11&nbsp;€) lors de votre paiement. <strong>La chorale verse déjà une contribution annuelle à HelloAsso</strong> — vous n'avez donc pas à payer cette somme en plus.</p>
+            <p><strong>Pour ne pas payer cette contribution supplémentaire, suivez ces 3 étapes au moment du paiement :</strong></p>
+            <ol class="reinscription-steps">
+              <li>Repérez la ligne <em>"Votre contribution au fonctionnement de HelloAsso"</em> en bas du formulaire.</li>
+              <li>Cliquez sur le lien <strong>"Modifier ma contribution"</strong>.</li>
+              <li>Saisissez <strong>0</strong> dans le champ ou décochez la case, puis validez.</li>
+            </ol>
+          </div>
+
+          <!-- Widget HelloAsso -->
+          <div class="reinscription-widget-wrap">
+            <iframe
+              id="haWidgetChoristes"
+              allowtransparency="true"
+              scrolling="auto"
+              src="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/la-voix-libre-2026-2027/widget"
+              style="width:100%;height:750px;border:none;display:block;"
+              title="Formulaire de réinscription La Voix Libre 2026-2027"
+              onload="(function(fr){window.addEventListener('message',function(e){try{var h=e.data&&e.data.height;if(h&&h>parseFloat(fr.style.height||0))fr.style.height=h+'px';}catch(err){}});})(this)"
+            ></iframe>
+          </div>
+        </div>
+        <!-- ===== FIN BLOC REINSCRIPTION ===== -->
+
         <div class="choristes-tab-bar">
           <button class="choristes-tab active" data-tab="chansons">🎵 Chansons</button>
           <button class="choristes-tab" data-tab="calendrier">📅 Calendrier</button>
@@ -1089,15 +1089,6 @@
               <button type="button" id="admin-bulk-delete-btn" style="display:none;background:#b91c1c;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;">🗑 Supprimer la sélection (<span id="admin-bulk-count">0</span>)</button>
             </div>
             <div id="admin-users-table-wrap" style="overflow-x:auto;"></div>
-          </section>
-          <!-- Sondage réinscription -->
-          <section class="admin-section" id="admin-sondage-section">
-            <h3>📋 Sondage réinscription 2026–2027 <span id="admin-sondage-count" class="badge">…</span>
-              <button type="button" id="admin-sondage-refresh" style="margin-left:auto;background:#fff;border:1.5px solid #3981FF;color:#1a4a9e;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">🔄</button>
-            </h3>
-            <p style="margin:0 0 10px 0;color:#555;font-size:0.9rem;">Résultats du sondage envoyé aux choristes concernant la réinscription et les créneaux pour 2026–2027.</p>
-            <div id="admin-sondage-stats" style="margin-bottom:14px;"></div>
-            <div id="admin-sondage-table" style="overflow-x:auto;"></div>
           </section>
         </div>
         <!-- FIN ONGLET ADMIN -->
@@ -1681,7 +1672,6 @@
   <script>
     // ---- À remplir après déploiement du GAS ----
     const PHOTOS_ENDPOINT  = 'https://script.google.com/macros/s/AKfycbzQMQWjD6dL5fKaRPagrSE7tCquOCQpRTL9TSv7jhsQew34AZ4cXysEW32hHb167ZY-/exec';
-    const SONDAGE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzuhbxBS3VmXlzJ1I-HbiA6HRXWQ4FPJxkYmfI9M_ASklMMLVscb1ed00ZhnazL3gzeDg/exec';
 
     // ---- Sync profil vers GAS (déclenché par choristes.js — listener posé tôt pour ne pas rater l'event) ----
     document.addEventListener('choriste:profile-saved', async function(ev) {
@@ -2078,14 +2068,11 @@
       if (adminTab) adminTab.addEventListener('click', function() {
         loadAdminPending();
         loadAdminUsers();
-        if (typeof loadSondageResults === 'function') loadSondageResults();
       });
       var adminPendingRefresh = document.getElementById('admin-pending-refresh');
       if (adminPendingRefresh) adminPendingRefresh.addEventListener('click', function(){ loadAdminPending(true); });
       var adminUsersRefresh = document.getElementById('admin-users-refresh');
       if (adminUsersRefresh) adminUsersRefresh.addEventListener('click', function(){ loadAdminUsers(true); });
-      var adminSondageRefresh = document.getElementById('admin-sondage-refresh');
-      if (adminSondageRefresh) adminSondageRefresh.addEventListener('click', function(){ if (typeof loadSondageResults === 'function') loadSondageResults(true); });
       var adminBulkDeleteBtn = document.getElementById('admin-bulk-delete-btn');
       if (adminBulkDeleteBtn) adminBulkDeleteBtn.addEventListener('click', bulkPurgeSelected);
       var adminDupRefresh = document.getElementById('admin-duplicates-refresh');
@@ -2867,416 +2854,6 @@
     });
   </script>
 
-  <!-- ============================================================ -->
-  <!-- SONDAGE RÉINSCRIPTION 2026-2027 — JS                        -->
-  <!-- ============================================================ -->
-  <script>
-  (function() {
-    function _norm(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,''); }
-    function sondageKey(prenom, nom) { return 'sondage2026_' + _norm(prenom) + '_' + _norm(nom); }
-
-    function getSondageAnswers(prenom, nom) {
-      if (!prenom || !nom) return null;
-      try {
-        var val = localStorage.getItem(sondageKey(prenom, nom));
-        if (!val) return null;
-        var parsed = JSON.parse(val);
-        return (parsed && typeof parsed === 'object') ? parsed : null;
-      } catch(e) { return null; }
-    }
-    function saveSondageAnswers(prenom, nom, answers) {
-      try { localStorage.setItem(sondageKey(prenom, nom), JSON.stringify(answers)); } catch(e) {}
-    }
-
-    window.clearSondageFlag = function(prenom, nom) {
-      try { localStorage.removeItem(sondageKey(prenom, nom)); } catch(e) {}
-    };
-
-    var _modalOriginalHTML = null;
-
-    function _showReadOnly(modal, overlay, prenom, nom, answers) {
-      var rein = answers.reinscription;
-      function badge(v, labelOui, labelNon) {
-        if (v === true)  return '<span style="color:#166534;font-weight:600;">✅ ' + labelOui + '</span>';
-        if (v === false) return '<span style="color:#b91c1c;font-weight:600;">❌ ' + labelNon + '</span>';
-        return '<span style="color:#9ca3af;">—</span>';
-      }
-      var html = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
-        + '<span style="font-size:1.6rem;line-height:1;">✅</span>'
-        + '<div style="flex:1;"><p style="font-weight:700;color:#166534;margin:0;font-size:1rem;">Réponse enregistrée</p>'
-        + '<p style="color:#6b7280;margin:0;font-size:0.88rem;">' + prenom + ' ' + nom + '</p></div>'
-        + '<button id="sondage-ro-close" style="background:none;border:none;font-size:1.4rem;line-height:1;cursor:pointer;color:#9ca3af;padding:2px 4px;">✕</button>'
-        + '</div>';
-      html += '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:16px 18px;font-size:0.95rem;">';
-      html += '<p style="margin:0 0 10px 0;font-weight:700;color:#15803d;">Pour la saison 2026–2027 :</p>';
-      html += '<p style="margin:0 0 6px 0;">' + badge(rein, 'Je souhaite me réinscrire', 'Je ne souhaite pas me réinscrire') + '</p>';
-      if (rein) {
-        html += '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #bbf7d0;display:flex;flex-direction:column;gap:5px;">';
-        html += '<p style="margin:0;">' + badge(answers.lundi_20h_abe, 'Lundi 20h à l\'ABE OK', 'Lundi 20h à l\'ABE non') + '</p>';
-        html += '<p style="margin:0;">' + badge(answers.jeudi_19h30_abe, 'Jeudi 19h30 à l\'ABE OK', 'Jeudi 19h30 à l\'ABE non') + '</p>';
-        if (answers.seul_lundi_19h30) {
-          html += '<p style="margin:0;color:#92400e;font-weight:600;">⚠️ Lundi 19h30 uniquement (inchangé)</p>';
-        }
-        html += '</div>';
-      }
-      html += '</div>';
-      html += '<div style="display:flex;gap:8px;margin-top:16px;">';
-      html += '<button id="sondage-ro-ok" style="flex:1;padding:12px;background:#166534;color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;">Fermer</button>';
-      html += '<button id="sondage-ro-modifier" style="flex:1;padding:12px;background:#fff;color:#166534;border:1.5px solid #86efac;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;">✏️ Modifier</button>';
-      html += '</div>';
-      modal.innerHTML = html;
-      var close = function() { overlay.classList.remove('visible'); };
-      var btn1 = document.getElementById('sondage-ro-close');
-      var btn2 = document.getElementById('sondage-ro-ok');
-      if (btn1) btn1.onclick = close;
-      if (btn2) btn2.onclick = close;
-      overlay.onclick = function(e) { if (e.target === overlay) close(); };
-      var modifBtn = document.getElementById('sondage-ro-modifier');
-      if (modifBtn) modifBtn.onclick = function() {
-        modal.innerHTML = _modalOriginalHTML;
-        _showForm(modal, overlay, prenom, nom, answers);
-      };
-    }
-
-    function _showForm(modal, overlay, prenom, nom, previousAnswers) {
-      var identiteDiv = document.getElementById('sondage-identite');
-      var prenomInput = document.getElementById('sondage-prenom');
-      var nomInput    = document.getElementById('sondage-nom');
-      if (prenom && nom) {
-        if (prenomInput) prenomInput.value = prenom;
-        if (nomInput)    nomInput.value    = nom;
-        if (identiteDiv) identiteDiv.style.display = 'none';
-      } else {
-        if (identiteDiv) identiteDiv.style.display = '';
-      }
-      var closeBtn = document.getElementById('sondage-close');
-      if (closeBtn) closeBtn.onclick = function() { overlay.classList.remove('visible'); };
-      overlay.onclick = function(e) { if (e.target === overlay) overlay.classList.remove('visible'); };
-
-      overlay.querySelectorAll('input[name="sondage-reinscription"]').forEach(function(radio) {
-        radio.onchange = function() {
-          var sousopt = document.getElementById('sondage-sousoptions');
-          if (sousopt) sousopt.style.display = (this.value === 'oui') ? '' : 'none';
-          var lblOui = document.getElementById('sondage-lbl-oui');
-          var lblNon = document.getElementById('sondage-lbl-non');
-          if (lblOui) lblOui.classList.toggle('selected', this.value === 'oui');
-          if (lblNon) lblNon.classList.toggle('selected', this.value === 'non');
-        };
-      });
-
-      // Pré-remplir avec les réponses précédentes si disponibles
-      if (previousAnswers) {
-        var val = previousAnswers.reinscription ? 'oui' : 'non';
-        var r = overlay.querySelector('input[name="sondage-reinscription"][value="' + val + '"]');
-        if (r) { r.checked = true; r.dispatchEvent(new Event('change')); }
-        if (previousAnswers.reinscription) {
-          if (previousAnswers.lundi_20h_abe !== null && previousAnswers.lundi_20h_abe !== undefined) {
-            var r2 = overlay.querySelector('input[name="sondage-lundi20h"][value="' + (previousAnswers.lundi_20h_abe ? 'oui' : 'non') + '"]');
-            if (r2) r2.checked = true;
-          }
-          if (previousAnswers.jeudi_19h30_abe !== null && previousAnswers.jeudi_19h30_abe !== undefined) {
-            var r3 = overlay.querySelector('input[name="sondage-jeudi19h30"][value="' + (previousAnswers.jeudi_19h30_abe ? 'oui' : 'non') + '"]');
-            if (r3) r3.checked = true;
-          }
-          var seulLundi = document.getElementById('sondage-seul-lundi');
-          if (seulLundi) seulLundi.checked = !!previousAnswers.seul_lundi_19h30;
-        }
-      }
-
-      var submitBtn = document.getElementById('sondage-submit');
-      var errorEl   = document.getElementById('sondage-error');
-      if (!submitBtn) return;
-
-      submitBtn.onclick = async function() {
-        errorEl.style.display = 'none';
-        errorEl.textContent = '';
-        var p = ((document.getElementById('sondage-prenom') || {}).value || '').trim();
-        var n = ((document.getElementById('sondage-nom')    || {}).value || '').trim();
-        if (!p || !n) {
-          errorEl.textContent = 'Merci de renseigner votre prénom et votre nom.';
-          errorEl.style.display = 'block'; return;
-        }
-        var reinscriptionRadio = overlay.querySelector('input[name="sondage-reinscription"]:checked');
-        if (!reinscriptionRadio) {
-          errorEl.textContent = 'Merci de choisir une réponse.';
-          errorEl.style.display = 'block'; return;
-        }
-        var reinscription = (reinscriptionRadio.value === 'oui');
-        var answers = { reinscription: reinscription };
-        if (reinscription) {
-          var lundi20h   = overlay.querySelector('input[name="sondage-lundi20h"]:checked');
-          var jeudi19h30 = overlay.querySelector('input[name="sondage-jeudi19h30"]:checked');
-          var seulLundi  = document.getElementById('sondage-seul-lundi');
-          answers.lundi_20h_abe    = lundi20h   ? lundi20h.value === 'oui'   : null;
-          answers.jeudi_19h30_abe  = jeudi19h30 ? jeudi19h30.value === 'oui' : null;
-          answers.seul_lundi_19h30 = seulLundi  ? seulLundi.checked : false;
-        }
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Envoi…';
-        try {
-          var params = new URLSearchParams();
-          params.append('action', 'sondage');
-          params.append('prenom', p); params.append('nom', n);
-          params.append('reinscription', reinscription ? 'oui' : 'non');
-          if (reinscription) {
-            params.append('lundi_20h_abe',    answers.lundi_20h_abe    === true ? 'oui' : answers.lundi_20h_abe    === false ? 'non' : '');
-            params.append('jeudi_19h30_abe',  answers.jeudi_19h30_abe  === true ? 'oui' : answers.jeudi_19h30_abe  === false ? 'non' : '');
-            params.append('seul_lundi_19h30', answers.seul_lundi_19h30 ? 'oui' : 'non');
-          }
-          var endpoint = (typeof SONDAGE_ENDPOINT !== 'undefined' && SONDAGE_ENDPOINT !== 'COLLER_ICI_URL_GAS_SONDAGE') ? SONDAGE_ENDPOINT : null;
-          if (!endpoint) throw new Error('SONDAGE_ENDPOINT non configuré.');
-          var resp = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:params.toString() });
-          var rawText = await resp.text();
-          var data;
-          try { data = JSON.parse(rawText); } catch(e) {
-            console.error('sondage non-JSON:', rawText);
-            throw new Error('Réponse inattendue (HTTP ' + resp.status + ')');
-          }
-          if (!data.ok) throw new Error(data.error || 'erreur serveur');
-          saveSondageAnswers(p, n, answers);
-          modal.innerHTML = '<div style="text-align:center;padding:24px 0;"><p style="font-size:2rem;margin:0 0 10px 0;">✅</p><p style="font-weight:700;font-size:1.1rem;color:#166534;margin:0;">Merci pour ta réponse !</p><p style="color:#555;margin-top:6px;font-size:0.93rem;">Elle a bien été enregistrée.</p></div>';
-          setTimeout(function() { overlay.classList.remove('visible'); }, 2000);
-        } catch(err) {
-          console.error('sondage erreur:', err);
-          errorEl.textContent = 'Erreur : ' + err.message;
-          errorEl.style.display = 'block';
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Envoyer ma réponse';
-        }
-      };
-    }
-
-    window.showSurveyIfNeeded = function() {
-      var overlay = document.getElementById('sondage-overlay');
-      var modal   = document.getElementById('sondage-modal');
-      if (!overlay || !modal) return;
-      if (!_modalOriginalHTML) {
-        _modalOriginalHTML = modal.innerHTML;
-      } else {
-        modal.innerHTML = _modalOriginalHTML;
-      }
-      var profil = null;
-      try { profil = JSON.parse(localStorage.getItem('choristeProfile') || 'null'); } catch(e) {}
-      var prenom = profil && profil.prenom ? profil.prenom : '';
-      var nom    = profil && profil.nom    ? profil.nom    : '';
-      overlay.classList.add('visible');
-      var answers = getSondageAnswers(prenom, nom);
-      if (answers !== null) {
-        _showReadOnly(modal, overlay, prenom, nom, answers);
-      } else {
-        _showForm(modal, overlay, prenom, nom);
-      }
-    };
-
-    // ---- Résultats sondage dans l'espace admin ----
-    var _sondageLoaded = false;
-    window.loadSondageResults = async function(force) {
-      if (_sondageLoaded && !force) return;
-      var statsEl = document.getElementById('admin-sondage-stats');
-      var tableEl = document.getElementById('admin-sondage-table');
-      var countEl = document.getElementById('admin-sondage-count');
-      if (!statsEl || !tableEl) return;
-      statsEl.innerHTML = '<p style="color:#888;font-style:italic;">Chargement…</p>';
-      tableEl.innerHTML = '';
-      try {
-        var endpt = (typeof SONDAGE_ENDPOINT !== 'undefined' && SONDAGE_ENDPOINT !== 'COLLER_ICI_URL_GAS_SONDAGE')
-          ? SONDAGE_ENDPOINT : null;
-        if (!endpt) { statsEl.innerHTML = '<p style="color:#888;font-style:italic;">Le GAS du sondage n\'est pas encore configuré (SONDAGE_ENDPOINT).</p>'; return; }
-        var resp = await fetch(endpt + '?action=results&adminPass=chefdechoeur');
-        if (resp.status === 403) throw new Error('forbidden');
-        var rows = await resp.json();
-        _sondageLoaded = true;
-        if (!Array.isArray(rows) || rows.length === 0) {
-          statsEl.innerHTML = '<p style="color:#888;font-style:italic;">Aucune réponse pour le moment.</p>';
-          if (countEl) countEl.textContent = '0';
-          return;
-        }
-        if (countEl) countEl.textContent = rows.length;
-
-        // Statistiques agrégées
-        var nbOui = rows.filter(function(r){ return r.reinscription; }).length;
-        var nbNon = rows.length - nbOui;
-        var avecOui = rows.filter(function(r){ return r.reinscription; });
-        var lundi20hOui = avecOui.filter(function(r){ return r.lundi_20h_abe === true; }).length;
-        var jeudi19hOui = avecOui.filter(function(r){ return r.jeudi_19h30_abe === true; }).length;
-        var seulLundi   = avecOui.filter(function(r){ return r.seul_lundi_19h30 === true; }).length;
-
-        var statsHtml = '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;">';
-        function stat(label, val, total, color) {
-          var pct = total ? Math.round(val / total * 100) : 0;
-          return '<div style="background:#f8faff;border:1.5px solid #d1e4ff;border-radius:10px;padding:12px 16px;min-width:160px;flex:1 1 160px;">'
-            + '<p style="margin:0 0 4px 0;font-size:0.85rem;color:#555;">' + label + '</p>'
-            + '<p style="margin:0;font-size:1.4rem;font-weight:800;color:' + color + ';">' + val + ' <span style="font-size:1rem;font-weight:600;color:#888;">/ ' + total + '</span></p>'
-            + '<div style="margin-top:6px;height:6px;background:#e5e7eb;border-radius:3px;"><div style="height:100%;background:' + color + ';border-radius:3px;width:' + pct + '%;"></div></div></div>';
-        }
-        statsHtml += stat('Réinscriptions', nbOui, rows.length, '#2563eb');
-        statsHtml += stat('Non-réinscriptions', nbNon, rows.length, '#dc2626');
-        if (avecOui.length > 0) {
-          statsHtml += stat('Lundi 20h (ABE) ✓', lundi20hOui, avecOui.length, '#059669');
-          statsHtml += stat('Jeudi 19h30 (ABE) ✓', jeudi19hOui, avecOui.length, '#7c3aed');
-          statsHtml += stat('Lundi 19h30 uniquement', seulLundi, avecOui.length, '#d97706');
-        }
-        statsHtml += '</div>';
-        statsEl.innerHTML = statsHtml;
-
-        // Tableau détaillé
-        var th = function(t){ return '<th style="text-align:left;padding:7px 10px;font-size:0.85rem;background:#f1f5f9;white-space:nowrap;">' + t + '</th>'; };
-        var td = function(t, extra){ return '<td style="padding:7px 10px;font-size:0.88rem;border-bottom:1px solid #e5e7eb;' + (extra||'') + '">' + (t !== null && t !== undefined ? t : '—') + '</td>'; };
-        function boolBadge(v) {
-          if (v === true)  return '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:6px;font-size:0.82rem;font-weight:600;">Oui</span>';
-          if (v === false) return '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:6px;font-size:0.82rem;font-weight:600;">Non</span>';
-          return '<span style="color:#9ca3af;font-size:0.82rem;">—</span>';
-        }
-        // Stocke les données pour la suppression
-        window._sondageRows = rows;
-
-        var html = '<table style="width:100%;border-collapse:collapse;"><thead><tr>'
-          + th('Prénom') + th('Nom') + th('Réinscription') + th('Lundi 20h (ABE)') + th('Jeudi 19h30 (ABE)') + th('Lundi 19h30 seul') + th('Date') + th('')
-          + '</tr></thead><tbody>';
-        rows.slice().reverse().forEach(function(r, idx) {
-          var dateStr = r.ts ? String(r.ts) : '—';
-          var rowIdx = rows.length - 1 - idx; // index dans le tableau original
-          html += '<tr id="sondage-row-' + rowIdx + '">';
-          html += td(r.prenom || '');
-          html += td(r.nom || '');
-          html += td(r.reinscription
-            ? '<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:6px;font-size:0.82rem;font-weight:600;">Oui</span>'
-            : '<span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:6px;font-size:0.82rem;font-weight:600;">Non</span>');
-          html += td(r.reinscription ? boolBadge(r.lundi_20h_abe) : '<span style="color:#d1d5db;">—</span>');
-          html += td(r.reinscription ? boolBadge(r.jeudi_19h30_abe) : '<span style="color:#d1d5db;">—</span>');
-          html += td(r.reinscription ? boolBadge(r.seul_lundi_19h30) : '<span style="color:#d1d5db;">—</span>');
-          html += td(dateStr, 'color:#888;font-size:0.82rem;');
-          html += '<td style="padding:4px 8px;border-bottom:1px solid #e5e7eb;">'
-            + '<button onclick="deleteSondageRow(' + rowIdx + ', this)" title="Supprimer cette réponse"'
-            + ' style="background:none;border:1.5px solid #fca5a5;border-radius:6px;color:#b91c1c;cursor:pointer;padding:4px 8px;font-size:0.82rem;transition:background 0.12s;"'
-            + ' onmouseover="this.style.background=\'#fee2e2\'" onmouseout="this.style.background=\'none\'">🗑</button></td>';
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        tableEl.innerHTML = html;
-      } catch (err) {
-        statsEl.innerHTML = '<p style="color:#b91c1c;font-size:0.9rem;">Erreur de chargement : ' + err.message + '</p>';
-      }
-    };
-
-    window.deleteSondageRow = async function(rowIdx, btn) {
-      var rows = window._sondageRows;
-      if (!rows || !rows[rowIdx]) return;
-      var r = rows[rowIdx];
-      if (!confirm('Supprimer la réponse de ' + r.prenom + ' ' + r.nom + ' ?')) return;
-      btn.disabled = true;
-      btn.textContent = '⏳';
-      try {
-        var endpt = (typeof SONDAGE_ENDPOINT !== 'undefined' && SONDAGE_ENDPOINT !== 'COLLER_ICI_URL_GAS_SONDAGE') ? SONDAGE_ENDPOINT : null;
-        if (!endpt) throw new Error('SONDAGE_ENDPOINT non configuré');
-        var params = new URLSearchParams();
-        params.append('action',   'delete');
-        params.append('adminPass', 'chefdechoeur');
-        params.append('rowIndex', String(r._rowIndex || ''));
-        var resp = await fetch(endpt, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: params.toString()
-        });
-        var data = await resp.json();
-        if (!data.ok) throw new Error(data.error || 'erreur serveur');
-        // Masquer la ligne et mettre à jour le cache
-        var trEl = document.getElementById('sondage-row-' + rowIdx);
-        if (trEl) trEl.remove();
-        rows.splice(rowIdx, 1);
-
-        // Si c'est sa propre réponse : effacer le flag localStorage et re-afficher le popup
-        var profil = null;
-        try { profil = JSON.parse(localStorage.getItem('choristeProfile') || 'null'); } catch {}
-        function _normSondage(s) { return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,''); }
-        if (profil && _normSondage(profil.prenom) === _normSondage(r.prenom) && _normSondage(profil.nom) === _normSondage(r.nom)) {
-          if (typeof window.clearSondageFlag === 'function') window.clearSondageFlag(r.prenom, r.nom);
-          setTimeout(function() {
-            if (typeof window.showSurveyIfNeeded === 'function') window.showSurveyIfNeeded();
-          }, 300);
-        }
-
-        // Recharger les stats
-        window.loadSondageResults(true);
-      } catch(err) {
-        alert('Erreur : ' + err.message);
-        btn.disabled = false;
-        btn.textContent = '🗑';
-      }
-    };
-  })();
-  </script>
-
-  <!-- ============================================================ -->
-  <!-- SONDAGE RÉINSCRIPTION 2026-2027                              -->
-  <!-- ============================================================ -->
-  <div id="sondage-overlay" role="dialog" aria-modal="true" aria-labelledby="sondage-titre">
-    <div id="sondage-modal">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;">
-        <h2 id="sondage-titre" style="font-family:'Lobster',cursive;color:var(--accent-color-complementary,#8844aa);font-size:1.45rem;margin:0;">Sondage réinscription 2026–2027</h2>
-        <button id="sondage-close" title="Fermer (répondre plus tard)" aria-label="Fermer"
-          style="flex-shrink:0;background:none;border:none;font-size:1.4rem;line-height:1;cursor:pointer;color:#9ca3af;padding:2px 4px;border-radius:6px;transition:color 0.12s;"
-          onmouseover="this.style.color='#374151'" onmouseout="this.style.color='#9ca3af'">✕</button>
-      </div>
-      <p style="color:#555;margin:0 0 20px 0;font-size:0.93rem;">Merci de répondre à ce sondage pour aider le bureau à organiser la saison prochaine. Il ne vous sera posé qu'une seule fois.</p>
-
-      <!-- Question principale -->
-      <p style="font-weight:700;color:#222;margin:0 0 10px 0;">Pour la saison prochaine :</p>
-      <label class="sondage-radio-label" id="sondage-lbl-oui">
-        <input type="radio" name="sondage-reinscription" value="oui">
-        <span>Je souhaite me réinscrire l'an prochain</span>
-      </label>
-      <label class="sondage-radio-label" id="sondage-lbl-non">
-        <input type="radio" name="sondage-reinscription" value="non">
-        <span>Je ne souhaite pas me réinscrire l'an prochain</span>
-      </label>
-
-      <!-- Sous-questions (affichées si "oui") -->
-      <div id="sondage-sousoptions" style="display:none;border-top:1.5px solid #e5e7eb;margin-top:18px;padding-top:18px;">
-        <p style="font-weight:700;color:#222;margin:0 0 14px 0;">Concernant les nouveaux créneaux proposés :</p>
-
-        <div class="sondage-sous-q">
-          <p>La séance <strong>le lundi à 20h</strong> (au lieu de 19h30) à la <strong>salle de l'ABE</strong> — plus belle et plus grande, à 2 pas de notre salle actuelle — me convient :</p>
-          <div class="sondage-oui-non">
-            <label><input type="radio" name="sondage-lundi20h" value="oui"> Oui</label>
-            <label><input type="radio" name="sondage-lundi20h" value="non"> Non</label>
-          </div>
-        </div>
-
-        <div class="sondage-sous-q">
-          <p>La séance <strong>le jeudi à 19h30</strong> (au lieu du lundi, même heure) à la <strong>salle de l'ABE</strong> me convient :</p>
-          <div class="sondage-oui-non">
-            <label><input type="radio" name="sondage-jeudi19h30" value="oui"> Oui</label>
-            <label><input type="radio" name="sondage-jeudi19h30" value="non"> Non</label>
-          </div>
-        </div>
-
-        <div class="sondage-sous-q">
-          <label class="sondage-checkbox-label">
-            <input type="checkbox" id="sondage-seul-lundi">
-            <span>Le lundi à 19h30 — même salle qu'actuellement (l'Avenir de Rennes) — me convient</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Identité (cachée si profil déjà connu) -->
-      <div id="sondage-identite" style="border-top:1.5px solid #e5e7eb;margin-top:18px;padding-top:18px;">
-        <p style="font-weight:700;color:#222;margin:0 0 10px 0;">Votre identité :</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <input type="text" id="sondage-prenom" placeholder="Prénom" autocomplete="given-name"
-            style="flex:1 1 130px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.95rem;">
-          <input type="text" id="sondage-nom" placeholder="Nom" autocomplete="family-name"
-            style="flex:1 1 130px;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:8px;font-size:0.95rem;">
-        </div>
-      </div>
-
-      <p id="sondage-error" style="display:none;color:#b91c1c;font-size:0.9rem;margin:14px 0 0 0;"></p>
-
-      <button id="sondage-submit"
-        style="width:100%;margin-top:18px;padding:13px;background:linear-gradient(135deg,#3981FF,#8844aa);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity 0.15s;">
-        Envoyer ma réponse
-      </button>
-    </div>
   </div>
   </body>
 </html>
