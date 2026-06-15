@@ -1869,6 +1869,18 @@ async function fetchPostsFromCSV(csvUrl) {
           inscriptionDivider.innerHTML = '<h2>Inscription — Saison 2026-2027</h2>';
           inscriptionSection.appendChild(inscriptionDivider);
 
+          const promoNotice = document.createElement('div');
+          promoNotice.className = 'nr-promo-notice';
+          promoNotice.innerHTML = `
+            <div class="nr-promo-inner">
+              <span class="nr-promo-icon" aria-hidden="true">🎉</span>
+              <div class="nr-promo-text">
+                <strong>Membres actuels de la chorale :</strong> bénéficiez de <strong>18&nbsp;€ de réduction</strong> en vous réinscrivant avant le <strong>13&nbsp;juillet</strong>.
+                Saisissez le code promo <strong class="nr-promo-code">PREINSCRIP</strong> lors de votre inscription ci-dessous.
+              </div>
+            </div>`;
+          inscriptionSection.appendChild(promoNotice);
+
           const haFrame = document.createElement('iframe');
           haFrame.id = 'haWidget';
           haFrame.allowTransparency = true;
