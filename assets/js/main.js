@@ -1858,6 +1858,37 @@ async function fetchPostsFromCSV(csvUrl) {
             contentContainer.appendChild(faqWrap);
           }
 
+          // Widget d'inscription HelloAsso — Saison 2026-2027
+          const inscriptionSection = document.createElement('section');
+          inscriptionSection.className = 'nr-inscription';
+          inscriptionSection.id = 'inscription';
+          inscriptionSection.style.cssText = 'scroll-margin-top:80px;margin-top:40px;';
+
+          const inscriptionDivider = document.createElement('div');
+          inscriptionDivider.className = 'home-section-divider';
+          inscriptionDivider.innerHTML = '<h2>Inscription — Saison 2026-2027</h2>';
+          inscriptionSection.appendChild(inscriptionDivider);
+
+          const haFrame = document.createElement('iframe');
+          haFrame.id = 'haWidget';
+          haFrame.allowTransparency = true;
+          haFrame.scrolling = 'auto';
+          haFrame.src = 'https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/la-voix-libre-2026-2027/widget';
+          haFrame.style.cssText = 'width:100%;height:750px;border:none;display:block;';
+          haFrame.title = 'Formulaire d\'inscription La Voix Libre 2026-2027';
+          haFrame.addEventListener('load', function() {
+            window.addEventListener('message', function(e) {
+              try {
+                const dataHeight = e.data && e.data.height;
+                if (dataHeight && dataHeight > parseFloat(haFrame.style.height || 0)) {
+                  haFrame.style.height = dataHeight + 'px';
+                }
+              } catch(err) {}
+            });
+          });
+          inscriptionSection.appendChild(haFrame);
+          contentContainer.appendChild(inscriptionSection);
+
         } else {
           // Pour Soul, Chorale Pop et autres pages, image et texte côte à côte
           descriptionContainer = document.createElement('div');
