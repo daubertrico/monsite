@@ -1862,8 +1862,8 @@ async function fetchPostsFromCSV(csvUrl) {
           (function() {
             const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
             const TRYOUT_DATES = [
-              { value: '14 septembre 2025', label: 'Dimanche 14 septembre à 19h30' },
-              { value: '21 septembre 2025', label: 'Dimanche 21 septembre à 19h30' }
+              { value: '14 septembre 2025', label: 'Lundi 14 septembre à 19h30' },
+              { value: '21 septembre 2025', label: 'Lundi 21 septembre à 19h30' }
             ];
             const TRYOUT_LIEU = '47b rue Papu, Rennes (Avenir de Rennes)';
 
@@ -1881,11 +1881,11 @@ async function fetchPostsFromCSV(csvUrl) {
                 <div class="nr-essai-dates">
                   <div class="nr-essai-date-item">
                     <span class="nr-essai-date-icon" aria-hidden="true">🗓</span>
-                    <div><strong>Dimanche 14 septembre</strong> à 19h30</div>
+                    <div><strong>Lundi 14 septembre</strong> à 19h30</div>
                   </div>
                   <div class="nr-essai-date-item">
                     <span class="nr-essai-date-icon" aria-hidden="true">🗓</span>
-                    <div><strong>Dimanche 21 septembre</strong> à 19h30</div>
+                    <div><strong>Lundi 21 septembre</strong> à 19h30</div>
                   </div>
                   <div class="nr-essai-date-item">
                     <span class="nr-essai-date-icon" aria-hidden="true">📍</span>
