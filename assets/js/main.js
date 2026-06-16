@@ -1862,8 +1862,8 @@ async function fetchPostsFromCSV(csvUrl) {
           (function() {
             const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
             const TRYOUT_DATES = [
-              { value: '14 septembre 2025', label: 'Lundi 14 septembre à 19h30' },
-              { value: '21 septembre 2025', label: 'Lundi 21 septembre à 19h30' }
+              { value: '14 septembre 2026', label: 'Lundi 14 septembre à 19h30' },
+              { value: '21 septembre 2026', label: 'Lundi 21 septembre à 19h30' }
             ];
             const TRYOUT_LIEU = '47b rue Papu, Rennes (Avenir de Rennes)';
 
