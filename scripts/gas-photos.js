@@ -283,16 +283,7 @@ function getGalleryList(concertFilter) {
     photos = photos.filter(p => p.concert === concertFilter);
   }
 
-  // Ignore les photos dont le fichier Drive a été supprimé ou mis à la corbeille
-  photos = photos.filter(p => {
-    if (!p.fileId) return false;
-    try {
-      const f = DriveApp.getFileById(p.fileId);
-      return f && !f.isTrashed();
-    } catch (e) {
-      return false;
-    }
-  });
+  photos = photos.filter(p => !!p.fileId);
 
   photos.reverse(); // plus récent en premier
   return jsonOk({ photos });
