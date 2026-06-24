@@ -1009,16 +1009,22 @@ async function fetchPostsFromCSV(csvUrl) {
     // === SECTION 2 : Concerts & événements (depuis Google Agenda) ===
     loadHomeEvents(homeContent);
 
-    // === SECTION 3 : Actualités Instagram (Behold), sous le calendrier ===
+    // === SECTION 3 : Actualités Instagram, sous le calendrier ===
     if (homeContent) {
       const insta = document.createElement('section');
       insta.className = 'insta-section';
       insta.setAttribute('aria-label', 'Actualités Instagram');
-      const feedId = (typeof window !== 'undefined' && window.BEHOLD_FEED_ID && !window.BEHOLD_FEED_ID.startsWith('VOTRE_ID')) ? window.BEHOLD_FEED_ID : '';
       insta.innerHTML = `
         <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
-        ${feedId ? `<behold-widget feed-id="${feedId}"></behold-widget>` : `<p class="insta-fallback">Flux Instagram bientôt disponible.</p>`}`;
+        <div class="insta-embeds-grid">
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZp2XTqKloJ/" data-instgrm-version="14"></blockquote></div>
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DX873gbKLA3/" data-instgrm-version="14"></blockquote></div>
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DVoI2NkiiQL/" data-instgrm-version="14"></blockquote></div>
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DSPzoknijA3/" data-instgrm-version="14"></blockquote></div>
+        </div>`;
       homeContent.appendChild(insta);
+      if (window.instgrm) window.instgrm.Embeds.process();
+      else window.addEventListener('load', () => { if (window.instgrm) window.instgrm.Embeds.process(); }, { once: true });
     }
 
     // === SECTION 4 : Nos enregistrements (playlist YouTube), sous la rubrique Insta ===
@@ -2252,17 +2258,33 @@ async function fetchPostsFromCSV(csvUrl) {
   filteredPosts.sort((a, b) => extractTimestamp(b) - extractTimestamp(a));
     postsContainer.innerHTML = '';
 
+    // Fonction utilitaire pour transformer les URLs en liens cliquables
+    function linkify(text) {
+      const urlRegex = /(https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/gi;
+      return text.replace(urlRegex, function(url) {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      });
+    }
+
+    function formatPostDate(rawDate) {
+      if (!rawDate) return '';
+      let d = new Date(rawDate);
+      if (isNaN(d)) {
+        const match = rawDate.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (match) d = new Date(`${match[3]}-${match[2].padStart(2,'0')}-${match[1].padStart(2,'0')}`);
+      }
+      if (isNaN(d)) return rawDate;
+      const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+      const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+      return `${jours[d.getDay()]} ${d.getDate()} ${mois[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
     filteredPosts.forEach(post => {
       const postElement = document.createElement('article');
       postElement.classList.add('blog-post');
 
-      // Illustrations : image(s) d'abord, puis vidéos
       let illustrations = [];
       if (!noIllustrations) {
-        // Support multiple ways to specify images in the CSV:
-        // - post.image (string): filename, absolute URL, Google Drive share link, or comma-separated list
-        // - post.images (array)
-        // - alternative fields: post.illustration, post.illustration_url
         const imageCandidates = [];
         if (post.image) imageCandidates.push(post.image);
         if (post.images && Array.isArray(post.images)) imageCandidates.push(...post.images);
@@ -2271,17 +2293,14 @@ async function fetchPostsFromCSV(csvUrl) {
 
         imageCandidates.forEach(imgField => {
           if (!imgField) return;
-          // Split comma-separated lists (CSV authors sometimes list multiple filenames in one cell)
           const parts = ('' + imgField).split(',').map(s => s.trim()).filter(Boolean);
           parts.forEach(p => {
             const src = normalizePostImageSrc(p);
-            // prepare an assets fallback (useful when hosting serves files under a subpath)
             const assetsFallback = `${ASSETS_BASE_URL}images/${p}`;
             illustrations.push({ type: 'image', src, fallback: (assetsFallback !== src ? [assetsFallback] : []) });
           });
         });
 
-        // Videos (YouTube): same as before
         if (Array.isArray(post.videos) && post.videos.length > 0) {
           post.videos.forEach(function(videoObj) {
             let url = typeof videoObj === 'string' ? videoObj : videoObj.url;
@@ -2292,102 +2311,42 @@ async function fetchPostsFromCSV(csvUrl) {
         }
       }
 
-      // Build the illustrations column (stacked vertically)
       let illustrationsHTML = illustrations.map(ill => {
         if (ill.type === 'image') {
-          // Render a small transparent placeholder initially and defer actual loading to JS
           const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
           const fallbackAttr = (ill.fallback && ill.fallback.length) ? ` data-fallback='${JSON.stringify(ill.fallback)}'` : '';
           return `<img data-src="${ill.src}" src="${placeholder}" alt="${post.title}" class="media-illustration" loading="lazy" decoding="async"${fallbackAttr}>`;
         }
-        return `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+        return `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="aspect-ratio:16/9;height:auto;border-radius:10px;"></iframe>`;
       }).join('');
 
-      // Fonction utilitaire pour transformer les URLs en liens cliquables
-      function linkify(text) {
-        const urlRegex = /(https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/gi;
-        return text.replace(urlRegex, function(url) {
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-        });
+      // Meta line: date, heure, lieu
+      let metaParts = [];
+      if (post.date) metaParts.push(formatPostDate(post.date));
+      if (post.heure) {
+        let h = post.heure.trim();
+        if (!h.endsWith('h')) h += 'h';
+        metaParts.push(h);
       }
+      if (post.lieu) metaParts.push(post.lieu);
+      const metaLine = metaParts.length ? `<div class="post-meta-line">${metaParts.join(' · ')}</div>` : '';
 
-      // Build the post HTML
-      // Affiche date/heure/lieu événement sous le titre si renseigné
-      let eventInfo = '';
-      if (post.date || post.heure || post.lieu) {
-        let dateStr = '';
-        if (post.date) {
-          // Tente de parser la date, sinon affiche tel quel
-          let d = new Date(post.date);
-          if (!isNaN(d)) {
-            const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-            const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-            dateStr = `${jours[d.getDay()]} ${d.getDate()} ${mois[d.getMonth()]} ${d.getFullYear()}`;
-          } else {
-            // Si le format est type 24/06/2025, le parser manuellement
-            const match = post.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-            if (match) {
-              const d2 = new Date(`${match[3]}-${match[2]}-${match[1]}`);
-              if (!isNaN(d2)) {
-                const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-                const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-                dateStr = `${jours[d2.getDay()]} ${d2.getDate()} ${mois[d2.getMonth()]} ${d2.getFullYear()}`;
-              } else {
-                dateStr = post.date;
-              }
-            } else {
-              dateStr = post.date;
-            }
-          }
-        }
-        let heureStr = '';
-        if (post.heure) {
-          // Ajoute "h" si non présent
-          let heure = post.heure.trim();
-          if (!heure.endsWith('h')) {
-            heure += 'h';
-          }
-          heureStr = `à ${heure}`;
-        }
-        let lieuStr = post.lieu ? `- ${post.lieu}` : '';
-        eventInfo = `<div class="event-info" style="font-size:1.08rem;color:var(--accent-color-complementary);font-family:'Montserrat',sans-serif;font-weight:500;margin-bottom:8px;">${[dateStr, heureStr, lieuStr].filter(Boolean).join(' ')}</div>`;
-      }
-
-      let postHTML = `<h3>${post.title}</h3>`;
-      postHTML += eventInfo;
-
-      // Exergue lien: affiche un lien visible en haut du post si une colonne 'lien' (ou 'link'/'url') est fournie
+      // Link badge
       const linkUrl = post.lien || post.link || post.url || post.website;
-      if (linkUrl) {
-        // Determine display text: prefer a title if provided, default to French friendly text
-        const linkText = post.lien_text || post.link_title || post.title_link_text || 'toutes les infos ici';
-        postHTML += `<div class="post-link-badge" style="margin-bottom:8px;"><a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#fff;border:1px solid #e6e6e6;padding:8px 12px;border-radius:6px;color:#0b63a7;text-decoration:none;font-weight:600;">${linkText}</a></div>`;
-      }
-      if (noIllustrations) {
-        // Render a single full-width text column for affichages (no media)
-        postHTML += `
-          <div class="post-wrapper">
-            <div class="text-content" style="width:100%;">
-              <p>${linkify(post.content)}</p>
-            </div>
-          </div>
-        `;
+      const linkBadge = linkUrl ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="post-link-btn">${post.lien_text || post.link_title || post.title_link_text || 'En savoir plus'}</a>` : '';
+
+      // Build HTML
+      let postHTML = `<h3>${post.title}</h3>`;
+      postHTML += metaLine;
+
+      if (illustrations.length && !noIllustrations) {
+        postHTML += `<div class="post-wrapper"><div class="media media-vertical">${illustrationsHTML}</div><div class="text-content"><p>${linkify(post.content)}</p>${linkBadge}</div></div>`;
       } else {
-        postHTML += `
-          <div class="post-wrapper">
-            <div class="media media-vertical">
-              ${illustrationsHTML}
-            </div>
-            <div class="text-content">
-              <p>${linkify(post.content)}</p>
-            </div>
-          </div>
-        `;
+        postHTML += `<div class="post-wrapper"><div class="text-content" style="width:100%;"><p>${linkify(post.content)}</p>${linkBadge}</div></div>`;
       }
 
       postElement.innerHTML = postHTML;
       postsContainer.appendChild(postElement);
-      // After inserting the post, process deferred images to avoid broken icons
       try { processDeferredImages(postElement); } catch (e) { console.warn('processDeferredImages failed', e); }
     });
   }

@@ -285,6 +285,15 @@ function getGalleryList(concertFilter) {
 
   photos = photos.filter(p => !!p.fileId);
 
+  // Dédoublonnage : si le même fichier a été téléversé plusieurs fois, on n'en garde qu'un exemplaire
+  const seenIds = new Set();
+  photos = photos.filter(p => {
+    const id = String(p.fileId);
+    if (seenIds.has(id)) return false;
+    seenIds.add(id);
+    return true;
+  });
+
   photos.reverse(); // plus récent en premier
   return jsonOk({ photos });
 }

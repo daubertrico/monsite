@@ -502,11 +502,12 @@
   }
 
   /* ---- Affichages — Vie administrative : lisibilité des posts ---- */
-  /* Désactive le layout CSS Grid hérité de #posts-container (qui force des colonnes étroites de 220px) */
   #affichages-section #posts-container {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 0 !important;
-    grid-template-columns: none !important;
+    max-width: 100% !important;
+    border-radius: 12px !important;
   }
   #affichages-section { background:#fafbff; }
   #affichages-section > h3 {
@@ -537,9 +538,11 @@
     margin: 14px 22px 4px 22px;
     word-break: break-word;
   }
+  #affichages-section .blog-post .post-meta-line,
   #affichages-section .blog-post .event-info {
     margin: 0 22px 4px 22px;
   }
+  #affichages-section .blog-post .post-link-btn,
   #affichages-section .blog-post .post-link-badge {
     margin: 4px 22px 8px 22px !important;
   }
@@ -561,7 +564,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260615">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260624">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -1663,8 +1666,8 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260615"></script>
-  <script src="assets/js/main.js?v=20260615"></script>
+  <script src="assets/js/choristes.js?v=20260624"></script>
+  <script src="assets/js/main.js?v=20260624"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->

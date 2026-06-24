@@ -684,6 +684,37 @@
     .pending-card .pc-btn:disabled { opacity: 0.5; cursor: wait; }
     .pending-empty { color: #92400e; font-style: italic; padding: 10px 4px; grid-column: 1 / -1; }
   </style>
+
+  <!-- Styles temporaires pour la preview Instagram -->
+  <style>
+    /* Annule le scale hack et le crop de l'ancienne version */
+    .insta-embed-cell iframe {
+      position: relative !important;
+      top: 0 !important;
+      left: 0 !important;
+      transform: none !important;
+      transform-origin: initial !important;
+    }
+    
+    /* Nouvelle grille responsive pour loger les embeds rÃ©els */
+    .insta-section {
+      max-width: 720px !important;
+      margin: 0 auto 2rem auto !important;
+    }
+    .insta-embeds-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)) !important;
+      gap: 24px !important;
+      justify-items: center !important;
+    }
+    .insta-embed-cell {
+      aspect-ratio: auto !important;
+      overflow: visible !important;
+      width: 100% !important;
+      max-width: 328px !important;
+      height: auto !important;
+    }
+  </style>
 </head>
 <body class="internal-page">
   <main class="main-content">
@@ -1542,3 +1573,4 @@
   </script>
 </body>
 </html>
+

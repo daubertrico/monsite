@@ -638,46 +638,53 @@ body {
     margin-bottom: 1rem;
 }
 
-/* --- Styles pour les posts dynamiques (section "Actualités et Articles") --- */
+/* --- Styles pour les posts dynamiques (fil d'actualités style social) --- */
 .dynamic-posts-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    /* La bordure supérieure peut rester si elle sert de séparateur visuel entre la section précédente et les posts */
-    border-top: 1px solid rgba(0,0,0,0.1);
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: none;
 }
 
-/* Retrait du style du titre H2 puisque nous ne voulons plus de titre */
 .dynamic-posts-section h2 {
-    display: none; /* Cache complètement le titre si un h2 est généré */
+    display: none;
 }
 
 #posts-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 680px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid rgba(136,68,170,0.08);
+    box-shadow: 0 2px 16px rgba(136,68,170,0.06);
+    overflow: hidden;
 }
 
 /* Special grid layout for events page */
 .dynamic-posts-section.event-posts-grid #posts-container {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
+    max-width: 680px;
 }
 
 
 .blog-post {
     background-color: #ffffff;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow-light);
-    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-    overflow: hidden; /* S'assure que le contenu est bien à l'intérieur des bordures arrondies */
-    display: flex; /* Utilise Flexbox pour la mise en page interne du post */
-    flex-direction: column; /* Par défaut, empile les éléments */
-    position: relative; /* Pour le positionnement des éléments internes si besoin */
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid rgba(136,68,170,0.10);
+    transition: background-color 0.2s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 1.5rem 1rem;
 }
 
 .blog-post:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--box-shadow-medium);
+    transform: none;
+    box-shadow: none;
+    background-color: rgba(136,68,170,0.02);
 }
 
 /* EVENT CARD STYLES - Mosaïque pour la page evenements */
@@ -766,62 +773,59 @@ body {
 /* (Anciennes règles .event-card-details du système blog-posts supprimées —
     le nouveau système de dépli est défini plus bas avec scope .event-card .event-card-details) */
 
-/* Styles pour le wrapper interne du post, pour la disposition média/texte */
+/* Styles pour le wrapper interne du post — fil social */
 .blog-post .post-wrapper {
     display: flex;
-    flex-direction: row; /* Média et texte côte à côte */
-    align-items: flex-start; /* Aligne le texte en haut de la boîte média */
-    gap: 1.5rem;
-    padding: 1.5rem; /* Padding interne pour le contenu du post */
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0;
 }
 
 .blog-post .media {
     flex-shrink: 0;
-    width: 33%;
-    min-width: 180px;
-    background: none; /* Suppression du fond rose, boîte neutre */
+    width: 100%;
+    min-width: 0;
+    background: none;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 20px;
+    align-items: stretch;
+    gap: 8px;
     overflow: hidden;
-    border-radius: var(--border-radius);
+    border-radius: 10px;
 }
 
 .blog-post .media img,
 .blog-post .media iframe {
-    width: 100%; /* Ne dépasse pas la boîte media */
+    width: 100%;
     max-width: 100%;
-    height: 220px;
+    height: auto;
+    max-height: 420px;
     object-fit: cover;
     display: block;
     border: none;
-    border-radius: var(--border-radius); /* Tous les coins arrondis */
-    margin-bottom: 10px;
-    /* Aucun filtre, affichage couleur naturel */
+    border-radius: 10px;
+    margin-bottom: 0;
 }
 
-/* Portrait vs Landscape handling for media images to keep posts harmonious */
 .blog-post .media img.media-portrait {
-        object-fit: contain; /* show whole image without cropping */
-        background: #f4f4f4; /* neutral background when portrait has empty sides */
-        height: 420px; /* taller block to favor portrait orientation */
-        display: block;
+    object-fit: contain;
+    background: #f8f5fa;
+    max-height: 480px;
+    display: block;
 }
 .blog-post .media img.media-landscape {
-        object-fit: cover; /* keep full-bleed cover for landscape */
-        height: 220px; /* default landscape height */
-        display: block;
+    object-fit: cover;
+    max-height: 380px;
+    display: block;
 }
 @media (max-width: 900px) {
     .blog-post .media img.media-portrait {
-        height: 360px;
+        max-height: 400px;
     }
 }
 @media (max-width: 600px) {
     .blog-post .media img.media-portrait {
-        height: auto; /* on mobile let it flow naturally */
+        height: auto;
         max-height: none;
     }
 }
@@ -830,25 +834,59 @@ body {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Aligne le texte en haut de la boîte média */
-    text-align: justify;
-    padding-left: 1.5rem;
+    justify-content: flex-start;
+    text-align: left;
+    padding-left: 0;
 }
 
 .blog-post h3 {
-    color: var(--accent-color-complementary); /* Couleur pour le titre du post */
+    color: var(--accent-color-complementary);
     font-family: 'Lobster', cursive;
-    font-size: 1.8rem;
-    margin-bottom: 0.8rem;
-    line-height: 1.2;
+    font-size: 1.45rem;
+    margin-bottom: 0.3rem;
+    line-height: 1.25;
 }
 
-
 .blog-post p {
-    font-size: 1rem;
-    line-height: 1.6;
-    margin-bottom: 1rem;
+    font-size: 0.97rem;
+    line-height: 1.65;
+    margin-bottom: 0.5rem;
     color: var(--text-dark);
+    white-space: pre-line;
+}
+
+/* Meta line (date · heure · lieu) */
+.post-meta-line {
+    font-size: 0.88rem;
+    color: var(--accent-color-complementary);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    opacity: 0.85;
+    letter-spacing: 0.2px;
+}
+
+/* Link button inside posts */
+.post-link-btn {
+    display: inline-block;
+    margin-top: 0.6rem;
+    padding: 8px 18px;
+    background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(136,68,170,0.18);
+}
+.post-link-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(136,68,170,0.28);
+}
+
+#posts-container .blog-post:last-child {
+    border-bottom: none;
 }
 
 /* Ajout d'un bouton "Lire la suite" ou similaire pour une bonne UX */
@@ -1163,31 +1201,21 @@ iframe[src*="flat.io"] {
     .page-hero-image {
         margin: 1.5rem auto;
     }
-    /* Les posts sur des écrans plus petits peuvent passer en une seule colonne */
     #posts-container {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        max-width: 100%;
     }
-
-    /* Le média et le texte peuvent passer côte à côte sur les tablettes si désiré */
     .blog-post .post-wrapper {
-        flex-direction: row; /* Média et texte côte à côte */
-        align-items: flex-start;
+        flex-direction: column;
     }
     .blog-post .media {
-        width: 40%; /* Le média prend 40% de la largeur */
-        max-height: 180px; /* Ajuster la hauteur pour une vue latérale */
+        width: 100%;
     }
     .blog-post .text-content {
-        width: 60%; /* Le texte prend 60% de la largeur */
-        padding-left: 1.5rem; /* Espacement entre média et texte */
-    }
-
-
-    .dynamic-posts-section h2 {
-        font-size: 2.5rem;
+        width: 100%;
+        padding-left: 0;
     }
     .blog-post h3 {
-        font-size: 1.6rem;
+        font-size: 1.35rem;
     }
     .partitions-table th,
     .partitions-table td {
@@ -1271,27 +1299,19 @@ iframe[src*="flat.io"] {
     .page-hero-image {
         margin: 1rem auto;
     }
-    .dynamic-posts-section h2 {
-        font-size: 2rem;
-    }
     .blog-post {
-        padding: 1rem;
-        margin-bottom: 1.5rem;
+        padding: 1.2rem 0.6rem;
     }
     .blog-post h3 {
-        font-size: 1.4rem;
+        font-size: 1.25rem;
     }
-
-    /* Event cards on mobile - adjust grid to 2 columns */
     #posts-container {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 1rem;
+        max-width: 100%;
+        gap: 0;
     }
-
-    /* Sur les très petits écrans, les posts reviennent à une colonne unique */
     .blog-post .post-wrapper {
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.6rem;
     }
     .blog-post .media {
         width: 100%;
@@ -1299,10 +1319,8 @@ iframe[src*="flat.io"] {
     }
     .blog-post .text-content {
         width: 100%;
-        padding-left: 0; /* Pas de padding latéral quand c'est en colonne */
+        padding-left: 0;
     }
-
-    /* Illustrations plein écran (images + iframes) */
     .blog-post .media img,
     .blog-post .media iframe,
     .blog-post .media.media-vertical img,
@@ -1313,9 +1331,8 @@ iframe[src*="flat.io"] {
         max-width: 100% !important;
         height: auto !important;
         max-height: none !important;
-        border-radius: var(--border-radius) !important;
+        border-radius: 8px !important;
     }
-    /* Assurer le ratio 16:9 pour les vidéos YouTube sur mobile */
     .blog-post .media iframe {
         aspect-ratio: 16 / 9;
         border: none;
@@ -1510,14 +1527,21 @@ iframe[src*="flat.io"] {
 }
 .soul-site .footer-content a { color: var(--soul-gold) !important; }
 
-/* Blog posts: lighter cards on dark background with golden accents */
+/* Blog posts: SOUL dark theme */
+.soul-site #posts-container {
+    background: var(--soul-vd) !important;
+    border-color: rgba(233,186,96,0.12) !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.5) !important;
+}
 .soul-site #posts-container .blog-post {
-    background-color: var(--soul-vd) !important;
-    border: 1px solid rgba(233,186,96,0.12) !important;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.6) !important;
+    background-color: transparent !important;
+    border-bottom-color: rgba(233,186,96,0.10) !important;
+    box-shadow: none !important;
 }
 .soul-site .blog-post h3 { color: var(--soul-gold) !important; }
+.soul-site .blog-post .post-meta-line { color: var(--soul-gold) !important; opacity: 0.7; }
 .soul-site .blog-post .read-more { background-color: var(--soul-orange) !important; color: var(--soul-cream) !important; }
+.soul-site .blog-post .post-link-btn { background: linear-gradient(135deg, var(--soul-orange), var(--soul-gold)) !important; }
 
 /* Ensure footer copyright specific text style (no ® symbol) */
 .soul-site .footer-content p:first-child { font-weight:700; letter-spacing:0.6px; }
@@ -1620,10 +1644,14 @@ body.page-soul h2 { font-size: 1.6rem; }
 body.page-soul p, body.page-soul li { line-height: 1.6; color: var(--soul-cream); }
 
 /* Cards / tiles: pochette / affiche aesthetic */
-body.page-soul .tile, body.page-soul .post-card, body.page-soul .blog-post, body.page-soul .card {
+body.page-soul .tile, body.page-soul .post-card, body.page-soul .card {
     background: linear-gradient(160deg, rgba(57,44,68,0.28), rgba(38,26,36,0.28));
     border: 1px solid rgba(233,186,96,0.08); padding: 18px; border-radius: 10px;
     box-shadow: 0 14px 34px rgba(15,8,15,0.55); transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+}
+body.page-soul .blog-post {
+    background: transparent; border-radius: 0; box-shadow: none; padding: 18px 12px;
+    border-bottom: 1px solid rgba(233,186,96,0.10);
 }
 body.page-soul .tile img { transition: transform .25s ease; }
 body.page-soul .tile:hover img { transform: scale(1.04); }
@@ -2171,9 +2199,29 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   display: block;
   margin: 0 auto;
 }
+.insta-embeds-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.insta-embed-cell {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  position: relative;
+}
+/* Réduit les iframes Instagram générés par embed.js pour tenir dans les carrés */
+/* top: -30px décale pour masquer le header (avatar, nom, boutons) et n'afficher que la photo */
+.insta-embed-cell iframe {
+  position: absolute !important;
+  top: -30px !important;
+  left: 0 !important;
+  margin: 0 !important;
+  transform: scale(0.573);
+  transform-origin: top left;
+}
 .insta-cta {
   text-align: center;
-  margin: 16px 0 0 0;
+  margin: 0 0 16px 0;
 }
 .insta-cta a {
   display: inline-flex;
