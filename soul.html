@@ -234,6 +234,39 @@
       body.page-soul .soul-intro-image { flex: 0 0 auto; max-width: 100%; }
     }
 
+    /* ----- Agenda SOUL : "Prochaine date" + "Nos derniers concerts" (dépliable) ----- */
+    body.page-soul .soul-next-empty,
+    body.page-soul .soul-past-empty {
+      color: rgba(254, 253, 229, 0.82);
+      font-size: 0.98rem;
+      line-height: 1.7;
+      background: rgba(57, 44, 68, 0.5);
+      border: 1px solid rgba(233, 186, 96, 0.22);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 0;
+    }
+    body.page-soul .soul-next-empty a { text-decoration: underline; text-underline-offset: 2px; }
+    body.page-soul .soul-past-divider {
+      cursor: pointer;
+      user-select: none;
+      transition: opacity 0.2s ease;
+    }
+    body.page-soul .soul-past-divider:hover { opacity: 0.85; }
+    body.page-soul .soul-past-divider:focus-visible {
+      outline: 2px solid var(--soul-gold);
+      outline-offset: 4px;
+      border-radius: 6px;
+    }
+    body.page-soul .soul-past-toggle-hint {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      font-size: 0.82rem;
+      font-style: italic;
+      color: var(--soul-gold);
+      white-space: nowrap;
+      opacity: 0.85;
+    }
+
     /* ----- FOOTER : eggplant + bande sunset en haut + clin d'œil vinyle ----- */
     body.page-soul footer.main-footer {
       background: linear-gradient(180deg, #2e1f3f 0%, #1a0f24 100%) !important;

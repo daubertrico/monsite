@@ -638,7 +638,7 @@ function renderFooter() {
 
   if (isSoulSite) {
     // Footer SOUL — esprit "verso de pochette vinyle" : sobre, lisible, deux blocs clairs
-    const fb = fbCfg?.valeur || '';
+    // Pas de lien Facebook ici : c'est celui de La Voix Libre, non pertinent pour SOUL.
     const ig = igCfg?.valeur || '';
     const yt = ytCfg?.valeur || '';
     footer.innerHTML = `
@@ -656,7 +656,6 @@ function renderFooter() {
             <div class="soul-footer-block">
               <div class="soul-footer-label">Suivre</div>
               <ul class="soul-footer-links">
-                ${fb ? `<li><a href="${fb}" target="_blank" rel="noopener noreferrer">Facebook</a></li>` : ''}
                 ${ig ? `<li><a href="${ig}" target="_blank" rel="noopener noreferrer">Instagram</a></li>` : ''}
                 ${yt ? `<li><a href="${yt}" target="_blank" rel="noopener noreferrer">YouTube</a></li>` : ''}
               </ul>
@@ -1066,18 +1065,32 @@ async function fetchPostsFromCSV(csvUrl) {
     const showThumbs  = opts.showThumbs !== false;          // par défaut : oui (homepage)
     const sectionId   = opts.sectionId    || 'evenements';
     const subtitle    = opts.subtitle     || 'Prochaines dates de La Voix Libre à Rennes et alentours.';
+    const soulStyle   = !!opts.soulStyle;    // SOUL : "Prochaine date" + "Nos derniers concerts" (dépliable)
+    const historyStart = opts.historyStart || null; // borne de début personnalisée pour l'historique complet
 
     const section = document.createElement('section');
     section.id = sectionId;
     section.style.cssText = 'scroll-margin-top:80px;';
-    section.innerHTML = `
-      <div class="home-section-divider"><h2>Concerts &amp; événements</h2></div>
-      <p class="home-section-subtitle">${subtitle}</p>
-      <div id="${sectionId}-upcoming"></div>`;
+    if (soulStyle) {
+      section.innerHTML = `
+        <div class="home-section-divider"><h2>Prochaine date</h2></div>
+        <div id="${sectionId}-upcoming"></div>
+        <div class="home-section-divider soul-past-divider" id="${sectionId}-past-toggle" role="button" tabindex="0" aria-expanded="false">
+          <h2>Nos derniers concerts</h2>
+          <span class="soul-past-toggle-hint">Voir tous nos concerts ▾</span>
+        </div>
+        <div id="${sectionId}-past"></div>`;
+    } else {
+      section.innerHTML = `
+        <div class="home-section-divider"><h2>Concerts &amp; événements</h2></div>
+        <p class="home-section-subtitle">${subtitle}</p>
+        <div id="${sectionId}-upcoming"></div>`;
+    }
     container.appendChild(section);
 
     const upEl = section.querySelector('#' + sectionId + '-upcoming');
-    const paEl = null; // Plus de section séparée pour les passés
+    const paEl = soulStyle ? section.querySelector('#' + sectionId + '-past') : null;
+    const pastToggle = soulStyle ? section.querySelector('#' + sectionId + '-past-toggle') : null;
     const skel = h => `<div style="height:${h}px;border-radius:12px;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;margin-bottom:10px;"></div>`;
     if (upEl) upEl.innerHTML = skel(72) + skel(80) + skel(64);
     if (paEl) paEl.innerHTML = skel(50) + skel(50);
@@ -1100,7 +1113,7 @@ async function fetchPostsFromCSV(csvUrl) {
 
     // ---- Chargement des événements (calendrier configurable) ----
     const now  = new Date();
-    const tMin = new Date(now.getTime() - 365*24*3600*1000).toISOString();
+    const tMin = historyStart || new Date(now.getTime() - 365*24*3600*1000).toISOString();
     const tMax = new Date(now.getTime() + 2*365*24*3600*1000).toISOString();
     let allEvents = [];
     try {
@@ -1273,25 +1286,73 @@ async function fetchPostsFromCSV(csvUrl) {
       return div;
     }
 
-    // ---- Rendu (à venir puis dernier passé en grisé) ----
-    if (upEl) {
+    // Rend une carte passée avec ses éventuelles miniatures photo
+    function renderPastCard(ev, targetEl) {
+      const card   = createCardPast(ev);
+      const photos = photosByKey['id:' + ev.id] || photosByKey['name:' + concertKey(ev)] || [];
+      if (photos.length) {
+        const details = card.querySelector('.event-card-details');
+        if (details) details.appendChild(createThumbs(photos));
+        else card.appendChild(createThumbs(photos));
+      }
+      targetEl.appendChild(card);
+    }
+
+    // ---- Rendu ----
+    if (soulStyle) {
+      // "Prochaine date" : la ou les prochaines dates, ou message de saison en préparation
+      if (upEl) {
+        upEl.innerHTML = '';
+        if (!upcoming.length) {
+          const startY = (now.getMonth() >= 6) ? now.getFullYear() : now.getFullYear() - 1;
+          const season = startY + '-' + (startY + 1);
+          const p = document.createElement('p');
+          p.className = 'soul-next-empty';
+          p.innerHTML = `La préparation de la saison <strong>${season}</strong> est en cours : les prochaines dates seront annoncées ici d'ici quelques semaines. Suivez-nous sur <a href="https://www.instagram.com/soul.rennes/" target="_blank" rel="noopener noreferrer">Instagram</a> ou abonnez-vous à la <a href="#newsletter">newsletter</a> pour être informé·e en priorité.`;
+          upEl.appendChild(p);
+        } else {
+          upcoming.forEach(ev => upEl.appendChild(createCardUp(ev)));
+        }
+      }
+      // "Nos derniers concerts" : 3 par défaut, historique complet au clic sur la rubrique
+      if (paEl) {
+        let expanded = false;
+        const renderPast = () => {
+          paEl.innerHTML = '';
+          const list = expanded ? pastAll : lastPast;
+          if (!list.length) {
+            paEl.innerHTML = '<p class="soul-past-empty">Aucun concert passé enregistré pour le moment.</p>';
+            return;
+          }
+          list.forEach(ev => renderPastCard(ev, paEl));
+        };
+        renderPast();
+        if (pastToggle && pastAll.length > lastPast.length) {
+          const hint = pastToggle.querySelector('.soul-past-toggle-hint');
+          const toggle = () => {
+            expanded = !expanded;
+            pastToggle.setAttribute('aria-expanded', String(expanded));
+            if (hint) hint.textContent = expanded ? 'Voir moins ▴' : 'Voir tous nos concerts ▾';
+            renderPast();
+          };
+          pastToggle.addEventListener('click', toggle);
+          pastToggle.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+        } else if (pastToggle) {
+          const hint = pastToggle.querySelector('.soul-past-toggle-hint');
+          if (hint) hint.remove();
+          pastToggle.removeAttribute('role');
+          pastToggle.removeAttribute('tabindex');
+          pastToggle.style.cursor = 'default';
+        }
+      }
+    } else if (upEl) {
       upEl.innerHTML = '';
       if (!upcoming.length && !lastPast.length) {
         upEl.innerHTML = '<p style="color:#888;font-style:italic;padding:6px 0;">Aucun concert annoncé pour le moment. Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
       } else {
         upcoming.forEach(ev => upEl.appendChild(createCardUp(ev)));
         // 3 derniers événements passés à la fin, en grisé
-        lastPast.forEach(ev => {
-          const card   = createCardPast(ev);
-          const photos = photosByKey['id:' + ev.id] || photosByKey['name:' + concertKey(ev)] || [];
-          // Les miniatures vont dans .event-card-details pour qu'elles s'affichent au clic
-          if (photos.length) {
-            const details = card.querySelector('.event-card-details');
-            if (details) details.appendChild(createThumbs(photos));
-            else card.appendChild(createThumbs(photos));
-          }
-          upEl.appendChild(card);
-        });
+        lastPast.forEach(ev => renderPastCard(ev, upEl));
       }
     }
   }
@@ -1459,13 +1520,14 @@ async function fetchPostsFromCSV(csvUrl) {
         contentContainer.appendChild(intro);
       }
 
-      // Calendrier des événements SOUL (même modèle que l'accueil)
+      // Calendrier des événements SOUL : prochaine date + derniers concerts (historique complet dépliable)
       const SOUL_CAL_ID = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
       loadHomeEvents(contentContainer, {
         calendarId: SOUL_CAL_ID,
         showThumbs: false,
         sectionId: 'soul-evenements',
-        subtitle: 'Prochaines dates de SOUL à Rennes et alentours.'
+        soulStyle: true,
+        historyStart: '2018-06-01T00:00:00Z'
       });
 
       // Instagram SOUL (Behold) — compte séparé via window.BEHOLD_SOUL_FEED_ID
