@@ -1554,7 +1554,7 @@ async function fetchPostsFromCSV(csvUrl) {
       yt.setAttribute('aria-label', 'Nos enregistrements YouTube SOUL');
       yt.innerHTML = `
         <div class="home-section-divider"><h2>SOUL sur YouTube — Enregistrements</h2></div>
-        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbY4oyR-Kic48Fu_UWhQSR2o" data-limit="6" aria-live="polite">
+        <div class="youtube-grid" data-playlist="UUpxrdXwMftJrN_OYsC3hDpA" data-limit="6" aria-live="polite">
           <div class="youtube-skeleton"></div>
           <div class="youtube-skeleton"></div>
           <div class="youtube-skeleton"></div>
