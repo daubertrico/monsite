@@ -725,11 +725,14 @@ function renderFooter() {
   }
 
   // Wire up open/close handlers (idempotent)
-  const btn = document.getElementById('newsletter-btn');
   const popupEl = document.getElementById('newsletter-popup');
   const closeBtn = document.getElementById('close-newsletter-popup');
-  if (btn && popupEl) {
-    btn.onclick = function(e) { e.preventDefault(); popupEl.style.display = 'flex'; };
+  if (popupEl && !popupEl.dataset.wired) {
+    popupEl.dataset.wired = '1';
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a[href="#newsletter"]');
+      if (link) { e.preventDefault(); popupEl.style.display = 'flex'; }
+    });
   }
   if (closeBtn && popupEl) {
     closeBtn.onclick = function() { popupEl.style.display = 'none'; };
@@ -1856,8 +1859,10 @@ async function fetchPostsFromCSV(csvUrl) {
                   const key = (idx > -1 ? d.slice(0, idx) : '').trim().toLowerCase();
                   const val = idx > -1 ? d.slice(idx + 1).trim() : d.trim();
                   if (!val) return;
-                  const chip = document.createElement('span');
-                  chip.className = 'nr-chip';
+                  const isEssaiLink = key === 'inscription' && /essai/i.test(val);
+                  const chip = document.createElement(isEssaiLink ? 'a' : 'span');
+                  chip.className = 'nr-chip' + (isEssaiLink ? ' nr-chip-link' : '');
+                  if (isEssaiLink) chip.href = '#seances-essai';
                   chip.textContent = (chipIcons[key] || '•') + ' ' + val;
                   chips.appendChild(chip);
                 });
