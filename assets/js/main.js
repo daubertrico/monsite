@@ -907,6 +907,7 @@ async function fetchPostsFromCSV(csvUrl) {
           </picture>
           <div class="home-hero-overlay">
             <p class="home-hero-tag">Chœur pop à Rennes depuis 2017</p>
+            <a href="nous-rejoindre.html#seances-essai" class="home-hero-cta">🎤 Séance d'essai gratuite — Rentrée septembre 2026</a>
           </div>`;
         homeContent.appendChild(hero);
       }

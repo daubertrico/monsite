@@ -1857,7 +1857,8 @@ body.page-soul header.main-header, body.page-soul main, body.page-soul .main-con
 .home-hero-overlay {
   position: absolute; inset: 0;
   background: linear-gradient(160deg, rgba(0,0,0,0.04) 55%, rgba(0,0,0,0.46) 100%);
-  display: flex; align-items: flex-end;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end;
+  gap: 10px;
   padding: 20px 24px;
 }
 .home-hero-tag {
@@ -1870,6 +1871,26 @@ body.page-soul header.main-header, body.page-soul main, body.page-soul .main-con
   padding: 4px 14px;
   border-radius: 999px;
   margin: 0;
+}
+.home-hero-cta {
+  display: inline-block;
+  color: #fff;
+  background: var(--accent-color-complementary);
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,.35);
+  animation: home-hero-cta-pulse 2.2s ease-in-out infinite;
+}
+.home-hero-cta:hover { background: var(--accent-color-primary); }
+@keyframes home-hero-cta-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-cta { animation: none; }
 }
 
 /* Texte intro chorale */
