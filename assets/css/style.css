@@ -2151,6 +2151,56 @@ body.page-soul .youtube-grid .yt-play::after {
   font-size: 1.1rem;
 }
 
+/* === SOUL : bouton d'appel à l'action (contraste sur fond gold) === */
+body.page-soul .home-cta-btn {
+  background: linear-gradient(90deg, var(--soul-gold), var(--soul-orange));
+  color: var(--soul-vvd);
+}
+body.page-soul .home-cta-btn:hover {
+  background: linear-gradient(90deg, var(--soul-gold), var(--soul-orange));
+  filter: brightness(1.08);
+}
+
+/* === SOUL : bloc auditions === */
+.soul-audition-card {
+  background: rgba(57,44,68,0.5);
+  border: 1px solid rgba(233,186,96,0.22);
+  border-radius: 14px;
+  padding: 22px 24px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+.soul-audition-lead {
+  color: var(--soul-cream);
+  font-size: 1.02rem;
+  line-height: 1.7;
+  margin: 0 0 16px 0;
+}
+.soul-audition-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.soul-audition-detail {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: rgba(254,253,229,0.9);
+  font-size: .95rem;
+  line-height: 1.6;
+}
+.soul-audition-detail span { font-size: 1.15rem; flex-shrink: 0; margin-top: 1px; }
+.soul-audition-detail strong { color: var(--soul-gold); }
+.soul-audition-full {
+  color: rgba(254,253,229,0.82);
+  font-size: .92rem;
+  margin: 14px 0 0 0;
+}
+@media (max-width: 600px) {
+  .soul-audition-card { padding: 18px 16px; }
+}
+
 /* Carte comédie musicale */
 .home-comedie-card {
   display: flex;
