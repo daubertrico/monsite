@@ -2197,6 +2197,11 @@ body.page-soul .home-cta-btn:hover {
   font-size: .92rem;
   margin: 14px 0 0 0;
 }
+
+/* Le modal d'audition est en fond blanc : neutraliser ".soul-site p" (texte clair)
+   qui le rendrait illisible une fois affiché par-dessus le thème SOUL sombre. */
+#audition-dialog p { color: #444 !important; }
+#audition-confirm p:first-child { color: #8844aa !important; }
 @media (max-width: 600px) {
   .soul-audition-card { padding: 18px 16px; }
 }
