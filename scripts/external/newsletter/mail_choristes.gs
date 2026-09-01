@@ -172,6 +172,7 @@ function envoyerMailChoristesHtmlDraft() {
     <div style="background: #8844aa; color: #fff; text-align: center; padding: 10px; font-size: 0.9rem;">
       <p>Suivez-nous : <a href="https://www.facebook.com/chanterlavoixlibre/" style="color: #ffcccc; text-decoration: none;">Facebook</a> | <a href="https://www.instagram.com/chanterlavoixlibre/" style="color: #ffcccc; text-decoration: none;">Instagram</a> | <a href="https://www.youtube.com/channel/UC5xRWArmPqnh_OdfvubC38Q" style="color: #ffcccc; text-decoration: none;">YouTube</a></p>
       <p><a href="https://chanterlavoixlibre.fr" style="color: #ffcccc; text-decoration: none;">chanterlavoixlibre.fr</a></p>
+      <p style="margin-top:8px;font-size:0.8rem;"><a href="https://chanterlavoixlibre.fr/desinscription.html" style="color: #ffcccc; text-decoration: underline;">Se désinscrire de la newsletter</a></p>
     </div>
     
   </div>

@@ -99,6 +99,17 @@ function _jsonOk(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function _debugLog(msg) {
+  try {
+    const ss = _spreadsheet();
+    const sh = ss.getSheetByName('debug_log') || ss.insertSheet('debug_log');
+    if (sh.getLastRow() === 0) {
+      sh.appendRow(['timestamp', 'message']);
+    }
+    sh.appendRow([new Date(), msg]);
+  } catch (e) {}
+}
+
 function _auditionCounts() {
   const sh = _auditionSheet();
   const values = sh.getDataRange().getValues();
@@ -114,21 +125,30 @@ function _auditionCounts() {
 
 function doPost(e) {
   try {
-    const ct = (e.postData && e.postData.type) || '';
+    _debugLog('RAW contentType=' + ((e.postData && e.postData.type) || '(aucun)') + ' | contents=' + ((e.postData && e.postData.contents) || '(vide)') + ' | parameter=' + JSON.stringify(e.parameter || {}));
     let data = {};
-    if (ct === 'application/x-www-form-urlencoded') {
-      const params = e.parameter || {};
-      if (params.data) data = JSON.parse(params.data);
-    } else {
+    if (e.parameter && e.parameter.data) {
+      // Formulaire (application/x-www-form-urlencoded, avec ou sans ";charset=..." selon le navigateur)
+      data = JSON.parse(e.parameter.data);
+    } else if (e.postData && e.postData.contents) {
       // application/json ou autre
       data = JSON.parse(e.postData.contents || '{}');
     }
     const action = (e.parameter && e.parameter.action) || data.action || '';
+    _debugLog('PARSED action=' + action + ' | data=' + JSON.stringify(data));
 
     if (action === 'tryout') {
-      const sh = _sheet();
-      const row = [new Date(), data.prenom || '', data.nom || '', data.email || '', data.telephone || '', data.date || '', data.pupitre || '', data.message || '', data.ts || ''];
-      sh.appendRow(row);
+      const lock = LockService.getScriptLock();
+      lock.waitLock(30000);
+      try {
+        const sh = _sheet();
+        const row = [new Date(), data.prenom || '', data.nom || '', data.email || '', data.telephone || '', data.date || '', data.pupitre || '', data.message || '', data.ts || ''];
+        sh.appendRow(row);
+        SpreadsheetApp.flush();
+        _debugLog('TRYOUT appendRow OK, lastRow=' + sh.getLastRow());
+      } finally {
+        lock.releaseLock();
+      }
       try {
         if (data.email) {
           const subject = 'Votre séance d\'essai – La Voix Libre';
@@ -153,9 +173,16 @@ function doPost(e) {
 
     // ---- Auditions SOUL ----
     if (action === 'audition') {
-      const sh = _auditionSheet();
-      const row = [new Date(), data.prenom || '', data.nom || '', data.email || '', data.telephone || '', data.creneau || '', data.message || '', data.ts || ''];
-      sh.appendRow(row);
+      const lock = LockService.getScriptLock();
+      lock.waitLock(30000);
+      try {
+        const sh = _auditionSheet();
+        const row = [new Date(), data.prenom || '', data.nom || '', data.email || '', data.telephone || '', data.creneau || '', data.message || '', data.ts || ''];
+        sh.appendRow(row);
+        SpreadsheetApp.flush();
+      } finally {
+        lock.releaseLock();
+      }
 
       // Email de confirmation au candidat
       try {
@@ -205,8 +232,10 @@ function doPost(e) {
       return _jsonOk({ ok: true, counts: _auditionCounts() });
     }
 
+    _debugLog('ACTION INCONNUE: ' + action);
     return _jsonOk({ ok: false, error: 'unknown_action' });
   } catch (err) {
+    _debugLog('ERREUR: ' + String(err));
     return _jsonOk({ ok: false, error: String(err) });
   }
 }

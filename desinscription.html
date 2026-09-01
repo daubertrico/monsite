@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Se désinscrire de la newsletter – La Voix Libre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            max-width: 460px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Lobster', cursive;
+            color: #ff3366;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        p { line-height: 1.6; margin-bottom: 1.5rem; color: #555; }
+        form { display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+        input[type="email"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #eee;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        input[type="email"]:focus {
+            outline: none;
+            border-color: #ff6699;
+            box-shadow: 0 0 0 3px rgba(255, 102, 153, 0.2);
+        }
+        button {
+            background-color: #8844aa;
+            color: #f9f9f9;
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        button:hover { background-color: #ff6699; transform: translateY(-2px); }
+        a.back { display: inline-block; margin-top: 1.5rem; color: #ff6699; font-weight: 600; text-decoration: none; }
+        a.back:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Se désinscrire</h1>
+        <p>Entrez l'adresse e-mail avec laquelle vous vous êtes inscrit·e à la newsletter de La Voix Libre. Vous ne recevrez alors plus aucun e-mail de notre part.</p>
+        <!--
+          IMPORTANT : remplacer l'action ci-dessous par l'URL /exec du déploiement
+          Apps Script "Web App" du script unsubscribe.gs (voir commentaire en tête
+          de ce fichier dans scripts/external/newsletter/unsubscribe.gs).
+        -->
+        <form action="https://script.google.com/macros/s/AKfycbwnpi9bDt6ELI7_RIrpe1J3TQ_iUHIvZyh-hW3qnTaxjhIxRibyqULy7WQipXYjuklJ/exec" method="GET">
+            <input type="email" name="email" placeholder="votre@email.com" required>
+            <button type="submit">Confirmer la désinscription</button>
+        </form>
+        <a class="back" href="https://chanterlavoixlibre.fr">&larr; Retour au site</a>
+    </div>
+</body>
+</html>
