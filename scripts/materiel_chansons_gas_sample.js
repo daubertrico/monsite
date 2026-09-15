@@ -50,7 +50,7 @@
  * mise à jour immédiate juste après avoir ajouté un fichier.
  */
 
-const FOLDER_ID = 'COLLEZ_ICI_ID_DU_DOSSIER_DRIVE';
+const FOLDER_ID = '1DQG35PeYza9aaawn2zQqU8XTHIuBc5ym';
 const CACHE_KEY = 'materiel_chansons_v1';
 const CACHE_TTL_SECONDS = 300; // 5 minutes
 
