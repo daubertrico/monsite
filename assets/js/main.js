@@ -151,10 +151,16 @@ function mapPageIdToHref(id) {
 }
 
 function navLabelForPage(page) {
-  // Default to page_title from JSON; apply small overrides to keep legacy labels
   if (!page) return '';
-  // 'videos' (Nous entendre) removed from nav labels per request
-  if (page.id === 'evenements') return 'Événements/Concerts';
+  // Libellés courts pour le menu (les page_title longs restent en H1 / <title> pour le SEO)
+  const MENU_LABELS = {
+    'nous-rejoindre': 'Nous rejoindre',
+    'galerie':        'Galerie',
+    'soul':           'S.O.U.L.',
+    'evenements':     'Événements/Concerts',
+    'partitions':     'Espace choristes'
+  };
+  if (MENU_LABELS[page.id]) return MENU_LABELS[page.id];
   if (page.page_title) return page.page_title;
   return page.id;
 }
@@ -194,13 +200,20 @@ function renderHeader(currentPageId) {
     <ul class="nav-links" id="main-menu"></ul>\
   </nav>';
 
-  // If we're on the Soul site, use the soullogo at site root and do not wrap it in a link
+  // If we're on the Soul site, use the soullogo at site root.
+  // On la page de présentation SOUL elle-même, on n'enveloppe pas dans un lien (ça serait redondant).
+  // Sur les autres pages SOUL (galerie-soul.html, etc.), le logo renvoie vers la page de présentation SOUL.
   const isSoulSite = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
   const soulLogoPath = '/assets/images/soullogo.png';
   let logoHtml = '';
   if (isSoulSite) {
     const alt = 'SOUL';
-    logoHtml = `<img src="${soulLogoPath}" alt="${alt}" class="site-logo" decoding="async">`;
+    const isSoulHome = (currentPageId === 'soul');
+    if (isSoulHome) {
+      logoHtml = `<img src="${soulLogoPath}" alt="${alt}" class="site-logo" decoding="async">`;
+    } else {
+      logoHtml = `<a href="soul.html" class="site-logo-link" aria-label="Retour à la page S.O.U.L."><img src="${soulLogoPath}" alt="${alt}" class="site-logo" decoding="async"></a>`;
+    }
   } else {
     logoHtml = `<a href="${mapPageIdToHref('index')}" class="site-logo-link">\n  <img src="${logoUrlCfg ? logoUrlCfg.valeur : ''}" alt="Logo ${siteTitleCfg ? siteTitleCfg.valeur : 'La Voix Libre'}" class="site-logo" decoding="async">\n      </a>`;
   }
@@ -216,6 +229,71 @@ function renderHeader(currentPageId) {
     ${navHTML}
   `;
 }
+
+// ---- Badge d'identité (uniquement sur espace-choristes et galerie) ----
+function renderAuthBadge() {
+  let badge = document.getElementById('auth-badge');
+
+  // Le badge ne s'affiche que sur les pages où la session est pertinente
+  // Cloudflare Pages sert les URLs sans .html → on accepte les 2 formes
+  const path = (location.pathname || '').toLowerCase();
+  const allowed = /(espace-choristes|galerie)(\.html)?\/?$/.test(path);
+  if (!allowed) {
+    if (badge) badge.remove();
+    return;
+  }
+
+  const role = (function(){
+    try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); }
+    catch { return null; }
+  })();
+  let profile = {};
+  try { profile = JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch {}
+  const fullName = ((profile.prenom || '') + ' ' + (profile.nom || '')).trim();
+
+  // Pas connecté ou profil pas encore renseigné → on masque/supprime le badge
+  if ((role !== 'member' && role !== 'chef' && role !== 'admin') || !fullName) {
+    if (badge) badge.remove();
+    return;
+  }
+
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'auth-badge';
+    document.body.appendChild(badge);
+  }
+
+  const tag = role === 'admin' ? ' <span class="auth-badge-tag">chef de chœur</span>' : (role === 'chef' ? ' <span class="auth-badge-tag">bureau</span>' : '');
+  badge.innerHTML =
+    '<span class="auth-badge-icon" aria-hidden="true">👤</span>' +
+    '<span class="auth-badge-name">' + fullName.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '</span>' +
+    tag +
+    ' <button type="button" class="auth-badge-logout" aria-label="Se déconnecter">Déconnexion</button>';
+
+  badge.querySelector('.auth-badge-logout').addEventListener('click', function() {
+    if (!confirm('Se déconnecter de l\'espace choristes ?\n\nVotre profil (prénom, nom, pupitre) sera également effacé pour cet appareil.')) return;
+    try {
+      localStorage.removeItem('choristesRole');
+      localStorage.removeItem('espace_choristes_role');
+      localStorage.removeItem('espace_choristes_authed');
+      // Important : sur un ordinateur partagé, on efface aussi le profil utilisateur
+      localStorage.removeItem('choristeProfile');
+      sessionStorage.removeItem('choristesRole');
+      sessionStorage.removeItem('espace_choristes_role');
+      sessionStorage.removeItem('espace_choristes_authed');
+    } catch {}
+    window.IS_CHEF = false;
+    window.IS_ADMIN = false;
+    document.body.classList.remove('role-chef');
+    document.body.classList.remove('role-admin');
+    renderAuthBadge();
+    // Si on est dans l'espace choristes, on renvoie vers la page d'accueil
+    if (/espace-choristes(\.html)?\/?$/.test(location.pathname)) {
+      location.href = 'index.html';
+    }
+  });
+}
+if (typeof window !== 'undefined') window.renderAuthBadge = renderAuthBadge;
 
 // ---- Espace choristes password gate ----
 function getGlobalConfigValue(section, champ) {
@@ -300,18 +378,26 @@ function createChoristesModal() {
   ok.addEventListener('click', () => {
     const val = (input.value || '').trim();
     const expected = getGlobalConfigValue('security', 'espace_choristes_password') || 'lavoixlibre2026';
-    const adminPasswords = ['chefdechoeur'];
-    if (val === expected || adminPasswords.includes(val)) {
+    const superAdminPasswords = ['chefdechoeur2026'];
+    const adminPasswords = ['bureau'];
+    const soulPasswords  = ['soul2026'];
+    if (val === expected || superAdminPasswords.includes(val) || adminPasswords.includes(val) || soulPasswords.includes(val)) {
       // save role for the choristes page (choristes.js expects 'choristesRole')
-      if (adminPasswords.includes(val)) {
-        sessionStorage.setItem('choristesRole', 'chef');
-        sessionStorage.setItem('espace_choristes_role', 'chefdechoeur');
+      if (superAdminPasswords.includes(val)) {
+        localStorage.setItem('choristesRole', 'admin');
+        localStorage.setItem('espace_choristes_role', 'admin');
+      } else if (adminPasswords.includes(val)) {
+        localStorage.setItem('choristesRole', 'chef');
+        localStorage.setItem('espace_choristes_role', 'bureau');
       } else {
-        sessionStorage.setItem('choristesRole', 'member');
-        sessionStorage.setItem('espace_choristes_role', 'choriste');
+        localStorage.setItem('choristesRole', 'member');
+        localStorage.setItem('espace_choristes_role', 'choriste');
+        // Hint d'ensemble : SOUL si mdp soul2026, sinon chorale (LVL)
+        localStorage.setItem('choristesEnsembleHint', soulPasswords.includes(val) ? 'soul' : 'chorale');
       }
       // also set a simple authed flag to avoid any other gate checks
-      sessionStorage.setItem('espace_choristes_authed', '1');
+      localStorage.setItem('espace_choristes_authed', '1');
+      if (typeof window.renderAuthBadge === 'function') window.renderAuthBadge();
       const target = overlay.dataset.targetHref;
       overlay.remove();
       if (target) window.location.href = target;
@@ -340,6 +426,9 @@ function initEspaceChoristesGate() {
       if (!a) return;
       const href = (a.getAttribute('href') || '').replace(/^\.\//, '');
       if (href.indexOf('espace-choristes.html') !== -1) {
+        // Si déjà authentifié (session persistante), on ne redemande pas le mdp
+        const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
+        if (role === 'chef' || role === 'member') return;
         e.preventDefault();
         const modal = createChoristesModal();
         modal.dataset.targetHref = a.href || href;
@@ -380,6 +469,10 @@ function renderNav(currentPageId) {
     const a  = document.createElement('a');
     a.href = mapPageIdToHref(page.id);
     a.textContent = navLabelForPage(page);
+    // Sur le site SOUL, le lien "Galerie" pointe vers la galerie SOUL dédiée
+    if (_isSoulNav && page.id === 'galerie') {
+      a.href = 'galerie-soul.html';
+    }
     const isActive = (currentPageId === page.id);
     if (isActive) return; // ne pas afficher la page courante
     li.appendChild(a);
@@ -550,30 +643,42 @@ function renderFooter() {
   const isSoulSite = (typeof window !== 'undefined' && window.__isSoulSite) ? true : false;
 
   if (isSoulSite) {
-    // Minimal, semantic tracklist-like footer for SOUL (two columns, compact)
-    // Use configured social links/email when available
-    const fb = fbCfg?.valeur || '#';
-    const ig = igCfg?.valeur || '#';
-    const yt = ytCfg?.valeur || '#';
-    const mail = `mailto:${email}`;
+    // Footer SOUL — esprit "verso de pochette vinyle" : sobre, lisible, deux blocs clairs
+    // Pas de lien Facebook ici : c'est celui de La Voix Libre, non pertinent pour SOUL.
+    const ig = igCfg?.valeur || '';
+    const yt = ytCfg?.valeur || '';
     footer.innerHTML = `
-      <div class="soul-tracklist-container">
-        <div class="soul-tracklist-grid">
-          <div class="soul-side soul-side-a">
-            <div class="soul-track"><span class="track-num">A1</span><a class="track-link" href="${fb}" target="_blank" rel="noopener noreferrer"><span class="track-title">Facebook</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">A2</span><a class="track-link" href="${ig}" target="_blank" rel="noopener noreferrer"><span class="track-title">Instagram</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">A3</span><a class="track-link" href="${mail}"><span class="track-title">Contact</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
+      <div class="soul-footer-content">
+        <div class="soul-footer-row">
+          <div class="soul-footer-brand">
+            <img src="/assets/images/soullogo.png" alt="S.O.U.L. — ensemble vocal a cappella à Rennes" class="soul-footer-logo">
+            <div class="soul-footer-brand-text">
+              <div class="soul-footer-name">S.O.U.L.</div>
+              <div class="soul-footer-tag">Ensemble vocal a cappella · Rennes</div>
+            </div>
           </div>
-          <div class="soul-side soul-side-b">
-            <div class="soul-track"><span class="track-num">B1</span><a class="track-link" href="${yt}" target="_blank" rel="noopener noreferrer"><span class="track-title">YouTube</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">B2</span><span class="track-title">${email}</span><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
-            <div class="soul-track"><span class="track-num">B3</span><a class="track-link" href="#newsletter"><span class="track-title">Newsletter</span></a><span class="track-dots" aria-hidden="true"></span><span class="track-meta">↗</span></div>
+
+          <div class="soul-footer-grid">
+            <div class="soul-footer-block">
+              <div class="soul-footer-label">Suivre</div>
+              <ul class="soul-footer-links">
+                ${ig ? `<li><a href="${ig}" target="_blank" rel="noopener noreferrer">Instagram</a></li>` : ''}
+                ${yt ? `<li><a href="${yt}" target="_blank" rel="noopener noreferrer">YouTube</a></li>` : ''}
+              </ul>
+            </div>
+            <div class="soul-footer-block">
+              <div class="soul-footer-label">Contact</div>
+              <ul class="soul-footer-links">
+                <li><a href="mailto:${email}">${email}</a></li>
+                <li><a href="#newsletter">S'inscrire à la newsletter</a></li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div class="soul-tracklist-foot">© 2025 SOUL — Rennes • CAT. SOUL-001</div>
+
+        <div class="soul-footer-meta">© ${year} S.O.U.L. · Rennes</div>
       </div>
     `;
-    // Do not inject the big newsletter popup on the SOUL footer — the newsletter is a simple track link.
     return;
   }
 
@@ -626,11 +731,14 @@ function renderFooter() {
   }
 
   // Wire up open/close handlers (idempotent)
-  const btn = document.getElementById('newsletter-btn');
   const popupEl = document.getElementById('newsletter-popup');
   const closeBtn = document.getElementById('close-newsletter-popup');
-  if (btn && popupEl) {
-    btn.onclick = function(e) { e.preventDefault(); popupEl.style.display = 'flex'; };
+  if (popupEl && !popupEl.dataset.wired) {
+    popupEl.dataset.wired = '1';
+    document.addEventListener('click', function(e) {
+      const link = e.target.closest('a[href="#newsletter"]');
+      if (link) { e.preventDefault(); popupEl.style.display = 'flex'; }
+    });
   }
   if (closeBtn && popupEl) {
     closeBtn.onclick = function() { popupEl.style.display = 'none'; };
@@ -801,10 +909,11 @@ async function fetchPostsFromCSV(csvUrl) {
         hero.innerHTML = `
           <picture>
             <source srcset="${imgWebp}" type="image/webp">
-            <img src="${imgJpg}" alt="${choralePopPage.page_title}" loading="eager" decoding="async">
+            <img src="${imgJpg}" alt="La Voix Libre, chorale pop polyphonique à Rennes en concert" loading="eager" decoding="async">
           </picture>
           <div class="home-hero-overlay">
             <p class="home-hero-tag">Chœur pop à Rennes depuis 2017</p>
+            <a href="nous-rejoindre.html" class="home-hero-cta">🎤 Nous rejoindre</a>
           </div>`;
         homeContent.appendChild(hero);
       }
@@ -866,7 +975,7 @@ async function fetchPostsFromCSV(csvUrl) {
         const imgWebp = imgJpg.replace('.jpg', '.webp');
         const imgWrap = document.createElement('div');
         imgWrap.className = 'home-comedie-img-wrap';
-        imgWrap.innerHTML = `<picture><source srcset="${imgWebp}" type="image/webp"><img src="${imgJpg}" alt="Comédie musicale La Voix Libre" loading="lazy" decoding="async"></picture>`;
+        imgWrap.innerHTML = `<picture><source srcset="${imgWebp}" type="image/webp"><img src="${imgJpg}" alt="Comédie musicale amateur La Voix Libre à Rennes - spectacle La Furie des Mers" loading="lazy" decoding="async"></picture>`;
         const body  = document.createElement('div');
         body.className = 'home-comedie-body';
         const desc  = document.createElement('p');
@@ -909,16 +1018,22 @@ async function fetchPostsFromCSV(csvUrl) {
     // === SECTION 2 : Concerts & événements (depuis Google Agenda) ===
     loadHomeEvents(homeContent);
 
-    // === SECTION 3 : Actualités Instagram (Behold), sous le calendrier ===
+    // === SECTION 3 : Actualités Instagram, sous le calendrier ===
     if (homeContent) {
       const insta = document.createElement('section');
       insta.className = 'insta-section';
       insta.setAttribute('aria-label', 'Actualités Instagram');
-      const feedId = (typeof window !== 'undefined' && window.BEHOLD_FEED_ID && !window.BEHOLD_FEED_ID.startsWith('VOTRE_ID')) ? window.BEHOLD_FEED_ID : '';
       insta.innerHTML = `
         <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
-        ${feedId ? `<behold-widget feed-id="${feedId}"></behold-widget>` : `<p class="insta-fallback">Flux Instagram bientôt disponible.</p>`}`;
+        <div class="insta-embeds-grid">
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZp2XTqKloJ/" data-instgrm-version="14"></blockquote></div>
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DX873gbKLA3/" data-instgrm-version="14"></blockquote></div>
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DVoI2NkiiQL/" data-instgrm-version="14"></blockquote></div>
+          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DSPzoknijA3/" data-instgrm-version="14"></blockquote></div>
+        </div>`;
       homeContent.appendChild(insta);
+      if (window.instgrm) window.instgrm.Embeds.process();
+      else window.addEventListener('load', () => { if (window.instgrm) window.instgrm.Embeds.process(); }, { once: true });
     }
 
     // === SECTION 4 : Nos enregistrements (playlist YouTube), sous la rubrique Insta ===
@@ -960,18 +1075,32 @@ async function fetchPostsFromCSV(csvUrl) {
     const showThumbs  = opts.showThumbs !== false;          // par défaut : oui (homepage)
     const sectionId   = opts.sectionId    || 'evenements';
     const subtitle    = opts.subtitle     || 'Prochaines dates de La Voix Libre à Rennes et alentours.';
+    const soulStyle   = !!opts.soulStyle;    // SOUL : "Prochaine date" + "Nos derniers concerts" (dépliable)
+    const historyStart = opts.historyStart || null; // borne de début personnalisée pour l'historique complet
 
     const section = document.createElement('section');
     section.id = sectionId;
     section.style.cssText = 'scroll-margin-top:80px;';
-    section.innerHTML = `
-      <div class="home-section-divider"><h2>Concerts &amp; événements</h2></div>
-      <p class="home-section-subtitle">${subtitle}</p>
-      <div id="${sectionId}-upcoming"></div>`;
+    if (soulStyle) {
+      section.innerHTML = `
+        <div class="home-section-divider"><h2>Prochaine date</h2></div>
+        <div id="${sectionId}-upcoming"></div>
+        <div class="home-section-divider soul-past-divider" id="${sectionId}-past-toggle" role="button" tabindex="0" aria-expanded="false">
+          <h2>Nos derniers concerts</h2>
+          <span class="soul-past-toggle-hint">Voir tous nos concerts ▾</span>
+        </div>
+        <div id="${sectionId}-past"></div>`;
+    } else {
+      section.innerHTML = `
+        <div class="home-section-divider"><h2>Concerts &amp; événements</h2></div>
+        <p class="home-section-subtitle">${subtitle}</p>
+        <div id="${sectionId}-upcoming"></div>`;
+    }
     container.appendChild(section);
 
     const upEl = section.querySelector('#' + sectionId + '-upcoming');
-    const paEl = null; // Plus de section séparée pour les passés
+    const paEl = soulStyle ? section.querySelector('#' + sectionId + '-past') : null;
+    const pastToggle = soulStyle ? section.querySelector('#' + sectionId + '-past-toggle') : null;
     const skel = h => `<div style="height:${h}px;border-radius:12px;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;margin-bottom:10px;"></div>`;
     if (upEl) upEl.innerHTML = skel(72) + skel(80) + skel(64);
     if (paEl) paEl.innerHTML = skel(50) + skel(50);
@@ -994,7 +1123,7 @@ async function fetchPostsFromCSV(csvUrl) {
 
     // ---- Chargement des événements (calendrier configurable) ----
     const now  = new Date();
-    const tMin = new Date(now.getTime() - 365*24*3600*1000).toISOString();
+    const tMin = historyStart || new Date(now.getTime() - 365*24*3600*1000).toISOString();
     const tMax = new Date(now.getTime() + 2*365*24*3600*1000).toISOString();
     let allEvents = [];
     try {
@@ -1009,11 +1138,18 @@ async function fetchPostsFromCSV(csvUrl) {
       allEvents.forEach(ev => { ev._ts = new Date(ev.start.dateTime || ev.start.date).getTime(); });
     } catch(e) { /* silencieux */ }
 
+    // SEO : injecte un Schema.org ItemList de Event (uniquement les concerts à venir + le dernier passé)
+    try {
+      const futureEvents = allEvents.filter(ev => ev._ts >= now.getTime());
+      const ensembleKey = (calId === _HOME_CAL_ID) ? 'lvl' : 'soul';
+      if (typeof injectEventsJsonLd === 'function') injectEventsJsonLd(futureEvents, ensembleKey);
+    } catch(e) { /* silencieux */ }
+
     // Tri : à venir du plus proche au plus lointain, passés du plus récent au plus ancien
     const upcoming = allEvents.filter(ev => ev._ts >= now.getTime()).sort((a,b) => a._ts - b._ts);
     const pastAll  = allEvents.filter(ev => ev._ts <  now.getTime()).sort((a,b) => b._ts - a._ts);
-    // Un seul événement passé (le dernier), affiché en grisé après les à venir
-    const lastPast = pastAll.length ? [pastAll[0]] : [];
+    // 3 derniers événements passés (du plus récent au plus ancien)
+    const lastPast = pastAll.slice(0, 3);
 
     // ---- Helpers ----
     function evDate(ev) { return new Date(ev.start.dateTime || ev.start.date); }
@@ -1095,7 +1231,27 @@ async function fetchPostsFromCSV(csvUrl) {
       return wrap;
     }
 
+    // Rend la carte cliquable : toggle .event-card--open pour afficher/masquer .event-card-details
+    function bindCardToggle(card) {
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-expanded', 'false');
+      card.setAttribute('tabindex', '0');
+      const toggle = () => {
+        const open = card.classList.toggle('event-card--open');
+        card.setAttribute('aria-expanded', String(open));
+      };
+      card.addEventListener('click', e => {
+        // Évite de déclencher le toggle si on clique sur un lien ou une miniature de photo
+        if (e.target.closest('a, img')) return;
+        toggle();
+      });
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    }
+
     // ---- Carte événement à venir ----
+    // Les détails sont toujours visibles (pas de pli) — les visiteurs veulent voir tout de suite.
     function createCardUp(ev) {
       const d    = evDate(ev);
       const div  = document.createElement('div');
@@ -1131,26 +1287,82 @@ async function fetchPostsFromCSV(csvUrl) {
           <div class="event-card-body">
             <div class="event-card-title">${esc(ev.summary||'')}</div>
             <div class="event-card-fulldate">${_JOURS[d.getDay()]} ${d.getDate()} ${_MOIS_L[d.getMonth()]} ${d.getFullYear()}${loc}</div>
-            ${desc}
+            <div class="event-card-details">${desc}</div>
           </div>
+          <span class="event-card-chevron" aria-hidden="true">▾</span>
         </div>`;
+      // Les événements passés sont toujours cliquables (photos potentielles à révéler)
+      bindCardToggle(div);
       return div;
     }
 
-    // ---- Rendu (à venir puis dernier passé en grisé) ----
-    if (upEl) {
+    // Rend une carte passée avec ses éventuelles miniatures photo
+    function renderPastCard(ev, targetEl) {
+      const card   = createCardPast(ev);
+      const photos = photosByKey['id:' + ev.id] || photosByKey['name:' + concertKey(ev)] || [];
+      if (photos.length) {
+        const details = card.querySelector('.event-card-details');
+        if (details) details.appendChild(createThumbs(photos));
+        else card.appendChild(createThumbs(photos));
+      }
+      targetEl.appendChild(card);
+    }
+
+    // ---- Rendu ----
+    if (soulStyle) {
+      // "Prochaine date" : la ou les prochaines dates, ou message de saison en préparation
+      if (upEl) {
+        upEl.innerHTML = '';
+        if (!upcoming.length) {
+          const startY = (now.getMonth() >= 6) ? now.getFullYear() : now.getFullYear() - 1;
+          const season = startY + '-' + (startY + 1);
+          const p = document.createElement('p');
+          p.className = 'soul-next-empty';
+          p.innerHTML = `La préparation de la saison <strong>${season}</strong> est en cours : les prochaines dates seront annoncées ici d'ici quelques semaines. Suivez-nous sur <a href="https://www.instagram.com/soul.rennes/" target="_blank" rel="noopener noreferrer">Instagram</a> ou abonnez-vous à la <a href="#newsletter">newsletter</a> pour être informé·e en priorité.`;
+          upEl.appendChild(p);
+        } else {
+          upcoming.forEach(ev => upEl.appendChild(createCardUp(ev)));
+        }
+      }
+      // "Nos derniers concerts" : 3 par défaut, historique complet au clic sur la rubrique
+      if (paEl) {
+        let expanded = false;
+        const renderPast = () => {
+          paEl.innerHTML = '';
+          const list = expanded ? pastAll : lastPast;
+          if (!list.length) {
+            paEl.innerHTML = '<p class="soul-past-empty">Aucun concert passé enregistré pour le moment.</p>';
+            return;
+          }
+          list.forEach(ev => renderPastCard(ev, paEl));
+        };
+        renderPast();
+        if (pastToggle && pastAll.length > lastPast.length) {
+          const hint = pastToggle.querySelector('.soul-past-toggle-hint');
+          const toggle = () => {
+            expanded = !expanded;
+            pastToggle.setAttribute('aria-expanded', String(expanded));
+            if (hint) hint.textContent = expanded ? 'Voir moins ▴' : 'Voir tous nos concerts ▾';
+            renderPast();
+          };
+          pastToggle.addEventListener('click', toggle);
+          pastToggle.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+        } else if (pastToggle) {
+          const hint = pastToggle.querySelector('.soul-past-toggle-hint');
+          if (hint) hint.remove();
+          pastToggle.removeAttribute('role');
+          pastToggle.removeAttribute('tabindex');
+          pastToggle.style.cursor = 'default';
+        }
+      }
+    } else if (upEl) {
       upEl.innerHTML = '';
       if (!upcoming.length && !lastPast.length) {
         upEl.innerHTML = '<p style="color:#888;font-style:italic;padding:6px 0;">Aucun concert annoncé pour le moment. Abonnez-vous à la <a href="#footer" style="color:var(--accent-color-primary);">newsletter</a> pour être informé·e !</p>';
       } else {
         upcoming.forEach(ev => upEl.appendChild(createCardUp(ev)));
-        // Dernier événement passé à la fin, grisé
-        lastPast.forEach(ev => {
-          const card   = createCardPast(ev);
-          const photos = photosByKey['id:' + ev.id] || photosByKey['name:' + concertKey(ev)] || [];
-          if (photos.length) card.appendChild(createThumbs(photos));
-          upEl.appendChild(card);
-        });
+        // 3 derniers événements passés à la fin, en grisé
+        lastPast.forEach(ev => renderPastCard(ev, upEl));
       }
     }
   }
@@ -1318,13 +1530,250 @@ async function fetchPostsFromCSV(csvUrl) {
         contentContainer.appendChild(intro);
       }
 
-      // Calendrier des événements SOUL (même modèle que l'accueil)
+      // ---- Auditions SOUL ----
+      (function() {
+        const AUDITION_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
+        // Créneaux d'1h, 4 places chacun (capacité volontairement non affichée aux visiteurs)
+        // start/end en ISO avec offset Europe/Paris (+02:00 en septembre, heure d'été) :
+        // utilisés côté serveur pour créer l'événement dans l'agenda Google du chef de chœur.
+        const AUDITION_SLOTS = [
+          { value: 'Lundi 7 septembre 2026, 17h-18h', label: 'Lundi 7 septembre — 17h-18h', start: '2026-09-07T17:00:00+02:00', end: '2026-09-07T18:00:00+02:00' },
+          { value: 'Lundi 7 septembre 2026, 18h-19h', label: 'Lundi 7 septembre — 18h-19h', start: '2026-09-07T18:00:00+02:00', end: '2026-09-07T19:00:00+02:00' },
+          { value: 'Lundi 7 septembre 2026, 19h-20h', label: 'Lundi 7 septembre — 19h-20h', start: '2026-09-07T19:00:00+02:00', end: '2026-09-07T20:00:00+02:00' },
+          { value: 'Mardi 8 septembre 2026, 17h-18h', label: 'Mardi 8 septembre — 17h-18h', start: '2026-09-08T17:00:00+02:00', end: '2026-09-08T18:00:00+02:00' },
+          { value: 'Mardi 8 septembre 2026, 18h-19h', label: 'Mardi 8 septembre — 18h-19h', start: '2026-09-08T18:00:00+02:00', end: '2026-09-08T19:00:00+02:00' },
+          { value: 'Mardi 8 septembre 2026, 19h-20h', label: 'Mardi 8 septembre — 19h-20h', start: '2026-09-08T19:00:00+02:00', end: '2026-09-08T20:00:00+02:00' }
+        ];
+        const AUDITION_CAPACITY = 4;
+        const AUDITION_LIEU = '14-16 rue Papu, Rennes';
+
+        const auditionSection = document.createElement('section');
+        auditionSection.className = 'soul-audition';
+        auditionSection.id = 'auditions';
+        auditionSection.style.cssText = 'scroll-margin-top:80px;margin:32px 0 40px;';
+        auditionSection.innerHTML = `
+          <div class="home-section-divider"><h2>Auditions — Rentrée 2026</h2></div>
+          <div class="soul-audition-card">
+            <p class="soul-audition-lead">Vu le nombre de demandes, les auditions se font désormais sur inscription, par créneau d'une heure.</p>
+            <div class="soul-audition-details">
+              <div class="soul-audition-detail"><span aria-hidden="true">📍</span><div><strong>Répétitions</strong> : tous les mardis soir à 20h, ${AUDITION_LIEU} (centre-ville)</div></div>
+              <div class="soul-audition-detail"><span aria-hidden="true">🎤</span><div><strong>Concerts</strong> : de nombreux concerts, dont des festivals comme <em>Jazz sous les pommiers</em> en Normandie — on reste en général dans la région, mais on se déplace pour les projets qui en valent vraiment la peine</div></div>
+              <div class="soul-audition-detail"><span aria-hidden="true">🎯</span><div><strong>Engagement demandé</strong> : travail personnel régulier, capacité à assumer un solo, mémorisation, bonne oreille et bonne concentration — on travaille par cœur, sans partition, pendant les répétitions</div></div>
+              <div class="soul-audition-detail"><span aria-hidden="true">💶</span><div><strong>Cotisation</strong> : 550&nbsp;€/an, mensualisable (55&nbsp;€/mois sur 10 mois) — elle fait vivre le groupe : salle, chef de chœur, etc.</div></div>
+              <div class="soul-audition-detail"><span aria-hidden="true">🏖️</span><div><strong>Week-ends de répétition</strong> : quelques week-ends supplémentaires dans l'année pour préparer un gros concert ou accueillir les nouveaux — des moments conviviaux, parfois dans une maison de bord de mer</div></div>
+            </div>
+            <button type="button" class="home-cta-btn soul-audition-btn" id="open-audition-form">Réserver mon créneau d'audition →</button>
+            <p class="soul-audition-full" id="audition-full-msg" style="display:none;">Tous les créneaux affichés sont complets pour le moment — écrivez-nous directement par email, on trouvera une solution.</p>
+          </div>`;
+        contentContainer.appendChild(auditionSection);
+
+        // ---- Confirmation persistante ----
+        const alreadyRegistered = (function(){ try { return localStorage.getItem('audition_registered'); } catch(e){ return null; } })();
+        if (alreadyRegistered) {
+          const btn = document.getElementById('open-audition-form');
+          if (btn) {
+            const confirm = document.createElement('div');
+            confirm.className = 'nr-essai-already';
+            confirm.innerHTML = `✅ <strong>Vous êtes déjà inscrit·e</strong> pour le créneau du <strong>${alreadyRegistered}</strong>. À très vite !
+              <button type="button" class="nr-essai-already-cancel">Me désinscrire / corriger</button>`;
+            btn.replaceWith(confirm);
+            confirm.querySelector('.nr-essai-already-cancel').addEventListener('click', function() {
+              try { localStorage.removeItem('audition_registered'); } catch(e) {}
+              confirm.replaceWith(btn);
+              btn.addEventListener('click', openAudition);
+            });
+          }
+        }
+
+        // ---- Créneaux disponibles (comptage silencieux, capacité jamais affichée) ----
+        let availableSlots = AUDITION_SLOTS.slice();
+        function refreshAvailableSlots() {
+          return fetch(AUDITION_ENDPOINT + '?action=audition_counts')
+            .then(r => r.json())
+            .then(data => {
+              const counts = (data && data.counts) || {};
+              availableSlots = AUDITION_SLOTS.filter(s => (counts[s.value] || 0) < AUDITION_CAPACITY);
+            })
+            .catch(() => { availableSlots = AUDITION_SLOTS.slice(); });
+        }
+
+        // ---- Modal formulaire ----
+        function buildAuditionModal() {
+          if (document.getElementById('audition-overlay')) return;
+          const overlay = document.createElement('div');
+          overlay.id = 'audition-overlay';
+          overlay.className = 'tryout-overlay';
+          overlay.setAttribute('role', 'dialog');
+          overlay.setAttribute('aria-modal', 'true');
+          overlay.setAttribute('aria-labelledby', 'audition-dialog-title');
+          overlay.innerHTML = `
+            <div class="tryout-dialog" id="audition-dialog">
+              <button type="button" class="tryout-close" id="audition-close" aria-label="Fermer">&times;</button>
+              <h3 id="audition-dialog-title" style="margin:0 0 16px 0;font-family:'Lobster',cursive;color:#8844aa;font-size:1.4rem;">Audition SOUL — La Voix Libre</h3>
+              <form id="audition-form" novalidate>
+                <div class="tryout-field-row">
+                  <div class="tryout-field">
+                    <label for="audition-prenom">Prénom <span aria-hidden="true">*</span></label>
+                    <input type="text" id="audition-prenom" name="prenom" required autocomplete="given-name">
+                  </div>
+                  <div class="tryout-field">
+                    <label for="audition-nom">Nom <span aria-hidden="true">*</span></label>
+                    <input type="text" id="audition-nom" name="nom" required autocomplete="family-name">
+                  </div>
+                </div>
+                <div class="tryout-field">
+                  <label for="audition-email">Email <span aria-hidden="true">*</span></label>
+                  <input type="email" id="audition-email" name="email" required autocomplete="email">
+                </div>
+                <div class="tryout-field">
+                  <label for="audition-telephone">Téléphone <span aria-hidden="true">*</span></label>
+                  <input type="tel" id="audition-telephone" name="telephone" required autocomplete="tel">
+                </div>
+                <div class="tryout-field">
+                  <label for="audition-creneau">Créneau souhaité <span aria-hidden="true">*</span></label>
+                  <select id="audition-creneau" name="creneau" required>
+                    <option value="" disabled selected>Choisir un créneau…</option>
+                  </select>
+                </div>
+                <div class="tryout-field">
+                  <label for="audition-message">Message (optionnel)</label>
+                  <textarea id="audition-message" name="message" rows="3" placeholder="Voix, expérience, une question…"></textarea>
+                </div>
+                <div id="audition-error" style="display:none;color:#c0392b;font-size:.9rem;margin-bottom:8px;" role="alert"></div>
+                <div class="egm-submit-row">
+                  <button type="submit" id="audition-submit" class="home-cta-btn">Envoyer ma demande</button>
+                  <span id="audition-spinner" style="display:none;font-size:.9rem;color:#888;">Envoi…</span>
+                </div>
+              </form>
+              <div id="audition-confirm" style="display:none;text-align:center;padding:20px 0;">
+                <p style="font-size:1.1rem;font-weight:600;color:#8844aa;">✅ Inscription enregistrée !</p>
+                <p style="color:#444;">Vous recevrez un email de confirmation. À très vite !</p>
+              </div>
+            </div>`;
+          document.body.appendChild(overlay);
+
+          const close = () => { overlay.style.display = 'none'; document.body.style.overflow = ''; };
+          overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+          overlay.querySelector('#audition-close').addEventListener('click', close);
+          document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.style.display !== 'none') close(); });
+
+          overlay.querySelector('#audition-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = this;
+            const errEl = document.getElementById('audition-error');
+            const spinner = document.getElementById('audition-spinner');
+            const submitBtn = document.getElementById('audition-submit');
+            errEl.style.display = 'none';
+
+            const prenom    = form.prenom.value.trim();
+            const nom       = form.nom.value.trim();
+            const email     = form.email.value.trim();
+            const telephone = form.telephone.value.trim();
+            const creneau   = form.creneau.value;
+            if (!prenom || !nom || !email || !telephone || !creneau) {
+              errEl.textContent = 'Merci de remplir tous les champs obligatoires.';
+              errEl.style.display = 'block';
+              return;
+            }
+
+            spinner.style.display = 'inline';
+            submitBtn.disabled = true;
+
+            try {
+              const slotInfo = AUDITION_SLOTS.find(s => s.value === creneau) || {};
+              const payload = JSON.stringify({
+                action: 'audition',
+                prenom, nom, email,
+                telephone,
+                creneau,
+                start: slotInfo.start || '',
+                end: slotInfo.end || '',
+                message: form.message.value.trim(),
+                ts: new Date().toISOString()
+              });
+              await fetch(AUDITION_ENDPOINT, {
+                method: 'POST',
+                body: new URLSearchParams({ data: payload }),
+                mode: 'no-cors'
+              });
+              form.style.display = 'none';
+              document.getElementById('audition-confirm').style.display = 'block';
+              try { localStorage.setItem('audition_registered', creneau); } catch(e) {}
+              try { document.dispatchEvent(new CustomEvent('audition:success')); } catch(ex) {}
+            } catch(err) {
+              errEl.textContent = 'Une erreur est survenue. Réessayez ou contactez-nous par email.';
+              errEl.style.display = 'block';
+              submitBtn.disabled = false;
+              spinner.style.display = 'none';
+            }
+          });
+        }
+
+        function populateCreneauSelect() {
+          const select = document.getElementById('audition-creneau');
+          if (!select) return;
+          while (select.options.length > 1) select.remove(1);
+          availableSlots.forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.value;
+            opt.textContent = s.label;
+            select.appendChild(opt);
+          });
+        }
+
+        function openAudition() {
+          refreshAvailableSlots().then(() => {
+            buildAuditionModal();
+            populateCreneauSelect();
+            const overlay = document.getElementById('audition-overlay');
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { const f = overlay.querySelector('#audition-prenom'); if (f) f.focus(); }, 80);
+          });
+        }
+        const openBtn = document.getElementById('open-audition-form');
+        if (openBtn) openBtn.addEventListener('click', openAudition);
+
+        // Désactive proactivement le bouton si tous les créneaux affichés sont déjà complets
+        refreshAvailableSlots().then(() => {
+          const fullMsg = document.getElementById('audition-full-msg');
+          const btn = document.getElementById('open-audition-form');
+          if (availableSlots.length === 0 && btn && fullMsg) {
+            fullMsg.style.display = 'block';
+            btn.style.display = 'none';
+          }
+        });
+
+        // ---- Panneau admin (bureau uniquement) ----
+        const role = (function(){ try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); } catch(e){ return null; } })();
+        if (role === 'chef') {
+          const AUDITION_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1XdLI0vjHHTWfJ-cfQySQfMAHX3igGK_GZb00tU7Mbqo/edit';
+          const adminPanel = document.createElement('div');
+          adminPanel.className = 'tryout-admin-panel';
+          adminPanel.innerHTML = `
+            <div class="tryout-admin-header">
+              <span class="tryout-admin-icon" aria-hidden="true">🔐</span>
+              <strong>Inscriptions auditions — vue bureau</strong>
+            </div>
+            <div class="tryout-admin-sheet-link">
+              <p>Les inscriptions sont enregistrées dans l'onglet <strong>auditions_soul</strong> du même Google Sheet :</p>
+              <a href="${AUDITION_SHEET_URL}" target="_blank" rel="noopener noreferrer" class="tryout-admin-sheet-btn">
+                📊 Ouvrir le tableau des inscriptions
+              </a>
+              <p class="tryout-admin-hint">Colonnes : date · prénom · nom · email · téléphone · créneau · message · horodatage</p>
+            </div>`;
+          auditionSection.appendChild(adminPanel);
+        }
+      })();
+
+      // Calendrier des événements SOUL : prochaine date + derniers concerts (historique complet dépliable)
       const SOUL_CAL_ID = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
       loadHomeEvents(contentContainer, {
         calendarId: SOUL_CAL_ID,
         showThumbs: false,
         sectionId: 'soul-evenements',
-        subtitle: 'Prochaines dates de SOUL à Rennes et alentours.'
+        soulStyle: true,
+        historyStart: '2018-06-01T00:00:00Z'
       });
 
       // Instagram SOUL (Behold) — compte séparé via window.BEHOLD_SOUL_FEED_ID
@@ -1351,7 +1800,7 @@ async function fetchPostsFromCSV(csvUrl) {
       yt.setAttribute('aria-label', 'Nos enregistrements YouTube SOUL');
       yt.innerHTML = `
         <div class="home-section-divider"><h2>SOUL sur YouTube — Enregistrements</h2></div>
-        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbY4oyR-Kic48Fu_UWhQSR2o" data-limit="6" aria-live="polite">
+        <div class="youtube-grid" data-playlist="UUpxrdXwMftJrN_OYsC3hDpA" data-limit="6" aria-live="polite">
           <div class="youtube-skeleton"></div>
           <div class="youtube-skeleton"></div>
           <div class="youtube-skeleton"></div>
@@ -1389,7 +1838,7 @@ async function fetchPostsFromCSV(csvUrl) {
             const pic = document.createElement('picture');
             pic.innerHTML = `
               <source srcset="${imgWebp}" type="image/webp">
-              <img src="${imgJpg}" alt="Image principale de la page ${page.page_title}" class="page-hero-image" loading="lazy" decoding="async" style="width:380px;height:auto;object-fit:cover;border-radius:12px;">
+              <img src="${imgJpg}" alt="${page.page_title} - La Voix Libre, Rennes" class="page-hero-image" loading="lazy" decoding="async" style="width:380px;height:auto;object-fit:cover;border-radius:12px;">
             `;
             descriptionContainer.appendChild(pic);
           }
@@ -1723,6 +2172,60 @@ async function fetchPostsFromCSV(csvUrl) {
             contentContainer.appendChild(faqWrap);
           }
 
+          // Widget d'inscription HelloAsso — Saison 2026-2027
+          const inscriptionSection = document.createElement('section');
+          inscriptionSection.className = 'nr-inscription';
+          inscriptionSection.id = 'inscription';
+          inscriptionSection.style.cssText = 'scroll-margin-top:80px;margin-top:40px;';
+
+          const inscriptionDivider = document.createElement('div');
+          inscriptionDivider.className = 'home-section-divider';
+          inscriptionDivider.innerHTML = '<h2>Inscription — Saison 2026-2027</h2>';
+          inscriptionSection.appendChild(inscriptionDivider);
+
+          const inscriptionBloc = document.createElement('div');
+          inscriptionBloc.className = 'reinscription-bloc';
+          inscriptionBloc.innerHTML = `
+            <div class="reinscription-promo">
+              <span class="reinscription-promo-icon" aria-hidden="true">🎁</span>
+              <div>
+                <strong>Membres actuels de la chorale :</strong> bénéficiez de <strong>5&nbsp;% de réduction</strong> en vous réinscrivant avant le <strong>13&nbsp;juillet</strong>.
+                Saisissez le code <strong class="reinscription-code">PREINSCRIP</strong> dans le formulaire ci-dessous.
+              </div>
+            </div>
+            <div class="reinscription-alerte">
+              <div class="reinscription-alerte-titre">⚠️ Important — Contribution HelloAsso : mettez-la à 0&nbsp;€</div>
+              <p>HelloAsso ajoute automatiquement une contribution à son financement (environ 11&nbsp;€) lors de votre paiement. <strong>La chorale verse déjà une contribution annuelle à HelloAsso</strong> — vous n'avez donc pas à payer cette somme en plus.</p>
+              <p><strong>Pour ne pas payer cette contribution supplémentaire, suivez ces 3 étapes au moment du paiement :</strong></p>
+              <ol class="reinscription-steps">
+                <li>Repérez la ligne <em>"Votre contribution au fonctionnement de HelloAsso"</em> en bas du formulaire.</li>
+                <li>Cliquez sur le lien <strong>"Modifier ma contribution"</strong>.</li>
+                <li>Saisissez <strong>0</strong> dans le champ ou décochez la case, puis validez.</li>
+              </ol>
+            </div>
+            <div class="reinscription-widget-wrap"></div>`;
+          inscriptionSection.appendChild(inscriptionBloc);
+
+          const haFrame = document.createElement('iframe');
+          haFrame.id = 'haWidget';
+          haFrame.allowTransparency = true;
+          haFrame.scrolling = 'auto';
+          haFrame.src = 'https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/la-voix-libre-2026-2027/widget';
+          haFrame.style.cssText = 'width:100%;height:750px;border:none;display:block;';
+          haFrame.title = 'Formulaire d\'inscription La Voix Libre 2026-2027';
+          haFrame.addEventListener('load', function() {
+            window.addEventListener('message', function(e) {
+              try {
+                const dataHeight = e.data && e.data.height;
+                if (dataHeight && dataHeight > parseFloat(haFrame.style.height || 0)) {
+                  haFrame.style.height = dataHeight + 'px';
+                }
+              } catch(err) {}
+            });
+          });
+          inscriptionBloc.querySelector('.reinscription-widget-wrap').appendChild(haFrame);
+          contentContainer.appendChild(inscriptionSection);
+
         } else {
           // Pour Soul, Chorale Pop et autres pages, image et texte côte à côte
           descriptionContainer = document.createElement('div');
@@ -1733,7 +2236,7 @@ async function fetchPostsFromCSV(csvUrl) {
             const pic = document.createElement('picture');
             pic.innerHTML = `
               <source srcset="${imgWebp}" type="image/webp">
-              <img src="${imgJpg}" alt="Image principale de la page ${page.page_title}" class="page-hero-image" loading="lazy" decoding="async">
+              <img src="${imgJpg}" alt="${page.page_title} - La Voix Libre, Rennes" class="page-hero-image" loading="lazy" decoding="async">
             `;
             descriptionContainer.appendChild(pic);
           }
@@ -1865,17 +2368,33 @@ async function fetchPostsFromCSV(csvUrl) {
   filteredPosts.sort((a, b) => extractTimestamp(b) - extractTimestamp(a));
     postsContainer.innerHTML = '';
 
+    // Fonction utilitaire pour transformer les URLs en liens cliquables
+    function linkify(text) {
+      const urlRegex = /(https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/gi;
+      return text.replace(urlRegex, function(url) {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+      });
+    }
+
+    function formatPostDate(rawDate) {
+      if (!rawDate) return '';
+      let d = new Date(rawDate);
+      if (isNaN(d)) {
+        const match = rawDate.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (match) d = new Date(`${match[3]}-${match[2].padStart(2,'0')}-${match[1].padStart(2,'0')}`);
+      }
+      if (isNaN(d)) return rawDate;
+      const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+      const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+      return `${jours[d.getDay()]} ${d.getDate()} ${mois[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
     filteredPosts.forEach(post => {
       const postElement = document.createElement('article');
       postElement.classList.add('blog-post');
 
-      // Illustrations : image(s) d'abord, puis vidéos
       let illustrations = [];
       if (!noIllustrations) {
-        // Support multiple ways to specify images in the CSV:
-        // - post.image (string): filename, absolute URL, Google Drive share link, or comma-separated list
-        // - post.images (array)
-        // - alternative fields: post.illustration, post.illustration_url
         const imageCandidates = [];
         if (post.image) imageCandidates.push(post.image);
         if (post.images && Array.isArray(post.images)) imageCandidates.push(...post.images);
@@ -1884,17 +2403,14 @@ async function fetchPostsFromCSV(csvUrl) {
 
         imageCandidates.forEach(imgField => {
           if (!imgField) return;
-          // Split comma-separated lists (CSV authors sometimes list multiple filenames in one cell)
           const parts = ('' + imgField).split(',').map(s => s.trim()).filter(Boolean);
           parts.forEach(p => {
             const src = normalizePostImageSrc(p);
-            // prepare an assets fallback (useful when hosting serves files under a subpath)
             const assetsFallback = `${ASSETS_BASE_URL}images/${p}`;
             illustrations.push({ type: 'image', src, fallback: (assetsFallback !== src ? [assetsFallback] : []) });
           });
         });
 
-        // Videos (YouTube): same as before
         if (Array.isArray(post.videos) && post.videos.length > 0) {
           post.videos.forEach(function(videoObj) {
             let url = typeof videoObj === 'string' ? videoObj : videoObj.url;
@@ -1905,102 +2421,42 @@ async function fetchPostsFromCSV(csvUrl) {
         }
       }
 
-      // Build the illustrations column (stacked vertically)
       let illustrationsHTML = illustrations.map(ill => {
         if (ill.type === 'image') {
-          // Render a small transparent placeholder initially and defer actual loading to JS
           const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
           const fallbackAttr = (ill.fallback && ill.fallback.length) ? ` data-fallback='${JSON.stringify(ill.fallback)}'` : '';
           return `<img data-src="${ill.src}" src="${placeholder}" alt="${post.title}" class="media-illustration" loading="lazy" decoding="async"${fallbackAttr}>`;
         }
-        return `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+        return `<iframe width="100%" height="220" src="${ill.src}" frameborder="0" allowfullscreen class="media-illustration" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="aspect-ratio:16/9;height:auto;border-radius:10px;"></iframe>`;
       }).join('');
 
-      // Fonction utilitaire pour transformer les URLs en liens cliquables
-      function linkify(text) {
-        const urlRegex = /(https?:\/\/[\w\-._~:/?#[\]@!$&'()*+,;=%]+)/gi;
-        return text.replace(urlRegex, function(url) {
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
-        });
+      // Meta line: date, heure, lieu
+      let metaParts = [];
+      if (post.date) metaParts.push(formatPostDate(post.date));
+      if (post.heure) {
+        let h = post.heure.trim();
+        if (!h.endsWith('h')) h += 'h';
+        metaParts.push(h);
       }
+      if (post.lieu) metaParts.push(post.lieu);
+      const metaLine = metaParts.length ? `<div class="post-meta-line">${metaParts.join(' · ')}</div>` : '';
 
-      // Build the post HTML
-      // Affiche date/heure/lieu événement sous le titre si renseigné
-      let eventInfo = '';
-      if (post.date || post.heure || post.lieu) {
-        let dateStr = '';
-        if (post.date) {
-          // Tente de parser la date, sinon affiche tel quel
-          let d = new Date(post.date);
-          if (!isNaN(d)) {
-            const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-            const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-            dateStr = `${jours[d.getDay()]} ${d.getDate()} ${mois[d.getMonth()]} ${d.getFullYear()}`;
-          } else {
-            // Si le format est type 24/06/2025, le parser manuellement
-            const match = post.date.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-            if (match) {
-              const d2 = new Date(`${match[3]}-${match[2]}-${match[1]}`);
-              if (!isNaN(d2)) {
-                const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-                const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-                dateStr = `${jours[d2.getDay()]} ${d2.getDate()} ${mois[d2.getMonth()]} ${d2.getFullYear()}`;
-              } else {
-                dateStr = post.date;
-              }
-            } else {
-              dateStr = post.date;
-            }
-          }
-        }
-        let heureStr = '';
-        if (post.heure) {
-          // Ajoute "h" si non présent
-          let heure = post.heure.trim();
-          if (!heure.endsWith('h')) {
-            heure += 'h';
-          }
-          heureStr = `à ${heure}`;
-        }
-        let lieuStr = post.lieu ? `- ${post.lieu}` : '';
-        eventInfo = `<div class="event-info" style="font-size:1.08rem;color:var(--accent-color-complementary);font-family:'Montserrat',sans-serif;font-weight:500;margin-bottom:8px;">${[dateStr, heureStr, lieuStr].filter(Boolean).join(' ')}</div>`;
-      }
-
-      let postHTML = `<h3>${post.title}</h3>`;
-      postHTML += eventInfo;
-
-      // Exergue lien: affiche un lien visible en haut du post si une colonne 'lien' (ou 'link'/'url') est fournie
+      // Link badge
       const linkUrl = post.lien || post.link || post.url || post.website;
-      if (linkUrl) {
-        // Determine display text: prefer a title if provided, default to French friendly text
-        const linkText = post.lien_text || post.link_title || post.title_link_text || 'toutes les infos ici';
-        postHTML += `<div class="post-link-badge" style="margin-bottom:8px;"><a href="${linkUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#fff;border:1px solid #e6e6e6;padding:8px 12px;border-radius:6px;color:#0b63a7;text-decoration:none;font-weight:600;">${linkText}</a></div>`;
-      }
-      if (noIllustrations) {
-        // Render a single full-width text column for affichages (no media)
-        postHTML += `
-          <div class="post-wrapper">
-            <div class="text-content" style="width:100%;">
-              <p>${linkify(post.content)}</p>
-            </div>
-          </div>
-        `;
+      const linkBadge = linkUrl ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="post-link-btn">${post.lien_text || post.link_title || post.title_link_text || 'En savoir plus'}</a>` : '';
+
+      // Build HTML
+      let postHTML = `<h3>${post.title}</h3>`;
+      postHTML += metaLine;
+
+      if (illustrations.length && !noIllustrations) {
+        postHTML += `<div class="post-wrapper"><div class="media media-vertical">${illustrationsHTML}</div><div class="text-content"><p>${linkify(post.content)}</p>${linkBadge}</div></div>`;
       } else {
-        postHTML += `
-          <div class="post-wrapper">
-            <div class="media media-vertical">
-              ${illustrationsHTML}
-            </div>
-            <div class="text-content">
-              <p>${linkify(post.content)}</p>
-            </div>
-          </div>
-        `;
+        postHTML += `<div class="post-wrapper"><div class="text-content" style="width:100%;"><p>${linkify(post.content)}</p>${linkBadge}</div></div>`;
       }
 
       postElement.innerHTML = postHTML;
       postsContainer.appendChild(postElement);
-      // After inserting the post, process deferred images to avoid broken icons
       try { processDeferredImages(postElement); } catch (e) { console.warn('processDeferredImages failed', e); }
     });
   }
@@ -2168,33 +2624,180 @@ function ensureSeoMeta(currentPageId) {
     upsertJsonLd('ld-breadcrumb', ldBreadcrumb);
   }
 
-  // Inject LocalBusiness on homepage to renforcer le SEO local (éviter doublons sur les pages dédiées)
+  // ====================================================
+  // Schemas réutilisables (générés une seule fois par page)
+  // ====================================================
+  const logoUrl = (globalConfig?.find(i => i.section==='head' && i.champ==='logo_url')?.valeur) || '';
+  const logoAbs = logoUrl ? (origin ? origin + (logoUrl.startsWith('/') ? logoUrl : '/' + logoUrl) : logoUrl) : '';
+  const email   = (globalConfig?.find(i => i.section==='footer' && i.champ==='email')?.valeur) || '';
+  const sameAsLVL = [];
+  ['facebook','instagram','youtube'].forEach(k => {
+    const v = globalConfig?.find(i => i.section==='footer' && i.champ===k)?.valeur;
+    if (v) sameAsLVL.push(v);
+  });
+
+  const ADDR_PAPU = {
+    '@type': 'PostalAddress',
+    streetAddress: '47b rue Papu',
+    addressLocality: 'Rennes',
+    postalCode: '35000',
+    addressCountry: 'FR'
+  };
+  const PLACE_RENNES = { '@type': 'Place', name: 'Rennes, Bretagne, France', address: ADDR_PAPU };
+
+  const PERSON_VINCENT = {
+    '@type': 'Person',
+    '@id': (origin || '') + '/vincent.html#person',
+    name: 'Vincent T-Dauberlieu',
+    alternateName: 'Vincent Tricotel',
+    givenName: 'Vincent',
+    familyName: 'T-Dauberlieu',
+    jobTitle: 'Chef de chœur, pédagogue vocal',
+    description: "Chef de chœur de La Voix Libre depuis 2017 et de S.O.U.L. depuis 2019, professeur de chant à Rennes. Plus de 10 ans d'études vocales en France et en Allemagne (conservatoires, maisons d'opéra, cabarets).",
+    knowsAbout: ['Direction de chœur', 'Pédagogie vocale', 'Chant lyrique', 'Chant soul', 'Anatomie de la voix', 'Pédagogie AFCM'],
+    image: origin ? origin + '/assets/images/courschant.jpg' : '/assets/images/courschant.jpg',
+    url: (origin || '') + '/vincent.html'
+  };
+
+  const MUSIC_GROUP_LVL = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicGroup',
+    '@id': (origin || 'https://chanterlavoixlibre.fr') + '/#musicgroup-lvl',
+    name: 'La Voix Libre',
+    alternateName: ['Chorale La Voix Libre', 'Chœur La Voix Libre Rennes'],
+    description: "Chœur rennais fondé en mars 2017, composé d'environ 80 chanteur·euse·s passionné·e·s, débutant·e·s comme confirmé·e·s. Répertoire pop, gospel, soul, chants du monde, chanson française.",
+    genre: ['Chorale', 'Pop', 'Gospel', 'Soul', 'Chant du monde', 'Chant choral'],
+    foundingDate: '2017-03',
+    foundingLocation: PLACE_RENNES,
+    location: PLACE_RENNES,
+    url: 'https://chanterlavoixlibre.fr/',
+    logo: logoAbs || undefined,
+    image: logoAbs || undefined,
+    email: email || undefined,
+    director: PERSON_VINCENT,
+    sameAs: sameAsLVL.length ? sameAsLVL : undefined
+  };
+
+  const MUSIC_GROUP_SOUL = {
+    '@context': 'https://schema.org',
+    '@type': 'MusicGroup',
+    '@id': 'https://soulrennes.fr/#musicgroup-soul',
+    name: 'S.O.U.L.',
+    alternateName: ['SOUL Rennes', 'Ensemble vocal SOUL Rennes', 'Chorale SOUL Rennes'],
+    description: "Ensemble vocal a cappella rennais fondé en 2019, sous la direction de Vincent T-Dauberlieu. Répertoire soul, funk, gospel, jazz, pop. Auditions chaque année en septembre.",
+    genre: ['A cappella', 'Soul', 'Funk', 'Gospel', 'Jazz', 'Pop'],
+    foundingDate: '2019',
+    foundingLocation: PLACE_RENNES,
+    location: PLACE_RENNES,
+    url: 'https://soulrennes.fr/',
+    logo: (origin || '') + '/assets/images/soullogo.png',
+    image: (origin || '') + '/assets/images/soullogo.png',
+    director: PERSON_VINCENT
+  };
+
+  const MUSIC_SCHOOL = {
+    '@context': 'https://schema.org',
+    '@type': ['MusicSchool', 'LocalBusiness'],
+    '@id': (origin || 'https://chanterlavoixlibre.fr') + '/#musicschool',
+    name: 'La Voix Libre — chorale et cours de chant à Rennes',
+    description: "Association rennaise (loi 1901) proposant des chorales (La Voix Libre, S.O.U.L., comédie musicale) et des cours individuels de chant lyrique, jazz et pop avec Vincent T-Dauberlieu.",
+    url: origin || 'https://chanterlavoixlibre.fr/',
+    logo: logoAbs || undefined,
+    image: logoAbs || undefined,
+    email: email || undefined,
+    address: ADDR_PAPU,
+    areaServed: ['Rennes', 'Ille-et-Vilaine', 'Bretagne'],
+    founder: PERSON_VINCENT,
+    employee: PERSON_VINCENT,
+    sameAs: sameAsLVL.length ? sameAsLVL : undefined
+  };
+
+  // ====================================================
+  // Injection ciblée selon la page
+  // ====================================================
   if (currentPageId === 'index') {
-    const logoUrl = (globalConfig?.find(i => i.section==='head' && i.champ==='logo_url')?.valeur) || '';
-    const email = (globalConfig?.find(i => i.section==='footer' && i.champ==='email')?.valeur) || '';
-    const sameAs = [];
-    const fb = globalConfig?.find(i => i.section==='footer' && i.champ==='facebook')?.valeur; if (fb) sameAs.push(fb);
-    const ig = globalConfig?.find(i => i.section==='footer' && i.champ==='instagram')?.valeur; if (ig) sameAs.push(ig);
-    const yt = globalConfig?.find(i => i.section==='footer' && i.champ==='youtube')?.valeur; if (yt) sameAs.push(yt);
-    const ldLocal = {
-      '@context': 'https://schema.org',
-      '@type': 'LocalBusiness',
-      name: siteTitle,
-      url: origin || undefined,
-      image: logoUrl || undefined,
-      email: email || undefined,
-      address: {
-        '@type': 'PostalAddress',
-  streetAddress: '47b rue Papu',
-        addressLocality: 'Rennes',
-        postalCode: '35000',
-        addressCountry: 'FR'
-      },
-      areaServed: 'Rennes',
-      sameAs: sameAs.length ? sameAs : undefined
-    };
-    upsertJsonLd('ld-localbusiness', ldLocal);
+    upsertJsonLd('ld-musicschool', MUSIC_SCHOOL);
+    upsertJsonLd('ld-musicgroup-lvl', MUSIC_GROUP_LVL);
+    upsertJsonLd('ld-person-vincent', { '@context': 'https://schema.org', ...PERSON_VINCENT });
+  } else if (currentPageId === 'soul') {
+    upsertJsonLd('ld-musicgroup-soul', MUSIC_GROUP_SOUL);
+    upsertJsonLd('ld-person-vincent', { '@context': 'https://schema.org', ...PERSON_VINCENT });
+  } else if (currentPageId === 'vincent' || currentPageId === 'cours-de-chant' || currentPageId === 'cours-de-chant-lyrique-rennes') {
+    upsertJsonLd('ld-musicschool', MUSIC_SCHOOL);
+    upsertJsonLd('ld-person-vincent', { '@context': 'https://schema.org', ...PERSON_VINCENT });
+  } else if (currentPageId === 'chorale-pop' || currentPageId === 'chorale-rennes') {
+    upsertJsonLd('ld-musicgroup-lvl', MUSIC_GROUP_LVL);
+    upsertJsonLd('ld-musicschool', MUSIC_SCHOOL);
+  } else if (currentPageId === 'evenements') {
+    upsertJsonLd('ld-musicgroup-lvl', MUSIC_GROUP_LVL);
   }
+
+  // Expose les objets pour que loadHomeEvents puisse créer des Event reliés
+  if (typeof window !== 'undefined') {
+    window.__LD_CONTEXT = {
+      origin,
+      musicGroupLVL: MUSIC_GROUP_LVL,
+      musicGroupSOUL: MUSIC_GROUP_SOUL,
+      musicSchool: MUSIC_SCHOOL,
+      addrPapu: ADDR_PAPU,
+      upsertJsonLd
+    };
+  }
+}
+
+// Injecte une liste d'événements Schema.org (ItemList de Event) — appelée après loadHomeEvents
+function injectEventsJsonLd(events, ensembleKey) {
+  const ctx = (typeof window !== 'undefined') ? window.__LD_CONTEXT : null;
+  if (!ctx || !Array.isArray(events) || !events.length) return;
+  const performer = ensembleKey === 'soul' ? ctx.musicGroupSOUL : ctx.musicGroupLVL;
+  const performerLite = { '@type': 'MusicGroup', name: performer.name, url: performer.url };
+
+  const items = events.slice(0, 50).map((ev, i) => {
+    const start = ev.start && (ev.start.dateTime || ev.start.date);
+    const end   = ev.end   && (ev.end.dateTime   || ev.end.date);
+    if (!start) return null;
+    // Lieu : si l'agenda fournit ev.location, on l'utilise, sinon adresse par défaut
+    const placeName = (ev.location || '').trim() || 'Rennes';
+    const place = {
+      '@type': 'Place',
+      name: placeName,
+      address: ev.location ? { '@type': 'PostalAddress', addressLocality: 'Rennes', addressCountry: 'FR' } : ctx.addrPapu
+    };
+    // URL unique par événement (requis par Google pour les Carrousels d'événements)
+    const evIdSafe = (ev.id || String(i)).replace(/[^a-zA-Z0-9_-]/g, '');
+    const evUrl = (ctx.origin || '') + '/#event-' + evIdSafe;
+    const description = (ev.description || '').replace(/<[^>]+>/g, '').trim();
+    return {
+      '@type': 'Event',
+      '@id': evUrl,
+      url: evUrl,
+      name: ev.summary || 'Concert',
+      startDate: start,
+      endDate: end || undefined,
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: place,
+      image: performer.logo || performer.image || undefined,
+      performer: performerLite,
+      organizer: { '@type': 'Organization', name: 'La Voix Libre', url: 'https://chanterlavoixlibre.fr/' },
+      description: description || ((ev.summary || 'Concert') + ' — La Voix Libre, Rennes.'),
+      offers: {
+        '@type': 'Offer',
+        url: evUrl,
+        price: '0',
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        validFrom: start
+      }
+    };
+  }).filter(Boolean);
+
+  if (!items.length) return;
+  // Google n'aime pas ItemList comme conteneur Carousel d'Events.
+  // On expose chaque Event en JSON-LD séparé (ce qui rend chaque concert éligible aux résultats enrichis d'Événements).
+  items.forEach((ev, i) => {
+    ctx.upsertJsonLd('ld-event-' + (ensembleKey || 'lvl') + '-' + i, ev);
+  });
 }
 
 
@@ -2213,10 +2816,14 @@ async function init() {
     try {
       const hostname = (window.location && window.location.hostname) ? window.location.hostname.toLowerCase() : '';
       const pathname = (window.location && window.location.pathname) ? window.location.pathname.toLowerCase() : '';
-      const isSoulSite = hostname.includes('soulrennes') || pathname.startsWith('/soul') || (hostname.includes('chanterlavoixlibre') && pathname.startsWith('/soul'));
+      // SOUL si on est sur soulrennes.fr, ou si l'URL démarre par /soul, ou sur une page dédiée SOUL
+      // comme galerie-soul.html, soul.html, etc.
+      const isSoulPath = pathname.startsWith('/soul') || /\/(soul|galerie-soul)(\.html)?$/.test(pathname);
+      const isSoulSite = hostname.includes('soulrennes') || isSoulPath;
       if (isSoulSite) {
         // Remove pages that should not be accessible from the SOUL domain/subpath
-        const banned = ['chorale-pop', 'comedie-musicale', 'cours-de-chant', 'evenements', 'videos', 'galerie', 'nous-rejoindre'];
+        // ('galerie' est gardé : sur SOUL, le lien est intercepté pour pointer vers galerie-soul.html)
+        const banned = ['chorale-pop', 'comedie-musicale', 'cours-de-chant', 'evenements', 'videos', 'nous-rejoindre'];
         if (Array.isArray(pagesData)) {
           pagesData = pagesData.filter(p => !banned.includes(p.id));
         }
@@ -2328,6 +2935,7 @@ async function init() {
   renderHeader(currentPageId);
   renderNav(currentPageId);
   renderFooter();
+  renderAuthBadge();
   
   // Apply global config (sets document.title, logo fallback, social links if present)
   applyGlobalConfig();
@@ -2375,6 +2983,12 @@ function delegatedNavHandler(e) {
     }
     // Espace choristes -> open modal (use existing createChoristesModal)
     if (href.indexOf('espace-choristes.html') !== -1 || href.indexOf('partitions') !== -1) {
+      // Si déjà authentifié (session persistante), on ne redemande pas le mdp
+      const role = (function(){
+        try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); }
+        catch { return null; }
+      })();
+      if (role === 'chef' || role === 'member') return;
       e.preventDefault();
       const modal = createChoristesModal();
       modal.dataset.targetHref = a.href || href;
@@ -2395,7 +3009,20 @@ function attachDirectHandlers() {
     // Espace choristes anchors
     document.querySelectorAll('a[href*="espace-choristes.html"], a[href*="espace-choristes"], a[href*="partitions"]').forEach(a => {
       a.addEventListener('click', function(e){
-        try { e.preventDefault(); const modal = createChoristesModal(); modal.dataset.targetHref = a.href || a.getAttribute('href'); if (!document.body.contains(modal)) document.body.appendChild(modal); const input = modal.querySelector('#choristes-password-input'); if (input) setTimeout(()=>input.focus(),50); } catch(err) { console.warn('choristes anchor handler', err); }
+        try {
+          // Si déjà authentifié (session persistante), on ne redemande pas le mdp
+          const role = (function(){
+            try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); }
+            catch { return null; }
+          })();
+          if (role === 'chef' || role === 'member') return;
+          e.preventDefault();
+          const modal = createChoristesModal();
+          modal.dataset.targetHref = a.href || a.getAttribute('href');
+          if (!document.body.contains(modal)) document.body.appendChild(modal);
+          const input = modal.querySelector('#choristes-password-input');
+          if (input) setTimeout(()=>input.focus(),50);
+        } catch(err) { console.warn('choristes anchor handler', err); }
       }, { capture: true });
     });
 

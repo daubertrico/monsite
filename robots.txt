@@ -1,6 +1,12 @@
 User-agent: *
 Allow: /
+
+# Page privée (accès choristes par mot de passe)
 Disallow: /espace-choristes.html
+
+# Endpoints API et scripts internes (pas du contenu utilisateur)
+Disallow: /api/
+Disallow: /scripts/
 
 # XML sitemap
 Sitemap: https://chanterlavoixlibre.fr/sitemap.xml

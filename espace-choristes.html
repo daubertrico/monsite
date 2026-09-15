@@ -2,26 +2,86 @@
 <html lang="fr">
 <head>
     <style>
-      /* Ensure tabs remain visible on narrow viewports / print (A4) */
-      .choristes-tabs { flex-wrap: wrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .choristes-tab { flex: 0 1 auto; min-width: 140px; box-sizing: border-box; white-space: nowrap; }
+      /* Barre d'onglets — desktop : ligne horizontale, mobile : grille 2x2 */
+      .choristes-tab-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 18px 0;
+      }
+      .choristes-tab {
+        flex: 1 1 auto;
+        min-width: 140px;
+        box-sizing: border-box;
+        white-space: nowrap;
+        padding: 10px 14px;
+        background: #eef5ff;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        color: #134;
+        font-weight: 600;
+        font-size: 0.98em;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+      }
+      .choristes-tab:hover { background: #dbeeff; }
+      .choristes-tab.active { background: #134; color: #fff; border-color: #134; }
       @media (max-width: 1100px) {
         .choristes-tab { padding: 12px 20px !important; font-size: 1.05em !important; }
       }
       @media print {
-        .choristes-tabs { overflow: visible !important; flex-wrap: wrap !important; }
+        .choristes-tab-bar { overflow: visible !important; flex-wrap: wrap !important; }
         .choristes-tab { display: inline-block !important; page-break-inside: avoid !important; color: #000 !important; background: #fff !important; }
       }
       @media (max-width: 700px) {
-        .choristes-tabs {
-          flex-direction: column !important;
-          gap: 0 !important;
+        /* Grille 2x2 — divise la hauteur par deux par rapport au stack vertical */
+        .choristes-tab-bar {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr !important;
+          gap: 10px !important;
+          margin-bottom: 14px;
         }
         .choristes-tab {
           width: 100%;
-          margin-bottom: 8px;
-          border-radius: 14px;
-          font-size: 1.15em !important;
+          min-width: 0 !important;
+          margin: 0 !important;
+          padding: 14px 8px !important;
+          border-radius: 12px;
+          font-size: 1em !important;
+          white-space: normal !important;
+          text-align: center;
+          line-height: 1.2;
+        }
+        /* Formulaire upload photo — version mobile aérée */
+        #photo-upload-form {
+          padding: 16px 14px !important;
+          border-radius: 12px;
+        }
+        #photo-upload-form > div { margin-bottom: 18px !important; }
+        #photo-upload-form input[type="text"],
+        #photo-upload-form select {
+          padding: 12px 14px !important;
+          font-size: 1rem !important;
+          min-height: 44px;
+        }
+        #photo-upload-form label {
+          font-size: 1rem !important;
+          margin-bottom: 8px !important;
+          display: block !important;
+        }
+        #photo-upload-form #photo-file-label {
+          padding: 22px 14px !important;
+          font-size: 1rem;
+          min-height: 56px;
+        }
+        #photo-upload-form #photo-submit {
+          padding: 14px !important;
+          font-size: 1.05rem !important;
+          min-height: 50px;
+          margin-top: 4px;
+        }
+        #photo-upload-form #photo-preview-grid {
+          grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)) !important;
         }
         .choristes-tab-content {
           display: none !important;
@@ -83,17 +143,419 @@
   .event-stats .count { font-weight:700; margin-right:12px; }
   .event-stats ul { margin:6px 0 0 18px; }
   .event-stats .by-pupitre { margin:4px 0 6px 0; color:#234; font-size:0.95em; }
-  /* Admin panel (chef only) */
-  #admin-panel { display:none; position:fixed; right:18px; bottom:18px; width:320px; z-index:9999; background:#ffffff; border:1.5px solid #b6e0fe; border-radius:12px; box-shadow:0 6px 24px #3981FF33; padding:14px; }
-  #admin-panel h4 { margin:0 0 8px 0; font-size:1.05em; color:#134; }
-  #admin-panel .row { display:flex; gap:8px; align-items:center; margin:6px 0; }
-  #admin-panel label { font-size:0.9em; color:#345; min-width:72px; }
-  #admin-panel input, #admin-panel select { flex:1; padding:6px 8px; border:1px solid #cfe3ff; border-radius:8px; }
-  #admin-panel .actions { display:flex; gap:8px; margin-top:8px; }
-  #admin-panel button { padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:600; }
-  #btn-download-att { background:#eef5ff; color:#134; border:2px solid #98bfff; }
-  #btn-purge-event { background:#ffecec; color:#511; border:2px solid #feb6b6; }
-  body.role-chef #admin-panel { display:block; }
+  /* Bouton "📊 Statistiques" dans les contrôles de présence (visible aux membres du bureau uniquement) */
+  .att-stats-btn { display:none; margin-left:8px; padding:6px 12px; background:#eef5ff; color:#134; border:2px solid #98bfff; border-radius:8px; cursor:pointer; font-weight:600; font-size:0.92em; transition: background .15s, transform .1s; }
+  .att-stats-btn:hover { background:#dbeeff; }
+  .att-stats-btn:active { transform: scale(0.97); }
+  body.role-chef .att-stats-btn { display:inline-block; }
+  /* Stats hiérarchiques drill-down */
+  .stat-hier { margin-top:8px; font-size:0.95em; color:#234; }
+  .stat-hier button.stat-node { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #cfe3ff; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:0.95em; color:#134; font-weight:600; transition: background .15s; }
+  .stat-hier button.stat-node:hover { background:#f3f7ff; }
+  .stat-hier button.stat-node .chev { display:inline-block; transition: transform .2s; font-size:0.8em; opacity:0.6; }
+  .stat-hier button.stat-node[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .stat-hier .stat-children { margin: 6px 0 8px 18px; display:none; padding-left:10px; border-left:2px solid #dbeeff; }
+  .stat-hier .stat-children.open { display:block; }
+  .stat-hier ul.stat-names { list-style:none; padding:0; margin:6px 0 0 0; }
+  .stat-hier ul.stat-names li { padding:3px 0; color:#345; font-weight:400; }
+  .stat-hier .stat-loading, .stat-hier .stat-empty { color:#789; font-style:italic; padding:4px 0; }
+
+  /* ---- Sections de l'onglet "Infos & liens" : cartes lisibles ---- */
+  .espace-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid var(--accent-color-complementary, #8844aa);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 0 0 18px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .espace-section > h3:first-child {
+    font-family: 'Lobster', cursive;
+    color: var(--accent-color-complementary, #8844aa);
+    font-size: 1.35rem;
+    margin: 0 0 12px 0;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+  .espace-section > h3 {
+    color: #234;
+    font-size: 1.05rem;
+    margin: 14px 0 6px 0;
+  }
+  .espace-section p { margin: 0 0 10px 0; line-height: 1.55; color: #2a2440; }
+  .espace-section p:last-child { margin-bottom: 0; }
+  .espace-section a { color: var(--accent-color-primary, #ff6699); font-weight: 600; word-break: break-word; }
+  .espace-section ul { margin: 4px 0 10px 22px; padding: 0; }
+  .espace-section li { margin: 4px 0; line-height: 1.5; }
+  .espace-section details {
+    margin: 10px 0 0 0;
+    padding: 10px 12px;
+    background: #fafbff;
+    border: 1px solid #e0e7ff;
+    border-radius: 8px;
+  }
+  .espace-section details > summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: #3981FF;
+    padding: 4px 0;
+    user-select: none;
+  }
+  .espace-section details[open] > summary { margin-bottom: 8px; }
+  /* Sous-rubriques dans le contenu déplié (Feuille d'engagement etc.) */
+  .espace-section details h2 {
+    font-family: 'Lobster', cursive;
+    color: var(--accent-color-complementary, #8844aa);
+    font-size: 1.15rem;
+    margin: 6px 0 14px 0;
+    line-height: 1.25;
+  }
+  .espace-section details h2 small { font-size: 0.85em; color: #789; display: block; margin-top: 2px; }
+  .espace-section details h3 {
+    color: #134;
+    font-size: 1rem;
+    margin: 16px 0 4px 0;
+    padding-top: 12px;
+    border-top: 1px dashed #d8d2e4;
+    font-weight: 700;
+  }
+  .espace-section details h3:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .espace-section details ul ul { margin-top: 4px; }
+  .espace-section details p, .espace-section details li {
+    font-size: 0.95rem;
+    color: #2a2440;
+  }
+
+  /* ---- Trombinoscope ---- */
+  .trombino-section { margin: 0 0 28px 0; }
+  .trombino-section-title {
+    font-family: 'Lobster', cursive;
+    font-size: 1.35rem;
+    color: var(--accent-color-complementary, #8844aa);
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .trombino-section-title .trombino-count {
+    font-family: inherit;
+    background: #f7eff8;
+    color: #5b3870;
+    border: 1px solid #ead7ee;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .trombino-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .trombino-card {
+    background: #fff;
+    border: 1px solid #ecebf3;
+    border-radius: 14px;
+    padding: 14px 10px 12px 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(136,68,170,0.06);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .trombino-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(136,68,170,0.15);
+  }
+  .trombino-avatar {
+    width: 92px; height: 92px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 8px;
+    display: block;
+    background: linear-gradient(135deg, #f7eff8, #ead7ee);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(136,68,170,0.15);
+  }
+  .trombino-avatar.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.6rem;
+    line-height: 1;
+  }
+  /* Avatar éditable : indication visuelle au survol */
+  .trombino-avatar-wrap {
+    position: relative;
+    width: 92px; height: 92px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+  }
+  .trombino-avatar-wrap .trombino-avatar { margin: 0; }
+  .trombino-avatar-wrap.editable { cursor: pointer; }
+  .trombino-avatar-wrap.editable::after {
+    content: '📷';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 1.4rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .trombino-avatar-wrap.editable:hover::after { opacity: 1; }
+  .trombino-avatar-wrap.uploading::after { content: '⏳'; opacity: 1; background: rgba(0,0,0,0.55); }
+  /* Onglet Admin visible uniquement pour le bureau */
+  .chef-only-tab { display: none !important; }
+  body.role-chef .chef-only-tab { display: inline-block !important; }
+
+  /* ---- Onglet Admin : sections ---- */
+  .admin-section {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin: 0 0 18px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .admin-section > h3 {
+    font-family: 'Lobster', cursive;
+    color: var(--accent-color-complementary, #8844aa);
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin: 0 0 12px 0;
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+  }
+  .admin-section h3 .badge {
+    font-family: inherit;
+    background: var(--accent-color-complementary, #8844aa);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .admin-section h3 .badge.warn { background: #f59e0b; }
+  /* Liste des users en table compact */
+  .admin-users-search {
+    width: 100%; max-width: 360px; padding: 8px 12px; box-sizing: border-box;
+    border: 1.5px solid #e0e7ff; border-radius: 8px; font-size: 0.95rem; margin-bottom: 10px;
+  }
+  .admin-users-table {
+    width: 100%; border-collapse: collapse; font-size: 0.92rem;
+  }
+  .admin-users-table th, .admin-users-table td {
+    padding: 8px 10px; text-align: left; border-bottom: 1px solid #f0e8f5;
+  }
+  .admin-users-table th {
+    background: #fafbff; color: #234; font-weight: 700; font-size: 0.85rem;
+  }
+  .admin-users-table tr:hover td { background: #fdfafe; }
+  .admin-users-table .au-avatar {
+    width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block;
+    background: linear-gradient(135deg,#f7eff8,#ead7ee);
+  }
+  .admin-users-table .au-avatar.placeholder {
+    display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  }
+  .admin-users-table .au-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+  .admin-users-table .au-btn {
+    border: none; cursor: pointer; padding: 4px 8px; border-radius: 6px;
+    font-size: 0.78rem; font-weight: 700;
+  }
+  .admin-users-table .au-btn.au-photo { background: #eef5ff; color: #134; border: 1px solid #98bfff; }
+  .admin-users-table .au-btn.au-photo:hover { background: #dbeeff; }
+  .admin-users-table .au-btn.au-del { background: #fff; color: #b91c1c; border: 1.5px solid #ef4444; }
+  .admin-users-table .au-btn.au-del:hover { background: #fef2f2; }
+  @media (max-width: 700px) {
+    .admin-users-table thead { display: none; }
+    .admin-users-table tr {
+      display: grid; grid-template-columns: 24px 36px 1fr; gap: 6px;
+      padding: 8px 0; border-bottom: 1px solid #f0e8f5; align-items: center;
+    }
+    .admin-users-table td { border: none; padding: 2px 4px; }
+    .admin-users-table td:first-child { grid-row: span 3; }
+    .admin-users-table td:nth-child(2) { grid-row: span 3; }
+  }
+
+  /* Doublons : cartes côte-à-côte */
+  .dup-pair {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: stretch;
+    background: #fafbff;
+    border: 1px solid #e0e7ff;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .dup-mini {
+    display: flex; gap: 12px; align-items: center;
+    background: #fff; border: 1px solid #ecebf3; border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .dup-mini.selected { border-color: #16a34a; box-shadow: 0 0 0 2px rgba(22,163,74,0.18); }
+  .dup-mini .dup-avatar {
+    width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+    background: linear-gradient(135deg,#f7eff8,#ead7ee); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  }
+  .dup-mini .dup-info { flex: 1; min-width: 0; }
+  .dup-mini .dup-name { font-weight: 700; color: #2a2440; font-size: 0.95rem; }
+  .dup-mini .dup-meta { color: #6b6b6b; font-size: 0.78rem; margin-top: 2px; }
+  .dup-mini .dup-meta strong { color: #5b3870; font-weight: 600; }
+  .dup-mini .dup-pick {
+    background: #fff; border: 1.5px solid #16a34a; color: #16a34a;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    font-weight: 700; font-size: 0.8rem; white-space: nowrap;
+  }
+  .dup-mini .dup-pick:hover { background: #f0fdf4; }
+  .dup-mini.selected .dup-pick { background: #16a34a; color: #fff; }
+  .dup-vs {
+    align-self: center; color: #8844aa; font-weight: 700; font-size: 1.2rem;
+    font-family: 'Lobster', cursive;
+  }
+  .dup-actions {
+    grid-column: 1 / -1;
+    display: flex; gap: 8px; justify-content: center; padding-top: 8px;
+    border-top: 1px dashed #d8d2e4; margin-top: 4px;
+  }
+  .dup-merge-btn {
+    background: #16a34a; color: #fff; border: none;
+    padding: 8px 18px; border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 0.92rem;
+  }
+  .dup-merge-btn:hover { background: #15803d; }
+  .dup-merge-btn:disabled { opacity: 0.5; cursor: wait; }
+  .dup-distance {
+    color: #888; font-size: 0.78rem; font-style: italic;
+    display: flex; align-items: center;
+  }
+  @media (max-width: 700px) {
+    .dup-pair { grid-template-columns: 1fr; }
+    .dup-vs { text-align: center; }
+  }
+
+  /* Bouton supprimer choriste (bureau uniquement) */
+  .trombino-card { position: relative; }
+  .trombino-delete-btn {
+    display: none;
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #b91c1c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    z-index: 3;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .trombino-delete-btn:hover { background: #991b1b; transform: scale(1.1); }
+  body.role-chef .trombino-delete-btn { display: flex; align-items: center; justify-content: center; }
+  @media (max-width: 600px) {
+    .trombino-avatar-wrap { width: 76px; height: 76px; }
+  }
+  .trombino-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #2a2440;
+    line-height: 1.25;
+    margin: 4px 0 0 0;
+  }
+  .trombino-name .firstname { color: var(--accent-color-complementary, #8844aa); }
+  .trombino-ens {
+    font-size: 0.72rem;
+    color: #888;
+    margin-top: 3px;
+  }
+  .trombino-empty {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 30px 10px;
+  }
+  @media (max-width: 600px) {
+    .trombino-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .trombino-avatar { width: 76px; height: 76px; }
+    .trombino-card { padding: 10px 8px 10px 8px; }
+  }
+
+
+  @media (max-width: 700px) {
+    .espace-section {
+      padding: 14px 14px;
+      border-left-width: 5px;
+    }
+    .espace-section > h3:first-child { font-size: 1.2rem; }
+    .espace-section ul { margin-left: 18px; }
+  }
+
+  /* ---- Affichages — Vie administrative : lisibilité des posts ---- */
+  #affichages-section #posts-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    max-width: 100% !important;
+    border-radius: 12px !important;
+  }
+  #affichages-section { background:#fafbff; }
+  #affichages-section > h3 {
+    font-family:'Lobster', cursive;
+    color: var(--accent-color-complementary, #8844aa);
+    font-size: 1.35rem;
+    margin: 0 0 10px 0;
+  }
+  #affichages-section .blog-post {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    border: 1px solid #ecebf3;
+    margin-bottom: 14px;
+  }
+  #affichages-section .blog-post:last-child { margin-bottom: 0; }
+  #affichages-section .blog-post .post-wrapper {
+    flex-direction: column;
+    padding: 18px 22px;
+    gap: 8px;
+  }
+  #affichages-section .blog-post .text-content {
+    padding-left: 0;
+    text-align: left;        /* annule le justify qui crée des espaces énormes */
+    width: 100%;
+  }
+  #affichages-section .blog-post h3 {
+    font-size: 1.3rem;
+    line-height: 1.25;
+    margin: 14px 22px 4px 22px;
+    word-break: break-word;
+  }
+  #affichages-section .blog-post .post-meta-line,
+  #affichages-section .blog-post .event-info {
+    margin: 0 22px 4px 22px;
+  }
+  #affichages-section .blog-post .post-link-btn,
+  #affichages-section .blog-post .post-link-badge {
+    margin: 4px 22px 8px 22px !important;
+  }
+  #affichages-section .blog-post p {
+    margin-bottom: 0.6rem;
+    color: #2a2440;
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+  #affichages-section .blog-post p:last-child { margin-bottom: 0; }
+  /* Annule le hover translate qui n'a pas de sens dans cette section */
+  #affichages-section .blog-post:hover { transform: none; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+
     </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,7 +564,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260530-2">
+    <link rel="stylesheet" href="assets/css/style.css?v=20260830b">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -142,20 +604,77 @@
             <option>Ténor</option>
             <option>Basse</option>
           </select>
+
+          <!-- Photo de profil (facultative) -->
+          <div style="margin:8px 0; text-align:center;">
+            <label for="profile-step-photo" id="profile-step-photo-label"
+              style="display:inline-flex; align-items:center; gap:10px; cursor:pointer; padding:10px 16px;
+                     border:1.5px dashed #98bfff; border-radius:10px; color:#3981FF; font-weight:600; background:#fff;">
+              <span id="profile-step-photo-icon" style="font-size:1.4rem;">📷</span>
+              <span id="profile-step-photo-text">Ajouter une photo (facultatif)</span>
+            </label>
+            <input type="file" id="profile-step-photo" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+            <img id="profile-step-photo-preview" alt="" style="display:none;width:88px;height:88px;object-fit:cover;border-radius:50%;border:3px solid #98bfff;margin:10px auto 0;">
+            <p id="profile-step-photo-hint" style="font-size:0.82rem;color:#789;margin:6px 0 0 0;">Permettra de t'identifier dans le trombinoscope de la chorale.</p>
+          </div>
+
           <button id="profile-step-submit">Accéder à l'espace choristes →</button>
         </div>
         <div id="profile-step-error" class="gate-error">Merci de renseigner tous les champs.</div>
       </div>
 
       <div id="tabs-container" style="display:none;max-width:1100px;margin:0 auto;">
-        <div style="text-align:right;margin-bottom:8px;">
-          <button id="logout-role" title="Se déconnecter / Se déconnecter" style="background:#f3f4f6;border:1px solid #d1d5db;color:#111827;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:600;">Se déconnecter</button>
+
+        <!-- ===== BLOC REINSCRIPTION 2026-2027 ===== -->
+        <div class="reinscription-bloc" id="reinscription-bloc">
+          <div class="reinscription-header">
+            <span class="reinscription-badge">Nouveau</span>
+            <h2 class="reinscription-titre">🎶 Réinscription — Saison 2026-2027</h2>
+          </div>
+
+          <!-- Promo code -->
+          <div class="reinscription-promo">
+            <span class="reinscription-promo-icon">🎁</span>
+            <div>
+              <strong>5&nbsp;% de réduction</strong> pour les membres qui se réinscrivent avant le <strong>13&nbsp;juillet</strong>.
+              Saisissez le code <strong class="reinscription-code">PREINSCRIP</strong> dans le formulaire ci-dessous.
+            </div>
+          </div>
+
+          <!-- Avertissement HelloAsso -->
+          <div class="reinscription-alerte">
+            <div class="reinscription-alerte-titre">⚠️ Important — Contribution HelloAsso : mettez-la à 0&nbsp;€</div>
+            <p>HelloAsso ajoute automatiquement une contribution à son financement (environ 11&nbsp;€) lors de votre paiement. <strong>La chorale verse déjà une contribution annuelle à HelloAsso</strong> — vous n'avez donc pas à payer cette somme en plus.</p>
+            <p><strong>Pour ne pas payer cette contribution supplémentaire, suivez ces 3 étapes au moment du paiement :</strong></p>
+            <ol class="reinscription-steps">
+              <li>Repérez la ligne <em>"Votre contribution au fonctionnement de HelloAsso"</em> en bas du formulaire.</li>
+              <li>Cliquez sur le lien <strong>"Modifier ma contribution"</strong>.</li>
+              <li>Saisissez <strong>0</strong> dans le champ ou décochez la case, puis validez.</li>
+            </ol>
+          </div>
+
+          <!-- Widget HelloAsso -->
+          <div class="reinscription-widget-wrap">
+            <iframe
+              id="haWidgetChoristes"
+              allowtransparency="true"
+              scrolling="auto"
+              src="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/la-voix-libre-2026-2027/widget"
+              style="width:100%;height:750px;border:none;display:block;"
+              title="Formulaire de réinscription La Voix Libre 2026-2027"
+              onload="(function(fr){window.addEventListener('message',function(e){try{var h=e.data&&e.data.height;if(h&&h>parseFloat(fr.style.height||0))fr.style.height=h+'px';}catch(err){}});})(this)"
+            ></iframe>
+          </div>
         </div>
+        <!-- ===== FIN BLOC REINSCRIPTION ===== -->
+
         <div class="choristes-tab-bar">
           <button class="choristes-tab active" data-tab="chansons">🎵 Chansons</button>
           <button class="choristes-tab" data-tab="calendrier">📅 Calendrier</button>
           <button class="choristes-tab" data-tab="infos">ℹ️ Infos & liens</button>
           <button class="choristes-tab" data-tab="photos">📷 Photos</button>
+          <button class="choristes-tab" data-tab="trombinoscope">👥 Trombinoscope</button>
+          <button class="choristes-tab chef-only-tab" data-tab="admin">🛠️ Admin</button>
         </div>
         <div id="tab-content-chansons" class="choristes-tab-content"></div>
         <div id="tab-content-infos" class="choristes-tab-content" style="display:none;">
@@ -413,12 +932,6 @@
             </details>
           </section>
 
-          <section class="espace-section">
-            <h3>Cours individuels</h3>
-            <p>Prendre RDV pour un cours de chant avec Vincent :
-              <a href="mailto:vincenttricotel@gmail.com">Contacter Vincent par e‑mail</a>
-            </p>
-          </section>
 <hr style="margin:28px 0;border:none;border-top:1px solid rgba(0,0,0,.07);">
 <h3 style="font-family:'Lobster',cursive;color:#8844aa;font-size:1.3rem;margin:0 0 14px 0;">Documents &amp; vie de l'asso</h3>
           <p>Espace dédié aux documents officiels de l'association. Les fichiers listés ci-dessous sont ceux présents dans le dossier <code>docs asso/</code>.</p>
@@ -451,17 +964,27 @@
         <!-- ============================================================ -->
         <div id="tab-content-photos" class="choristes-tab-content" style="display:none;">
           <h2>Photos de concerts</h2>
-          <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a>.</p>
+          <p style="color:#555;margin-top:0;">Partagez vos plus belles photos de concerts avec toute la chorale. Elles apparaîtront dans la <a href="galerie.html" style="color:var(--accent-color-primary);font-weight:700;">galerie publique</a> après validation par un membre du bureau.</p>
 
-          <div style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
+          <div id="photo-upload-form" style="background:#f8faff;border:1px solid #b6e0fe;border-radius:14px;padding:24px 20px;max-width:540px;margin-top:18px;">
             <h3 style="margin-top:0;color:#134;font-size:1.15rem;">Ajouter une photo</h3>
+
+            <!-- Ensemble (Chorale / SOUL) — détermine le calendrier des concerts -->
+            <div style="margin-bottom:14px;">
+              <label for="photo-ensemble" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Ensemble</label>
+              <select id="photo-ensemble"
+                style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
+                <option value="chorale">La Voix Libre (chorale pop)</option>
+                <option value="soul">S.O.U.L.</option>
+              </select>
+            </div>
 
             <!-- Concert -->
             <div style="margin-bottom:14px;">
               <label for="photo-concert" style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Concert / Événement</label>
               <select id="photo-concert"
                 style="width:100%;padding:10px 12px;border:1.5px solid #cfe3ff;border-radius:8px;font-size:1rem;box-sizing:border-box;background:#fff;color:#234;">
-                <option value="">Chargement des concerts…</option>
+                <option value="">Choisissez un ensemble d'abord…</option>
               </select>
               <p id="photo-concert-error" style="display:none;color:#ef4444;font-size:0.85rem;margin:4px 0 0 0;">Veuillez choisir un concert.</p>
             </div>
@@ -477,29 +1000,29 @@
             <!-- Prénom (champ caché, rempli automatiquement depuis le profil) -->
             <input type="hidden" id="photo-uploader">
 
-            <!-- Fichier -->
+            <!-- Fichier (multi-sélection) -->
             <div style="margin-bottom:14px;">
-              <label style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Photo</label>
+              <label style="display:block;font-weight:700;font-size:0.95rem;margin-bottom:6px;color:#234;">Photos</label>
               <label for="photo-file" id="photo-file-label"
                 style="display:flex;align-items:center;justify-content:center;gap:10px;padding:18px;border:2px dashed #98bfff;border-radius:10px;cursor:pointer;background:#fff;color:#3981FF;font-weight:700;transition:background 0.2s;">
                 <span style="font-size:1.5rem;">📷</span>
-                <span id="photo-file-label-text">Choisir une photo</span>
+                <span id="photo-file-label-text">Choisir une ou plusieurs photos</span>
               </label>
-              <input type="file" id="photo-file" accept="image/*"
+              <input type="file" id="photo-file" accept="image/*" multiple
                 style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
             </div>
 
-            <!-- Aperçu -->
+            <!-- Aperçu (grille de miniatures) -->
             <div id="photo-preview-wrap" style="display:none;margin-bottom:14px;text-align:center;">
-              <img id="photo-preview" alt="Aperçu" style="max-width:100%;max-height:220px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
-              <p id="photo-size-info" style="font-size:0.85rem;color:#666;margin:6px 0 0 0;"></p>
+              <div id="photo-preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;justify-items:center;"></div>
+              <p id="photo-size-info" style="font-size:0.85rem;color:#666;margin:8px 0 0 0;"></p>
             </div>
 
             <!-- Bouton envoyer -->
             <button id="photo-submit"
               style="width:100%;padding:12px;background:#3981FF;color:#fff;font-weight:700;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:background 0.2s;"
               disabled>
-              Envoyer la photo
+              Envoyer les photos
             </button>
 
             <!-- Barre de progression -->
@@ -514,7 +1037,7 @@
 
             <!-- Message succès -->
             <div id="photo-success" style="display:none;margin-top:14px;padding:12px 16px;background:#e8f7ee;border:1px solid #8fd5a6;border-radius:8px;color:#064e3b;font-weight:600;text-align:center;">
-              ✅ Photo envoyée ! Elle apparaît maintenant dans la <a href="galerie.html" style="color:#047857;">galerie</a>.
+              ✅ Photo envoyée ! Elle apparaîtra dans la <a href="galerie.html" style="color:#047857;">galerie</a> dès qu'un membre du bureau l'aura validée.
               <br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter une autre photo</button>
             </div>
           </div>
@@ -525,6 +1048,63 @@
           </p>
         </div>
         <!-- FIN ONGLET PHOTOS -->
+
+        <!-- ============================================================ -->
+        <!-- ONGLET TROMBINOSCOPE                                          -->
+        <!-- ============================================================ -->
+        <!-- ============================================================ -->
+        <!-- ONGLET ADMIN (bureau uniquement)                              -->
+        <!-- ============================================================ -->
+        <div id="tab-content-admin" class="choristes-tab-content" style="display:none;">
+          <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-complementary);font-size:1.6rem;margin:0 0 8px 0;">Espace bureau</h2>
+          <p style="color:#555;margin:0 0 18px 0;">Toutes les actions d'administration centralisées ici.</p>
+
+          <!-- Photos à valider -->
+          <section class="admin-section" id="admin-pending-section">
+            <h3>🛂 Photos à valider <span id="admin-pending-count" class="badge warn">…</span>
+              <button type="button" id="admin-pending-refresh" style="margin-left:auto;background:#fff;border:1.5px solid #f59e0b;color:#92400e;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">🔄</button>
+            </h3>
+            <p style="margin:0 0 10px 0;color:#5b3a00;font-size:0.9rem;">Les photos uploadées par les choristes attendent ta validation pour apparaître dans les galeries. Tu peux aussi valider directement depuis les pages <a href="galerie.html" style="color:var(--accent-color-primary);">galerie</a> et <a href="galerie-soul.html" style="color:var(--accent-color-primary);">galerie SOUL</a>.</p>
+            <div id="admin-pending-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;"></div>
+          </section>
+
+          <!-- Doublons probables -->
+          <section class="admin-section" id="admin-duplicates-section">
+            <h3>🔍 Doublons probables <span id="admin-duplicates-count" class="badge">…</span>
+              <button type="button" id="admin-duplicates-refresh" style="margin-left:auto;background:#fff;border:1.5px solid #8844aa;color:#5b3870;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">🔄</button>
+            </h3>
+            <p style="margin:0 0 10px 0;color:#555;font-size:0.9rem;">Profils probablement créés en double (faute de frappe, accents, majuscules). Choisis le profil à conserver — l'autre est fusionné dedans (photos uploadées et présences réattribuées).</p>
+            <div id="admin-duplicates-list"></div>
+          </section>
+
+          <!-- Choristes inscrits -->
+          <section class="admin-section" id="admin-users-section">
+            <h3>👥 Choristes inscrits <span id="admin-users-count" class="badge">…</span>
+              <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" id="admin-sync-btn" style="background:#fff;border:1.5px solid #f59e0b;color:#92400e;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">📥 Importer (photos + présences)</button>
+                <button type="button" id="admin-users-refresh" style="background:#fff;border:1.5px solid #8844aa;color:#5b3870;padding:5px 10px;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;">🔄</button>
+              </div>
+            </h3>
+            <p style="margin:0 0 10px 0;color:#555;font-size:0.9rem;">Liste complète des choristes du trombinoscope. <strong>Importer</strong> ajoute les personnes connues via leurs photos uploadées et leurs inscriptions aux concerts (peut prendre plusieurs secondes).</p>
+            <p id="admin-sync-result" style="margin:0 0 10px 0;font-size:0.88rem;display:none;"></p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
+              <input type="text" id="admin-users-search" class="admin-users-search" placeholder="🔍 Rechercher (prénom, nom, pupitre…)" style="flex:1 1 240px;min-width:200px;">
+              <button type="button" id="admin-bulk-delete-btn" style="display:none;background:#b91c1c;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;">🗑 Supprimer la sélection (<span id="admin-bulk-count">0</span>)</button>
+            </div>
+            <div id="admin-users-table-wrap" style="overflow-x:auto;"></div>
+          </section>
+        </div>
+        <!-- FIN ONGLET ADMIN -->
+
+        <div id="tab-content-trombinoscope" class="choristes-tab-content" style="display:none;">
+          <h2 style="font-family:'Lobster',cursive;color:var(--accent-color-complementary);font-size:1.6rem;margin:0 0 8px 0;">Trombinoscope</h2>
+          <p style="color:#555;margin:0 0 18px 0;">Mettez un visage sur chaque voix. Pour apparaître ici, ajoutez votre photo lors de la connexion ou en modifiant votre profil.</p>
+
+          <div id="trombino-content" aria-live="polite">
+            <p style="color:#888;font-style:italic;">Chargement…</p>
+          </div>
+        </div>
+        <!-- FIN ONGLET TROMBINOSCOPE -->
 
         <div id="tab-content-calendrier" class="choristes-tab-content" style="display:none;">
           <!-- Bandeau profil courant -->
@@ -578,7 +1158,7 @@
                     var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
                     upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
                     pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
-                    var items=upcoming.concat(pastAll.length?[pastAll[0]]:[]);
+                    var items=upcoming;
                     if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
                     box.innerHTML=items.map(function(ev){
                       var start=ev.start.dateTime||ev.start.date;
@@ -589,15 +1169,15 @@
                       ds=ds.charAt(0).toUpperCase()+ds.slice(1);
                       var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
                       var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
-                      var desc=ev.description?'<div class="cal-event-desc">'+esc(ev.description).replace(/\n/g,'<br>')+'</div>':'';
+                      var desc='';
                       var att=isPast?'':'<div class="att-controls" data-calendar="grandechorale" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
                         +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
                         +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
-                        +'<span class="att-status">Enregistré ✓</span></div>';
+                        +'<span class="att-status">Enregistré ✓</span><button type="button" class="att-stats-btn chef-only" data-action="show-stats">📊 Statistiques</button></div>';
                       return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="grandechorale" data-eventid="'+eid+'">'
                         +'<div class="cal-event-date">'+ds+'</div>'
                         +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
-                        +loc+desc+att
+                        +loc+att
                         +'<div class="event-stats chef-only" aria-hidden="true"></div>'
                         +'</div>';
                     }).join('');
@@ -632,7 +1212,7 @@
                     var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
                     upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
                     pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
-                    var items=upcoming.concat(pastAll.length?[pastAll[0]]:[]);
+                    var items=upcoming;
                     if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
                     box.innerHTML=items.map(function(ev){
                       var start=ev.start.dateTime||ev.start.date;
@@ -643,15 +1223,15 @@
                       ds=ds.charAt(0).toUpperCase()+ds.slice(1);
                       var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
                       var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
-                      var desc=ev.description?'<div class="cal-event-desc">'+esc(ev.description).replace(/\n/g,'<br>')+'</div>':'';
+                      var desc='';
                       var att=isPast?'':'<div class="att-controls" data-calendar="soul" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
                         +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
                         +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
-                        +'<span class="att-status">Enregistré ✓</span></div>';
+                        +'<span class="att-status">Enregistré ✓</span><button type="button" class="att-stats-btn chef-only" data-action="show-stats">📊 Statistiques</button></div>';
                       return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="soul" data-eventid="'+eid+'">'
                         +'<div class="cal-event-date">'+ds+'</div>'
                         +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
-                        +loc+desc+att
+                        +loc+att
                         +'<div class="event-stats chef-only" aria-hidden="true"></div>'
                         +'</div>';
                     }).join('');
@@ -662,40 +1242,10 @@
           </div>
         </div>
       </div>    </main>
-    <!-- Admin (chef) floating panel -->
-    <div id="admin-panel" aria-live="polite" aria-label="Panneau admin présences">
-      <h4>Admin présences (chef)</h4>
-      <div class="row">
-        <label for="admin-calendar">Agenda</label>
-        <select id="admin-calendar">
-          <option value="grandechorale">Grande chorale</option>
-          <option value="soul">SOUL</option>
-        </select>
-      </div>
-      <div class="row">
-        <label for="admin-eventid">Event ID</label>
-        <input id="admin-eventid" type="text" placeholder="Sélectionnez un événement…">
-      </div>
-      <div class="actions">
-        <button type="button" id="btn-download-att" title="Télécharger toutes les présences (JSON)">Télécharger JSON</button>
-        <button type="button" id="btn-purge-event" title="Supprimer toutes les réponses de cet événement">Purger l’événement</button>
-      </div>
-        <hr style="margin:10px 0;border:none;border-top:1px solid #e5e7eb;">
-        <h4 style="margin-top:8px;">Essais Grande Chorale</h4>
-        <div class="actions">
-          <button type="button" id="btn-tryout-refresh" title="Voir les inscrits (emails)">Voir emails</button>
-          <button type="button" id="btn-tryout-download" title="Télécharger les emails (CSV)">Télécharger CSV</button>
-        </div>
-        <div id="tryout-list" style="max-height:160px;overflow:auto;margin-top:6px;border:1px solid #eef2ff;background:#f8faff;border-radius:8px;padding:8px 10px;font-size:0.92em;display:none;"></div>
-      <div id="admin-hint" style="font-size:0.85em;color:#456;margin-top:6px;">Astuce: cliquez un événement pour préremplir.</div>
-    </div>
-    
     <script>
       // Configurer ci-dessous l'URL du Web App Google Apps Script (à déployer) pour l'enregistrement des présences
   const ATTENDANCE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
   const PROFILE_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyKs7QhVU8JdT7nUiouv3gwuwBLXoJ8CXESYjDUku-a2BJJYNKWCMFRnoP_FeIZVkH1gw/exec';
-  // Endpoint dédié aux "séances d'essai" (séparé des présences)
-  const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
   function isGASEndpoint(u){ return /script\.google\.com|googleusercontent\.com\/macros/.test(u||''); }
       function markProfileSaved(){
         const bars = [document.getElementById('presence-profile-bar'), document.getElementById('presence-profile-bar-soul')];
@@ -920,50 +1470,69 @@
         return (s||'').toString().replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c); });
       }
       function renderStats(statsDiv, stats){
+        // Rendu hiérarchique drill-down :
+        // [Réponses : N] → clic → [Présents : M] → clic → [Basse : x] [Alto : y] … → clic → liste des noms
         const presents = Array.isArray(stats.present) ? stats.present : [];
-        const absents = Array.isArray(stats.absent) ? stats.absent : [];
-        // Comptage par pupitre (case-insensitive, normalisé visuellement)
-        function countByPup(list){
-          const m = {};
-          list.forEach(p => {
-            const label = (p.pupitre || '').toString().trim();
-            const key = label.toLowerCase();
-            if (!key) return;
-            m[key] = (m[key] || 0) + 1;
+        const absents  = Array.isArray(stats.absent) ? stats.absent : [];
+        const total = presents.length + absents.length;
+
+        // Regroupe les présents par pupitre
+        const presentsByPup = {};
+        presents.forEach(p => {
+          const key = (p.pupitre || '').toString().trim().toLowerCase() || 'non précisé';
+          if (!presentsByPup[key]) presentsByPup[key] = [];
+          presentsByPup[key].push(p);
+        });
+        const ORDER = ['soprane','alto','ténor','tenor','basse','non précisé'];
+        const LABEL = { soprane:'Soprane', alto:'Alto', ténor:'Ténor', tenor:'Ténor', basse:'Basse' };
+        const sortedKeys = Object.keys(presentsByPup).sort((a,b) => (ORDER.indexOf(a)+99) - (ORDER.indexOf(b)+99));
+
+        function pupNode(key, list){
+          const label = LABEL[key] || (key.charAt(0).toUpperCase() + key.slice(1));
+          const names = list
+            .slice()
+            .sort((a,b) => (a.nom||'').localeCompare(b.nom||''))
+            .map(p => '<li>' + escapeHtml(p.prenom||'') + ' ' + escapeHtml(p.nom||'') + '</li>')
+            .join('');
+          return ''
+            + '<div class="stat-level" data-level="pupitre">'
+            +   '<button type="button" class="stat-node" aria-expanded="false">'
+            +     escapeHtml(label) + ' : ' + list.length + ' <span class="chev" aria-hidden="true">▾</span>'
+            +   '</button>'
+            +   '<div class="stat-children"><ul class="stat-names">' + names + '</ul></div>'
+            + '</div>';
+        }
+        const pupBlocks = sortedKeys.map(k => pupNode(k, presentsByPup[k])).join('');
+        const presentsEmpty = presents.length === 0 ? '<div class="stat-empty">Aucun présent déclaré.</div>' : '';
+
+        statsDiv.innerHTML = ''
+          + '<div class="stat-hier">'
+          +   '<div class="stat-level" data-level="responses">'
+          +     '<button type="button" class="stat-node" aria-expanded="false">'
+          +       'Réponses : ' + total + ' <span class="chev" aria-hidden="true">▾</span>'
+          +     '</button>'
+          +     '<div class="stat-children">'
+          +       '<div class="stat-level" data-level="presents">'
+          +         '<button type="button" class="stat-node" aria-expanded="false">'
+          +           'Présents : ' + presents.length + ' <span class="chev" aria-hidden="true">▾</span>'
+          +         '</button>'
+          +         '<div class="stat-children">' + (presentsEmpty || pupBlocks) + '</div>'
+          +       '</div>'
+          +     '</div>'
+          +   '</div>'
+          + '</div>';
+
+        // Délégation locale : chaque bouton de niveau ouvre/ferme son .stat-children direct
+        statsDiv.querySelectorAll('.stat-hier button.stat-node').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const lvl = btn.parentElement;
+            const children = lvl.querySelector(':scope > .stat-children');
+            if (!children) return;
+            const open = children.classList.toggle('open');
+            btn.setAttribute('aria-expanded', String(open));
           });
-          return m;
-        }
-        const order = ['soprane','alto','ténor','tenor','basse'];
-        const labelMap = { soprane: 'Soprane', alto: 'Alto', ténor: 'Ténor', tenor: 'Ténor', basse: 'Basse' };
-        function formatPupCounts(map){
-          return Object.keys(map)
-            .sort((a,b) => (order.indexOf(a)+99) - (order.indexOf(b)+99))
-            .map(k => (labelMap[k] || (k.charAt(0).toUpperCase()+k.slice(1))) + ': ' + map[k])
-            .join(' · ');
-        }
-        const presentByPup = formatPupCounts(countByPup(presents));
-        const absentByPup  = formatPupCounts(countByPup(absents));
-
-        const counts = '<span class="count">Présents: ' + presents.length + '</span><span class="count">Absents: ' + absents.length + '</span>';
-        const byPresents = presentByPup ? '<div class="by-pupitre">Présents par pupitre — ' + presentByPup + '</div>' : '';
-        const byAbsents  = absentByPup  ? '<div class="by-pupitre">Absents par pupitre — ' + absentByPup  + '</div>' : '';
-
-        const listPresent = presents.length
-          ? ('<ul>' + presents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>')
-          : '<em>Aucun présent pour le moment.</em>';
-        const listAbsent = absents.length
-          ? ('<ul>' + absents.map(function(p){ return '<li>' + escapeHtml(p.prenom) + ' ' + escapeHtml(p.nom) + (p.pupitre ? ' — ' + escapeHtml(p.pupitre) : '') + '</li>'; }).join('') + '</ul>')
-          : '<em>Aucun absent déclaré.</em>';
-
-        statsDiv.innerHTML = [
-          counts,
-          byPresents,
-          byAbsents,
-          '<div style="margin-top:6px;"><strong>Liste des présents</strong></div>',
-          '<div>' + listPresent + '</div>',
-          '<div style="margin-top:6px;"><strong>Liste des absents</strong></div>',
-          '<div>' + listAbsent + '</div>'
-        ].join('');
+        });
       }
       async function fetchEventStats(calendar, eventId){
         if (!ATTENDANCE_ENDPOINT) throw new Error('backend absent');
@@ -998,167 +1567,16 @@
           refreshEventStats(li);
         }
       }
-      // Délégation de clic: en mode chef, cliquer une ligne d'événement ouvre/ferme les stats
+      // Délégation de clic : seul le bouton "📊 Statistiques" déclenche le toggle
       document.addEventListener('click', function(e){
-        if (!window.IS_CHEF) return;
-        const li = e.target.closest && e.target.closest('.event-item');
-        if (!li) return;
-        // Éviter d'interférer avec un clic sur les radios de présence
-        if (e.target && (e.target.tagName === 'INPUT' || e.target.closest('.att-controls'))) return;
-        toggleStatsForEvent(li);
-        // Pré-remplir le panneau admin avec l'événement sélectionné
-        try {
-          const selCal = document.getElementById('admin-calendar');
-          const selEid = document.getElementById('admin-eventid');
-          if (selCal && selEid) {
-            selCal.value = li.getAttribute('data-calendar') || selCal.value;
-            selEid.value = li.getAttribute('data-eventid') || '';
-          }
-        } catch {}
+        const btn = e.target.closest && e.target.closest('.att-stats-btn');
+        if (!btn) return;
+        e.preventDefault();
+        // Trouve la carte d'événement (deux structures possibles : .cal-event-card ou .event-item)
+        const card = btn.closest('.cal-event-card, .event-item');
+        if (!card) return;
+        toggleStatsForEvent(card);
       });
-    </script>
-    <script>
-      // Admin actions (chef only)
-      (function(){
-        const ADMIN_KEY = 'chefdechoeur'; // même mot de passe que l’accès chef
-        async function fetchTryoutList(){
-          // Mode local forcé: ?local=1
-          try {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('local') === '1') {
-              const local = JSON.parse(localStorage.getItem('tryoutsLocal') || '[]');
-              return { items: local };
-            }
-          } catch {}
-          const endpoint = TRYOUT_ENDPOINT || ATTENDANCE_ENDPOINT;
-          if (!endpoint) throw new Error('Backend indisponible');
-          const url = endpoint + (endpoint.includes('?') ? '&' : '?') + 'action=tryout_list' + (isGASEndpoint(endpoint) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');
-          try {
-            const res = await fetch(url, { cache: 'no-store', headers: isGASEndpoint(endpoint) ? {} : { 'X-Admin-Key': ADMIN_KEY } });
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            // Essayer JSON direct, sinon tenter texte->JSON
-            try { return await res.json(); } catch(e) {
-              const txt = await res.text();
-              try { return JSON.parse(txt); } catch { throw new Error('Format de réponse inattendu'); }
-            }
-          } catch (e) {
-            // Fallback local pour tests Live Server
-            try {
-              const local = JSON.parse(localStorage.getItem('tryoutsLocal') || '[]');
-              return { items: local };
-            } catch { throw e; }
-          }
-        }
-        function renderTryoutList(container, arr){
-          const list = Array.isArray(arr) ? arr : (Array.isArray(arr.items) ? arr.items : []);
-          if (!list.length){ container.innerHTML = '<em>Aucune inscription à afficher.</em>'; container.style.display='block'; return; }
-          const rows = list.map(it => {
-            const nom = [it.prenom||'', it.nom||''].join(' ').trim();
-            const email = it.email || '';
-            const tel = it.telephone || '';
-            const date = it.date || '';
-            return '<div style="display:flex;gap:6px;align-items:center;padding:4px 0;border-bottom:1px dashed #e5e7eb;">'
-              + '<span style="flex:1 1 auto;min-width:120px;"><strong>' + (nom||'(Sans nom)') + '</strong></span>'
-              + '<span style="color:#134;">' + email + '</span>'
-              + (tel ? '<span style="color:#456;"> · ' + tel + '</span>' : '')
-              + (date ? '<span style="color:#456;"> · ' + date + '</span>' : '')
-              + '</div>';
-          }).join('');
-          container.innerHTML = '<div style="margin-bottom:6px;">Total: <strong>' + list.length + '</strong></div>' + rows;
-          container.style.display = 'block';
-        }
-        function downloadCSVFromList(arr){
-          const list = Array.isArray(arr) ? arr : (Array.isArray(arr.items) ? arr.items : []);
-          const headers = ['prenom','nom','email','telephone','date','pupitre','message','ts'];
-          const esc = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
-          const csv = [headers.join(',')].concat(list.map(it => headers.map(h => esc(it[h])).join(','))).join('\n');
-          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url; a.download = 'essais-emails.csv';
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(()=>URL.revokeObjectURL(url), 500);
-        }
-        function downloadAll(){
-          if (!ATTENDANCE_ENDPOINT) { alert('Backend indisponible.'); return; }
-          const url = ATTENDANCE_ENDPOINT + (ATTENDANCE_ENDPOINT.includes('?') ? '&' : '?') + 'action=download' + (isGASEndpoint(ATTENDANCE_ENDPOINT) ? '&adminPass=' + encodeURIComponent(ADMIN_KEY) : '');
-          fetch(url, { cache: 'no-store', headers: isGASEndpoint(ATTENDANCE_ENDPOINT) ? {} : { 'X-Admin-Key': ADMIN_KEY } })
-            .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.blob(); })
-            .then(blob => {
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url; a.download = 'attendance.json';
-              document.body.appendChild(a); a.click(); a.remove();
-              setTimeout(() => URL.revokeObjectURL(url), 1000);
-            })
-            .catch(err => { console.error(err); alert('Téléchargement impossible.'); });
-        }
-        async function purgeEvent(){
-          if (!ATTENDANCE_ENDPOINT) { alert('Backend indisponible.'); return; }
-          const cal = document.getElementById('admin-calendar').value;
-          const eid = document.getElementById('admin-eventid').value.trim();
-          if (!cal || !eid) { alert('Choisissez un agenda et un Event ID.'); return; }
-          if (!confirm('Confirmer la purge des réponses pour cet événement ?')) return;
-          try {
-            let res;
-            if (isGASEndpoint(ATTENDANCE_ENDPOINT)) {
-              const params = new URLSearchParams();
-              params.set('action','purge');
-              params.set('adminPass', ADMIN_KEY);
-              params.set('calendar', cal);
-              params.set('eventId', eid);
-              res = await fetch(ATTENDANCE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
-            } else {
-              res = await fetch(ATTENDANCE_ENDPOINT + '?action=purge', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Admin-Key': ADMIN_KEY },
-                body: JSON.stringify({ calendar: cal, eventId: eid })
-              });
-            }
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            const data = await res.json();
-            alert('Purge terminée. Supprimés: ' + (data.removed || 0));
-            // Si des stats sont affichées pour cet event, rafraîchir
-            const open = document.querySelector('.event-item[data-calendar="' + cal + '"][data-eventid="' + eid + '"] .event-stats');
-            if (open && open.style.display === 'block') {
-              const li = open.closest('.event-item');
-              if (li) { try { await refreshEventStats(li); } catch {} }
-            }
-          } catch (e) {
-            console.error(e);
-            alert('Purge échouée.');
-          }
-        }
-        document.addEventListener('DOMContentLoaded', function(){
-          const btnDl = document.getElementById('btn-download-att');
-          const btnPg = document.getElementById('btn-purge-event');
-          const btnTryR = document.getElementById('btn-tryout-refresh');
-          const btnTryD = document.getElementById('btn-tryout-download');
-          const tryList = document.getElementById('tryout-list');
-          if (btnDl) btnDl.addEventListener('click', downloadAll);
-          if (btnPg) btnPg.addEventListener('click', purgeEvent);
-          if (btnTryR) btnTryR.addEventListener('click', async () => {
-            tryList.style.display = 'block';
-            tryList.innerHTML = 'Chargement…';
-            try {
-              const data = await fetchTryoutList();
-              renderTryoutList(tryList, data);
-            } catch(e) {
-              console.error(e);
-              tryList.innerHTML = '<em>Liste indisponible (backend non configuré).</em>';
-            }
-          });
-          if (btnTryD) btnTryD.addEventListener('click', async () => {
-            try {
-              const data = await fetchTryoutList();
-              downloadCSVFromList(data);
-            } catch(e) {
-              console.error(e);
-              alert('Export impossible.');
-            }
-          });
-        });
-      })();
     </script>
   <script>
     // Small helper to (re)bind choristes tabs reliably, including the newly added 'asso' tab.
@@ -1246,15 +1664,70 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20250813"></script>
-  <script src="assets/js/main.js?v=20260530-2"></script>
+  <script src="assets/js/choristes.js?v=20260830"></script>
+  <script src="assets/js/main.js?v=20260830"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
   <!-- ============================================================ -->
   <script>
     // ---- À remplir après déploiement du GAS ----
-    const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyq5Lxe3HzK-Da_xb010jMp2i_VF58Y3tPm4LvWq8RLz6qFSU5bEEXjXLQrXWo06tGz/exec';
+    const PHOTOS_ENDPOINT  = 'https://script.google.com/macros/s/AKfycbzQMQWjD6dL5fKaRPagrSE7tCquOCQpRTL9TSv7jhsQew34AZ4cXysEW32hHb167ZY-/exec';
+
+    // ---- Sync profil vers GAS (déclenché par choristes.js — listener posé tôt pour ne pas rater l'event) ----
+    document.addEventListener('choriste:profile-saved', async function(ev) {
+      var detail = ev.detail || {};
+      if (!detail.prenom || !detail.nom) return;
+      try {
+        var fullProf = {};
+        try { fullProf = JSON.parse(localStorage.getItem('choristeProfile') || '{}'); } catch {}
+        var ensembles = Array.isArray(fullProf.ensembles) ? fullProf.ensembles.slice() : [];
+        // Si la connexion s'est faite avec un mdp d'ensemble (chorale / soul), on définit l'ensemble
+        // (override de la liste : la dernière connexion fait foi pour déterminer l'appartenance)
+        var hint = null;
+        try { hint = localStorage.getItem('choristesEnsembleHint'); } catch {}
+        if (hint) ensembles = [hint];
+
+        // 1) Enregistre le profil dans le trombinoscope
+        var p = new URLSearchParams();
+        p.set('action', 'register_profile');
+        p.set('data', JSON.stringify({
+          prenom: detail.prenom, nom: detail.nom, pupitre: detail.pupitre, ensembles: ensembles
+        }));
+        try {
+          var r1 = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: p.toString()
+          });
+          var d1 = await r1.json();
+          if (d1.error) console.warn('register_profile error:', d1.error);
+        } catch (e) {
+          console.warn('register_profile network error', e);
+        }
+
+        // 2) Si une photo de profil est sélectionnée, on l'upload
+        var input = document.getElementById('profile-step-photo');
+        var file = input && input.files && input.files[0];
+        if (!file) return;
+
+        var compressed = await compressImage(file, 600, 0.82);
+        var base64 = await blobToBase64(compressed);
+        var p2 = new URLSearchParams();
+        p2.set('action', 'upload_profile_photo');
+        p2.set('data', JSON.stringify({
+          prenom: detail.prenom, nom: detail.nom,
+          base64: base64, mimeType: 'image/jpeg'
+        }));
+        await fetch(PHOTOS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: p2.toString()
+        });
+      } catch (e) {
+        console.warn('Sync profil/trombinoscope échouée', e);
+      }
+    });
 
     // ---- Compression côté client (Canvas) ----
     function compressImage(file, maxWidth, quality) {
@@ -1295,29 +1768,25 @@
       return (b/1024/1024).toFixed(1) + ' Mo';
     }
 
-    // ---- Chargement des concerts depuis Google Agenda ----
-    var _concertsLoaded = false;
+    // ---- Chargement des concerts depuis Google Agenda (filtré par ensemble) ----
+    var CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+    var CAL_IDS = {
+      chorale: '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com',
+      soul:    '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com'
+    };
+    var _concertsCache = {}; // { chorale: [...], soul: [...] }
 
-    async function loadConcertsForUpload() {
-      if (_concertsLoaded) return;
-      var select = document.getElementById('photo-concert');
-      if (!select) return;
-
-      var CAL_API_KEY  = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-      // Uniquement l'agenda La Voix Libre (pas SOUL)
-      var CALENDAR_ID  = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
-      // Filtre identique à celui de l'onglet Calendrier
+    async function fetchConcerts(ensemble) {
+      if (_concertsCache[ensemble]) return _concertsCache[ensemble];
+      var calId = CAL_IDS[ensemble];
+      if (!calId) return [];
       var kw = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pic[- ]?nic|pique[- ]?nique)/i;
-
-      // Récupère les 2 dernières années + 1 an à venir
       var timeMin = new Date(Date.now() - 2 * 365 * 24 * 3600 * 1000).toISOString();
       var timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
-
-      var allConcerts = [];
-
+      var list = [];
       try {
         var url = 'https://www.googleapis.com/calendar/v3/calendars/'
-          + encodeURIComponent(CALENDAR_ID)
+          + encodeURIComponent(calId)
           + '/events?key=' + CAL_API_KEY
           + '&timeMin=' + encodeURIComponent(timeMin)
           + '&timeMax=' + encodeURIComponent(timeMax)
@@ -1329,32 +1798,55 @@
           var start = ev.start.dateTime || ev.start.date;
           var d = new Date(start);
           var label = formatConcertLabel(ev.summary, d);
-          // Déduplique par id d'événement
-          if (!allConcerts.find(function(c){ return c.id === ev.id; })) {
-            allConcerts.push({ id: ev.id, label: label, date: d, summary: ev.summary });
+          if (!list.find(function(c){ return c.id === ev.id; })) {
+            list.push({ id: ev.id, label: label, date: d, summary: ev.summary });
           }
         });
       } catch (e) {
-        console.warn('Calendar fetch failed', e);
+        console.warn('Calendar fetch failed for ' + ensemble, e);
       }
+      list.sort(function(a, b) { return b.date - a.date; });
+      _concertsCache[ensemble] = list;
+      return list;
+    }
 
-      // Trie du plus récent au plus ancien
-      allConcerts.sort(function(a, b) { return b.date - a.date; });
+    async function loadConcertsForUpload() {
+      var select   = document.getElementById('photo-concert');
+      var ensSel   = document.getElementById('photo-ensemble');
+      if (!select || !ensSel) return;
+      var ensemble = ensSel.value || 'chorale';
 
-      // Remplit le select : valeur = id de l'événement, texte = libellé courant
+      select.innerHTML = '<option value="">Chargement des concerts…</option>';
+      var concerts = await fetchConcerts(ensemble);
+
       select.innerHTML = '<option value="">— Choisissez un concert —</option>';
-      if (!allConcerts.length) {
+      if (!concerts.length) {
         select.innerHTML += '<option value="" disabled>Aucun concert trouvé dans l\'agenda</option>';
       } else {
-        allConcerts.forEach(function(c) {
+        concerts.forEach(function(c) {
           var opt = document.createElement('option');
           opt.value = c.id;
           opt.textContent = c.label;
           select.appendChild(opt);
         });
       }
-      _concertsLoaded = true;
     }
+
+    // Recharge la liste des concerts quand l'utilisateur change d'ensemble
+    document.addEventListener('DOMContentLoaded', function() {
+      var ensSel = document.getElementById('photo-ensemble');
+      if (ensSel) {
+        ensSel.addEventListener('change', loadConcertsForUpload);
+        // Pré-sélectionne SOUL si le profil contient seulement SOUL
+        try {
+          var prof = JSON.parse(localStorage.getItem('choristeProfile') || '{}');
+          var ens = prof.ensembles || [];
+          if (Array.isArray(ens) && ens.length === 1 && ens[0] === 'soul') {
+            ensSel.value = 'soul';
+          }
+        } catch (e) {}
+      }
+    });
 
     function formatConcertLabel(summary, date) {
       var mois = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
@@ -1372,44 +1864,85 @@
       var fileLabel    = document.getElementById('photo-file-label');
       var labelText    = document.getElementById('photo-file-label-text');
       var previewWrap  = document.getElementById('photo-preview-wrap');
-      var previewImg   = document.getElementById('photo-preview');
       var sizeInfo     = document.getElementById('photo-size-info');
       var submitBtn    = document.getElementById('photo-submit');
       var progressWrap = document.getElementById('photo-progress');
       var progressBar  = document.getElementById('photo-progress-bar');
       var statusText   = document.getElementById('photo-status');
       var successWrap  = document.getElementById('photo-success');
-      var addAnotherBtn= document.getElementById('photo-add-another');
 
       if (!fileInput) return; // page non initialisée
+
+      // Réinitialise le formulaire (appelé par le bouton "Ajouter d'autres photos" généré dynamiquement)
+      function resetUploadForm() {
+        fileInput.value = '';
+        var descField = document.getElementById('photo-description');
+        if (descField) descField.value = '';
+        previewWrap.style.display  = 'none';
+        successWrap.style.display  = 'none';
+        progressWrap.style.display = 'none';
+        progressBar.style.width    = '0%';
+        progressBar.style.background = 'linear-gradient(90deg,#3981FF,#8844aa)';
+        labelText.textContent  = 'Choisir une ou plusieurs photos';
+        fileLabel.style.borderColor = '#98bfff';
+        fileLabel.style.background  = '#fff';
+        submitBtn.textContent = 'Envoyer les photos';
+        submitBtn.disabled = true;
+      }
+      function rebindAddAnother() {
+        var btn = document.getElementById('photo-add-another');
+        if (btn) btn.addEventListener('click', resetUploadForm);
+      }
+      // Bind initial (le bouton est dans le HTML statique au départ)
+      rebindAddAnother();
 
       // NB : le <label for="photo-file"> ouvre nativement le sélecteur de fichier.
       // On n'ajoute PAS de handler JS qui rappelle fileInput.click(), sinon le clic
       // est déclenché deux fois (la 1ʳᵉ sélection est alors ignorée).
 
-      // Prévisualisation à la sélection
-      fileInput.addEventListener('change', function() {
-        var file = fileInput.files[0];
-        if (!file) return;
+      var previewGrid = document.getElementById('photo-preview-grid');
 
-        // Aperçu
-        var url = URL.createObjectURL(file);
-        previewImg.src = url;
+      // Prévisualisation à la sélection (multi-fichiers)
+      fileInput.addEventListener('change', function() {
+        var files = Array.from(fileInput.files || []);
+        if (!files.length) return;
+
+        // Construit la grille de miniatures
+        previewGrid.innerHTML = '';
+        var totalSize = 0;
+        files.forEach(function(file) {
+          totalSize += file.size;
+          var thumb = document.createElement('img');
+          thumb.src = URL.createObjectURL(file);
+          thumb.alt = file.name;
+          thumb.style.cssText = 'width:90px;height:90px;object-fit:cover;border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,0.12);';
+          previewGrid.appendChild(thumb);
+        });
+
         previewWrap.style.display = 'block';
-        sizeInfo.textContent = 'Fichier original : ' + formatBytes(file.size) + ' — sera compressé avant envoi';
-        labelText.textContent = file.name;
+        sizeInfo.textContent = files.length + ' photo' + (files.length > 1 ? 's' : '')
+          + ' sélectionnée' + (files.length > 1 ? 's' : '')
+          + ' · ' + formatBytes(totalSize) + ' au total — chaque photo sera compressée avant envoi';
+        labelText.textContent = files.length === 1
+          ? files[0].name
+          : files.length + ' photos sélectionnées';
         fileLabel.style.borderColor = '#3981FF';
         fileLabel.style.background  = '#eef5ff';
 
+        submitBtn.textContent = files.length > 1
+          ? 'Envoyer les ' + files.length + ' photos'
+          : 'Envoyer la photo';
         submitBtn.disabled = false;
       });
 
-      // Envoi
+      // Envoi (séquentiel — toutes les photos pour le même concert)
       submitBtn.addEventListener('click', async function() {
-        var file = fileInput.files[0];
-        if (!file) return;
+        var files = Array.from(fileInput.files || []);
+        if (!files.length) return;
 
         var concertSelect = document.getElementById('photo-concert');
+        var ensembleSelect = document.getElementById('photo-ensemble');
+        var ensemble     = (ensembleSelect && ensembleSelect.value) || 'chorale';
         var eventId       = (concertSelect.value || '').trim();
         var concertLabel  = eventId && concertSelect.selectedIndex >= 0
           ? (concertSelect.options[concertSelect.selectedIndex].text || '').trim()
@@ -1429,7 +1962,7 @@
         if (concertErr) concertErr.style.display = 'none';
 
         if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
-          alert('L\'endpoint GAS n\'est pas encore configuré. Déployez le script et renseignez l\'URL dans espace-choristes.html.');
+          alert('L\'endpoint GAS n\'est pas encore configuré.');
           return;
         }
 
@@ -1437,76 +1970,87 @@
         submitBtn.disabled = true;
         progressWrap.style.display = 'block';
         successWrap.style.display  = 'none';
-        progressBar.style.width = '10%';
-        statusText.textContent  = 'Compression de la photo…';
+        progressBar.style.background = 'linear-gradient(90deg,#3981FF,#8844aa)';
 
-        try {
-          // 1. Compression
-          var compressed = await compressImage(file, 1600, 0.72);
-          progressBar.style.width = '35%';
-          statusText.textContent = 'Encodage… (' + formatBytes(compressed.size) + ' après compression)';
+        var sanitizedConcert = concertLabel.replace(/[^a-zA-Z0-9àâäéèêëïîôöùûüçœÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ\s_-]/g, '');
+        var successCount = 0;
+        var firstError = null;
 
-          // 2. Base64
-          var base64 = await blobToBase64(compressed);
-          progressBar.style.width = '55%';
-          statusText.textContent = 'Envoi en cours…';
+        for (var i = 0; i < files.length; i++) {
+          var file = files[i];
+          var pct = function(part) {
+            // part: 0..1 dans la photo courante ; on agrège sur les fichiers déjà traités
+            return Math.round(((i + part) / files.length) * 100);
+          };
 
-          // 3. Envoi au GAS
-          var params = new URLSearchParams();
-          params.set('action', 'upload_photo');
-          params.set('data', JSON.stringify({
-            base64:       base64,
-            mimeType:     'image/jpeg',
-            filename:     concertLabel.replace(/[^a-zA-Z0-9àâäéèêëïîôöùûüçœÀÂÄÉÈÊËÏÎÔÖÙÛÜÇŒ\s_-]/g, '') + '_' + Date.now() + '.jpg',
-            concert:      concertLabel,
-            eventId:      eventId,
-            uploaderName: uploaderName,
-            description:  description
-          }));
+          try {
+            progressBar.style.width = pct(0.05) + '%';
+            statusText.textContent = 'Photo ' + (i + 1) + '/' + files.length + ' — compression…';
 
-          progressBar.style.width = '75%';
-          var res  = await fetch(PHOTOS_ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
-          });
-          var data = await res.json();
+            var compressed = await compressImage(file, 1600, 0.72);
+            progressBar.style.width = pct(0.35) + '%';
+            statusText.textContent  = 'Photo ' + (i + 1) + '/' + files.length + ' — encodage… (' + formatBytes(compressed.size) + ')';
 
-          progressBar.style.width = '100%';
+            var base64 = await blobToBase64(compressed);
+            progressBar.style.width = pct(0.6) + '%';
+            statusText.textContent  = 'Photo ' + (i + 1) + '/' + files.length + ' — envoi…';
 
-          if (data.error) throw new Error(data.error);
+            var params = new URLSearchParams();
+            params.set('action', 'upload_photo');
+            params.set('data', JSON.stringify({
+              base64:       base64,
+              mimeType:     'image/jpeg',
+              filename:     sanitizedConcert + '_' + Date.now() + '_' + (i + 1) + '.jpg',
+              concert:      concertLabel,
+              eventId:      eventId,
+              ensemble:     ensemble,
+              uploaderName: uploaderName,
+              description:  description
+            }));
 
-          // Succès
+            var res  = await fetch(PHOTOS_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            var data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            successCount++;
+            progressBar.style.width = pct(1) + '%';
+          } catch (err) {
+            console.error('Upload error photo ' + (i + 1), err);
+            if (!firstError) firstError = err;
+            // On continue avec les photos suivantes — un échec individuel ne bloque pas le batch
+          }
+        }
+
+        // Bilan
+        if (successCount === files.length) {
           statusText.textContent = '';
           progressWrap.style.display = 'none';
-          successWrap.style.display  = 'block';
-
-        } catch (err) {
-          progressBar.style.width    = '100%';
-          progressBar.style.background = '#ef4444';
-          statusText.textContent     = 'Erreur : ' + (err.message || 'Envoi impossible. Réessayez.');
+          var msg = successWrap.querySelector('span.success-msg, [data-msg]') || successWrap;
+          // Met à jour le texte du message succès
+          successWrap.firstChild && (successWrap.firstChild.nodeValue = '');
+          successWrap.innerHTML = (files.length > 1
+              ? '✅ ' + files.length + ' photos envoyées ! Elles apparaîtront dans la '
+              : '✅ Photo envoyée ! Elle apparaîtra dans la ')
+            + '<a href="galerie.html" style="color:#047857;">galerie</a> dès qu\'un membre du bureau les aura validées.'
+            + '<br><button id="photo-add-another" style="margin-top:8px;background:none;border:1.5px solid #047857;color:#047857;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">Ajouter d\'autres photos</button>';
+          successWrap.style.display = 'block';
+          // re-bind le bouton "Ajouter d'autres" (nouveau noeud DOM)
+          rebindAddAnother();
+        } else if (successCount > 0) {
+          progressBar.style.background = '#f59e0b';
+          statusText.innerHTML = successCount + '/' + files.length + ' photos envoyées. Une ou plusieurs ont échoué : '
+            + (firstError && firstError.message ? firstError.message : 'erreur réseau');
           submitBtn.disabled = false;
-          console.error('Upload error', err);
+        } else {
+          progressBar.style.background = '#ef4444';
+          statusText.textContent = 'Échec : ' + (firstError && firstError.message ? firstError.message : 'aucune photo envoyée');
+          submitBtn.disabled = false;
         }
       });
-
-      // Réinitialiser le formulaire
-      if (addAnotherBtn) {
-        addAnotherBtn.addEventListener('click', function() {
-          fileInput.value       = '';
-          var descField = document.getElementById('photo-description');
-          if (descField) descField.value = '';
-          previewWrap.style.display  = 'none';
-          successWrap.style.display  = 'none';
-          progressWrap.style.display = 'none';
-          progressBar.style.width    = '0%';
-          progressBar.style.background = 'linear-gradient(90deg,#3981FF,#8844aa)';
-          labelText.textContent  = 'Choisir une photo';
-          fileLabel.style.borderColor = '#98bfff';
-          fileLabel.style.background  = '#fff';
-          submitBtn.disabled = true;
-        });
-      }
 
       // Charger les concerts depuis Google Agenda quand l'onglet Photos est ouvert
       var photosTabBtn = document.querySelector('.choristes-tab[data-tab="photos"]');
@@ -1515,7 +2059,805 @@
           loadConcertsForUpload();
         });
       }
+
+      // ---- Charge le trombinoscope quand l'onglet est ouvert ----
+      var trombinoTab = document.querySelector('.choristes-tab[data-tab="trombinoscope"]');
+      if (trombinoTab) trombinoTab.addEventListener('click', loadTrombinoscope);
+
+      // ---- Charge le panneau Admin quand l'onglet est ouvert ----
+      var adminTab = document.querySelector('.choristes-tab[data-tab="admin"]');
+      if (adminTab) adminTab.addEventListener('click', function() {
+        loadAdminPending();
+        loadAdminUsers();
+      });
+      var adminPendingRefresh = document.getElementById('admin-pending-refresh');
+      if (adminPendingRefresh) adminPendingRefresh.addEventListener('click', function(){ loadAdminPending(true); });
+      var adminUsersRefresh = document.getElementById('admin-users-refresh');
+      if (adminUsersRefresh) adminUsersRefresh.addEventListener('click', function(){ loadAdminUsers(true); });
+      var adminBulkDeleteBtn = document.getElementById('admin-bulk-delete-btn');
+      if (adminBulkDeleteBtn) adminBulkDeleteBtn.addEventListener('click', bulkPurgeSelected);
+      var adminDupRefresh = document.getElementById('admin-duplicates-refresh');
+      if (adminDupRefresh) adminDupRefresh.addEventListener('click', function(){ renderAdminDuplicates(_adminUsersCache); });
+      var adminSyncBtn = document.getElementById('admin-sync-btn');
+      if (adminSyncBtn) adminSyncBtn.addEventListener('click', async function() {
+        var out = document.getElementById('admin-sync-result');
+        adminSyncBtn.disabled = true;
+        var origText = adminSyncBtn.textContent;
+        adminSyncBtn.textContent = '⏳ Import en cours…';
+        out.style.display = 'block';
+        out.style.color = '#5b3a00';
+        out.textContent = 'Lecture des photos et des présences en cours, ça peut prendre 10-30 secondes…';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=sync_all&adminPassword=bureau';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var p = data.photos || {};
+          var a = data.attendance || {};
+          var pAdded = (p.added != null) ? p.added : 0;
+          var aAdded = (a.added != null) ? a.added : 0;
+          var aUpd   = (a.updated != null) ? a.updated : 0;
+          var msg = '✅ Import terminé : ';
+          msg += '<strong>' + pAdded + '</strong> ajouté(s) depuis les photos, ';
+          msg += '<strong>' + aAdded + '</strong> ajouté(s) + ' + aUpd + ' mis à jour depuis les présences.';
+          if (p.error) msg += '<br><span style="color:#b91c1c;">Photos : ' + p.error + '</span>';
+          if (a.error) msg += '<br><span style="color:#b91c1c;">Présences : ' + a.error + '</span>';
+          out.style.color = '#047857';
+          out.innerHTML = msg;
+          loadAdminUsers(true);
+        } catch (err) {
+          out.style.color = '#b91c1c';
+          out.textContent = '❌ Échec : ' + (err.message || 'erreur réseau');
+        } finally {
+          adminSyncBtn.disabled = false;
+          adminSyncBtn.textContent = origText;
+        }
+      });
+      var adminUsersSearch = document.getElementById('admin-users-search');
+      if (adminUsersSearch) adminUsersSearch.addEventListener('input', function(){
+        renderAdminUsers(_adminUsersCache, adminUsersSearch.value);
+      });
+
+      // ---- Photo de profil : preview à la sélection ----
+      var profilePhotoInput = document.getElementById('profile-step-photo');
+      if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', function() {
+          var file = profilePhotoInput.files && profilePhotoInput.files[0];
+          var preview = document.getElementById('profile-step-photo-preview');
+          var text    = document.getElementById('profile-step-photo-text');
+          var icon    = document.getElementById('profile-step-photo-icon');
+          if (!file) { preview.style.display = 'none'; return; }
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            text.textContent = 'Photo choisie — cliquer pour changer';
+            icon.textContent = '✓';
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // ---- Onglet Admin : photos à valider ----
+      var _adminPendingLoaded = false;
+      async function loadAdminPending(force) {
+        if (_adminPendingLoaded && !force) return;
+        var listEl = document.getElementById('admin-pending-list');
+        var countEl = document.getElementById('admin-pending-count');
+        if (!listEl) return;
+        listEl.innerHTML = '<p style="color:#92400e;font-style:italic;padding:6px 4px;grid-column:1/-1;">Chargement…</p>';
+        countEl.textContent = '…';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=pending_list&adminPassword=bureau';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var photos = data.photos || [];
+          countEl.textContent = photos.length;
+          if (photos.length === 0) {
+            listEl.innerHTML = '<p style="color:#92400e;font-style:italic;padding:6px 4px;grid-column:1/-1;">Aucune photo en attente. ✨</p>';
+            _adminPendingLoaded = true;
+            return;
+          }
+          var esc = function(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c);
+          }); };
+          listEl.innerHTML = photos.map(function(p) {
+            var thumb = 'https://drive.google.com/thumbnail?id=' + p.fileId + '&sz=w400';
+            var desc = p.description ? '<em style="color:#666;font-style:italic;font-size:0.78rem;display:block;margin-top:2px;">' + esc(p.description) + '</em>' : '';
+            var d = p.uploadDate ? new Date(p.uploadDate) : null;
+            var dStr = d && !isNaN(d) ? d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}) : '';
+            return '<div class="pending-card" data-file-id="' + esc(p.fileId) + '" style="background:#fff;border:1px solid #fde68a;border-radius:10px;overflow:hidden;box-shadow:0 2px 6px rgba(146,64,14,0.1);">'
+              + '<img src="' + thumb + '" alt="" loading="lazy" style="width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#f4f1ec;">'
+              + '<div style="padding:8px 10px;font-size:0.8rem;color:#444;line-height:1.35;">'
+                + '<strong style="color:#92400e;display:block;font-size:0.84rem;">' + esc(p.concert || 'Concert non précisé') + '</strong>'
+                + 'par ' + esc(p.uploaderName || 'Anonyme') + (dStr ? ' · ' + dStr : '')
+                + desc
+              + '</div>'
+              + '<div style="display:flex;gap:6px;padding:6px 10px 10px 10px;">'
+                + '<button class="pc-approve" style="flex:1;background:#16a34a;color:#fff;border:none;padding:6px;border-radius:6px;font-weight:700;font-size:0.78rem;cursor:pointer;">✓ Valider</button>'
+                + '<button class="pc-reject" style="flex:1;background:#fff;color:#b91c1c;border:1.5px solid #ef4444;padding:6px;border-radius:6px;font-weight:700;font-size:0.78rem;cursor:pointer;">✗ Refuser</button>'
+              + '</div>'
+            + '</div>';
+          }).join('');
+          listEl.querySelectorAll('.pending-card').forEach(function(card) {
+            var fileId = card.dataset.fileId;
+            card.querySelector('.pc-approve').addEventListener('click', function(){ handleAdminPending(fileId, 'approve', card); });
+            card.querySelector('.pc-reject').addEventListener('click', function() {
+              if (!confirm('Refuser définitivement cette photo ?\n\nElle sera supprimée (corbeille Drive).')) return;
+              handleAdminPending(fileId, 'reject', card);
+            });
+          });
+          _adminPendingLoaded = true;
+        } catch (err) {
+          listEl.innerHTML = '<p style="color:#b91c1c;font-style:italic;padding:6px 4px;grid-column:1/-1;">⚠️ Impossible de charger : ' + (err.message || 'erreur réseau') + '</p>';
+          countEl.textContent = '?';
+        }
+      }
+
+      async function handleAdminPending(fileId, action, cardEl) {
+        var btns = cardEl.querySelectorAll('button');
+        btns.forEach(function(b){ b.disabled = true; });
+        try {
+          var params = new URLSearchParams();
+          params.set('action', action === 'approve' ? 'approve_photo' : 'delete_photo');
+          params.set('data', JSON.stringify({ fileId: fileId, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          cardEl.style.transition = 'opacity 0.25s, transform 0.25s';
+          cardEl.style.opacity = '0';
+          cardEl.style.transform = 'scale(0.92)';
+          setTimeout(function() {
+            cardEl.remove();
+            var remaining = document.querySelectorAll('#admin-pending-list .pending-card').length;
+            document.getElementById('admin-pending-count').textContent = remaining;
+            if (remaining === 0) {
+              document.getElementById('admin-pending-list').innerHTML = '<p style="color:#92400e;font-style:italic;padding:6px 4px;grid-column:1/-1;">Aucune photo en attente. ✨</p>';
+            }
+          }, 260);
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+          btns.forEach(function(b){ b.disabled = false; });
+        }
+      }
+
+      // ---- Onglet Admin : liste des choristes inscrits ----
+      var _adminUsersCache = [];
+      var _adminUsersLoaded = false;
+      async function loadAdminUsers(force) {
+        if (_adminUsersLoaded && !force) {
+          renderAdminUsers(_adminUsersCache, '');
+          renderAdminDuplicates(_adminUsersCache);
+          return;
+        }
+        var wrap = document.getElementById('admin-users-table-wrap');
+        if (!wrap) return;
+        wrap.innerHTML = '<p style="color:#888;font-style:italic;">Chargement…</p>';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=trombinoscope_list';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          _adminUsersCache = (data.choristes || []).slice();
+          // Trie par nom, prénom
+          _adminUsersCache.sort(function(a, b) {
+            var byNom = (a.nom || '').localeCompare(b.nom || '', 'fr', { sensitivity: 'base' });
+            if (byNom !== 0) return byNom;
+            return (a.prenom || '').localeCompare(b.prenom || '', 'fr', { sensitivity: 'base' });
+          });
+          _adminUsersLoaded = true;
+          var searchEl = document.getElementById('admin-users-search');
+          renderAdminUsers(_adminUsersCache, searchEl ? searchEl.value : '');
+          renderAdminDuplicates(_adminUsersCache);
+        } catch (err) {
+          wrap.innerHTML = '<p style="color:#b91c1c;">Impossible de charger : ' + (err.message || 'erreur réseau') + '</p>';
+        }
+      }
+
+      function renderAdminUsers(users, query) {
+        var wrap = document.getElementById('admin-users-table-wrap');
+        var countEl = document.getElementById('admin-users-count');
+        if (!wrap) return;
+        // Filtre : on garde uniquement les choristes La Voix Libre
+        //  - ensembles vide → legacy/profil incomplet, on garde par défaut
+        //  - contient 'chorale' → on garde (même s'ils sont aussi SOUL)
+        //  - uniquement 'soul' → on exclut
+        var lvlUsers = users.filter(function(c) {
+          if (!c.ensembles || !c.ensembles.length) return true;
+          return c.ensembles.indexOf('chorale') !== -1;
+        });
+        var q = (query || '').toLowerCase().trim();
+        var filtered = !q ? lvlUsers : lvlUsers.filter(function(c) {
+          return ((c.prenom||'') + ' ' + (c.nom||'') + ' ' + (c.pupitre||'')).toLowerCase().indexOf(q) !== -1;
+        });
+        if (countEl) countEl.textContent = filtered.length + (q ? ' / ' + lvlUsers.length : '');
+        if (filtered.length === 0) {
+          wrap.innerHTML = '<p style="color:#888;font-style:italic;">Aucun choriste ' + (q ? 'ne correspond à la recherche' : 'inscrit') + '.</p>';
+          return;
+        }
+        var esc = function(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c);
+        }); };
+        var rows = filtered.map(function(c) {
+          var avatar;
+          if (c.photoFileId) {
+            avatar = '<img class="au-avatar" src="https://drive.google.com/thumbnail?id=' + esc(c.photoFileId) + '&sz=w80" alt="">';
+          } else {
+            var animal = animalAvatar(c.prenom, c.nom);
+            avatar = '<div class="au-avatar placeholder" style="background:' + animal.bg + '">' + animal.emoji + '</div>';
+          }
+          var key = (c.prenom + '|' + c.nom).toLowerCase();
+          var checked = _adminSelected.has(key) ? ' checked' : '';
+          return '<tr data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '" data-key="' + esc(key) + '">'
+            + '<td><input type="checkbox" class="au-check" aria-label="Sélectionner"' + checked + '></td>'
+            + '<td>' + avatar + '</td>'
+            + '<td><strong>' + esc(c.prenom) + ' ' + esc(c.nom) + '</strong></td>'
+            + '<td>' + esc(c.pupitre || '—') + '</td>'
+            + '<td class="au-actions">'
+              + '<button class="au-btn au-photo" data-action="photo">📷 Photo</button>'
+              + '<button class="au-btn au-del" data-action="purge" title="Supprimer entièrement (profil + photos uploadées + présences)">✗ Tout supprimer</button>'
+            + '</td>'
+          + '</tr>';
+        }).join('');
+        var allCheckedInFiltered = filtered.length > 0 && filtered.every(function(c) {
+          return _adminSelected.has((c.prenom + '|' + c.nom).toLowerCase());
+        });
+        wrap.innerHTML = '<table class="admin-users-table">'
+          + '<thead><tr><th><input type="checkbox" id="au-check-all" aria-label="Tout sélectionner"' + (allCheckedInFiltered ? ' checked' : '') + '></th><th></th><th>Nom</th><th>Pupitre</th><th>Actions</th></tr></thead>'
+          + '<tbody>' + rows + '</tbody>'
+          + '</table>';
+
+        // Bind master checkbox (sélectionne / désélectionne tous les filtrés)
+        var checkAll = wrap.querySelector('#au-check-all');
+        if (checkAll) {
+          checkAll.addEventListener('change', function() {
+            filtered.forEach(function(c) {
+              var k = (c.prenom + '|' + c.nom).toLowerCase();
+              if (checkAll.checked) _adminSelected.add(k);
+              else _adminSelected.delete(k);
+            });
+            wrap.querySelectorAll('input.au-check').forEach(function(cb){ cb.checked = checkAll.checked; });
+            updateBulkBtn();
+          });
+        }
+
+        wrap.querySelectorAll('tr[data-prenom]').forEach(function(tr) {
+          var prenom = tr.dataset.prenom, nom = tr.dataset.nom, key = tr.dataset.key;
+          // Checkbox de ligne
+          var cb = tr.querySelector('input.au-check');
+          if (cb) cb.addEventListener('change', function() {
+            if (cb.checked) _adminSelected.add(key);
+            else _adminSelected.delete(key);
+            updateBulkBtn();
+          });
+          tr.querySelector('[data-action="photo"]').addEventListener('click', function() {
+            openAdminPhotoUpload(prenom, nom);
+          });
+          tr.querySelector('[data-action="purge"]').addEventListener('click', function() {
+            purgeChoriste(prenom, nom, tr);
+          });
+        });
+        updateBulkBtn();
+      }
+
+      // ---- Détection de doublons probables ----
+      function _normForCompare(s) {
+        return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/\s+/g, ' ').trim().toLowerCase();
+      }
+      function _levenshtein(a, b) {
+        if (a === b) return 0;
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        var m = a.length, n = b.length;
+        var dp = new Array(n + 1);
+        for (var j = 0; j <= n; j++) dp[j] = j;
+        for (var i = 1; i <= m; i++) {
+          var prev = dp[0];
+          dp[0] = i;
+          for (var j = 1; j <= n; j++) {
+            var tmp = dp[j];
+            if (a[i-1] === b[j-1]) dp[j] = prev;
+            else dp[j] = 1 + Math.min(prev, dp[j-1], dp[j]);
+            prev = tmp;
+          }
+        }
+        return dp[n];
+      }
+      function findDuplicates(users) {
+        // Compare chaque paire ; on garde celles dont la distance Levenshtein sur le nom complet ≤ 2
+        // ET dont la longueur du nom est > 5 (évite les faux positifs sur noms courts)
+        var pairs = [];
+        for (var i = 0; i < users.length; i++) {
+          var a = users[i];
+          var aFull = _normForCompare(a.prenom + ' ' + a.nom);
+          if (aFull.length < 5) continue;
+          for (var j = i + 1; j < users.length; j++) {
+            var b = users[j];
+            var bFull = _normForCompare(b.prenom + ' ' + b.nom);
+            if (bFull.length < 5) continue;
+            if (aFull === bFull) continue; // exact = déjà fusionné côté backend par makeProfileKey
+            var d = _levenshtein(aFull, bFull);
+            var maxLen = Math.max(aFull.length, bFull.length);
+            // Seuil : <= 2 différences absolues, OU ratio <= 0.15 pour noms longs
+            if (d <= 2 || (d / maxLen) <= 0.15) {
+              pairs.push({ a: a, b: b, distance: d });
+            }
+          }
+        }
+        pairs.sort(function(x, y) { return x.distance - y.distance; });
+        return pairs;
+      }
+
+      function renderAdminDuplicates(users) {
+        var listEl = document.getElementById('admin-duplicates-list');
+        var countEl = document.getElementById('admin-duplicates-count');
+        if (!listEl) return;
+        // Applique le filtre LVL aussi sur les doublons
+        var lvlUsers = (users || []).filter(function(c) {
+          if (!c.ensembles || !c.ensembles.length) return true;
+          return c.ensembles.indexOf('chorale') !== -1;
+        });
+        var pairs = findDuplicates(lvlUsers);
+        if (countEl) countEl.textContent = pairs.length;
+        if (pairs.length === 0) {
+          listEl.innerHTML = '<p style="color:#888;font-style:italic;padding:6px 4px;">Aucun doublon détecté. ✨</p>';
+          return;
+        }
+        var esc = function(s){ return (s||'').toString().replace(/[&<>"]/g, function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c);
+        }); };
+        function miniCard(c, side) {
+          var avatar;
+          if (c.photoFileId) {
+            avatar = '<img class="dup-avatar" src="https://drive.google.com/thumbnail?id=' + esc(c.photoFileId) + '&sz=w120" alt="">';
+          } else {
+            var animal = animalAvatar(c.prenom, c.nom);
+            avatar = '<div class="dup-avatar" style="background:' + animal.bg + '">' + animal.emoji + '</div>';
+          }
+          var hasPhoto = c.photoFileId ? '📷' : '—';
+          var ensList = (Array.isArray(c.ensembles) && c.ensembles.length) ? c.ensembles.join(', ') : 'aucun';
+          return '<div class="dup-mini" data-side="' + side + '">'
+            + avatar
+            + '<div class="dup-info">'
+              + '<div class="dup-name">' + esc(c.prenom) + ' ' + esc(c.nom) + '</div>'
+              + '<div class="dup-meta">Pupitre : <strong>' + esc(c.pupitre || '—') + '</strong> · Photo : ' + hasPhoto + ' · Ens. : ' + esc(ensList) + '</div>'
+            + '</div>'
+            + '<button class="dup-pick" data-action="pick">À garder</button>'
+            + '</div>';
+        }
+        listEl.innerHTML = pairs.slice(0, 50).map(function(pair, pi) {
+          return '<div class="dup-pair" data-pair-idx="' + pi + '">'
+            + miniCard(pair.a, 'a')
+            + '<div class="dup-vs">VS</div>'
+            + miniCard(pair.b, 'b')
+            + '<div class="dup-actions">'
+              + '<span class="dup-distance">distance Levenshtein : ' + pair.distance + '</span>'
+              + '<button class="dup-merge-btn" data-action="merge" disabled>↔ Fusionner</button>'
+              + '</div>'
+            + '</div>';
+        }).join('');
+
+        // Bind clic sur "À garder"
+        listEl.querySelectorAll('.dup-pair').forEach(function(pairEl, pi) {
+          var pair = pairs[pi];
+          var minis = pairEl.querySelectorAll('.dup-mini');
+          var mergeBtn = pairEl.querySelector('.dup-merge-btn');
+          minis.forEach(function(mini) {
+            mini.querySelector('.dup-pick').addEventListener('click', function() {
+              minis.forEach(function(m){ m.classList.remove('selected'); });
+              mini.classList.add('selected');
+              mergeBtn.disabled = false;
+              mergeBtn.dataset.master = mini.dataset.side;
+            });
+          });
+          mergeBtn.addEventListener('click', function() {
+            var masterSide = mergeBtn.dataset.master;
+            if (!masterSide) return;
+            var master = masterSide === 'a' ? pair.a : pair.b;
+            var slave  = masterSide === 'a' ? pair.b : pair.a;
+            mergeDuplicates(master, slave, pairEl);
+          });
+        });
+      }
+
+      async function mergeDuplicates(master, slave, pairEl) {
+        var msg = 'Fusionner ' + slave.prenom + ' ' + slave.nom + ' DANS ' + master.prenom + ' ' + master.nom + ' ?\n\n'
+          + '• Le profil "' + slave.prenom + ' ' + slave.nom + '" sera supprimé\n'
+          + '• Toutes ses photos uploadées seront ré-attribuées à "' + master.prenom + ' ' + master.nom + '"\n'
+          + '• Toutes ses présences aussi\n'
+          + '• Si le master n\'a pas de pupitre/photo, ceux du slave seront récupérés\n\n'
+          + 'Confirmer la fusion ?';
+        if (!confirm(msg)) return;
+        var mergeBtn = pairEl.querySelector('.dup-merge-btn');
+        mergeBtn.disabled = true;
+        mergeBtn.textContent = '⏳ Fusion…';
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'merge_choristes');
+          params.set('data', JSON.stringify({
+            masterPrenom: master.prenom, masterNom: master.nom,
+            slavePrenom: slave.prenom, slaveNom: slave.nom,
+            adminPassword: 'bureau'
+          }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          alert('✅ Fusion OK :\n• ' + (data.photosReassigned || 0) + ' photos ré-attribuées\n• ' + (data.attendanceReassigned || 0) + ' présences ré-attribuées\nLe profil "' + slave.prenom + ' ' + slave.nom + '" a été supprimé.');
+          pairEl.style.transition = 'opacity 0.3s';
+          pairEl.style.opacity = '0';
+          setTimeout(function(){
+            loadAdminUsers(true);
+            loadTrombinoscope(true);
+          }, 300);
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+          mergeBtn.disabled = false;
+          mergeBtn.textContent = '↔ Fusionner';
+        }
+      }
+
+      // ---- Multi-sélection admin ----
+      var _adminSelected = new Set(); // keys ("prenom|nom" lowercase) des choristes sélectionnés
+      function updateBulkBtn() {
+        var btn = document.getElementById('admin-bulk-delete-btn');
+        var countEl = document.getElementById('admin-bulk-count');
+        if (!btn || !countEl) return;
+        var n = _adminSelected.size;
+        countEl.textContent = n;
+        btn.style.display = n > 0 ? 'inline-block' : 'none';
+      }
+      async function bulkPurgeSelected() {
+        if (_adminSelected.size === 0) return;
+        // Reconstitue la liste {prenom, nom} depuis le cache
+        var selectedProfiles = _adminUsersCache.filter(function(c) {
+          var k = (c.prenom + '|' + c.nom).toLowerCase();
+          return _adminSelected.has(k);
+        }).map(function(c){ return { prenom: c.prenom, nom: c.nom }; });
+        var n = selectedProfiles.length;
+        var names = selectedProfiles.slice(0, 6).map(function(p){ return p.prenom + ' ' + p.nom; }).join(', ');
+        if (n > 6) names += '… (+' + (n - 6) + ')';
+        var msg = 'SUPPRESSION TOTALE de ' + n + ' choriste(s) :\n\n' + names + '\n\n'
+          + 'Pour chacun : profil + toutes les photos uploadées + toutes les présences.\n'
+          + 'Photos → corbeille Drive (récupérables 30 jours).\n\n'
+          + 'Confirmer ?';
+        if (!confirm(msg)) return;
+
+        var btn = document.getElementById('admin-bulk-delete-btn');
+        btn.disabled = true;
+        var orig = btn.innerHTML;
+        btn.textContent = '⏳ Suppression en cours…';
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'bulk_purge_choristes');
+          params.set('data', JSON.stringify({ profiles: selectedProfiles, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var bilan = '✅ ' + (data.count || n) + ' choriste(s) supprimé(s) :\n'
+            + '• Profils : ' + (data.profile || 0) + '\n'
+            + '• Photos uploadées : ' + (data.photos || 0) + '\n'
+            + '• Présences : ' + (data.attendance || 0)
+            + (data.failed ? '\n\n⚠️ ' + data.failed + ' échec(s)' : '');
+          alert(bilan);
+          _adminSelected.clear();
+          loadAdminUsers(true);
+          loadTrombinoscope(true);
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = orig;
+          updateBulkBtn();
+        }
+      }
+
+      async function purgeChoriste(prenom, nom, rowEl) {
+        var msg = 'SUPPRESSION TOTALE de ' + prenom + ' ' + nom + ' ?\n\n'
+          + 'Cela va effacer :\n'
+          + '  • Son profil dans le trombinoscope + sa photo de profil\n'
+          + '  • Toutes les photos qu\'il/elle a uploadées dans les galeries\n'
+          + '  • Toutes ses inscriptions à des concerts\n\n'
+          + 'Les photos vont à la corbeille Drive (récupérables 30 jours).\n'
+          + 'Cette action est définitive sur le site.';
+        if (!confirm(msg)) return;
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'purge_choriste');
+          params.set('data', JSON.stringify({ prenom: prenom, nom: nom, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          alert('✅ ' + prenom + ' ' + nom + ' supprimé(e) :\n'
+            + '• Profil : ' + (data.profile || 0) + '\n'
+            + '• Photos uploadées : ' + (data.photos || 0) + '\n'
+            + '• Présences : ' + (data.attendance || 0));
+          if (rowEl) {
+            rowEl.style.transition = 'opacity 0.25s';
+            rowEl.style.opacity = '0';
+            setTimeout(function(){ loadAdminUsers(true); loadTrombinoscope(true); }, 250);
+          } else {
+            loadAdminUsers(true); loadTrombinoscope(true);
+          }
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+        }
+      }
+
+      function openAdminPhotoUpload(prenom, nom) {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.addEventListener('change', async function() {
+          var file = input.files && input.files[0];
+          input.remove();
+          if (!file) return;
+          try {
+            var compressed = await compressImage(file, 600, 0.82);
+            var base64 = await blobToBase64(compressed);
+            var params = new URLSearchParams();
+            params.set('action', 'upload_profile_photo');
+            params.set('data', JSON.stringify({ prenom: prenom, nom: nom, base64: base64, mimeType: 'image/jpeg' }));
+            var res = await fetch(PHOTOS_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            var data = await res.json();
+            if (data.error) throw new Error(data.error);
+            loadAdminUsers(true);
+            loadTrombinoscope(true);
+          } catch (err) {
+            alert('Échec : ' + (err.message || 'erreur réseau'));
+          }
+        });
+        input.click();
+      }
+
+      // ---- Trombinoscope ----
+      var _trombinoLoaded = false;
+      async function loadTrombinoscope(forceReload) {
+        var el = document.getElementById('trombino-content');
+        if (!el) return;
+        if (_trombinoLoaded && !forceReload) return;
+        el.innerHTML = '<p style="color:#888;font-style:italic;">Chargement…</p>';
+        try {
+          var url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=trombinoscope_list';
+          var res = await fetch(url, { cache: 'no-store' });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          renderTrombinoscope(data.choristes || []);
+          _trombinoLoaded = true;
+        } catch (err) {
+          console.error('trombinoscope error', err);
+          el.innerHTML = '<p style="color:#b91c1c;">Impossible de charger le trombinoscope (' + (err.message || 'erreur réseau') + ').</p>';
+        }
+      }
+
+      // Avatars animaux déterministes (pas de réseau, juste de l'emoji)
+      var ANIMAL_EMOJIS = ['🐱','🐶','🦊','🐼','🐻','🦉','🐰','🐸','🦁','🐨','🐹','🐺'];
+      var ANIMAL_BG = ['#fde2e4','#fad2e1','#cddafd','#bee1e6','#e2ece9','#fff1e6','#dbe7e4','#e8d6ec','#ffeacc','#d4f4dd','#ddd6f3','#ffe5d9'];
+      function _hashStr(s) {
+        var h = 0;
+        for (var i = 0; i < s.length; i++) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+        return Math.abs(h);
+      }
+      function animalAvatar(prenom, nom) {
+        var key = ((prenom || '') + '|' + (nom || '')).toLowerCase();
+        var idx = _hashStr(key) % ANIMAL_EMOJIS.length;
+        return { emoji: ANIMAL_EMOJIS[idx], bg: ANIMAL_BG[idx] };
+      }
+
+      // Normalisation pour comparer prénom/nom
+      function _normName(s) {
+        return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '')
+          .replace(/\s+/g, ' ').trim().toLowerCase();
+      }
+      function isCurrentChoriste(c) {
+        try {
+          var p = JSON.parse(localStorage.getItem('choristeProfile') || '{}');
+          return _normName(p.prenom) === _normName(c.prenom)
+              && _normName(p.nom) === _normName(c.nom);
+        } catch { return false; }
+      }
+      function isChefMode() {
+        try {
+          const r = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
+          return r === 'chef' || r === 'admin';
+        }
+        catch { return false; }
+      }
+      function canEditPhotoOf(c) { return isChefMode() || isCurrentChoriste(c); }
+
+      function renderTrombinoscope(choristes) {
+        var el = document.getElementById('trombino-content');
+        if (!el) return;
+        // Filtre : trombinoscope La Voix Libre uniquement (exclut les SOUL-only)
+        choristes = (choristes || []).filter(function(c) {
+          if (!c.ensembles || !c.ensembles.length) return true;
+          return c.ensembles.indexOf('chorale') !== -1;
+        });
+        if (!choristes.length) {
+          el.innerHTML = '<p class="trombino-empty">Personne dans le trombinoscope pour le moment. ✨<br>Soyez la première personne à apparaître en ajoutant votre photo à la connexion.</p>';
+          return;
+        }
+        var ORDER = ['Soprane', 'Alto', 'Ténor', 'Basse'];
+        var groups = {};
+        ORDER.forEach(function(p){ groups[p] = []; });
+        choristes.forEach(function(c) {
+          var key = c.pupitre && groups[c.pupitre] ? c.pupitre : 'Autres';
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(c);
+        });
+        Object.keys(groups).forEach(function(k) {
+          groups[k].sort(function(a, b) {
+            return (a.prenom || '').localeCompare(b.prenom || '', 'fr', { sensitivity: 'base' });
+          });
+        });
+
+        var esc = function(s){ return (s || '').toString().replace(/[&<>"]/g, function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c);
+        }); };
+
+        var PUPITRE_EMOJI = { 'Soprane':'🎀', 'Alto':'🌸', 'Ténor':'🌿', 'Basse':'🎩', 'Autres':'🎵' };
+
+        var allKeys = ORDER.concat(Object.keys(groups).filter(function(k){ return ORDER.indexOf(k) < 0; }));
+        var html = allKeys.map(function(pupitre) {
+          var list = groups[pupitre] || [];
+          if (!list.length) return '';
+          var cards = list.map(function(c) {
+            var animal = animalAvatar(c.prenom, c.nom);
+            var avatar;
+            if (c.photoFileId) {
+              avatar = '<img class="trombino-avatar" src="https://drive.google.com/thumbnail?id=' + esc(c.photoFileId) + '&sz=w200" alt="">';
+            } else {
+              avatar = '<div class="trombino-avatar placeholder" style="background:' + animal.bg + '" aria-label="Avatar de ' + esc(c.prenom) + '">' + animal.emoji + '</div>';
+            }
+            var editable = canEditPhotoOf(c);
+            var wrapClass = editable ? 'trombino-avatar-wrap editable' : 'trombino-avatar-wrap';
+            var titleAttr = editable
+              ? (isCurrentChoriste(c) ? 'title="Cliquer pour changer ta photo"' : 'title="Cliquer pour ajouter/changer la photo de ' + esc(c.prenom) + '"')
+              : '';
+            return '<div class="trombino-card" data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '">'
+              + '<button type="button" class="trombino-delete-btn" title="Supprimer ce choriste" aria-label="Supprimer ce choriste">×</button>'
+              + '<div class="' + wrapClass + '" ' + titleAttr + '>' + avatar + '</div>'
+              + '<p class="trombino-name"><span class="firstname">' + esc(c.prenom) + '</span><br>' + esc(c.nom) + '</p>'
+              + '</div>';
+          }).join('');
+          return '<section class="trombino-section">'
+            + '<h3 class="trombino-section-title">' + (PUPITRE_EMOJI[pupitre] || '🎵') + ' ' + esc(pupitre)
+            + ' <span class="trombino-count">' + list.length + '</span></h3>'
+            + '<div class="trombino-grid">' + cards + '</div>'
+            + '</section>';
+        }).join('');
+        el.innerHTML = html;
+
+        // Bind clic sur avatars éditables
+        el.querySelectorAll('.trombino-avatar-wrap.editable').forEach(function(wrap) {
+          wrap.addEventListener('click', function() { openAvatarUpload(wrap); });
+        });
+        // Bind clic sur boutons supprimer (bureau uniquement — affichés via CSS)
+        el.querySelectorAll('.trombino-delete-btn').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var card = btn.closest('.trombino-card');
+            if (!card) return;
+            deleteChoriste(card.dataset.prenom, card.dataset.nom, card);
+          });
+        });
+      }
+
+      async function deleteChoriste(prenom, nom, cardEl) {
+        // Suppression totale : sinon une re-sync depuis les photos uploadées ferait revenir la personne
+        var msg = 'SUPPRESSION TOTALE de ' + prenom + ' ' + nom + ' ?\n\n'
+          + 'Cela va effacer :\n'
+          + '  • Son profil dans le trombinoscope + sa photo\n'
+          + '  • Toutes les photos qu\'il/elle a uploadées dans les galeries\n'
+          + '  • Toutes ses inscriptions à des concerts\n\n'
+          + 'Photos → corbeille Drive (récupérables 30 jours).\n'
+          + 'Cette action est définitive sur le site.';
+        if (!confirm(msg)) return;
+        try {
+          var params = new URLSearchParams();
+          params.set('action', 'purge_choriste');
+          params.set('data', JSON.stringify({ prenom: prenom, nom: nom, adminPassword: 'bureau' }));
+          var res = await fetch(PHOTOS_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
+          });
+          var data = await res.json();
+          if (data.error) throw new Error(data.error);
+          var bilan = '✅ ' + prenom + ' ' + nom + ' supprimé(e) :\n'
+            + '• Profil : ' + (data.profile || 0) + '\n'
+            + '• Photos uploadées : ' + (data.photos || 0) + '\n'
+            + '• Présences : ' + (data.attendance || 0);
+          if (cardEl) {
+            cardEl.style.transition = 'opacity 0.25s, transform 0.25s';
+            cardEl.style.opacity = '0';
+            cardEl.style.transform = 'scale(0.85)';
+            setTimeout(function(){
+              alert(bilan);
+              loadTrombinoscope(true);
+              if (typeof loadAdminUsers === 'function') loadAdminUsers(true);
+            }, 250);
+          } else {
+            alert(bilan);
+            loadTrombinoscope(true);
+            if (typeof loadAdminUsers === 'function') loadAdminUsers(true);
+          }
+        } catch (err) {
+          alert('Échec : ' + (err.message || 'erreur réseau'));
+        }
+      }
+
+      // ---- Upload de photo de profil depuis le trombinoscope ----
+      function openAvatarUpload(wrapEl) {
+        var card = wrapEl.closest('.trombino-card');
+        if (!card) return;
+        var prenom = card.dataset.prenom;
+        var nom = card.dataset.nom;
+
+        // Crée un input file à la volée
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.addEventListener('change', async function() {
+          var file = input.files && input.files[0];
+          input.remove();
+          if (!file) return;
+          wrapEl.classList.add('uploading');
+          try {
+            var compressed = await compressImage(file, 600, 0.82);
+            var base64 = await blobToBase64(compressed);
+            var params = new URLSearchParams();
+            params.set('action', 'upload_profile_photo');
+            params.set('data', JSON.stringify({
+              prenom: prenom, nom: nom,
+              base64: base64, mimeType: 'image/jpeg'
+            }));
+            var res = await fetch(PHOTOS_ENDPOINT, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: params.toString()
+            });
+            var data = await res.json();
+            if (data.error) throw new Error(data.error);
+            // Recharge le trombinoscope pour afficher la nouvelle photo
+            loadTrombinoscope(true);
+          } catch (err) {
+            console.error('upload avatar', err);
+            alert('Échec de l\'envoi : ' + (err.message || 'erreur réseau'));
+            wrapEl.classList.remove('uploading');
+          }
+        });
+        input.click();
+      }
+
     });
   </script>
+
+  </div>
   </body>
 </html>

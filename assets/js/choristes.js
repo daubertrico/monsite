@@ -1,5 +1,10 @@
 // Logic spécifique pour la page Espace choristes (partitions)
 (function() {
+  // URL du Web App Google Apps Script (voir scripts/visibilite_chansons_gas_sample.js
+  // pour le code à déployer). Tant que c'est vide, les cases à cocher du mode
+  // "chef de chœur" restent visibles mais ne persistent que le temps de la session.
+  const VISIBILITY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz8oUrLwCIfGYctW0aF5gXYssDJFcfnHe84Bhd6qhgaD9wrKFWtHbOQ6vISViSQH4YBpg/exec';
+  const VISIBILITY_ADMIN_PASS = 'chefdechoeur';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
@@ -105,22 +110,45 @@
     window.__audioClickBound = true;
   }
 
+  function escAttr(s) {
+    return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Normalisation de clé alignée sur simplifyKey() côté api/save_visibility.php
+  function simplifyPartitionKey(s) {
+    if (!s) return '';
+    return s.toString().toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9 ]+/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   function generateChansonsContent() {
     const container = document.getElementById('tab-content-chansons');
     if (!container) return;
+    const isAdmin = !!window.IS_ADMIN;
     container.innerHTML = `
       <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:10px 16px;margin-bottom:14px;border-radius:8px;font-size:.93em;">
         <strong>Usage interne.</strong> Ces arrangements sont réservés aux membres — merci de ne pas les diffuser.
       </div>
+      ${isAdmin ? `<div class="legal-warning" style="background:#eef5ff;color:#134;border:1px solid #98bfff;padding:10px 16px;margin-bottom:14px;border-radius:8px;font-size:.93em;">
+        <strong>🔐 Mode chef de chœur.</strong> Coche les cases sous chaque chanson pour choisir si elle apparaît pour les choristes de la Voix Libre et/ou de SOUL. Décoche les deux pour la masquer complètement. Ces réglages sont invisibles pour le bureau et les choristes.
+      </div>` : ''}
       <div class="partition-search-bar">
         <input type="search" id="partition-search" placeholder="Rechercher une chanson…" autocomplete="off">
       </div>
       <div id="chansons-all" class="chansons-list"></div>
     `;
 
-    function renderTable(parts){
-      if (!parts || parts.length===0) return '<em>Aucune chanson.</em>';
-      return '<table style="width:100%;border-collapse:collapse;"><tbody>' + parts.map(partition => {
+    function renderTable(parts, role, ensembleHint){
+      // Le bureau et le chef de chœur voient tout ; les choristes ne voient que
+      // les chansons rendues visibles pour leur ensemble (par défaut : visibles).
+      const visibleParts = (role === 'member')
+        ? parts.filter(p => ensembleHint === 'soul' ? p.visible_soul !== false : p.visible_lavoixlibre !== false)
+        : parts;
+      if (!visibleParts || visibleParts.length===0) return '<em>Aucune chanson.</em>';
+      return '<table style="width:100%;border-collapse:collapse;"><tbody>' + visibleParts.map(partition => {
         // Build display title with suffixes when needed to distinguish arrangements
         let displayTitle = partition.title || '';
         const hasSoul = partition.visible_soul === true;
@@ -137,56 +165,120 @@
         const ressourcesLinks = (partition.documents||[]).map(d => `<a href="${d.file}" target="_blank">${d.label}</a>`).join('<br>');
         const interactiveLink = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>` : (partition.flatio_link ? `<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>` : '');
 
-        return `<tr><td style="padding:10px 0;"><strong>${displayTitle}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLink ? '<br>' : ''}${interactiveLink}</div></td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
+        let adminControls = '';
+        if (isAdmin) {
+          const lvChecked = partition.visible_lavoixlibre !== false ? 'checked' : '';
+          const soulChecked = partition.visible_soul !== false ? 'checked' : '';
+          const hiddenFromAll = partition.visible_lavoixlibre === false && partition.visible_soul === false;
+          adminControls = `<div class="admin-visibility-controls" style="margin-top:8px;padding-top:6px;border-top:1px dashed #cfe3ff;font-size:.85em;color:#345;">
+            <label style="margin-right:14px;cursor:pointer;"><input type="checkbox" class="vis-toggle" data-title="${escAttr(partition.title)}" data-group="lv" ${lvChecked}> Voix Libre</label>
+            <label style="cursor:pointer;"><input type="checkbox" class="vis-toggle" data-title="${escAttr(partition.title)}" data-group="soul" ${soulChecked}> SOUL</label>
+            ${hiddenFromAll ? ' <span style="color:#b91c1c;font-weight:600;">🔒 masquée pour tous les choristes</span>' : ''}
+          </div>`;
+        }
+
+        return `<tr><td style="padding:10px 0;"><strong>${displayTitle}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLink ? '<br>' : ''}${interactiveLink}</div>${adminControls}</td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
       }).join('') + '</tbody></table>';
     }
 
+    function saveVisibility(title, lv, soul) {
+      if (!VISIBILITY_ENDPOINT) {
+        console.warn('VISIBILITY_ENDPOINT non configuré : ce réglage ne sera pas conservé au rechargement (voir scripts/visibilite_chansons_gas_sample.js).');
+        return;
+      }
+      const key = simplifyPartitionKey(title);
+      if (!key) return;
+      const payload = JSON.stringify({ adminPass: VISIBILITY_ADMIN_PASS, key, title, lv, soul });
+      fetch(VISIBILITY_ENDPOINT, {
+        method: 'POST',
+        body: new URLSearchParams({ data: payload }),
+        mode: 'no-cors'
+      }).catch(e => console.error('save_visibility failed', e));
+    }
+
+    function fetchVisibilityOverrides() {
+      if (!VISIBILITY_ENDPOINT) return Promise.resolve({});
+      return fetch(VISIBILITY_ENDPOINT)
+        .then(res => res.json())
+        .then(json => (json && json.ok && json.overrides) ? json.overrides : {})
+        .catch(() => ({}));
+    }
+
+    function applySearchFilter(q) {
+      q = (q || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+      const rows = document.querySelectorAll('#chansons-all tr');
+      rows.forEach(tr => {
+        const td = tr.querySelector('td');
+        if (!td) return;
+        const isHr = !!tr.querySelector('hr');
+        if (isHr) { tr.classList.add('partition-row-hidden'); return; }
+        if (!q) { tr.classList.remove('partition-row-hidden'); return; }
+        const text = td.textContent.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+        tr.classList.toggle('partition-row-hidden', !text.includes(q));
+      });
+      if (q) {
+        const allRows = Array.from(document.querySelectorAll('#chansons-all tr'));
+        allRows.forEach((tr, i) => {
+          if (!tr.querySelector('hr')) return;
+          const prev = allRows[i-1];
+          const next = allRows[i+1];
+          const prevHidden = !prev || prev.classList.contains('partition-row-hidden');
+          const nextHidden = !next || next.classList.contains('partition-row-hidden');
+          tr.classList.toggle('partition-row-hidden', prevHidden || nextHidden);
+        });
+      }
+    }
+
     // load partitions and show a single consolidated list
-    fetch('data/partitions.json')
-      .then(res => res.json())
-      .then(data => {
+    Promise.all([
+      fetch('data/partitions.json').then(res => res.json()),
+      fetchVisibilityOverrides()
+    ])
+      .then(([data, overrides]) => {
         // Keep the original order from the JSON but present to the user sorted
         // alphabetically by title (locale-aware, accents handled, case-insensitive).
         const parts = (data || []).filter(p => p && p.title).sort((a, b) => {
           try { return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }); } catch (e) { return String(a.title).localeCompare(String(b.title)); }
         });
-        document.getElementById('chansons-all').innerHTML = renderTable(parts);
+        // Les réglages enregistrés via le mode "chef de chœur" (Google Sheet)
+        // prennent le pas sur les valeurs par défaut de partitions.json.
+        parts.forEach(p => {
+          const o = overrides[simplifyPartitionKey(p.title)];
+          if (o) {
+            p.visible_lavoixlibre = !!o.lv;
+            p.visible_soul = !!o.soul;
+          }
+        });
+        const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
+        const ensembleHint = localStorage.getItem('choristesEnsembleHint');
+        const listEl = document.getElementById('chansons-all');
+
+        function rerender() {
+          listEl.innerHTML = renderTable(parts, role, ensembleHint);
+          const searchInput = document.getElementById('partition-search');
+          applySearchFilter(searchInput ? searchInput.value : '');
+        }
+        rerender();
         bindAudioClickOnce();
+
+        if (isAdmin) {
+          listEl.addEventListener('change', function(e) {
+            const cb = e.target;
+            if (!cb.classList || !cb.classList.contains('vis-toggle')) return;
+            const title = cb.getAttribute('data-title');
+            const partition = parts.find(p => p.title === title);
+            if (!partition) return;
+            if (cb.dataset.group === 'lv') partition.visible_lavoixlibre = cb.checked;
+            else partition.visible_soul = cb.checked;
+            saveVisibility(title, partition.visible_lavoixlibre !== false, partition.visible_soul !== false);
+            rerender();
+          });
+        }
 
         // Recherche en temps réel
         const searchInput = document.getElementById('partition-search');
         if (searchInput) {
-          searchInput.addEventListener('input', function() {
-            const q = this.value.trim().toLowerCase()
-              .normalize('NFD').replace(/[̀-ͯ]/g, '');
-            const rows = document.querySelectorAll('#chansons-all tr');
-            let prevIsHr = false;
-            rows.forEach(tr => {
-              const td = tr.querySelector('td');
-              if (!td) return;
-              // Les lignes <hr> (séparateurs) alternent avec les lignes de données
-              const isHr = !!tr.querySelector('hr');
-              if (isHr) { tr.classList.add('partition-row-hidden'); prevIsHr = true; return; }
-              if (!q) { tr.classList.remove('partition-row-hidden'); prevIsHr = false; return; }
-              const text = td.textContent.toLowerCase()
-                .normalize('NFD').replace(/[̀-ͯ]/g, '');
-              const match = text.includes(q);
-              tr.classList.toggle('partition-row-hidden', !match);
-              prevIsHr = false;
-            });
-            // Afficher les séparateurs seulement entre les lignes visibles
-            if (q) {
-              const allRows = Array.from(document.querySelectorAll('#chansons-all tr'));
-              allRows.forEach((tr, i) => {
-                if (!tr.querySelector('hr')) return;
-                const prev = allRows[i-1];
-                const next = allRows[i+1];
-                const prevHidden = !prev || prev.classList.contains('partition-row-hidden');
-                const nextHidden = !next || next.classList.contains('partition-row-hidden');
-                tr.classList.toggle('partition-row-hidden', prevHidden || nextHidden);
-              });
-            }
-          });
+          searchInput.addEventListener('input', function() { applySearchFilter(this.value); });
           searchInput.focus();
         }
       }).catch(e=>{console.error('failed to load partitions.json',e);});
@@ -233,6 +325,13 @@
 
       showTab('chansons');
       generateChansonsContent();
+      // Afficher le sondage réinscription si pas encore répondu (seulement chorale + bureau)
+      const _hint = localStorage.getItem('choristesEnsembleHint');
+      if (window.IS_CHEF || _hint === 'chorale') {
+        if (typeof window.showSurveyIfNeeded === 'function') {
+          window.showSurveyIfNeeded();
+        }
+      }
     }
 
     // ---- Afficher l'étape profil ----
@@ -278,6 +377,10 @@
         if (errEl) errEl.style.display = 'none';
 
         setProf({ prenom, nom, pupitre });
+        // Met à jour le badge global maintenant que prénom/nom sont connus
+        if (typeof window.renderAuthBadge === 'function') window.renderAuthBadge();
+        // Signal espace-choristes.html pour synchroniser le profil côté serveur (+ photo si choisie)
+        try { document.dispatchEvent(new CustomEvent('choriste:profile-saved', { detail: { prenom, nom, pupitre } })); } catch (e) {}
 
         // Mettre à jour aussi les champs profil du calendrier (présences)
         [['choriste-prenom','choriste-nom','choriste-pupitre'],
@@ -309,13 +412,35 @@
       });
     }
 
-    // ---- Restauration de session ----
-    const storedRole = sessionStorage.getItem('choristesRole');
-    if (storedRole === 'member' || storedRole === 'chef') {
-      window.IS_CHEF = (storedRole === 'chef');
-      if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
-      if (hasProf()) showTabs();
-      else           showProfileStep(false);
+    // ---- Restauration de session (persistante via localStorage) ----
+    // Migration douce : reprend l'ancien sessionStorage s'il existait
+    try {
+      const legacy = sessionStorage.getItem('choristesRole');
+      if (legacy && !localStorage.getItem('choristesRole')) {
+        localStorage.setItem('choristesRole', legacy);
+        sessionStorage.removeItem('choristesRole');
+      }
+    } catch {}
+    const storedRole = localStorage.getItem('choristesRole');
+    if (storedRole === 'member' || storedRole === 'chef' || storedRole === 'admin') {
+      window.IS_CHEF = (storedRole === 'chef' || storedRole === 'admin');
+      window.IS_ADMIN = (storedRole === 'admin');
+      if (document.body) {
+        document.body.classList.toggle('role-chef', window.IS_CHEF);
+        document.body.classList.toggle('role-admin', window.IS_ADMIN);
+      }
+      if (hasProf()) {
+        showTabs();
+        // Sync silencieuse du profil vers le trombinoscope (au cas où ce n'est pas encore fait)
+        const _p = getProf();
+        try {
+          document.dispatchEvent(new CustomEvent('choriste:profile-saved', {
+            detail: { prenom: _p.prenom, nom: _p.nom, pupitre: _p.pupitre }
+          }));
+        } catch (e) {}
+      } else {
+        showProfileStep(false);
+      }
     } else {
       if (passwordContainer) passwordContainer.style.display = '';
       if (tabsWrap)          tabsWrap.style.display = 'none';
@@ -343,13 +468,23 @@
         const correctRaw = await getPartitionPassword();
         const correct    = correctRaw ? normalizeInput(correctRaw) : null;
         let role = null;
-        if (entered === 'chefdechoeur') role = 'chef';
-        else if (!correct || entered === correct) role = 'member';
+        let ensembleHint = null;
+        if (entered === 'chefdechoeur2026') role = 'admin';
+        else if (entered === 'bureau') role = 'chef';
+        else if (entered === 'soul2026') { role = 'member'; ensembleHint = 'soul'; }
+        else if (!correct || entered === correct) { role = 'member'; ensembleHint = 'chorale'; }
 
         if (role) {
-          sessionStorage.setItem('choristesRole', role);
-          window.IS_CHEF = (role === 'chef');
-          if (document.body) document.body.classList.toggle('role-chef', window.IS_CHEF);
+          localStorage.setItem('choristesRole', role);
+          if (ensembleHint) {
+            localStorage.setItem('choristesEnsembleHint', ensembleHint);
+          }
+          window.IS_CHEF = (role === 'chef' || role === 'admin');
+          window.IS_ADMIN = (role === 'admin');
+          if (document.body) {
+            document.body.classList.toggle('role-chef', window.IS_CHEF);
+            document.body.classList.toggle('role-admin', window.IS_ADMIN);
+          }
           if (hasProf()) showTabs();
           else           showProfileStep(false);
         } else {
@@ -364,15 +499,21 @@
     const logoutBtn = document.getElementById('logout-role');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', function(){
-        try { sessionStorage.removeItem('choristesRole'); } catch {}
+        try {
+          localStorage.removeItem('choristesRole');
+          localStorage.removeItem('espace_choristes_role');
+          localStorage.removeItem('espace_choristes_authed');
+          // Important : sur un ordinateur partagé, on efface aussi le profil utilisateur
+          localStorage.removeItem('choristeProfile');
+          sessionStorage.removeItem('choristesRole');
+          sessionStorage.removeItem('espace_choristes_role');
+          sessionStorage.removeItem('espace_choristes_authed');
+        } catch {}
         window.IS_CHEF = false;
-        if (document.body) document.body.classList.remove('role-chef');
-        if (tabsWrap)          tabsWrap.style.display = 'none';
-        if (profileStep)       profileStep.style.display = 'none';
-        if (passwordContainer) passwordContainer.style.display = '';
-        const err = document.getElementById('partition-error');
-        if (err) err.style.display = 'none';
-        if (passwordInput) { passwordInput.value = ''; passwordInput.focus(); }
+        window.IS_ADMIN = false;
+        if (document.body) { document.body.classList.remove('role-chef'); document.body.classList.remove('role-admin'); }
+        // Redirection vers la page d'accueil après déconnexion
+        location.href = 'index.html';
       });
     }
 

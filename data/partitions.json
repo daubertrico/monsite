@@ -136,7 +136,10 @@
   },
   {
     "title": "Proud Mary",
-    "interactive_link": "materielchansons/Proud Mary-partition.html"
+    "interactive_link": "materielchansons/Proud Mary-partition.html",
+    "recordings": [
+      { "label": "2ème partie", "file": "materielchansons/2eme partie proud mary version finale.ogg" }
+    ]
   },
   {
     "title": "When I'm Gone",

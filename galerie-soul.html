@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
-  <title>Galerie photos – concerts La Voix Libre à Rennes</title>
-  <link rel="canonical" href="https://chanterlavoixlibre.fr/galerie.html" />
+  <meta name="description" content="Galerie photo S.O.U.L. : souvenirs de concerts a cappella, gospel et soul à Rennes.">
+  <title>Galerie photos – concerts S.O.U.L. à Rennes</title>
+  <link rel="canonical" href="https://chanterlavoixlibre.fr/galerie-soul.html" />
   <meta property="og:type" content="article">
-  <meta property="og:site_name" content="La Voix Libre – chant chorale à Rennes">
-  <meta property="og:title" content="Galerie photos – concerts La Voix Libre à Rennes">
-  <meta property="og:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
-  <meta property="og:url" content="https://chanterlavoixlibre.fr/galerie.html">
-  <meta property="og:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <meta property="og:site_name" content="S.O.U.L. – ensemble vocal a cappella à Rennes">
+  <meta property="og:title" content="Galerie photos – concerts S.O.U.L. à Rennes">
+  <meta property="og:description" content="Galerie photo S.O.U.L. : souvenirs de concerts a cappella, gospel et soul à Rennes.">
+  <meta property="og:url" content="https://chanterlavoixlibre.fr/galerie-soul.html">
+  <meta property="og:image" content="https://chanterlavoixlibre.fr/assets/images/soullogo.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Galerie photos – concerts La Voix Libre à Rennes">
-  <meta name="twitter:description" content="Galerie photo La Voix Libre : souvenirs de concerts, répétitions et événements à Rennes.">
-  <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/concerts.jpg">
+  <meta name="twitter:title" content="Galerie photos – concerts S.O.U.L. à Rennes">
+  <meta name="twitter:description" content="Galerie photo S.O.U.L. : souvenirs de concerts a cappella, gospel et soul à Rennes.">
+  <meta name="twitter:image" content="https://chanterlavoixlibre.fr/assets/images/soullogo.png">
   <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=20260830b">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
@@ -27,9 +27,7 @@
   </script>
   <style>
     /* ---- Fond pastel chaleureux ---- */
-    body.internal-page {
-      background: #fdfafe;
-    }
+    body.internal-page { background: #fdfafe; }
 
     /* ---- Bandeau d'ouverture (hero) ---- */
     .gallery-hero {
@@ -52,32 +50,114 @@
       color: transparent;
       letter-spacing: 0.5px;
     }
-    .gallery-hero-subtitle {
-      color: #6b5e7a;
-      font-size: 1.02rem;
-      margin: 0 0 14px 0;
-    }
+    .gallery-hero-subtitle { color: #6b5e7a; font-size: 1.02rem; margin: 0 0 14px 0; }
     .gallery-hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 8px 18px;
-      flex-wrap: wrap;
-      font-size: 0.92rem;
-      color: #6b5e7a;
-      margin: 14px 0 0 0;
+      display: flex; justify-content: center; gap: 8px 18px; flex-wrap: wrap;
+      font-size: 0.92rem; color: #6b5e7a; margin: 14px 0 0 0;
     }
     .gallery-hero-stats .stat {
-      background: rgba(255,255,255,0.7);
-      border: 1px solid rgba(136,68,170,0.18);
-      border-radius: 999px;
-      padding: 6px 14px;
-      backdrop-filter: blur(4px);
+      background: rgba(255,255,255,0.7); border: 1px solid rgba(136,68,170,0.18);
+      border-radius: 999px; padding: 6px 14px; backdrop-filter: blur(4px);
     }
     .gallery-hero-stats .stat strong {
-      color: var(--accent-color-complementary);
-      font-weight: 700;
-      font-size: 1.05em;
-      margin-right: 4px;
+      color: var(--accent-color-complementary); font-weight: 700; font-size: 1.05em; margin-right: 4px;
+    }
+
+    /* ---- En-tête riche concert (allégé : la carte-bouquet fait office de cadre) ---- */
+    .gallery-group-header {
+      display: flex; align-items: center; justify-content: flex-start; gap: 12px;
+      flex-wrap: wrap; margin: 0 0 10px 0; padding: 4px 6px;
+      background: transparent; border: none; border-radius: 0; box-shadow: none;
+    }
+    .gallery-group-header .ggh-emoji { font-size: 1.6rem; line-height: 1; flex-shrink: 0; }
+    .gallery-group-header .ggh-title {
+      font-family: 'Lobster', cursive; font-size: 1.35rem;
+      color: var(--accent-color-complementary); font-weight: 400; margin: 0;
+      flex: 1 1 auto; min-width: 200px; line-height: 1.2;
+    }
+    .gallery-group-header .ggh-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .gallery-group-header .ggh-chip {
+      background: #f7eff8; border: 1px solid #ead7ee; color: #5b3870;
+      padding: 4px 11px; border-radius: 999px; font-size: 0.82rem;
+      font-weight: 600; white-space: nowrap;
+    }
+    .gallery-group-header .ggh-chip.ggh-chip-count { color: var(--accent-color-primary); }
+
+    /* ---- Photo à la une ---- */
+    .gallery-feature {
+      margin: 0 auto 4px auto; max-width: 1000px; border-radius: 12px;
+      overflow: hidden; cursor: pointer; position: relative; background: #eee;
+      box-shadow: 0 6px 24px rgba(136,68,170,0.13); aspect-ratio: 16 / 9;
+      opacity: 0; transform: translateY(8px); animation: photoFadeIn 0.55s ease-out forwards;
+    }
+    .gallery-feature img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+    .gallery-feature:hover img { transform: scale(1.025); }
+    .gallery-feature .feature-badge {
+      position: absolute; top: 12px; left: 12px;
+      background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
+      color: #fff; font-size: 0.78rem; font-weight: 700; padding: 5px 12px;
+      border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,0.18); letter-spacing: 0.4px;
+    }
+    .gallery-feature .feature-caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 28px 16px 14px 16px; color: #fff;
+      background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.2) 60%, transparent);
+      transform: translateY(100%); transition: transform 0.35s ease;
+    }
+    .gallery-feature:hover .feature-caption { transform: translateY(0); }
+    .gallery-feature .feature-caption .fc-desc { font-size: 1rem; font-weight: 600; margin: 0 0 2px 0; }
+    .gallery-feature .feature-caption .fc-meta { font-size: 0.82rem; color: rgba(255,255,255,0.85); margin: 0; }
+    @media (max-width: 600px) {
+      .gallery-feature { aspect-ratio: 4 / 3; }
+      .gallery-feature .feature-caption { transform: translateY(0); }
+    }
+
+    /* ---- Séparateur décoratif ---- */
+    .gallery-group-sep {
+      position: relative; text-align: center; margin: 2.4rem auto 2rem auto;
+      max-width: 1000px; font-size: 1.35rem; color: rgba(136,68,170,0.5); line-height: 1;
+    }
+    .gallery-group-sep::before, .gallery-group-sep::after {
+      content: ''; position: absolute; top: 50%; width: 28%; max-width: 220px;
+      border-top: 1px dashed rgba(136,68,170,0.28);
+    }
+    .gallery-group-sep::before { right: calc(50% + 22px); }
+    .gallery-group-sep::after  { left:  calc(50% + 22px); }
+
+    /* ---- Cascade animation ---- */
+    @keyframes photoFadeIn { to { opacity: 1; transform: translateY(0); } }
+
+    /* ---- FAB mobile ---- */
+    .fab-add {
+      display: none; position: fixed; bottom: 18px; right: 18px;
+      width: 60px; height: 60px;
+      background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
+      color: #fff; border-radius: 50%; align-items: center; justify-content: center;
+      font-size: 1.6rem; text-decoration: none; box-shadow: 0 6px 18px rgba(136,68,170,0.45);
+      z-index: 1300; transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fab-add:hover { transform: scale(1.08); box-shadow: 0 8px 22px rgba(136,68,170,0.55); }
+    @media (max-width: 768px) { .fab-add { display: inline-flex; } }
+
+    /* ---- Bouton ❤ lightbox ---- */
+    #lightbox-like {
+      position: absolute; bottom: 110px; right: 24px;
+      background: rgba(255,255,255,0.14); border: none; color: #fff;
+      font-size: 1.4rem; padding: 10px 14px; border-radius: 999px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      transition: background 0.18s, transform 0.18s; backdrop-filter: blur(6px);
+    }
+    #lightbox-like:hover { background: rgba(255,255,255,0.26); transform: scale(1.05); }
+    #lightbox-like.liked { background: rgba(255,102,153,0.85); }
+    #lightbox-like.liked .lb-like-icon { animation: heartPop 0.4s ease; }
+    @keyframes heartPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+    #lightbox-like .lb-like-count { font-size: 0.9rem; font-weight: 700; }
+    @media (max-width: 600px) {
+      #lightbox-like { bottom: 80px; right: 12px; padding: 8px 12px; font-size: 1.2rem; }
     }
 
     /* ---- Barre d'action en haut ---- */
@@ -127,138 +207,16 @@
       60%  { opacity: 1; transform: scale(1.01) translateY(0); }
       100% { opacity: 1; transform: scale(1) translateY(0); }
     }
-
-    /* En-tête riche : emoji saison + titre + chips date relative & nb photos */
-    .gallery-group-header {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin: 0 0 10px 0;
-      padding: 4px 6px;
-      background: transparent;
-      border: none;
-      border-radius: 0;
-      box-shadow: none;
-    }
-    .gallery-group-header .ggh-emoji {
-      font-size: 1.6rem;
-      line-height: 1;
-      flex-shrink: 0;
-    }
-    .gallery-group-header .ggh-title {
+    .gallery-group-title {
       font-family: 'Lobster', cursive;
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       color: var(--accent-color-complementary);
       font-weight: 400;
-      margin: 0;
-      flex: 1 1 auto;
-      min-width: 200px;
+      text-align: center;
+      margin: 0 auto 0.8rem auto;
+      max-width: 1000px;
       line-height: 1.2;
     }
-    .gallery-group-header .ggh-meta {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .gallery-group-header .ggh-chip {
-      background: #f7eff8;
-      border: 1px solid #ead7ee;
-      color: #5b3870;
-      padding: 4px 11px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .gallery-group-header .ggh-chip.ggh-chip-count { color: var(--accent-color-primary); }
-
-    /* ---- Photo "à la une" (1ère du groupe) ---- */
-    .gallery-feature {
-      margin: 0 auto 4px auto;
-      max-width: 1000px;
-      border-radius: 12px;
-      overflow: hidden;
-      cursor: pointer;
-      position: relative;
-      background: #eee;
-      box-shadow: 0 6px 24px rgba(136,68,170,0.13);
-      aspect-ratio: 16 / 9;
-      opacity: 0;
-      transform: translateY(8px);
-      animation: photoFadeIn 0.55s ease-out forwards;
-    }
-    .gallery-feature img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.5s ease;
-    }
-    .gallery-feature:hover img { transform: scale(1.025); }
-    .gallery-feature .feature-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
-      color: #fff;
-      font-size: 0.78rem;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 999px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-      letter-spacing: 0.4px;
-    }
-    .gallery-feature .feature-caption {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 28px 16px 14px 16px;
-      color: #fff;
-      background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.2) 60%, transparent);
-      transform: translateY(100%);
-      transition: transform 0.35s ease;
-    }
-    .gallery-feature:hover .feature-caption { transform: translateY(0); }
-    .gallery-feature .feature-caption .fc-desc {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0 0 2px 0;
-    }
-    .gallery-feature .feature-caption .fc-meta {
-      font-size: 0.82rem;
-      color: rgba(255,255,255,0.85);
-      margin: 0;
-    }
-    @media (max-width: 600px) {
-      .gallery-feature { aspect-ratio: 4 / 3; }
-      .gallery-feature .feature-caption { transform: translateY(0); }
-    }
-
-    /* ---- Séparateur décoratif entre concerts (♪ avec traits pointillés) ---- */
-    .gallery-group-sep {
-      position: relative;
-      text-align: center;
-      margin: 2.4rem auto 2rem auto;
-      max-width: 1000px;
-      font-size: 1.35rem;
-      color: rgba(136,68,170,0.5);
-      line-height: 1;
-    }
-    .gallery-group-sep::before,
-    .gallery-group-sep::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: 28%;
-      max-width: 220px;
-      border-top: 1px dashed rgba(136,68,170,0.28);
-    }
-    .gallery-group-sep::before { right: calc(50% + 22px); }
-    .gallery-group-sep::after  { left:  calc(50% + 22px); }
 
     /* ---- Mosaïque "bouquet" — Grid asymétrique avec photo centrale + spans calculés en JS ---- */
     .photo-mosaic {
@@ -273,7 +231,6 @@
       overflow: hidden;
     }
     .photo-mosaic figure.bouquet-center { grid-column: span 2; }
-    /* Mobile : on revient au masonry en colonnes (aligné, c'est ce qui plaît au téléphone) */
     @media (max-width: 600px) {
       .photo-mosaic {
         display: block;
@@ -289,17 +246,11 @@
       .photo-mosaic { column-count: 3; }
     }
     .photo-mosaic figure {
-      margin: 0;
-      border-radius: 0;
-      overflow: hidden;
-      cursor: zoom-in;
-      position: relative;
-      background: #eee;
-      break-inside: avoid;
-      display: block;
-      opacity: 0;
-      transform: translateY(10px);
+      margin: 0; border-radius: 0; overflow: hidden; cursor: zoom-in;
+      position: relative; background: #eee; break-inside: avoid; display: block;
+      opacity: 0; transform: translateY(10px);
       animation: photoFadeIn 0.5s ease-out forwards;
+      animation-delay: calc(var(--i, 0) * 35ms);
       transition: box-shadow 0.25s ease, transform 0.25s ease, z-index 0s linear 0.25s;
       z-index: 0;
     }
@@ -309,72 +260,32 @@
       z-index: 2;
       transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
-    .photo-mosaic figure img {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: cover;
-      transition: opacity 0.2s ease;
-    }
-    /* Sur mobile (masonry colonnes), on garde les vraies proportions sans crop */
+    .photo-mosaic figure img { width: 100%; height: 100%; display: block; object-fit: cover; transition: opacity 0.2s ease; }
     @media (max-width: 600px) {
       .photo-mosaic figure { break-inside: avoid; }
       .photo-mosaic figure img { height: auto; object-fit: initial; }
     }
     .photo-mosaic figure:hover img { opacity: 0.95; }
-    /* Petit ❤️ qui apparaît en haut-droite au survol */
     .photo-mosaic figure::after {
-      content: '❤';
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      color: #fff;
-      font-size: 1.05rem;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.45);
-      opacity: 0;
-      transform: scale(0.6);
-      transition: opacity 0.22s ease, transform 0.22s ease;
-      pointer-events: none;
+      content: '❤'; position: absolute; top: 8px; right: 8px;
+      color: #fff; font-size: 1.05rem; text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+      opacity: 0; transform: scale(0.6);
+      transition: opacity 0.22s ease, transform 0.22s ease; pointer-events: none;
     }
     .photo-mosaic figure:hover::after { opacity: 1; transform: scale(1); }
-
-    /* Caption — slide-up depuis le bas (au lieu d'apparaître brutalement) */
     .photo-mosaic figure figcaption {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; flex-direction: column; gap: 2px;
       background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.18) 70%, transparent);
-      color: #fff;
-      font-size: 0.8rem;
-      padding: 26px 10px 10px 10px;
-      transform: translateY(100%);
-      opacity: 0;
+      color: #fff; font-size: 0.8rem; padding: 26px 10px 10px 10px;
+      transform: translateY(100%); opacity: 0;
       transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    .photo-mosaic figure:hover figcaption,
-    .photo-mosaic figure:focus figcaption {
-      opacity: 1;
-      transform: translateY(0);
+    .photo-mosaic figure:hover figcaption, .photo-mosaic figure:focus figcaption {
+      opacity: 1; transform: translateY(0);
     }
-    .photo-mosaic figcaption .cap-desc {
-      font-size: 0.88rem;
-      font-weight: 600;
-      line-height: 1.25;
-    }
-    .photo-mosaic figcaption .cap-meta {
-      font-size: 0.76rem;
-      color: rgba(255,255,255,0.82);
-    }
-
-    /* Cascade fade-in : décalage par photo défini en JS via --i */
-    @keyframes photoFadeIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .photo-mosaic figure { animation-delay: calc(var(--i, 0) * 35ms); }
+    .photo-mosaic figcaption .cap-desc { font-size: 0.88rem; font-weight: 600; line-height: 1.25; }
+    .photo-mosaic figcaption .cap-meta { font-size: 0.76rem; color: rgba(255,255,255,0.82); }
 
     /* ---- Skeleton loader ---- */
     .photo-skeleton {
@@ -392,89 +303,23 @@
 
     /* ---- État vide illustré ---- */
     .gallery-empty {
-      text-align: center;
-      padding: 48px 24px;
-      color: #6b5e7a;
-      font-size: 1.02rem;
+      text-align: center; padding: 48px 24px; color: #6b5e7a; font-size: 1.02rem;
       background: linear-gradient(135deg, rgba(255,102,153,0.05), rgba(136,68,170,0.06));
-      border: 1px dashed rgba(136,68,170,0.25);
-      border-radius: 20px;
-      max-width: 520px;
-      margin: 0 auto;
+      border: 1px dashed rgba(136,68,170,0.25); border-radius: 20px;
+      max-width: 520px; margin: 0 auto;
     }
     .gallery-empty svg { display: block; margin: 0 auto 14px; }
     .gallery-empty h3 {
-      font-family: 'Lobster', cursive;
-      color: var(--accent-color-complementary);
-      font-size: 1.4rem;
-      margin: 0 0 6px 0;
-      font-weight: 400;
+      font-family: 'Lobster', cursive; color: var(--accent-color-complementary);
+      font-size: 1.4rem; margin: 0 0 6px 0; font-weight: 400;
     }
     .gallery-empty p { margin: 0 0 18px 0; }
     .gallery-empty a {
       display: inline-block;
       background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
-      color: #fff !important;
-      padding: 10px 20px;
-      border-radius: 999px;
-      font-weight: 700;
-      text-decoration: none;
+      color: #fff !important; padding: 10px 20px; border-radius: 999px;
+      font-weight: 700; text-decoration: none;
       box-shadow: 0 4px 12px rgba(136,68,170,0.2);
-    }
-
-    /* ---- FAB mobile (bouton flottant "+ photo") ---- */
-    .fab-add {
-      display: none;
-      position: fixed;
-      bottom: 18px;
-      right: 18px;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
-      color: #fff;
-      border-radius: 50%;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.6rem;
-      text-decoration: none;
-      box-shadow: 0 6px 18px rgba(136,68,170,0.45);
-      z-index: 1300;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .fab-add:hover { transform: scale(1.08); box-shadow: 0 8px 22px rgba(136,68,170,0.55); }
-    @media (max-width: 768px) {
-      .fab-add { display: inline-flex; }
-    }
-
-    /* ---- Bouton ❤ dans la lightbox ---- */
-    #lightbox-like {
-      position: absolute;
-      bottom: 110px;
-      right: 24px;
-      background: rgba(255,255,255,0.14);
-      border: none;
-      color: #fff;
-      font-size: 1.4rem;
-      padding: 10px 14px;
-      border-radius: 999px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.18s, transform 0.18s;
-      backdrop-filter: blur(6px);
-    }
-    #lightbox-like:hover { background: rgba(255,255,255,0.26); transform: scale(1.05); }
-    #lightbox-like.liked { background: rgba(255,102,153,0.85); }
-    #lightbox-like.liked .lb-like-icon { animation: heartPop 0.4s ease; }
-    @keyframes heartPop {
-      0% { transform: scale(1); }
-      40% { transform: scale(1.35); }
-      100% { transform: scale(1); }
-    }
-    #lightbox-like .lb-like-count { font-size: 0.9rem; font-weight: 700; }
-    @media (max-width: 600px) {
-      #lightbox-like { bottom: 80px; right: 12px; padding: 8px 12px; font-size: 1.2rem; }
     }
 
     /* ---- Lightbox ---- */
@@ -542,7 +387,6 @@
     #lightbox-prev:hover, #lightbox-next:hover {
       background: rgba(255,255,255,0.25);
     }
-    /* Bouton supprimer (visible uniquement pour le propriétaire ou un chef) */
     #lightbox-delete {
       position: absolute;
       top: 16px;
@@ -563,10 +407,17 @@
     #lightbox-delete:hover { background: rgba(220, 38, 38, 0.95); }
     #lightbox-delete:disabled { opacity: 0.6; cursor: wait; }
 
+    @media (max-width: 900px) {
+      .photo-mosaic { column-count: 5; }
+    }
     @media (max-width: 600px) {
+      .photo-mosaic { column-count: 4; }
       .gallery-group { padding: 10px 10px 4px 10px; border-radius: 14px; }
       #lightbox-prev { left: 4px; }
       #lightbox-next { right: 4px; }
+    }
+    @media (max-width: 400px) {
+      .photo-mosaic { column-count: 3; }
     }
 
     /* ---- CTA upload ---- */
@@ -659,24 +510,16 @@
       padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem;
     }
     #photo-moderation .pm-hint { margin: 0 0 12px 0; color: #5b3a00; font-size: 0.92rem; }
-    #pending-list {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;
-    }
-    .pending-card {
-      background: #fff; border: 1px solid #fde68a; border-radius: 10px;
-      overflow: hidden; position: relative; box-shadow: 0 2px 6px rgba(146,64,14,0.1);
-    }
-    .pending-card .pc-img {
-      width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #f4f1ec;
-    }
+    #pending-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .pending-card { background: #fff; border: 1px solid #fde68a; border-radius: 10px; overflow: hidden;
+      position: relative; box-shadow: 0 2px 6px rgba(146,64,14,0.1); }
+    .pending-card .pc-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; display: block; background: #f4f1ec; }
     .pending-card .pc-info { padding: 8px 10px 0 10px; font-size: 0.82rem; color: #444; line-height: 1.35; }
     .pending-card .pc-info strong { color: #92400e; display: block; margin-bottom: 2px; font-size: 0.86rem; }
     .pending-card .pc-info em { color: #6b6b6b; font-style: italic; font-size: 0.78rem; display: block; margin-top: 2px; }
     .pending-card .pc-actions { display: flex; gap: 6px; padding: 8px 10px 10px 10px; }
-    .pending-card .pc-btn {
-      flex: 1 1 auto; padding: 6px 8px; border-radius: 6px; font-weight: 700; font-size: 0.82rem;
-      cursor: pointer; border: none; transition: background 0.15s;
-    }
+    .pending-card .pc-btn { flex: 1 1 auto; padding: 6px 8px; border-radius: 6px; font-weight: 700;
+      font-size: 0.82rem; cursor: pointer; border: none; transition: background 0.15s; }
     .pending-card .pc-btn.pc-approve { background: #16a34a; color: #fff; }
     .pending-card .pc-btn.pc-approve:hover { background: #15803d; }
     .pending-card .pc-btn.pc-reject { background: #fff; color: #b91c1c; border: 1.5px solid #ef4444; }
@@ -685,15 +528,15 @@
     .pending-empty { color: #92400e; font-style: italic; padding: 10px 4px; grid-column: 1 / -1; }
   </style>
 </head>
-<body class="internal-page">
+<body class="page-soul internal-page">
   <main class="main-content">
-    <h1 class="sr-only">Galerie photos — concerts La Voix Libre à Rennes</h1>
+    <h1 class="sr-only">Galerie photos — concerts S.O.U.L. à Rennes</h1>
     <div id="page-content-container" data-static="true">
 
       <!-- Bandeau d'ouverture -->
       <header class="gallery-hero" id="gallery-hero">
-        <h1 class="gallery-hero-title">La famille La Voix Libre en images</h1>
-        <p class="gallery-hero-subtitle">Souvenirs de concerts, répétitions et moments partagés. ✨</p>
+        <h1 class="gallery-hero-title">L'ensemble S.O.U.L. en images</h1>
+        <p class="gallery-hero-subtitle">Concerts a cappella, soul, gospel et moments partagés. ✨</p>
         <div class="gallery-hero-stats" id="gallery-hero-stats" aria-live="polite">
           <span class="stat"><strong>—</strong> photos</span>
           <span class="stat"><strong>—</strong> concerts</span>
@@ -710,19 +553,19 @@
         </div>
       </div>
 
-      <!-- Section bureau : photos à valider (visible uniquement chefs) -->
+      <!-- Section bureau : photos SOUL à valider -->
       <section id="photo-moderation" aria-label="Photos en attente de validation">
         <div class="pm-head">
-          <h2>🛂 Photos à valider <span id="pending-count">…</span></h2>
+          <h2>🛂 Photos S.O.U.L. à valider <span id="pending-count">…</span></h2>
           <button type="button" id="pending-refresh">🔄 Rafraîchir</button>
         </div>
-        <p class="pm-hint">Photos envoyées par les choristes en attente de votre validation.</p>
+        <p class="pm-hint">Photos S.O.U.L. envoyées par les choristes en attente de votre validation.</p>
         <div id="pending-list"></div>
       </section>
 
-      <!-- Section : Galerie des choristes (groupée par concert, du plus récent au plus ancien) -->
-      <section class="gallery-section" aria-label="Photos de concerts">
-        <div class="home-section-divider"><h2>Galerie des choristes</h2></div>
+      <!-- Section : Galerie SOUL des choristes -->
+      <section class="gallery-section" aria-label="Photos de concerts S.O.U.L.">
+        <div class="home-section-divider"><h2>Galerie S.O.U.L.</h2></div>
 
         <div id="gallery-groups" aria-live="polite">
           <div class="photo-mosaic">
@@ -736,21 +579,16 @@
         </div>
       </section>
 
-      <!-- Section : Actualités Instagram -->
-      <section class="insta-section" aria-label="Actualités Instagram">
-        <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
-        <div class="insta-embeds-grid">
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZp2XTqKloJ/" data-instgrm-version="14"></blockquote></div>
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DX873gbKLA3/" data-instgrm-version="14"></blockquote></div>
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DVoI2NkiiQL/" data-instgrm-version="14"></blockquote></div>
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DSPzoknijA3/" data-instgrm-version="14"></blockquote></div>
-        </div>
+      <!-- Section : Instagram SOUL (Behold) -->
+      <section class="insta-section" aria-label="Actualités Instagram S.O.U.L.">
+        <div class="home-section-divider"><h2>S.O.U.L. sur Insta — Actualités</h2></div>
+        <behold-widget feed-id="VoBScwhUi0d1gGjxGft3"></behold-widget>
       </section>
 
-      <!-- Section : Nos enregistrements (playlist YouTube) -->
-      <section class="youtube-section" aria-label="Nos enregistrements YouTube">
-        <div class="home-section-divider"><h2>La Voix Libre sur YouTube — Enregistrements</h2></div>
-        <div class="youtube-grid" data-playlist="PLrXSL-oTlPbZbzdhKFRSggddJz8wGXbog" data-limit="6" aria-live="polite">
+      <!-- Section : Playlist YouTube SOUL -->
+      <section class="youtube-section" aria-label="Nos enregistrements YouTube S.O.U.L.">
+        <div class="home-section-divider"><h2>S.O.U.L. sur YouTube — Enregistrements</h2></div>
+        <div class="youtube-grid" data-playlist="UUpxrdXwMftJrN_OYsC3hDpA" data-limit="6" aria-live="polite">
           <div class="youtube-skeleton"></div>
           <div class="youtube-skeleton"></div>
           <div class="youtube-skeleton"></div>
@@ -780,30 +618,27 @@
     <button id="lightbox-next" aria-label="Photo suivante">&#8250;</button>
   </div>
 
-  <script async src="//www.instagram.com/embed.js"></script>
+  <!-- Widget Instagram Behold -->
+  <script type="module" src="https://w.behold.so/widget.js"></script>
+  <!-- Force le rendu SOUL (logo, thème) — main.js détecte sinon via le pathname /soul/* -->
+  <script>window.__isSoulSite = true; window.BEHOLD_SOUL_FEED_ID = 'VoBScwhUi0d1gGjxGft3';</script>
   <script src="assets/js/main.js?v=20260830"></script>
   <script>
-    // ---- Endpoint GAS (à remplir après déploiement) ----
+    // ---- Endpoint GAS (identique à galerie.html — mêmes photos en base, filtrées côté client) ----
     const PHOTOS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzQMQWjD6dL5fKaRPagrSE7tCquOCQpRTL9TSv7jhsQew34AZ4cXysEW32hHb167ZY-/exec';
 
     // ---- État ----
     let allPhotos = [];
     let filteredPhotos = [];
     let lightboxIndex = 0;
-    let eventMap = {}; // eventId -> { name, date }
+    let eventMap = {};
     const selectedIds = new Set();
 
-    // ---- Likes (localStorage, par appareil) ----
-    function getLikes() {
-      try { return JSON.parse(localStorage.getItem('photoLikes') || '{}'); } catch { return {}; }
-    }
+    // ---- Likes (localStorage) ----
+    function getLikes() { try { return JSON.parse(localStorage.getItem('photoLikes') || '{}'); } catch { return {}; } }
     function setLikes(o) { try { localStorage.setItem('photoLikes', JSON.stringify(o)); } catch {} }
-    function getMyLikedSet() {
-      try { return new Set(JSON.parse(localStorage.getItem('photoMyLikes') || '[]')); } catch { return new Set(); }
-    }
-    function setMyLikedSet(set) {
-      try { localStorage.setItem('photoMyLikes', JSON.stringify([...set])); } catch {}
-    }
+    function getMyLikedSet() { try { return new Set(JSON.parse(localStorage.getItem('photoMyLikes') || '[]')); } catch { return new Set(); } }
+    function setMyLikedSet(set) { try { localStorage.setItem('photoMyLikes', JSON.stringify([...set])); } catch {} }
     function photoLikeCount(fileId) { return getLikes()[fileId] || 0; }
     function isLikedByMe(fileId) { return getMyLikedSet().has(fileId); }
     function toggleLike(fileId) {
@@ -816,12 +651,10 @@
         mine.add(fileId);
         likes[fileId] = (likes[fileId] || 0) + 1;
       }
-      setLikes(likes);
-      setMyLikedSet(mine);
+      setLikes(likes); setMyLikedSet(mine);
       return { count: likes[fileId], liked: mine.has(fileId) };
     }
 
-    // ---- Helpers de présentation ----
     function relativeDate(date) {
       if (!date) return '';
       const diff = Date.now() - date.getTime();
@@ -844,7 +677,6 @@
       if (m >= 8 && m <= 10) return '🍂';
       return '❄️';
     }
-    // Empty state illustré
     const EMPTY_STATE_HTML = `
       <div class="gallery-empty">
         <svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -857,12 +689,12 @@
           <circle cx="80" cy="20" r="3.5" fill="#8844aa"/>
           <circle cx="92" cy="19" r="3.5" fill="#8844aa"/>
         </svg>
-        <h3>Pas encore de souvenirs ici…</h3>
+        <h3>Pas encore de souvenirs S.O.U.L. ici…</h3>
         <p>Soyez la première personne à partager une photo ✨</p>
         <a href="espace-choristes.html">📸 Partager une photo</a>
       </div>`;
 
-    // ---- Identité utilisateur (depuis l'espace choristes) ----
+    // ---- Identité utilisateur ----
     function getCurrentUserName() {
       try {
         const p = JSON.parse(localStorage.getItem('choristeProfile') || '{}');
@@ -888,13 +720,10 @@
       return normName(photo.uploaderName) === me;
     }
 
-    // ---- Agendas (LVL = source de cette galerie, SOUL = pour exclure ces photos) ----
+    // ---- Agendas : SOUL = source de cette galerie ----
     const CAL_API_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-    const CALENDAR_ID = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
     const SOUL_CALENDAR_ID = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
-    // Ensemble cible pour cette galerie : 'lvl' (chorale) — l'autre galerie est galerie-soul.html
-    const GALLERY_ENSEMBLE = 'lvl';
-    const soulEventIds = new Set();
+    const soulEventIds = new Set(); // events SOUL → on garde ces photos
 
     function formatConcertLabel(summary, date) {
       const mois  = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
@@ -906,71 +735,41 @@
         + ' ' + date.getFullYear();
     }
 
-    async function fetchCalendarEvents(calId) {
+    async function loadEventMap() {
       const timeMin = new Date(Date.now() - 5 * 365 * 24 * 3600 * 1000).toISOString();
       const timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
-      const url = 'https://www.googleapis.com/calendar/v3/calendars/'
-        + encodeURIComponent(calId)
-        + '/events?key=' + CAL_API_KEY
-        + '&timeMin=' + encodeURIComponent(timeMin)
-        + '&timeMax=' + encodeURIComponent(timeMax)
-        + '&maxResults=250&orderBy=startTime&singleEvents=true';
-      const res  = await fetch(url);
-      const data = await res.json();
-      return data.items || [];
-    }
-
-    async function loadEventMap() {
       try {
-        // Charge en parallèle LVL (pour les libellés) et SOUL (pour exclure)
-        const [lvlItems, soulItems] = await Promise.all([
-          fetchCalendarEvents(CALENDAR_ID).catch(() => []),
-          fetchCalendarEvents(SOUL_CALENDAR_ID).catch(() => [])
-        ]);
-        lvlItems.forEach(ev => {
+        const url = 'https://www.googleapis.com/calendar/v3/calendars/'
+          + encodeURIComponent(SOUL_CALENDAR_ID)
+          + '/events?key=' + CAL_API_KEY
+          + '&timeMin=' + encodeURIComponent(timeMin)
+          + '&timeMax=' + encodeURIComponent(timeMax)
+          + '&maxResults=250&orderBy=startTime&singleEvents=true';
+        const res  = await fetch(url);
+        const data = await res.json();
+        (data.items || []).forEach(ev => {
           const start = ev.start && (ev.start.dateTime || ev.start.date);
-          if (!start) return;
+          if (!start || !ev.id) return;
+          soulEventIds.add(ev.id);
           eventMap[ev.id] = { name: ev.summary || 'Concert', date: new Date(start) };
         });
-        soulItems.forEach(ev => { if (ev.id) soulEventIds.add(ev.id); });
       } catch (e) {
         console.warn('Calendar fetch failed', e);
       }
     }
 
-    // Index inverse : nom normalisé → eventId (construit après chargement de l'agenda)
-    let _eventByName = null;
-    function getEventByName() {
-      if (_eventByName) return _eventByName;
-      _eventByName = {};
-      Object.entries(eventMap).forEach(([id, ev]) => {
-        const k = normName(ev.name || '');
-        if (k && !_eventByName[k]) _eventByName[k] = id;
-      });
-      return _eventByName;
-    }
-    // Résout l'eventId d'une photo : depuis son champ eventId, ou par correspondance de nom
-    function resolveEventId(photo) {
-      if (photo.eventId) return photo.eventId;
-      if (!photo.concert) return null;
-      return getEventByName()[normName(photo.concert)] || null;
-    }
-
-    // Clé de regroupement : id d'événement si dispo ou trouvé par nom, sinon nom stocké (anciennes photos)
     function photoKey(photo) {
-      const evId = resolveEventId(photo);
-      return evId ? ('id:' + evId) : ('name:' + (photo.concert || 'Non précisé'));
+      return photo.eventId ? ('id:' + photo.eventId) : ('name:' + (photo.concert || 'Non précisé'));
     }
-    // Libellé affiché : nom courant de l'agenda, sinon nom stocké à l'envoi
     function photoLabel(photo) {
-      const evId = resolveEventId(photo);
-      if (evId && eventMap[evId]) return formatConcertLabel(eventMap[evId].name, eventMap[evId].date);
+      if (photo.eventId && eventMap[photo.eventId]) {
+        const ev = eventMap[photo.eventId];
+        return formatConcertLabel(ev.name, ev.date);
+      }
       return photo.concert || 'Non précisé';
     }
-    // Date utilisée pour le tri des catégories
     function photoDate(photo) {
-      const evId = resolveEventId(photo);
-      if (evId && eventMap[evId]) return eventMap[evId].date.getTime();
+      if (photo.eventId && eventMap[photo.eventId]) return eventMap[photo.eventId].date.getTime();
       return photo.uploadDate ? new Date(photo.uploadDate).getTime() : 0;
     }
 
@@ -981,13 +780,12 @@
       groupsEl.innerHTML = `<div class="photo-mosaic">${Array(6).fill('<div class="photo-skeleton"></div>').join('')}</div>`;
 
       if (!PHOTOS_ENDPOINT || PHOTOS_ENDPOINT.startsWith('REMPLACER')) {
-        groupsEl.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.<br>Déployez le script GAS et renseignez l\'URL dans galerie.html.</p></div>';
+        groupsEl.innerHTML = '<div class="gallery-empty"><p>La galerie n\'est pas encore configurée.</p></div>';
         return;
       }
 
       try {
         const url = PHOTOS_ENDPOINT + (PHOTOS_ENDPOINT.includes('?') ? '&' : '?') + 'action=gallery_list';
-        // Agenda + photos en parallèle
         const [, res] = await Promise.all([ loadEventMap(), fetch(url, { cache: 'no-store' }) ]);
         const data = await res.json();
 
@@ -996,22 +794,15 @@
           return;
         }
 
-        // Filtre : on garde les photos liées au calendrier La Voix Libre (ou sans eventId — legacy).
-        // On exclut explicitement les photos rattachées au calendrier SOUL.
-        const photos = data.photos.filter(p => {
-          if (!p.eventId) return true; // legacy : pas de rattachement → visible ici
-          if (soulEventIds.has(p.eventId)) return false; // photo SOUL → exclue
-          return true; // soit dans LVL, soit dans un autre calendrier inconnu → visible
-        });
+        // Filtre : on garde UNIQUEMENT les photos rattachées au calendrier SOUL.
+        const photos = data.photos.filter(p => p.eventId && soulEventIds.has(p.eventId));
 
         if (!photos.length) {
           groupsEl.innerHTML = EMPTY_STATE_HTML;
           return;
         }
 
-        // Résout le libellé courant + la clé de regroupement de chaque photo
         photos.forEach(p => { p._label = photoLabel(p); p._key = photoKey(p); });
-
         allPhotos = photos;
         renderGroupedGalleries();
       } catch (e) {
@@ -1020,14 +811,12 @@
       }
     }
 
-    // Choisit la photo "à la une" : celle avec le plus de likes, sinon la plus récente.
     function pickFeaturedPhoto(photos) {
       const liked = photos
         .map(p => ({ p, likes: photoLikeCount(p.fileId) }))
         .filter(x => x.likes > 0)
         .sort((a, b) => b.likes - a.likes);
       if (liked.length > 0) return liked[0].p;
-      // Fallback : la plus récente par uploadDate
       return photos.slice().sort((a, b) => {
         const da = a.uploadDate ? new Date(a.uploadDate).getTime() : 0;
         const db = b.uploadDate ? new Date(b.uploadDate).getTime() : 0;
@@ -1035,11 +824,24 @@
       })[0];
     }
 
-    // ---- Rendu groupé par concert ----
+    function updateHeroStats(list) {
+      const el = document.getElementById('gallery-hero-stats');
+      if (!el) return;
+      const total = list.reduce((s, g) => s + g.photos.length, 0);
+      const concerts = list.length;
+      const uploaders = new Set();
+      list.forEach(g => g.photos.forEach(p => {
+        const n = (p.uploaderName || '').trim().toLowerCase();
+        if (n) uploaders.add(n);
+      }));
+      el.innerHTML =
+        `<span class="stat"><strong>${total}</strong> photo${total > 1 ? 's' : ''}</span>` +
+        `<span class="stat"><strong>${concerts}</strong> concert${concerts > 1 ? 's' : ''}</span>` +
+        `<span class="stat"><strong>${uploaders.size}</strong> contributeur${uploaders.size > 1 ? 's' : ''}</span>`;
+    }
+
     function renderGroupedGalleries() {
       const groupsEl = document.getElementById('gallery-groups');
-
-      // Regroupe par clé concert
       const groups = {};
       allPhotos.forEach(p => {
         if (!groups[p._key]) {
@@ -1051,15 +853,9 @@
         .filter(g => g.photos.length > 0)
         .sort((a, b) => b.date - a.date);
 
-      // Mise à jour des stats du hero
       updateHeroStats(list);
+      if (list.length === 0) { groupsEl.innerHTML = EMPTY_STATE_HTML; return; }
 
-      if (list.length === 0) {
-        groupsEl.innerHTML = EMPTY_STATE_HTML;
-        return;
-      }
-
-      // Construit la liste à plat dans l'ordre d'affichage (pour les indices de lightbox).
       filteredPhotos = list.flatMap(g => g.photos);
 
       const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
@@ -1112,7 +908,6 @@
 
       groupsEl.innerHTML = html;
 
-      // Bind clicks + touches sur figures (featured + masonry)
       groupsEl.querySelectorAll('figure[data-index]').forEach(fig => {
         const handle = () => {
           if (document.body.classList.contains('gallery-select-mode')) {
@@ -1127,7 +922,7 @@
         });
       });
 
-      // ---- Layout "bouquet" : première photo de chaque groupe en centre + spans dynamiques ----
+      // ---- Layout "bouquet" : première photo de chaque groupe = centre + spans dynamiques ----
       groupsEl.querySelectorAll('.photo-mosaic').forEach(mosaic => {
         const figs = mosaic.querySelectorAll('figure');
         if (figs.length > 0) figs[0].classList.add('bouquet-center');
@@ -1137,14 +932,13 @@
       if (typeof syncYoutubeGapToBehold === 'function') syncYoutubeGapToBehold();
     }
 
-    // Calcule grid-row span de chaque photo d'après ses vraies proportions (desktop uniquement)
     function arrangeBouquet(mosaic) {
-      if (window.matchMedia('(max-width: 600px)').matches) return; // mobile = masonry, on ne touche pas
+      if (window.matchMedia('(max-width: 600px)').matches) return;
       const figs = Array.from(mosaic.querySelectorAll('figure'));
       const containerWidth = mosaic.offsetWidth;
       if (!containerWidth) return;
       const cols = 8;
-      const rowHeight = 12; // doit matcher grid-auto-rows
+      const rowHeight = 12;
       const gap = 1;
       const colWidth = (containerWidth - gap * (cols - 1)) / cols;
 
@@ -1165,7 +959,6 @@
       });
     }
 
-    // Recalcule les spans à chaque changement de taille (debounced)
     let _resizeT;
     window.addEventListener('resize', () => {
       clearTimeout(_resizeT);
@@ -1174,23 +967,6 @@
       }, 200);
     });
 
-    // ---- Stats du hero ----
-    function updateHeroStats(list) {
-      const el = document.getElementById('gallery-hero-stats');
-      if (!el) return;
-      const total = list.reduce((s, g) => s + g.photos.length, 0);
-      const concerts = list.length;
-      const uploaders = new Set();
-      list.forEach(g => g.photos.forEach(p => {
-        const n = (p.uploaderName || '').trim().toLowerCase();
-        if (n) uploaders.add(n);
-      }));
-      el.innerHTML =
-        `<span class="stat"><strong>${total}</strong> photo${total > 1 ? 's' : ''}</span>` +
-        `<span class="stat"><strong>${concerts}</strong> concert${concerts > 1 ? 's' : ''}</span>` +
-        `<span class="stat"><strong>${uploaders.size}</strong> contributeur${uploaders.size > 1 ? 's' : ''}</span>`;
-    }
-
     // ---- Lightbox ----
     function openLightbox(index) {
       lightboxIndex = index;
@@ -1198,12 +974,10 @@
       document.getElementById('lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
-
     function closeLightbox() {
       document.getElementById('lightbox').classList.remove('open');
       document.body.style.overflow = '';
     }
-
     function showLightboxPhoto(index) {
       const photo = filteredPhotos[index];
       if (!photo) return;
@@ -1221,20 +995,15 @@
         + meta
         + `<span style="color:rgba(255,255,255,0.4);margin-left:10px;">${index+1} / ${filteredPhotos.length}</span>`;
 
-      // Cacher flèches si une seule photo
       document.getElementById('lightbox-prev').style.display = filteredPhotos.length > 1 ? '' : 'none';
       document.getElementById('lightbox-next').style.display = filteredPhotos.length > 1 ? '' : 'none';
 
-      // Bouton supprimer : visible uniquement si propriétaire ou chef
       const delBtn = document.getElementById('lightbox-delete');
       delBtn.style.display = canDeletePhoto(photo) ? 'inline-flex' : 'none';
       delBtn.disabled = false;
       delBtn.textContent = '🗑 Supprimer';
-
-      // Bouton ❤️ : compteur + état liké
       updateLightboxLike(photo);
     }
-
     function updateLightboxLike(photo) {
       const btn = document.getElementById('lightbox-like');
       if (!btn || !photo) return;
@@ -1244,18 +1013,13 @@
       btn.querySelector('.lb-like-count').textContent = count;
       btn.classList.toggle('liked', liked);
     }
-
     function handleLightboxLike() {
       const photo = filteredPhotos[lightboxIndex];
       if (!photo || !photo.fileId) return;
       toggleLike(photo.fileId);
       updateLightboxLike(photo);
-      // Le featured peut changer si on a liké/déliké → on recalcule l'affichage
-      // mais on évite de re-render pendant que la lightbox est ouverte
-      // → on re-renderra à la fermeture pour ne pas casser la navigation.
     }
 
-    // ---- Suppression d'une photo ----
     async function deleteCurrentPhoto() {
       const photo = filteredPhotos[lightboxIndex];
       if (!photo || !photo.fileId) return;
@@ -1285,7 +1049,6 @@
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
-        // Retire la photo localement et rafraîchit l'affichage
         allPhotos = allPhotos.filter(p => p.fileId !== photo.fileId);
         closeLightbox();
         if (allPhotos.length === 0) {
@@ -1323,7 +1086,7 @@
       if (e.key === 'ArrowRight') { lightboxIndex = (lightboxIndex + 1) % filteredPhotos.length; showLightboxPhoto(lightboxIndex); }
     });
 
-    // ---- Mode sélection (membres bureau uniquement) ----
+    // ---- Mode sélection (bureau uniquement) ----
     function updateSelectBtn() {
       const btn = document.getElementById('gallery-select-btn');
       if (!btn) return;
@@ -1342,7 +1105,6 @@
         btn.classList.add('has-selection');
       }
     }
-
     function toggleSelectFigure(fig) {
       const id = fig.dataset.fileId;
       if (!id) return;
@@ -1355,7 +1117,6 @@
       }
       updateSelectBtn();
     }
-
     async function deleteSelectedPhotos() {
       const ids = Array.from(selectedIds);
       if (!ids.length) return;
@@ -1425,12 +1186,9 @@
       deleteSelectedPhotos();
     });
 
-    // Active le bouton "Supprimer" pour les chefs (session héritée d'espace-choristes)
     if (isChef()) document.body.classList.add('role-chef');
 
-    // ---- Modération : photos en attente (chef uniquement) ----
-    // Filtre côté client : on ne montre que les pending rattachées au calendrier La Voix Libre
-    // (les pending SOUL apparaîtront sur galerie-soul.html).
+    // ---- Modération : photos SOUL en attente (chef uniquement) ----
     async function loadPendingPhotos() {
       if (!isChef()) return;
       const listEl  = document.getElementById('pending-list');
@@ -1447,16 +1205,12 @@
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
-        // Filtre : on garde les photos LVL (pas SOUL) et les legacy sans eventId
-        let photos = (data.photos || []).filter(p => {
-          if (!p.eventId) return true;
-          if (soulEventIds.has(p.eventId)) return false;
-          return true;
-        });
+        // Filtre : on garde uniquement les photos SOUL (eventId dans soulEventIds)
+        let photos = (data.photos || []).filter(p => p.eventId && soulEventIds.has(p.eventId));
         countEl.textContent = photos.length;
 
         if (photos.length === 0) {
-          listEl.innerHTML = '<p class="pending-empty">Aucune photo en attente. ✨</p>';
+          listEl.innerHTML = '<p class="pending-empty">Aucune photo S.O.U.L. en attente. ✨</p>';
           return;
         }
 
@@ -1524,9 +1278,8 @@
           const remaining = listEl ? listEl.querySelectorAll('.pending-card').length : 0;
           countEl.textContent = remaining;
           if (remaining === 0 && listEl) {
-            listEl.innerHTML = '<p class="pending-empty">Aucune photo en attente. ✨</p>';
+            listEl.innerHTML = '<p class="pending-empty">Aucune photo S.O.U.L. en attente. ✨</p>';
           }
-          // Si on a validé, on rafraîchit la galerie pour faire apparaître la photo
           if (action === 'approve') loadGallery();
         }, 300);
       } catch (err) {
