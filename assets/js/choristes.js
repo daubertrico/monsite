@@ -9,7 +9,7 @@
   // pour le code à déployer). Il scanne un dossier Google Drive partagé avec le
   // bureau : un sous-dossier = une chanson, les PDF/enregistrements dedans sont
   // détectés automatiquement. Tant que c'est vide, seul data/partitions.json est utilisé.
-  const MATERIEL_ENDPOINT = '';
+  const MATERIEL_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxsgakVg3j1qQNtT4w5Az6DbZZt_Ftw8D8l_J8sWbZY-nSuRkiEgjnTl9htNurwVSs/exec';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
