@@ -903,8 +903,8 @@
     }
     function isChef() {
       try {
-        return (localStorage.getItem('choristesRole') === 'chef')
-            || (sessionStorage.getItem('choristesRole') === 'chef');
+        const r = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
+        return r === 'chef' || r === 'admin';
       } catch { return false; }
     }
     function normName(s) {

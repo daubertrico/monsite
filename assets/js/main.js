@@ -252,7 +252,7 @@ function renderAuthBadge() {
   const fullName = ((profile.prenom || '') + ' ' + (profile.nom || '')).trim();
 
   // Pas connecté ou profil pas encore renseigné → on masque/supprime le badge
-  if ((role !== 'member' && role !== 'chef') || !fullName) {
+  if ((role !== 'member' && role !== 'chef' && role !== 'admin') || !fullName) {
     if (badge) badge.remove();
     return;
   }
@@ -263,7 +263,7 @@ function renderAuthBadge() {
     document.body.appendChild(badge);
   }
 
-  const tag = role === 'chef' ? ' <span class="auth-badge-tag">bureau</span>' : '';
+  const tag = role === 'admin' ? ' <span class="auth-badge-tag">chef de chœur</span>' : (role === 'chef' ? ' <span class="auth-badge-tag">bureau</span>' : '');
   badge.innerHTML =
     '<span class="auth-badge-icon" aria-hidden="true">👤</span>' +
     '<span class="auth-badge-name">' + fullName.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '</span>' +
@@ -283,7 +283,9 @@ function renderAuthBadge() {
       sessionStorage.removeItem('espace_choristes_authed');
     } catch {}
     window.IS_CHEF = false;
+    window.IS_ADMIN = false;
     document.body.classList.remove('role-chef');
+    document.body.classList.remove('role-admin');
     renderAuthBadge();
     // Si on est dans l'espace choristes, on renvoie vers la page d'accueil
     if (/espace-choristes(\.html)?\/?$/.test(location.pathname)) {
@@ -376,11 +378,15 @@ function createChoristesModal() {
   ok.addEventListener('click', () => {
     const val = (input.value || '').trim();
     const expected = getGlobalConfigValue('security', 'espace_choristes_password') || 'lavoixlibre2026';
+    const superAdminPasswords = ['chefdechoeur2026'];
     const adminPasswords = ['bureau'];
     const soulPasswords  = ['soul2026'];
-    if (val === expected || adminPasswords.includes(val) || soulPasswords.includes(val)) {
+    if (val === expected || superAdminPasswords.includes(val) || adminPasswords.includes(val) || soulPasswords.includes(val)) {
       // save role for the choristes page (choristes.js expects 'choristesRole')
-      if (adminPasswords.includes(val)) {
+      if (superAdminPasswords.includes(val)) {
+        localStorage.setItem('choristesRole', 'admin');
+        localStorage.setItem('espace_choristes_role', 'admin');
+      } else if (adminPasswords.includes(val)) {
         localStorage.setItem('choristesRole', 'chef');
         localStorage.setItem('espace_choristes_role', 'bureau');
       } else {
@@ -907,7 +913,7 @@ async function fetchPostsFromCSV(csvUrl) {
           </picture>
           <div class="home-hero-overlay">
             <p class="home-hero-tag">Chœur pop à Rennes depuis 2017</p>
-            <a href="nous-rejoindre.html#seances-essai" class="home-hero-cta">🎤 Séance d'essai gratuite — Rentrée septembre 2026</a>
+            <a href="nous-rejoindre.html" class="home-hero-cta">🎤 Nous rejoindre</a>
           </div>`;
         homeContent.appendChild(hero);
       }
@@ -2096,10 +2102,8 @@ async function fetchPostsFromCSV(csvUrl) {
                   const key = (idx > -1 ? d.slice(0, idx) : '').trim().toLowerCase();
                   const val = idx > -1 ? d.slice(idx + 1).trim() : d.trim();
                   if (!val) return;
-                  const isEssaiLink = key === 'inscription' && /essai/i.test(val);
-                  const chip = document.createElement(isEssaiLink ? 'a' : 'span');
-                  chip.className = 'nr-chip' + (isEssaiLink ? ' nr-chip-link' : '');
-                  if (isEssaiLink) chip.href = '#seances-essai';
+                  const chip = document.createElement('span');
+                  chip.className = 'nr-chip';
                   chip.textContent = (chipIcons[key] || '•') + ' ' + val;
                   chips.appendChild(chip);
                 });
@@ -2167,204 +2171,6 @@ async function fetchPostsFromCSV(csvUrl) {
             });
             contentContainer.appendChild(faqWrap);
           }
-
-          // ---- Séances d'essai ----
-          (function() {
-            const TRYOUT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
-            const TRYOUT_DATES = [
-              { value: '14 septembre 2026', label: 'Lundi 14 septembre à 19h30' },
-              { value: '21 septembre 2026', label: 'Lundi 21 septembre à 19h30' }
-            ];
-            const TRYOUT_LIEU = '47b rue Papu, Rennes (Avenir de Rennes)';
-
-            const essaiSection = document.createElement('section');
-            essaiSection.className = 'nr-essai';
-            essaiSection.id = 'seances-essai';
-            essaiSection.style.cssText = 'scroll-margin-top:80px;margin-bottom:40px;';
-            essaiSection.innerHTML = `
-              <div class="home-section-divider"><h2>Venir essayer avant de s'inscrire</h2></div>
-              <div class="nr-essai-card">
-                <div class="nr-essai-intro">
-                  <p>Nous recommandons de venir à une séance d'essai avant de vous inscrire officiellement — l'inscription étant définitive, c'est l'occasion idéale de découvrir l'ambiance, le répertoire et l'équipe.</p>
-                  <p><strong>L'essai est gratuit</strong>, mais l'inscription préalable est obligatoire pour organiser l'accueil.</p>
-                </div>
-                <div class="nr-essai-dates">
-                  <div class="nr-essai-date-item">
-                    <span class="nr-essai-date-icon" aria-hidden="true">🗓</span>
-                    <div><strong>Lundi 14 septembre</strong> à 19h30</div>
-                  </div>
-                  <div class="nr-essai-date-item">
-                    <span class="nr-essai-date-icon" aria-hidden="true">🗓</span>
-                    <div><strong>Lundi 21 septembre</strong> à 19h30</div>
-                  </div>
-                  <div class="nr-essai-date-item">
-                    <span class="nr-essai-date-icon" aria-hidden="true">📍</span>
-                    <div>${TRYOUT_LIEU}</div>
-                  </div>
-                </div>
-                <button type="button" class="home-cta-btn nr-essai-btn" id="open-tryout-form">S'inscrire à une séance d'essai →</button>
-              </div>`;
-            contentContainer.appendChild(essaiSection);
-
-            // ---- Confirmation persistante ----
-            const alreadyRegistered = (function(){ try { return localStorage.getItem('tryout_registered'); } catch(e){ return null; } })();
-            if (alreadyRegistered) {
-              const btn = document.getElementById('open-tryout-form');
-              if (btn) {
-                const confirm = document.createElement('div');
-                confirm.className = 'nr-essai-already';
-                confirm.innerHTML = `✅ <strong>Vous êtes déjà inscrit·e</strong> à la séance du <strong>${alreadyRegistered}</strong>. À très vite !
-                  <button type="button" class="nr-essai-already-cancel">Me désinscrire / corriger</button>`;
-                btn.replaceWith(confirm);
-                confirm.querySelector('.nr-essai-already-cancel').addEventListener('click', function() {
-                  try { localStorage.removeItem('tryout_registered'); } catch(e) {}
-                  confirm.replaceWith(btn);
-                  btn.addEventListener('click', openTryout);
-                });
-              }
-            }
-
-            // ---- Modal formulaire ----
-            function buildTryoutModal() {
-              if (document.getElementById('tryout-overlay')) return;
-              const overlay = document.createElement('div');
-              overlay.id = 'tryout-overlay';
-              overlay.className = 'tryout-overlay';
-              overlay.setAttribute('role', 'dialog');
-              overlay.setAttribute('aria-modal', 'true');
-              overlay.setAttribute('aria-labelledby', 'tryout-dialog-title');
-              overlay.innerHTML = `
-                <div class="tryout-dialog" id="tryout-dialog">
-                  <button type="button" class="tryout-close" id="tryout-close" aria-label="Fermer">&times;</button>
-                  <h3 id="tryout-dialog-title" style="margin:0 0 16px 0;font-family:'Lobster',cursive;color:var(--accent-color-complementary);font-size:1.4rem;">Séance d'essai — La Voix Libre</h3>
-                  <form id="tryout-form" novalidate>
-                    <div class="tryout-field-row">
-                      <div class="tryout-field">
-                        <label for="tryout-prenom">Prénom <span aria-hidden="true">*</span></label>
-                        <input type="text" id="tryout-prenom" name="prenom" required autocomplete="given-name">
-                      </div>
-                      <div class="tryout-field">
-                        <label for="tryout-nom">Nom <span aria-hidden="true">*</span></label>
-                        <input type="text" id="tryout-nom" name="nom" required autocomplete="family-name">
-                      </div>
-                    </div>
-                    <div class="tryout-field">
-                      <label for="tryout-email">Email <span aria-hidden="true">*</span></label>
-                      <input type="email" id="tryout-email" name="email" required autocomplete="email">
-                    </div>
-                    <div class="tryout-field">
-                      <label for="tryout-telephone">Téléphone <span aria-hidden="true">*</span></label>
-                      <input type="tel" id="tryout-telephone" name="telephone" required autocomplete="tel">
-                    </div>
-                    <div class="tryout-field">
-                      <label for="tryout-date">Date souhaitée <span aria-hidden="true">*</span></label>
-                      <select id="tryout-date" name="date" required>
-                        <option value="" disabled selected>Choisir une date…</option>
-                        ${TRYOUT_DATES.map(d => `<option value="${d.value}">${d.label}</option>`).join('')}
-                      </select>
-                    </div>
-                    <div class="tryout-field">
-                      <label for="tryout-message">Message (optionnel)</label>
-                      <textarea id="tryout-message" name="message" rows="3" placeholder="Une question, une info utile…"></textarea>
-                    </div>
-                    <div id="tryout-error" style="display:none;color:#c0392b;font-size:.9rem;margin-bottom:8px;" role="alert"></div>
-                    <div class="egm-submit-row">
-                      <button type="submit" id="egm-submit" class="home-cta-btn">Envoyer ma demande</button>
-                      <span id="tryout-spinner" style="display:none;font-size:.9rem;color:#888;">Envoi…</span>
-                    </div>
-                  </form>
-                  <div id="egm-confirm" style="display:none;text-align:center;padding:20px 0;">
-                    <p style="font-size:1.1rem;font-weight:600;color:var(--accent-color-complementary);">✅ Inscription enregistrée !</p>
-                    <p style="color:#444;">Vous recevrez un email de confirmation. À très vite !</p>
-                  </div>
-                </div>`;
-              document.body.appendChild(overlay);
-
-              const close = () => { overlay.style.display = 'none'; document.body.style.overflow = ''; };
-              overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-              overlay.querySelector('#tryout-close').addEventListener('click', close);
-              document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.style.display !== 'none') close(); });
-
-              overlay.querySelector('#tryout-form').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const form = this;
-                const errEl = document.getElementById('tryout-error');
-                const spinner = document.getElementById('tryout-spinner');
-                const submitBtn = document.getElementById('egm-submit');
-                errEl.style.display = 'none';
-
-                const prenom    = form.prenom.value.trim();
-                const nom       = form.nom.value.trim();
-                const email     = form.email.value.trim();
-                const telephone = form.telephone.value.trim();
-                const date      = form.date.value;
-                if (!prenom || !nom || !email || !telephone || !date) {
-                  errEl.textContent = 'Merci de remplir tous les champs obligatoires.';
-                  errEl.style.display = 'block';
-                  return;
-                }
-
-                spinner.style.display = 'inline';
-                submitBtn.disabled = true;
-
-                try {
-                  const payload = JSON.stringify({
-                    action: 'tryout',
-                    prenom, nom, email,
-                    telephone,
-                    date, pupitre: '',
-                    message: form.message.value.trim(),
-                    ts: new Date().toISOString()
-                  });
-                  await fetch(TRYOUT_ENDPOINT, {
-                    method: 'POST',
-                    body: new URLSearchParams({ data: payload }),
-                    mode: 'no-cors'
-                  });
-                  form.style.display = 'none';
-                  document.getElementById('egm-confirm').style.display = 'block';
-                  try { localStorage.setItem('tryout_registered', date); } catch(e) {}
-                  try { document.dispatchEvent(new CustomEvent('tryout:success')); } catch(ex) {}
-                } catch(err) {
-                  errEl.textContent = 'Une erreur est survenue. Réessayez ou contactez-nous par email.';
-                  errEl.style.display = 'block';
-                  submitBtn.disabled = false;
-                  spinner.style.display = 'none';
-                }
-              });
-            }
-
-            function openTryout() {
-              buildTryoutModal();
-              const overlay = document.getElementById('tryout-overlay');
-              overlay.style.display = 'flex';
-              document.body.style.overflow = 'hidden';
-              setTimeout(() => { const f = overlay.querySelector('#tryout-prenom'); if (f) f.focus(); }, 80);
-            }
-            const openBtn = document.getElementById('open-tryout-form');
-            if (openBtn) openBtn.addEventListener('click', openTryout);
-
-            // ---- Panneau admin (bureau uniquement) ----
-            const role = (function(){ try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); } catch(e){ return null; } })();
-            if (role === 'chef') {
-              const TRYOUT_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1XdLI0vjHHTWfJ-cfQySQfMAHX3igGK_GZb00tU7Mbqo/edit';
-              const adminPanel = document.createElement('div');
-              adminPanel.className = 'tryout-admin-panel';
-              adminPanel.innerHTML = `
-                <div class="tryout-admin-header">
-                  <span class="tryout-admin-icon" aria-hidden="true">🔐</span>
-                  <strong>Inscriptions reçues — vue bureau</strong>
-                </div>
-                <div class="tryout-admin-sheet-link">
-                  <p>Les inscriptions sont enregistrées directement dans le Google Sheet :</p>
-                  <a href="${TRYOUT_SHEET_URL}" target="_blank" rel="noopener noreferrer" class="tryout-admin-sheet-btn">
-                    📊 Ouvrir le tableau des inscriptions
-                  </a>
-                  <p class="tryout-admin-hint">Colonnes : date · prénom · nom · email · téléphone · message · horodatage</p>
-                </div>`;
-              essaiSection.appendChild(adminPanel);
-            }
-          })();
 
           // Widget d'inscription HelloAsso — Saison 2026-2027
           const inscriptionSection = document.createElement('section');
