@@ -5,6 +5,11 @@
   // "chef de chœur" restent visibles mais ne persistent que le temps de la session.
   const VISIBILITY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz8oUrLwCIfGYctW0aF5gXYssDJFcfnHe84Bhd6qhgaD9wrKFWtHbOQ6vISViSQH4YBpg/exec';
   const VISIBILITY_ADMIN_PASS = 'chefdechoeur';
+  // URL du Web App Google Apps Script (voir scripts/materiel_chansons_gas_sample.js
+  // pour le code à déployer). Il scanne un dossier Google Drive partagé avec le
+  // bureau : un sous-dossier = une chanson, les PDF/enregistrements dedans sont
+  // détectés automatiquement. Tant que c'est vide, seul data/partitions.json est utilisé.
+  const MATERIEL_ENDPOINT = '';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
@@ -204,6 +209,37 @@
         .catch(() => ({}));
     }
 
+    function fetchMateriel(forceRefresh) {
+      if (!MATERIEL_ENDPOINT) return Promise.resolve([]);
+      const url = MATERIEL_ENDPOINT + (forceRefresh ? '?refresh=1' : '');
+      return fetch(url)
+        .then(res => res.json())
+        .then(json => (json && json.ok && json.songs) ? json.songs : [])
+        .catch(() => []);
+    }
+
+    // Fusionne le matériel scanné depuis le Drive (source vivante, alimentée par le
+    // bureau) avec la liste de partitions.json : complète les chansons existantes et
+    // ajoute automatiquement les nouveaux dossiers-chansons.
+    function mergeMateriel(parts, materielSongs) {
+      const byKey = new Map();
+      parts.forEach(p => byKey.set(simplifyPartitionKey(p.title), p));
+      (materielSongs || []).forEach(song => {
+        const key = simplifyPartitionKey(song.title);
+        if (!key) return;
+        const existing = byKey.get(key);
+        if (existing) {
+          existing.documents = song.documents || [];
+          existing.recordings = song.recordings || [];
+        } else {
+          const newPart = { title: song.title, documents: song.documents || [], recordings: song.recordings || [] };
+          parts.push(newPart);
+          byKey.set(key, newPart);
+        }
+      });
+      return parts;
+    }
+
     function applySearchFilter(q) {
       q = (q || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
       const rows = document.querySelectorAll('#chansons-all tr');
@@ -232,12 +268,15 @@
     // load partitions and show a single consolidated list
     Promise.all([
       fetch('data/partitions.json').then(res => res.json()),
-      fetchVisibilityOverrides()
+      fetchVisibilityOverrides(),
+      fetchMateriel()
     ])
-      .then(([data, overrides]) => {
-        // Keep the original order from the JSON but present to the user sorted
-        // alphabetically by title (locale-aware, accents handled, case-insensitive).
-        const parts = (data || []).filter(p => p && p.title).sort((a, b) => {
+      .then(([data, overrides, materielSongs]) => {
+        let parts = (data || []).filter(p => p && p.title);
+        parts = mergeMateriel(parts, materielSongs);
+        // Keep the original order but present to the user sorted alphabetically
+        // by title (locale-aware, accents handled, case-insensitive).
+        parts.sort((a, b) => {
           try { return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }); } catch (e) { return String(a.title).localeCompare(String(b.title)); }
         });
         // Les réglages enregistrés via le mode "chef de chœur" (Google Sheet)
@@ -260,6 +299,25 @@
         }
         rerender();
         bindAudioClickOnce();
+
+        // Lien pour forcer une actualisation immédiate du matériel Drive (sinon
+        // il se met à jour tout seul au bout de quelques minutes via le cache).
+        if (MATERIEL_ENDPOINT) {
+          const refreshWrap = document.createElement('div');
+          refreshWrap.style.cssText = 'margin:10px 0 4px;font-size:.85em;';
+          refreshWrap.innerHTML = '<a href="#" id="materiel-refresh-link">🔄 Actualiser le matériel (paroles / enregistrements ajoutés récemment)</a>';
+          container.insertBefore(refreshWrap, listEl);
+          const refreshLink = refreshWrap.querySelector('#materiel-refresh-link');
+          refreshLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            refreshLink.textContent = '⏳ Actualisation…';
+            fetchMateriel(true).then(songs => {
+              parts = mergeMateriel(parts, songs);
+              rerender();
+              refreshLink.textContent = '🔄 Actualiser le matériel (paroles / enregistrements ajoutés récemment)';
+            });
+          });
+        }
 
         if (isAdmin) {
           listEl.addEventListener('change', function(e) {
