@@ -444,6 +444,19 @@
 
   /* Bouton supprimer choriste (bureau uniquement) */
   .trombino-card { position: relative; }
+  /* Surlignage temporaire des fiches à supprimer manuellement du trombinoscope */
+  .trombino-card.a-supprimer {
+    outline: 3px solid #e11d48;
+    outline-offset: 2px;
+    background: rgba(225, 29, 72, 0.12);
+    border-radius: 10px;
+  }
+  .trombino-card.a-supprimer .trombino-name {
+    text-decoration: underline;
+    text-decoration-color: #e11d48;
+    text-decoration-thickness: 2px;
+    font-weight: 700;
+  }
   .trombino-delete-btn {
     display: none;
     position: absolute;
@@ -2720,6 +2733,22 @@
 
         var PUPITRE_EMOJI = { 'Soprane':'🎀', 'Alto':'🌸', 'Ténor':'🌿', 'Basse':'🎩', 'Autres':'🎵' };
 
+        // Liste temporaire des personnes à retrouver/supprimer manuellement du trombinoscope
+        // (ne pas laisser trainer une fois le nettoyage terminé)
+        var A_SUPPRIMER = ['didier bonneville','isabelle fourreau','orianne siret','lenaig le fouler',
+          'sandrine pacheu','mariam gallo ponce','eddy touron','isabelle frimat','marie bornerie',
+          'marie-laure gueguen','cecile ertus','valerie le guevel','sylvie mokhtari','flou flou',
+          'sandrine le roy','isabelle haloche','babeth maze launay','maria dal fabbro',
+          'karine ravel lemee','florence bignon','clemence brandicourt','marie ployet',
+          'myla berdoy','laurence huel-colas','anne-sophie muller','vinvin moi','anne leseur',
+          'hermann floride','mariam gallo','louise m','david thiolon'];
+        var normName = function(s) {
+          return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+        };
+        var estASupprimer = function(c) {
+          return A_SUPPRIMER.indexOf(normName(c.prenom) + ' ' + normName(c.nom)) !== -1;
+        };
+
         var allKeys = ORDER.concat(Object.keys(groups).filter(function(k){ return ORDER.indexOf(k) < 0; }));
         var html = allKeys.map(function(pupitre) {
           var list = groups[pupitre] || [];
@@ -2737,10 +2766,12 @@
             var titleAttr = editable
               ? (isCurrentChoriste(c) ? 'title="Cliquer pour changer ta photo"' : 'title="Cliquer pour ajouter/changer la photo de ' + esc(c.prenom) + '"')
               : '';
-            return '<div class="trombino-card" data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '">'
+            var flagged = estASupprimer(c);
+            var cardClass = flagged ? 'trombino-card a-supprimer' : 'trombino-card';
+            return '<div class="' + cardClass + '" data-prenom="' + esc(c.prenom) + '" data-nom="' + esc(c.nom) + '">'
               + '<button type="button" class="trombino-delete-btn" title="Supprimer ce choriste" aria-label="Supprimer ce choriste">×</button>'
               + '<div class="' + wrapClass + '" ' + titleAttr + '>' + avatar + '</div>'
-              + '<p class="trombino-name"><span class="firstname">' + esc(c.prenom) + '</span><br>' + esc(c.nom) + '</p>'
+              + '<p class="trombino-name"><span class="firstname">' + esc(c.prenom) + '</span><br>' + esc(c.nom) + (flagged ? ' 🔴' : '') + '</p>'
               + '</div>';
           }).join('');
           return '<section class="trombino-section">'
