@@ -116,62 +116,97 @@
   }
 
   // ---- Tutoriel de bienvenue (une seule fois, après la première saisie du profil) ----
+  // Visite guidée : met en surbrillance chaque onglet réel de la page et bascule
+  // dessus au fil des étapes, avec une bulle + flèche qui pointe vers lui.
   const TUTO_SEEN_KEY = 'choristesTutoSeen';
-  const TUTO_SLIDES = [
-    { emoji: '🎵', title: 'Chansons', text: "Retrouve les paroles (PDF) et des enregistrements pour t'entraîner par pupitre, chanson par chanson. La barre de recherche en haut permet de retrouver un titre en un instant." },
-    { emoji: '📅', title: 'Calendrier', text: "Consulte les dates de répétitions et de concerts, et indique ta présence directement depuis cet onglet." },
-    { emoji: 'ℹ️', title: 'Infos & liens', text: "Toutes les informations pratiques de la chorale (contacts, documents, liens utiles) réunies au même endroit." },
-    { emoji: '📷', title: 'Photos', text: "Retrouve les photos des concerts et répétitions, et ajoute les tiennes pour les partager avec le reste de la chorale." },
-    { emoji: '👥', title: 'Trombinoscope', text: "Retrouve le nom et le pupitre de chaque choriste. Tu peux cliquer sur ta photo à tout moment pour la changer." }
+  const TOUR_STEPS = [
+    { tab: 'chansons', title: 'Chansons', text: "Retrouve ici les paroles (PDF) et des enregistrements pour t'entraîner par pupitre, chanson par chanson." },
+    { tab: 'calendrier', title: 'Calendrier', text: "Consulte les dates de répétitions et de concerts, et indique ta présence directement depuis cet onglet." },
+    { tab: 'infos', title: 'Infos & liens', text: "Toutes les informations pratiques de la chorale (contacts, documents, liens utiles) réunies au même endroit." },
+    { tab: 'photos', title: 'Photos', text: "Retrouve les photos des concerts et répétitions, et ajoute les tiennes pour les partager avec le reste de la chorale." },
+    { tab: 'trombinoscope', title: 'Trombinoscope', text: "Retrouve le nom et le pupitre de chaque choriste. Tu peux cliquer sur ta photo à tout moment pour la changer." }
   ];
 
   function showOnboardingTuto() {
     let index = 0;
-    const overlay = document.createElement('div');
-    overlay.className = 'onboarding-overlay';
-    overlay.innerHTML = `
-      <div class="onboarding-card">
-        <div class="onboarding-emoji" id="onboarding-emoji"></div>
-        <h2 class="onboarding-title" id="onboarding-title"></h2>
-        <p class="onboarding-text" id="onboarding-text"></p>
-        <div class="onboarding-dots" id="onboarding-dots"></div>
-        <div class="onboarding-nav">
-          <button type="button" class="onboarding-skip" id="onboarding-skip">Passer</button>
-          <button type="button" class="onboarding-next" id="onboarding-next">Suivant →</button>
-        </div>
+
+    const spotlight = document.createElement('div');
+    spotlight.className = 'onboarding-spotlight';
+    const blocker = document.createElement('div');
+    blocker.className = 'onboarding-blocker';
+    const tooltip = document.createElement('div');
+    tooltip.className = 'onboarding-tooltip';
+    tooltip.innerHTML = `
+      <div class="onboarding-tooltip-title" id="onboarding-tooltip-title"></div>
+      <p class="onboarding-tooltip-text" id="onboarding-tooltip-text"></p>
+      <div class="onboarding-tooltip-nav">
+        <button type="button" class="onboarding-skip" id="onboarding-skip">Passer</button>
+        <span class="onboarding-tooltip-step" id="onboarding-tooltip-step"></span>
+        <button type="button" class="onboarding-next" id="onboarding-next">Suivant →</button>
       </div>
     `;
-    document.body.appendChild(overlay);
+    document.body.appendChild(blocker);
+    document.body.appendChild(spotlight);
+    document.body.appendChild(tooltip);
 
-    const emojiEl = overlay.querySelector('#onboarding-emoji');
-    const titleEl = overlay.querySelector('#onboarding-title');
-    const textEl  = overlay.querySelector('#onboarding-text');
-    const dotsEl  = overlay.querySelector('#onboarding-dots');
-    const nextBtn = overlay.querySelector('#onboarding-next');
-    const skipBtn = overlay.querySelector('#onboarding-skip');
+    const titleEl = tooltip.querySelector('#onboarding-tooltip-title');
+    const textEl  = tooltip.querySelector('#onboarding-tooltip-text');
+    const stepEl  = tooltip.querySelector('#onboarding-tooltip-step');
+    const nextBtn = tooltip.querySelector('#onboarding-next');
+    const skipBtn = tooltip.querySelector('#onboarding-skip');
 
-    dotsEl.innerHTML = TUTO_SLIDES.map((_, i) => `<span class="onboarding-dot" data-i="${i}"></span>`).join('');
+    function position() {
+      const step = TOUR_STEPS[index];
+      const target = document.querySelector('.choristes-tab[data-tab="' + step.tab + '"]');
+      if (!target) { close(); return; }
+      const r = target.getBoundingClientRect();
+      spotlight.style.top = (r.top - 6) + 'px';
+      spotlight.style.left = (r.left - 6) + 'px';
+      spotlight.style.width = (r.width + 12) + 'px';
+      spotlight.style.height = (r.height + 12) + 'px';
+
+      const spaceBelow = window.innerHeight - r.bottom;
+      const showBelow = spaceBelow > 180;
+      tooltip.classList.toggle('arrow-up', showBelow);
+      tooltip.classList.toggle('arrow-down', !showBelow);
+      const top = showBelow ? (r.bottom + 16) : (r.top - tooltip.offsetHeight - 16);
+      let left = r.left + r.width / 2 - tooltip.offsetWidth / 2;
+      left = Math.max(12, Math.min(left, window.innerWidth - tooltip.offsetWidth - 12));
+      tooltip.style.top = Math.max(12, top) + 'px';
+      tooltip.style.left = left + 'px';
+      tooltip.style.setProperty('--arrow-left', ((r.left + r.width / 2) - left) + 'px');
+    }
 
     function render() {
-      const slide = TUTO_SLIDES[index];
-      emojiEl.textContent = slide.emoji;
-      titleEl.textContent = slide.title;
-      textEl.textContent = slide.text;
-      dotsEl.querySelectorAll('.onboarding-dot').forEach((d, i) => d.classList.toggle('active', i === index));
-      nextBtn.textContent = (index === TUTO_SLIDES.length - 1) ? "C'est parti ! 🎉" : 'Suivant →';
+      const step = TOUR_STEPS[index];
+      if (typeof showTab === 'function') showTab(step.tab);
+      titleEl.textContent = step.title;
+      textEl.textContent = step.text;
+      stepEl.textContent = (index + 1) + ' / ' + TOUR_STEPS.length;
+      nextBtn.textContent = (index === TOUR_STEPS.length - 1) ? "C'est parti ! 🎉" : 'Suivant →';
+      const target = document.querySelector('.choristes-tab[data-tab="' + step.tab + '"]');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      setTimeout(position, 260);
     }
 
     function close() {
       try { localStorage.setItem(TUTO_SEEN_KEY, '1'); } catch (e) {}
-      overlay.remove();
+      window.removeEventListener('resize', position);
+      document.removeEventListener('keydown', onKey);
+      blocker.remove();
+      spotlight.remove();
+      tooltip.remove();
     }
+    function onKey(e) { if (e.key === 'Escape') close(); }
 
     nextBtn.addEventListener('click', function() {
-      if (index === TUTO_SLIDES.length - 1) { close(); return; }
+      if (index === TOUR_STEPS.length - 1) { close(); return; }
       index++;
       render();
     });
     skipBtn.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', position);
 
     render();
   }
