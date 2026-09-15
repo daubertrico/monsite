@@ -2691,12 +2691,9 @@
       function renderTrombinoscope(choristes) {
         var el = document.getElementById('trombino-content');
         if (!el) return;
-        // Filtre : trombinoscope La Voix Libre uniquement (les choristes SOUL n'y
-        // apparaissent pas, même s'ils/elles sont aussi tagué·es "chorale" par
-        // ailleurs — leur profil/présences restent inchangés, juste masqués ici).
+        // Filtre : trombinoscope La Voix Libre uniquement (exclut les SOUL-only)
         choristes = (choristes || []).filter(function(c) {
           if (!c.ensembles || !c.ensembles.length) return true;
-          if (c.ensembles.indexOf('soul') !== -1) return false;
           return c.ensembles.indexOf('chorale') !== -1;
         });
         if (!choristes.length) {
