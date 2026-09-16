@@ -381,12 +381,34 @@
     // plusieurs secondes (parfois 10-20s) à répondre. On ne bloque plus l'affichage
     // en attendant — la liste apparaît tout de suite et se met à jour dès que
     // ces données arrivent.
+    const VISIBILITY_CACHE_KEY = 'choristesVisibilityCache';
+    function applyOverrides(parts, overrides) {
+      parts.forEach(p => {
+        const o = overrides[simplifyPartitionKey(p.title)];
+        if (o) {
+          p.visible_lavoixlibre = !!o.lv;
+          p.visible_soul = !!o.soul;
+        }
+      });
+    }
+
     fetch('data/partitions.json').then(res => res.json())
       .then((data) => {
         let parts = sortParts((data || []).filter(p => p && p.title));
         const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
         const ensembleHint = localStorage.getItem('choristesEnsembleHint');
         const listEl = document.getElementById('chansons-all');
+
+        // Pour un choriste (non-admin), on n'affiche jamais un instant les
+        // chansons masquées par le chef de chœur pendant que les réglages
+        // arrivent depuis Google : on applique d'abord la dernière copie connue
+        // (mémorisée localement) avant le tout premier affichage.
+        if (!isAdmin) {
+          try {
+            const cached = JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}');
+            applyOverrides(parts, cached);
+          } catch (e) {}
+        }
 
         function rerender() {
           listEl.innerHTML = renderTable(parts, role, ensembleHint);
@@ -437,16 +459,13 @@
         }
 
         // Réglages de visibilité (Google Sheet, via chef de chœur) : arrivent en
-        // arrière-plan et mettent à jour l'affichage dès que prêts.
+        // arrière-plan et mettent à jour l'affichage dès que prêts. On mémorise
+        // aussi la réponse pour que la prochaine ouverture applique directement
+        // les bons réglages, sans attendre Google.
         fetchVisibilityOverrides().then(overrides => {
           if (!overrides || Object.keys(overrides).length === 0) return;
-          parts.forEach(p => {
-            const o = overrides[simplifyPartitionKey(p.title)];
-            if (o) {
-              p.visible_lavoixlibre = !!o.lv;
-              p.visible_soul = !!o.soul;
-            }
-          });
+          try { localStorage.setItem(VISIBILITY_CACHE_KEY, JSON.stringify(overrides)); } catch (e) {}
+          applyOverrides(parts, overrides);
           rerender();
         });
 
