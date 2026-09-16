@@ -2768,7 +2768,22 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
+  cursor: pointer;
+  user-select: none;
 }
+.reinscription-bloc.collapsed .reinscription-header { margin-bottom: 0; }
+.reinscription-chevron {
+  margin-left: auto;
+  font-size: 1.1rem;
+  color: #3981FF;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.reinscription-bloc.collapsed .reinscription-chevron { transform: rotate(-90deg); }
+.reinscription-body {
+  overflow: hidden;
+}
+.reinscription-bloc.collapsed .reinscription-body { display: none; }
 .reinscription-badge {
   background: #3981FF;
   color: #fff;
