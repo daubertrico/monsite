@@ -368,29 +368,22 @@
       }
     }
 
-    // load partitions and show a single consolidated list
-    Promise.all([
-      fetch('data/partitions.json').then(res => res.json()),
-      fetchVisibilityOverrides(),
-      fetchMateriel()
-    ])
-      .then(([data, overrides, materielSongs]) => {
-        let parts = (data || []).filter(p => p && p.title);
-        parts = mergeMateriel(parts, materielSongs);
-        // Keep the original order but present to the user sorted alphabetically
-        // by title (locale-aware, accents handled, case-insensitive).
-        parts.sort((a, b) => {
-          try { return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }); } catch (e) { return String(a.title).localeCompare(String(b.title)); }
-        });
-        // Les réglages enregistrés via le mode "chef de chœur" (Google Sheet)
-        // prennent le pas sur les valeurs par défaut de partitions.json.
-        parts.forEach(p => {
-          const o = overrides[simplifyPartitionKey(p.title)];
-          if (o) {
-            p.visible_lavoixlibre = !!o.lv;
-            p.visible_soul = !!o.soul;
-          }
-        });
+    function sortParts(parts) {
+      parts.sort((a, b) => {
+        try { return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }); } catch (e) { return String(a.title).localeCompare(String(b.title)); }
+      });
+      return parts;
+    }
+
+    // Affiche d'abord la liste statique (data/partitions.json, quasi instantané),
+    // puis complète en arrière-plan avec les réglages de visibilité et le matériel
+    // Drive : ces deux appels passent par Google Apps Script, qui peut mettre
+    // plusieurs secondes (parfois 10-20s) à répondre. On ne bloque plus l'affichage
+    // en attendant — la liste apparaît tout de suite et se met à jour dès que
+    // ces données arrivent.
+    fetch('data/partitions.json').then(res => res.json())
+      .then((data) => {
+        let parts = sortParts((data || []).filter(p => p && p.title));
         const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
         const ensembleHint = localStorage.getItem('choristesEnsembleHint');
         const listEl = document.getElementById('chansons-all');
@@ -442,6 +435,28 @@
           searchInput.addEventListener('input', function() { applySearchFilter(this.value); });
           searchInput.focus();
         }
+
+        // Réglages de visibilité (Google Sheet, via chef de chœur) : arrivent en
+        // arrière-plan et mettent à jour l'affichage dès que prêts.
+        fetchVisibilityOverrides().then(overrides => {
+          if (!overrides || Object.keys(overrides).length === 0) return;
+          parts.forEach(p => {
+            const o = overrides[simplifyPartitionKey(p.title)];
+            if (o) {
+              p.visible_lavoixlibre = !!o.lv;
+              p.visible_soul = !!o.soul;
+            }
+          });
+          rerender();
+        });
+
+        // Matériel Drive (paroles/enregistrements ajoutés par le bureau) : idem,
+        // fusionné dès qu'il arrive plutôt que de bloquer l'affichage initial.
+        fetchMateriel().then(materielSongs => {
+          if (!materielSongs || materielSongs.length === 0) return;
+          parts = sortParts(mergeMateriel(parts, materielSongs));
+          rerender();
+        });
       }).catch(e=>{console.error('failed to load partitions.json',e);});
   }
 
