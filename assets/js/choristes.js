@@ -172,7 +172,8 @@
       const top = showBelow ? (r.bottom + 16) : (r.top - tooltip.offsetHeight - 16);
       let left = r.left + r.width / 2 - tooltip.offsetWidth / 2;
       left = Math.max(12, Math.min(left, window.innerWidth - tooltip.offsetWidth - 12));
-      tooltip.style.top = Math.max(12, top) + 'px';
+      const maxTop = window.innerHeight - tooltip.offsetHeight - 12;
+      tooltip.style.top = Math.max(12, Math.min(top, maxTop)) + 'px';
       tooltip.style.left = left + 'px';
       tooltip.style.setProperty('--arrow-left', ((r.left + r.width / 2) - left) + 'px');
     }
