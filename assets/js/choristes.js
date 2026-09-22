@@ -1,15 +1,11 @@
 // Logic spécifique pour la page Espace choristes (partitions)
 (function() {
-  // URL du Web App Google Apps Script (voir scripts/visibilite_chansons_gas_sample.js
-  // pour le code à déployer). Tant que c'est vide, les cases à cocher du mode
-  // "chef de chœur" restent visibles mais ne persistent que le temps de la session.
-  const VISIBILITY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz8oUrLwCIfGYctW0aF5gXYssDJFcfnHe84Bhd6qhgaD9wrKFWtHbOQ6vISViSQH4YBpg/exec';
-  const VISIBILITY_ADMIN_PASS = 'chefdechoeur';
   // Le matériel des chansons (PDF/audio/partition/lien) est synchronisé
   // automatiquement depuis Google Drive vers ce fichier par
   // .github/workflows/sync-drive-materiel.yml (voir scripts/sync_drive_materiel.mjs).
-  // Rien à modifier ici pour ajouter une chanson : il suffit de déposer les
-  // fichiers dans le dossier Drive partagé.
+  // Rien à modifier ici pour ajouter/masquer une chanson : la visibilité
+  // (La Voix Libre / SOUL / Archives) dépend du sous-dossier Drive dans
+  // lequel elle se trouve, voir visible_lavoixlibre/visible_soul ci-dessous.
   const MATERIEL_MANIFEST = 'data/partitions.json';
   const OSMD_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js';
   function setupSousOnglets() {
@@ -283,28 +279,13 @@
     return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  // Normalisation de clé pour faire correspondre un titre de chanson à ses
-  // réglages de visibilité (accents/casse ignorés).
-  function simplifyPartitionKey(s) {
-    if (!s) return '';
-    return s.toString().toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g, '')
-      .replace(/[^a-z0-9 ]+/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
   function generateChansonsContent() {
     const container = document.getElementById('tab-content-chansons');
     if (!container) return;
-    const isAdmin = !!window.IS_ADMIN;
     container.innerHTML = `
       <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:10px 16px;margin-bottom:14px;border-radius:8px;font-size:.93em;">
         <strong>Usage interne.</strong> Ces arrangements sont réservés aux membres — merci de ne pas les diffuser.
       </div>
-      ${isAdmin ? `<div class="legal-warning" style="background:#eef5ff;color:#134;border:1px solid #98bfff;padding:10px 16px;margin-bottom:14px;border-radius:8px;font-size:.93em;">
-        <strong>🔐 Mode chef de chœur.</strong> Coche les cases sous chaque chanson pour choisir si elle apparaît pour les choristes de la Voix Libre et/ou de SOUL. Décoche les deux pour la masquer complètement. Ces réglages sont invisibles pour le bureau et les choristes.
-      </div>` : ''}
       <div class="partition-search-bar">
         <input type="search" id="partition-search" placeholder="Rechercher une chanson…" autocomplete="off">
       </div>
@@ -315,7 +296,7 @@
       // Le bureau et le chef de chœur voient tout ; les choristes ne voient que
       // les chansons rendues visibles pour leur ensemble (par défaut : visibles).
       const visibleParts = (role === 'member')
-        ? parts.filter(p => ensembleHint === 'soul' ? p.visible_soul !== false : p.visible_lavoixlibre !== false)
+        ? parts.filter(p => ensembleHint === 'soul' ? p.visible_soul === true : p.visible_lavoixlibre === true)
         : parts;
       if (!visibleParts || visibleParts.length===0) return '<em>Aucune chanson.</em>';
       window.__choristesScores = [];
@@ -343,43 +324,8 @@
         }
         const extraLinks = [interactiveLink, scoreLink].filter(Boolean).join('<br>');
 
-        let adminControls = '';
-        if (isAdmin) {
-          const lvChecked = partition.visible_lavoixlibre !== false ? 'checked' : '';
-          const soulChecked = partition.visible_soul !== false ? 'checked' : '';
-          const hiddenFromAll = partition.visible_lavoixlibre === false && partition.visible_soul === false;
-          adminControls = `<div class="admin-visibility-controls" style="margin-top:8px;padding-top:6px;border-top:1px dashed #cfe3ff;font-size:.85em;color:#345;">
-            <label style="margin-right:14px;cursor:pointer;"><input type="checkbox" class="vis-toggle" data-title="${escAttr(partition.title)}" data-group="lv" ${lvChecked}> Voix Libre</label>
-            <label style="cursor:pointer;"><input type="checkbox" class="vis-toggle" data-title="${escAttr(partition.title)}" data-group="soul" ${soulChecked}> SOUL</label>
-            ${hiddenFromAll ? ' <span style="color:#b91c1c;font-weight:600;">🔒 masquée pour tous les choristes</span>' : ''}
-          </div>`;
-        }
-
-        return `<tr><td style="padding:10px 0;"><strong>${displayTitle}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && extraLinks ? '<br>' : ''}${extraLinks}</div>${adminControls}</td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
+        return `<tr><td style="padding:10px 0;"><strong>${displayTitle}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && extraLinks ? '<br>' : ''}${extraLinks}</div></td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
       }).join('') + '</tbody></table>';
-    }
-
-    function saveVisibility(title, lv, soul) {
-      if (!VISIBILITY_ENDPOINT) {
-        console.warn('VISIBILITY_ENDPOINT non configuré : ce réglage ne sera pas conservé au rechargement (voir scripts/visibilite_chansons_gas_sample.js).');
-        return;
-      }
-      const key = simplifyPartitionKey(title);
-      if (!key) return;
-      const payload = JSON.stringify({ adminPass: VISIBILITY_ADMIN_PASS, key, title, lv, soul });
-      fetch(VISIBILITY_ENDPOINT, {
-        method: 'POST',
-        body: new URLSearchParams({ data: payload }),
-        mode: 'no-cors'
-      }).catch(e => console.error('save_visibility failed', e));
-    }
-
-    function fetchVisibilityOverrides() {
-      if (!VISIBILITY_ENDPOINT) return Promise.resolve({});
-      return fetch(VISIBILITY_ENDPOINT)
-        .then(res => res.json())
-        .then(json => (json && json.ok && json.overrides) ? json.overrides : {})
-        .catch(() => ({}));
     }
 
     // Fichier statique régénéré automatiquement par la synchro Drive (voir
@@ -423,32 +369,10 @@
       return parts;
     }
 
-    const VISIBILITY_CACHE_KEY = 'choristesVisibilityCache';
-    function applyOverrides(parts, overrides) {
-      parts.forEach(p => {
-        const o = overrides[simplifyPartitionKey(p.title)];
-        if (o) {
-          p.visible_lavoixlibre = !!o.lv;
-          p.visible_soul = !!o.soul;
-        }
-      });
-    }
-
     let parts = [];
     const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
     const ensembleHint = localStorage.getItem('choristesEnsembleHint');
     const listEl = document.getElementById('chansons-all');
-
-    // Pour un choriste (non-admin), on n'affiche jamais un instant les
-    // chansons masquées par le chef de chœur pendant que les réglages
-    // arrivent depuis Google : on applique d'abord la dernière copie connue
-    // (mémorisée localement) avant le tout premier affichage.
-    if (!isAdmin) {
-      try {
-        const cached = JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}');
-        applyOverrides(parts, cached);
-      } catch (e) {}
-    }
 
     function rerender() {
       listEl.innerHTML = parts.length ? renderTable(parts, role, ensembleHint) : '<em>Chargement des chansons…</em>';
@@ -459,37 +383,12 @@
     bindAudioClickOnce();
     bindScoreClickOnce();
 
-    if (isAdmin) {
-      listEl.addEventListener('change', function(e) {
-        const cb = e.target;
-        if (!cb.classList || !cb.classList.contains('vis-toggle')) return;
-        const title = cb.getAttribute('data-title');
-        const partition = parts.find(p => p.title === title);
-        if (!partition) return;
-        if (cb.dataset.group === 'lv') partition.visible_lavoixlibre = cb.checked;
-        else partition.visible_soul = cb.checked;
-        saveVisibility(title, partition.visible_lavoixlibre !== false, partition.visible_soul !== false);
-        rerender();
-      });
-    }
-
     // Recherche en temps réel
     const searchInput = document.getElementById('partition-search');
     if (searchInput) {
       searchInput.addEventListener('input', function() { applySearchFilter(this.value); });
       searchInput.focus();
     }
-
-    // Réglages de visibilité (Google Sheet, via chef de chœur) : arrivent en
-    // arrière-plan et mettent à jour l'affichage dès que prêts. On mémorise
-    // aussi la réponse pour que la prochaine ouverture applique directement
-    // les bons réglages, sans attendre Google.
-    fetchVisibilityOverrides().then(overrides => {
-      if (!overrides || Object.keys(overrides).length === 0) return;
-      try { localStorage.setItem(VISIBILITY_CACHE_KEY, JSON.stringify(overrides)); } catch (e) {}
-      applyOverrides(parts, overrides);
-      rerender();
-    });
 
     fetchMateriel().then(({ songs, error }) => {
       if (error) {
@@ -498,9 +397,6 @@
         return;
       }
       parts = sortParts(songs);
-      if (!isAdmin) {
-        try { applyOverrides(parts, JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}')); } catch (e) {}
-      }
       rerender();
     });
   }

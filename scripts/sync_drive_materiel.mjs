@@ -4,8 +4,16 @@
  * materielchansons/<chanson>/... et régénère data/partitions.json en
  * conséquence.
  *
+ * Structure attendue dans le dossier Drive partagé (FOLDER_ID) : trois
+ * sous-dossiers "Archives", "La Voix Libre" et "Soul", chacun contenant un
+ * sous-dossier par chanson. La visibilité d'une chanson (pour les choristes
+ * La Voix Libre / SOUL) dépend uniquement du/des sous-dossier(s) dans
+ * lesquel(s) elle se trouve ; "Archives" n'est jamais synchronisé (chansons
+ * retirées de l'affichage). Une chanson présente à la fois dans "La Voix
+ * Libre" et "Soul" est fusionnée et visible pour les deux.
+ *
  * Lancé automatiquement par .github/workflows/sync-drive-materiel.yml (toutes
- * les 30 minutes) : rien à faire côté site, il suffit de déposer/renommer/
+ * les 30 minutes) : rien à faire côté site, il suffit de déposer/déplacer/
  * supprimer un sous-dossier ou un fichier dans le dossier Drive partagé.
  *
  * Authentification : compte de service Google (lecture seule sur Drive),
@@ -15,7 +23,7 @@
 
 import { GoogleAuth } from 'google-auth-library';
 import { createWriteStream, existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile, rm, stat } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rm, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pipeline } from 'node:stream/promises';
@@ -30,6 +38,11 @@ const AUDIO_EXT = ['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac'];
 const DOC_EXT = ['pdf'];
 const SCORE_EXT = ['xml', 'musicxml'];
 
+// Catégories reconnues parmi les sous-dossiers directs du dossier Drive
+// partagé. 'archives' n'a pas de champ de visibilité : ces chansons ne sont
+// jamais synchronisées.
+const CATEGORY_VISIBILITY = { lv: 'visible_lavoixlibre', soul: 'visible_soul' };
+
 function extOf(name) {
   const m = name.match(/\.([a-zA-Z0-9]+)$/);
   return m ? m[1].toLowerCase() : '';
@@ -38,6 +51,23 @@ function extOf(name) {
 function labelFromFilename(name) {
   const base = name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim();
   return base || name;
+}
+
+function normalizeCategoryName(name) {
+  return (name || '')
+    .toString()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z]+/g, ' ')
+    .trim();
+}
+
+function categoryOf(folderName) {
+  const n = normalizeCategoryName(folderName);
+  if (n === 'archives' || n === 'archive') return 'archives';
+  if (n === 'la voix libre' || n === 'lavoixlibre') return 'lv';
+  if (n === 'soul') return 'soul';
+  return null;
 }
 
 // Caractères invalides sous Windows (le dépôt est aussi utilisé en local sur
@@ -96,6 +126,55 @@ async function loadState() {
   }
 }
 
+// Télécharge (si besoin) le contenu d'un sous-dossier "chanson" et retourne
+// ses documents/recordings/musicxml/lien. Met à jour state/seenLocalPaths.
+async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
+  const songDirName = sanitizeName(folder.name);
+  const songDir = path.join(MATERIEL_DIR, songDirName);
+  const children = await listChildren(auth, folder.id);
+
+  const documents = [];
+  const recordings = [];
+  let musicxmlPath = null;
+  let interactiveLink = null;
+
+  for (const file of children) {
+    if (file.mimeType === 'application/vnd.google-apps.folder') continue;
+    const ext = extOf(file.name);
+    const isDoc = DOC_EXT.includes(ext);
+    const isAudio = AUDIO_EXT.includes(ext);
+    const isScore = SCORE_EXT.includes(ext) && !musicxmlPath;
+    const isLink = ext === 'txt' && !interactiveLink;
+    if (!isDoc && !isAudio && !isScore && !isLink) continue;
+
+    if (isLink) {
+      const content = (await driveDownloadText(auth, file.id)).trim().split('\n')[0].trim();
+      if (/^https?:\/\//i.test(content)) interactiveLink = content;
+      continue;
+    }
+
+    const localFileName = sanitizeName(file.name);
+    const localPath = path.join(songDir, localFileName);
+    const relPath = path.relative(REPO_ROOT, localPath).split(path.sep).join('/');
+    seenLocalPaths.add(relPath);
+
+    const changeKey = file.md5Checksum || file.modifiedTime;
+    const prev = state.files[file.id];
+    const needsDownload = !prev || prev.key !== changeKey || !existsSync(localPath);
+    if (needsDownload) {
+      await driveDownload(auth, file.id, localPath);
+      console.log('Téléchargé :', relPath);
+    }
+    newState.files[file.id] = { key: changeKey, path: relPath };
+
+    if (isDoc) documents.push({ label: labelFromFilename(file.name), file: relPath });
+    else if (isAudio) recordings.push({ label: labelFromFilename(file.name), file: relPath });
+    else if (isScore) musicxmlPath = relPath;
+  }
+
+  return { songDirName, documents, recordings, musicxmlPath, interactiveLink };
+}
+
 async function main() {
   const keyJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
   if (!keyJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY manquant.');
@@ -105,77 +184,58 @@ async function main() {
     scopes: ['https://www.googleapis.com/auth/drive.readonly']
   });
 
-  const subfolders = (await listChildren(auth, FOLDER_ID))
+  const topFolders = (await listChildren(auth, FOLDER_ID))
     .filter(f => f.mimeType === 'application/vnd.google-apps.folder');
 
-  if (subfolders.length === 0) {
+  const categoryFolders = topFolders
+    .map(f => ({ folder: f, category: categoryOf(f.name) }))
+    .filter(f => f.category && f.category !== 'archives');
+
+  if (categoryFolders.length === 0) {
     throw new Error(
-      "Le dossier Drive est accessible mais ne contient aucun sous-dossier : " +
+      "Aucun sous-dossier 'La Voix Libre' ou 'Soul' trouvé dans le dossier Drive : " +
       "vérifie que le compte de service a bien accès en lecture au dossier " +
-      "'Matériel chansons' (partage > ajouter son email)."
+      "'Matériel chansons', et que les sous-dossiers sont nommés 'Archives', " +
+      "'La Voix Libre' et 'Soul'."
     );
   }
 
   const state = await loadState();
   const newState = { files: {} };
   const seenLocalPaths = new Set();
-  const songs = [];
+  const songsByTitle = new Map();
 
-  for (const folder of subfolders) {
-    const songDirName = sanitizeName(folder.name);
-    const songDir = path.join(MATERIEL_DIR, songDirName);
-    const children = await listChildren(auth, folder.id);
+  for (const { folder: categoryFolder, category } of categoryFolders) {
+    const songFolders = (await listChildren(auth, categoryFolder.id))
+      .filter(f => f.mimeType === 'application/vnd.google-apps.folder');
 
-    const documents = [];
-    const recordings = [];
-    let musicxmlPath = null;
-    let interactiveLink = null;
+    for (const songFolder of songFolders) {
+      const { documents, recordings, musicxmlPath, interactiveLink } =
+        await scanSongFolder(auth, songFolder, state, newState, seenLocalPaths);
 
-    for (const file of children) {
-      if (file.mimeType === 'application/vnd.google-apps.folder') continue;
-      const ext = extOf(file.name);
-      const isDoc = DOC_EXT.includes(ext);
-      const isAudio = AUDIO_EXT.includes(ext);
-      const isScore = SCORE_EXT.includes(ext) && !musicxmlPath;
-      const isLink = ext === 'txt' && !interactiveLink;
-      if (!isDoc && !isAudio && !isScore && !isLink) continue;
-
-      if (isLink) {
-        const content = (await driveDownloadText(auth, file.id)).trim().split('\n')[0].trim();
-        if (/^https?:\/\//i.test(content)) interactiveLink = content;
-        continue;
+      let entry = songsByTitle.get(songFolder.name);
+      if (!entry) {
+        entry = {
+          title: songFolder.name,
+          documents: [],
+          recordings: [],
+          musicxml: null,
+          interactive_link: null,
+          visible_lavoixlibre: false,
+          visible_soul: false
+        };
+        songsByTitle.set(songFolder.name, entry);
       }
-
-      const localFileName = sanitizeName(file.name);
-      const localPath = path.join(songDir, localFileName);
-      const relPath = path.relative(REPO_ROOT, localPath).split(path.sep).join('/');
-      seenLocalPaths.add(relPath);
-
-      const changeKey = file.md5Checksum || file.modifiedTime;
-      const prev = state.files[file.id];
-      const needsDownload = !prev || prev.key !== changeKey || !existsSync(localPath);
-      if (needsDownload) {
-        await driveDownload(auth, file.id, localPath);
-        console.log('Téléchargé :', relPath);
-      }
-      newState.files[file.id] = { key: changeKey, path: relPath };
-
-      if (isDoc) documents.push({ label: labelFromFilename(file.name), file: relPath });
-      else if (isAudio) recordings.push({ label: labelFromFilename(file.name), file: relPath });
-      else if (isScore) musicxmlPath = relPath;
+      entry.documents.push(...documents);
+      entry.recordings.push(...recordings);
+      if (!entry.musicxml && musicxmlPath) entry.musicxml = musicxmlPath;
+      if (!entry.interactive_link && interactiveLink) entry.interactive_link = interactiveLink;
+      entry[CATEGORY_VISIBILITY[category]] = true;
     }
-
-    songs.push({
-      title: folder.name,
-      documents,
-      recordings,
-      musicxml: musicxmlPath,
-      interactive_link: interactiveLink
-    });
   }
 
   // Supprime les fichiers locaux qui ne correspondent plus à rien sur Drive
-  // (fichier renommé/supprimé côté Drive depuis la dernière synchro).
+  // (fichier renommé/supprimé/archivé côté Drive depuis la dernière synchro).
   for (const [fileId, entry] of Object.entries(state.files)) {
     if (!seenLocalPaths.has(entry.path) && !(fileId in newState.files)) {
       const abs = path.join(REPO_ROOT, entry.path);
@@ -186,10 +246,9 @@ async function main() {
     }
   }
 
-  // Nettoie les dossiers de chansons vides restants (chanson supprimée/renommée).
+  // Nettoie les dossiers de chansons vides restants (chanson supprimée/renommée/archivée).
   if (existsSync(MATERIEL_DIR)) {
-    const { readdir } = await import('node:fs/promises');
-    const currentSongDirs = new Set(subfolders.map(f => sanitizeName(f.name)));
+    const currentSongDirs = new Set([...songsByTitle.keys()].map(sanitizeName));
     for (const entry of await readdir(MATERIEL_DIR, { withFileTypes: true })) {
       if (entry.isDirectory() && !currentSongDirs.has(entry.name)) {
         await rm(path.join(MATERIEL_DIR, entry.name), { recursive: true, force: true });
@@ -198,6 +257,7 @@ async function main() {
     }
   }
 
+  const songs = [...songsByTitle.values()];
   songs.sort((a, b) => a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }));
   await mkdir(path.dirname(MANIFEST_PATH), { recursive: true });
   await writeFile(MANIFEST_PATH, JSON.stringify(songs, null, 2) + '\n', 'utf8');
