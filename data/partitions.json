@@ -53,6 +53,24 @@
     "visible_soul": false
   },
   {
+    "title": "shout - isley brothers",
+    "documents": [],
+    "recordings": [
+      {
+        "label": "voixprincipaleshout",
+        "file": "materielchansons/shout - isley brothers/voixprincipaleshout.m4a"
+      },
+      {
+        "label": "harmonie   les 3 voix  shout",
+        "file": "materielchansons/shout - isley brothers/harmonie - les 3 voix  shout.mp3"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
     "title": "Spondo",
     "documents": [],
     "recordings": [
@@ -103,8 +121,16 @@
     ],
     "recordings": [
       {
-        "label": "Szellö Zug 3e voix (grave)",
-        "file": "materielchansons/szellö züg/Szellö Zug 3e voix (grave).MP3"
+        "label": "Szellö Zug hommes",
+        "file": "materielchansons/szellö züg/Szellö Zug hommes.MP3"
+      },
+      {
+        "label": "Szellö Zug alti",
+        "file": "materielchansons/szellö züg/Szellö Zug alti.MP3"
+      },
+      {
+        "label": "Szellö Zug sopranes",
+        "file": "materielchansons/szellö züg/Szellö Zug sopranes.MP3"
       },
       {
         "label": "Szellö Zug chanté par Angela, Miuka et Pauline",
@@ -113,14 +139,6 @@
       {
         "label": "Szellö Zug lu par Hajni",
         "file": "materielchansons/szellö züg/Szellö Zug lu par Hajni.MP3"
-      },
-      {
-        "label": "Szellö Zug 2e voix (médium)",
-        "file": "materielchansons/szellö züg/Szellö Zug 2e voix (médium).MP3"
-      },
-      {
-        "label": "Szellö Zug 1ère voix (aigüe)",
-        "file": "materielchansons/szellö züg/Szellö Zug 1ère voix (aigüe).MP3"
       }
     ],
     "musicxml": null,
