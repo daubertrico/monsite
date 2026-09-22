@@ -181,7 +181,7 @@
       this.defaultBpm = 100;
       this.playbackSettings = { bpm: this.defaultBpm };
       this.scoreInstruments = [];
-      this.mutedVoiceIds = new Set();
+      this.voiceVolumes = new Map();
       this.soloVoiceIds = new Set();
       this.ready = false;
       this.setState(PlaybackState.INIT);
@@ -193,23 +193,26 @@
       for (const instrument of this.scoreInstruments) {
         for (const voice of instrument.Voices) {
           voices.push({
-            voiceId: voice.VoiceId,
-            label: instrument.Name || ('Pupitre ' + voice.VoiceId)
+            voiceId: voice.__playerUid,
+            label: instrument.Name || ('Pupitre ' + voice.__playerUid)
           });
         }
       }
       return voices;
     }
-    setVoiceMuted(voiceId, muted) {
-      if (muted) this.mutedVoiceIds.add(voiceId); else this.mutedVoiceIds.delete(voiceId);
+    setVoiceVolume(voiceId, volume) {
+      this.voiceVolumes.set(voiceId, Math.max(0, Math.min(1, volume)));
+    }
+    getVoiceVolume(voiceId) {
+      return this.voiceVolumes.has(voiceId) ? this.voiceVolumes.get(voiceId) : 1;
     }
     setVoiceSolo(voiceId, solo) {
       if (solo) this.soloVoiceIds.add(voiceId); else this.soloVoiceIds.delete(voiceId);
     }
     clearSolos() { this.soloVoiceIds.clear(); }
-    isVoiceAudible(voiceId) {
-      if (this.soloVoiceIds.size > 0) return this.soloVoiceIds.has(voiceId);
-      return !this.mutedVoiceIds.has(voiceId);
+    getVoiceGain(voiceId) {
+      if (this.soloVoiceIds.size > 0 && !this.soloVoiceIds.has(voiceId)) return 0;
+      return this.getVoiceVolume(voiceId);
     }
 
     async loadScore(osmd) {
@@ -219,11 +222,18 @@
       this.cursor = osmd.cursor;
       if (this.sheet.HasBPMInfo) this.setBpm(this.sheet.DefaultStartTempoInBpm);
 
-      const midiIds = new Set();
+      // Un seul identifiant MIDI (piano) pour toutes les voix : on veut un
+      // son de piano pour la répétition, pas les sons "voix/choeur" parfois
+      // déclarés dans la partition. Chaque voix reçoit aussi un identifiant
+      // unique (__playerUid) car plusieurs pupitres (soprano/alto/ténor/basse)
+      // partagent souvent le même VoiceId (1) dans un export MuseScore, ce qui
+      // faisait que couper/soloer un pupitre agissait sur tous les autres.
+      const midiIds = new Set([0]);
+      let voiceUid = 0;
       for (const instrument of this.sheet.Instruments) {
         for (const voice of instrument.Voices) {
-          voice.midiInstrumentId = instrument.MidiInstrumentId;
-          midiIds.add(instrument.MidiInstrumentId);
+          voice.midiInstrumentId = 0;
+          voice.__playerUid = voiceUid++;
         }
       }
       await Promise.all([...midiIds].map(id => this.instrumentPlayer.load(id)));
@@ -280,7 +290,8 @@
       for (const note of notes) {
         if (note.isRest()) continue;
         const voice = note.ParentVoiceEntry.ParentVoice;
-        if (!this.isVoiceAudible(voice.VoiceId)) continue;
+        const gain = this.getVoiceGain(voice.__playerUid);
+        if (gain <= 0) continue;
 
         let duration = note.Length.RealValue * this.wholeNoteLength;
         if (note.NoteTie) {
@@ -298,7 +309,7 @@
         scheduledNotes.get(midiId).push({
           note: note.halfTone - fixedKey * 12,
           duration: duration / 1000,
-          gain: 1,
+          gain: gain,
           articulation: note.ParentVoiceEntry.isStaccato() ? 'staccato' : 'none'
         });
       }

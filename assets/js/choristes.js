@@ -9,7 +9,7 @@
   const MATERIEL_MANIFEST = 'data/partitions.json';
   const OSMD_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js';
   const SOUNDFONT_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js';
-  const OSMD_PLAYER_SCRIPT_URL = 'assets/js/osmd-player.js';
+  const OSMD_PLAYER_SCRIPT_URL = 'assets/js/osmd-player.js?v=20260922f';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
@@ -174,6 +174,7 @@
               <span id="score-zoom-value" style="min-width:3.5em;text-align:center;font-size:0.9em;">60%</span>
               <button type="button" id="score-zoom-in" style="background:#eee;color:#333;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1em;">＋</button>
             </div>
+            <button type="button" id="score-print-btn" style="background:#eee;color:#333;border:none;border-radius:6px;padding:0 12px;height:28px;cursor:pointer;font-size:0.9em;">🖨️ Imprimer</button>
             <button type="button" id="score-modal-close" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:#3981FF;">✖</button>
           </div>
         </div>
@@ -201,6 +202,7 @@
     };
     overlay.querySelector('#score-zoom-in').addEventListener('click', () => applyZoom(0.1));
     overlay.querySelector('#score-zoom-out').addEventListener('click', () => applyZoom(-0.1));
+    overlay.querySelector('#score-print-btn').addEventListener('click', () => window.print());
 
     Promise.all([loadOSMD(), fetch(musicxmlUrl).then(res => res.text())]).then(([, musicxml]) => {
       body.innerHTML = '';
@@ -213,13 +215,19 @@
       if (!document.getElementById('score-pages-style')) {
         const style = document.createElement('style');
         style.id = 'score-pages-style';
-        style.textContent = '#score-pages-grid{position:relative;}#score-pages-grid > div{max-width:100%;position:relative;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}';
+        style.textContent = '#score-pages-grid{position:relative;}#score-pages-grid > div{max-width:100%;position:relative;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}'
+          + '@media print{body>*:not(#score-modal-overlay){display:none !important;}#score-modal-overlay{position:static !important;background:none !important;}#score-modal-overlay>div{width:auto !important;height:auto !important;overflow:visible !important;}#score-modal-overlay #score-print-btn,#score-modal-overlay #score-zoom-out,#score-modal-overlay #score-zoom-in,#score-modal-overlay #score-zoom-value,#score-modal-overlay #score-modal-close,#score-player-controls{display:none !important;}#score-modal-body{overflow:visible !important;}#score-pages-grid{grid-template-columns:1fr !important;}}';
         document.head.appendChild(style);
       }
       body.appendChild(container);
       const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
         autoResize: false,
-        pageFormat: 'A4_P'
+        pageFormat: 'A4_P',
+        // Le curseur "image" par défaut d'OSMD ne se charge pas correctement
+        // depuis un build CDN autonome (chemin relatif introuvable), ce qui le
+        // rendait invisible même s'il avançait. On force un simple rectangle
+        // coloré (type 0), qui ne dépend d'aucune image externe.
+        cursorsOptions: [{ type: 0, color: '#e0293e', alpha: 0.6, follow: true }]
       });
       return osmd.load(musicxml).then(() => {
         osmd.zoom = zoom;
@@ -263,11 +271,12 @@
         const voices = engine.getVoices();
         const defaultBpm = Math.round(engine.playbackSettings.bpm);
         const voiceRows = voices.map((v, i) => `
-          <label style="display:inline-flex;align-items:center;gap:4px;margin:2px 10px 2px 0;font-size:0.92em;">
-            <input type="checkbox" class="score-voice-mute" data-voice-id="${v.voiceId}" checked>
-            ${escAttr(v.label)}
+          <div style="display:inline-flex;align-items:center;gap:6px;margin:2px 14px 2px 0;font-size:0.92em;">
+            <span style="min-width:5em;">${escAttr(v.label)}</span>
+            <input type="range" class="score-voice-volume" data-voice-id="${v.voiceId}" min="0" max="100" value="100" style="width:90px;">
+            <span class="score-voice-volume-value" style="min-width:2.5em;text-align:right;">100%</span>
             <button type="button" class="score-voice-solo" data-voice-id="${v.voiceId}" style="font-size:0.85em;padding:1px 6px;border-radius:6px;border:1px solid #3981FF;background:#fff;color:#3981FF;cursor:pointer;">Solo</button>
-          </label>`).join('');
+          </div>`).join('');
         controls.innerHTML = `
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
             <button type="button" id="score-play-btn" style="background:#3981FF;color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;">▶ Lire</button>
@@ -299,9 +308,11 @@
           playBtn.textContent = state === 'PLAYING' ? '⏸ Pause' : '▶ Lire';
         });
 
-        controls.querySelectorAll('.score-voice-mute').forEach(cb => {
-          cb.addEventListener('change', () => {
-            engine.setVoiceMuted(Number(cb.getAttribute('data-voice-id')), !cb.checked);
+        controls.querySelectorAll('.score-voice-volume').forEach(range => {
+          const valueLabel = range.nextElementSibling;
+          range.addEventListener('input', () => {
+            valueLabel.textContent = range.value + '%';
+            engine.setVoiceVolume(Number(range.getAttribute('data-voice-id')), Number(range.value) / 100);
           });
         });
         controls.querySelectorAll('.score-voice-solo').forEach(btn => {
