@@ -188,7 +188,10 @@
       const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, { autoResize: true });
       return osmd.load(musicxml).then(() => osmd.render()).then(() => osmd);
     }).then(osmd => {
+      controls.innerHTML = '<em>Chargement du lecteur audio…</em>';
+      controls.style.display = 'block';
       setupScorePlayer(osmd, controls).then(e => { engine = e; }).catch(err => {
+        console.error('Lecture audio de la partition indisponible :', err);
         controls.innerHTML = '<em>Lecture audio indisponible : ' + escAttr(err.message || String(err)) + '</em>';
         controls.style.display = 'block';
       });
@@ -197,12 +200,27 @@
     });
   }
 
+  function withTimeout(promise, ms, message) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(message)), ms);
+      promise.then(v => { clearTimeout(timer); resolve(v); }, err => { clearTimeout(timer); reject(err); });
+    });
+  }
+
   // Construit les contrôles de lecture (play/pause/stop, tempo, mute/solo par
   // pupitre) sous la partition affichée, et retourne le moteur de lecture.
   function setupScorePlayer(osmd, controls) {
-    return Promise.all([loadSoundfont(), loadOsmdPlayerEngine()]).then(() => {
+    return withTimeout(
+      Promise.all([loadSoundfont(), loadOsmdPlayerEngine()]),
+      20000,
+      'Le chargement du synthétiseur audio a expiré (réseau lent ou bloqué). Réessaie ou vérifie ta connexion.'
+    ).then(() => {
       const engine = new window.OsmdPlayerEngine();
-      return engine.loadScore(osmd).then(() => {
+      return withTimeout(
+        engine.loadScore(osmd),
+        30000,
+        'Le chargement des instruments audio a expiré (réseau lent ou bloqué). Réessaie ou vérifie ta connexion.'
+      ).then(() => {
         const voices = engine.getVoices();
         const defaultBpm = Math.round(engine.playbackSettings.bpm);
         const voiceRows = voices.map((v, i) => `
