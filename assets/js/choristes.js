@@ -166,7 +166,7 @@
         e.preventDefault();
         const idx = e.target.getAttribute('data-score-idx');
         const data = window.__choristesScores && window.__choristesScores[idx];
-        if (data) showScoreModal(data.title, data.musicxml);
+        if (data) showScoreModal(data.title, encodeURI(data.musicxml));
       }
     }, { capture: false });
     window.__scoreClickBound = true;
@@ -313,8 +313,8 @@
           else if (hasSoul && !hasLv) displayTitle = displayTitle + ' — SOUL';
         }
 
-        const recordingsLinks = (partition.recordings||[]).map(r => `<a href="#" class="audio-link" data-src="${r.file}">${r.label}</a>`).join('<br>');
-        const ressourcesLinks = (partition.documents||[]).map(d => `<a href="${d.file}" target="_blank">${d.label}</a>`).join('<br>');
+        const recordingsLinks = (partition.recordings||[]).map(r => `<a href="#" class="audio-link" data-src="${encodeURI(r.file)}">${r.label}</a>`).join('<br>');
+        const ressourcesLinks = (partition.documents||[]).map(d => `<a href="${encodeURI(d.file)}" target="_blank">${d.label}</a>`).join('<br>');
         const interactiveLink = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition en ligne</a>` : '';
         let scoreLink = '';
         if (partition.musicxml) {
