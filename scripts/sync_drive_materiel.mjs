@@ -22,6 +22,7 @@
  */
 
 import { GoogleAuth } from 'google-auth-library';
+import AdmZip from 'adm-zip';
 import { createWriteStream, existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile, rm, readdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -36,7 +37,10 @@ const STATE_PATH = path.join(REPO_ROOT, 'data', 'materiel-sync-state.json');
 
 const AUDIO_EXT = ['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac'];
 const DOC_EXT = ['pdf'];
+// 'mxl' = MusicXML compressé (export par défaut de MuseScore) : décompressé
+// à la volée en .musicxml lors du téléchargement, voir extractMusicXmlFromMxl.
 const SCORE_EXT = ['xml', 'musicxml'];
+const SCORE_ZIP_EXT = ['mxl'];
 
 // Catégories reconnues parmi les sous-dossiers directs du dossier Drive
 // partagé. 'archives' n'a pas de champ de visibilité : ces chansons ne sont
@@ -101,6 +105,32 @@ async function driveDownloadText(auth, fileId) {
   return res.data;
 }
 
+async function driveDownloadBuffer(auth, fileId) {
+  const client = await auth.getClient();
+  const res = await client.request({
+    url: `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+    responseType: 'arraybuffer'
+  });
+  return Buffer.from(res.data);
+}
+
+// Un .mxl est une archive zip contenant le vrai fichier MusicXML (indiqué par
+// META-INF/container.xml, ou à défaut le premier .xml/.musicxml du zip).
+function extractMusicXmlFromMxl(buffer) {
+  const zip = new AdmZip(buffer);
+  const entries = zip.getEntries();
+  const container = entries.find(e => e.entryName === 'META-INF/container.xml');
+  let rootPath = null;
+  if (container) {
+    const m = zip.readAsText(container).match(/full-path="([^"]+)"/);
+    if (m) rootPath = m[1];
+  }
+  const entry = (rootPath && entries.find(e => e.entryName === rootPath))
+    || entries.find(e => /\.(musicxml|xml)$/i.test(e.entryName) && !e.entryName.startsWith('META-INF/'));
+  if (!entry) throw new Error('Aucune partition MusicXML trouvée dans le fichier .mxl.');
+  return zip.readAsText(entry);
+}
+
 async function listChildren(auth, folderId) {
   const files = [];
   let pageToken;
@@ -143,7 +173,8 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
     const ext = extOf(file.name);
     const isDoc = DOC_EXT.includes(ext);
     const isAudio = AUDIO_EXT.includes(ext);
-    const isScore = SCORE_EXT.includes(ext) && !musicxmlPath;
+    const isMxl = SCORE_ZIP_EXT.includes(ext) && !musicxmlPath;
+    const isScore = (SCORE_EXT.includes(ext) || isMxl) && !musicxmlPath;
     const isLink = ext === 'txt' && !interactiveLink;
     if (!isDoc && !isAudio && !isScore && !isLink) continue;
 
@@ -153,7 +184,7 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
       continue;
     }
 
-    const localFileName = sanitizeName(file.name);
+    const localFileName = sanitizeName(isMxl ? file.name.replace(/\.mxl$/i, '.musicxml') : file.name);
     const localPath = path.join(songDir, localFileName);
     const relPath = path.relative(REPO_ROOT, localPath).split(path.sep).join('/');
     seenLocalPaths.add(relPath);
@@ -162,8 +193,16 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
     const prev = state.files[file.id];
     const needsDownload = !prev || prev.key !== changeKey || !existsSync(localPath);
     if (needsDownload) {
-      await driveDownload(auth, file.id, localPath);
-      console.log('Téléchargé :', relPath);
+      if (isMxl) {
+        const buffer = await driveDownloadBuffer(auth, file.id);
+        const xml = extractMusicXmlFromMxl(buffer);
+        await mkdir(path.dirname(localPath), { recursive: true });
+        await writeFile(localPath, xml, 'utf8');
+        console.log('Téléchargé (décompressé depuis .mxl) :', relPath);
+      } else {
+        await driveDownload(auth, file.id, localPath);
+        console.log('Téléchargé :', relPath);
+      }
     }
     newState.files[file.id] = { key: changeKey, path: relPath };
 
