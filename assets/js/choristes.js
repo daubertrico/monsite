@@ -5,12 +5,12 @@
   // "chef de chœur" restent visibles mais ne persistent que le temps de la session.
   const VISIBILITY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz8oUrLwCIfGYctW0aF5gXYssDJFcfnHe84Bhd6qhgaD9wrKFWtHbOQ6vISViSQH4YBpg/exec';
   const VISIBILITY_ADMIN_PASS = 'chefdechoeur';
-  // URL du Web App Google Apps Script (voir scripts/materiel_chansons_gas_sample.js
-  // pour le code à déployer). C'est l'UNIQUE source des chansons affichées :
-  // il scanne un dossier Google Drive partagé avec le bureau (un sous-dossier
-  // = une chanson) et détecte automatiquement PDF/audio/partition MusicXML/
-  // lien. Rien à modifier ici pour ajouter une chanson.
-  const MATERIEL_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyolBRSWNz67_aKpJwJv_2pu6ZBaU0jHTcUrmlY5wQeGjLv8SqROnC-r9nt91RCv0XO/exec';
+  // Le matériel des chansons (PDF/audio/partition/lien) est synchronisé
+  // automatiquement depuis Google Drive vers ce fichier par
+  // .github/workflows/sync-drive-materiel.yml (voir scripts/sync_drive_materiel.mjs).
+  // Rien à modifier ici pour ajouter une chanson : il suffit de déposer les
+  // fichiers dans le dossier Drive partagé.
+  const MATERIEL_MANIFEST = 'data/partitions.json';
   const OSMD_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
@@ -132,7 +132,7 @@
     return osmdLoadingPromise;
   }
 
-  function showScoreModal(title, musicxml) {
+  function showScoreModal(title, musicxmlUrl) {
     let overlay = document.getElementById('score-modal-overlay');
     if (overlay) overlay.remove();
     overlay = document.createElement('div');
@@ -152,7 +152,7 @@
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 
     const body = overlay.querySelector('#score-modal-body');
-    loadOSMD().then(() => {
+    Promise.all([loadOSMD(), fetch(musicxmlUrl).then(res => res.text())]).then(([, musicxml]) => {
       body.innerHTML = '';
       const container = document.createElement('div');
       body.appendChild(container);
@@ -382,18 +382,12 @@
         .catch(() => ({}));
     }
 
-    // Le Drive est l'unique source des chansons : chaque appel renvoie
-    // { ok, songs } ou { ok:false, error } si le scan a échoué côté script
-    // (dossier inaccessible pour le compte qui exécute le script, etc.).
-    function fetchMateriel(forceRefresh) {
-      if (!MATERIEL_ENDPOINT) return Promise.resolve({ songs: [], error: 'MATERIEL_ENDPOINT non configuré.' });
-      const url = MATERIEL_ENDPOINT + (forceRefresh ? '?refresh=1' : '');
-      return fetch(url)
+    // Fichier statique régénéré automatiquement par la synchro Drive (voir
+    // MATERIEL_MANIFEST ci-dessus) : simple fetch, pas d'appel externe.
+    function fetchMateriel() {
+      return fetch(MATERIEL_MANIFEST)
         .then(res => res.json())
-        .then(json => {
-          if (json && json.ok) return { songs: json.songs || [] };
-          return { songs: [], error: (json && json.error) || 'Réponse invalide du script Drive.' };
-        })
+        .then(songs => ({ songs: Array.isArray(songs) ? songs : [] }))
         .catch(e => ({ songs: [], error: e.message || String(e) }));
     }
 
@@ -429,12 +423,7 @@
       return parts;
     }
 
-    // Le Drive (via MATERIEL_ENDPOINT) est l'unique source des chansons. Pour
-    // un affichage instantané malgré la latence possible de Google Apps
-    // Script (parfois 10-20s à froid), on affiche d'abord la dernière copie
-    // connue localement, puis on met à jour dès que la réponse arrive.
     const VISIBILITY_CACHE_KEY = 'choristesVisibilityCache';
-    const MATERIEL_CACHE_KEY = 'choristesMaterielCache';
     function applyOverrides(parts, overrides) {
       parts.forEach(p => {
         const o = overrides[simplifyPartitionKey(p.title)];
@@ -446,8 +435,6 @@
     }
 
     let parts = [];
-    try { parts = JSON.parse(localStorage.getItem(MATERIEL_CACHE_KEY) || '[]'); } catch (e) { parts = []; }
-    parts = sortParts((parts || []).filter(p => p && p.title));
     const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
     const ensembleHint = localStorage.getItem('choristesEnsembleHint');
     const listEl = document.getElementById('chansons-all');
@@ -464,39 +451,13 @@
     }
 
     function rerender() {
-      listEl.innerHTML = parts.length ? renderTable(parts, role, ensembleHint) : '<em>Chargement des chansons… (patience, ça peut prendre jusqu\'à une minute la première fois)</em>';
+      listEl.innerHTML = parts.length ? renderTable(parts, role, ensembleHint) : '<em>Chargement des chansons…</em>';
       const searchInput = document.getElementById('partition-search');
       applySearchFilter(searchInput ? searchInput.value : '');
     }
     rerender();
     bindAudioClickOnce();
     bindScoreClickOnce();
-
-    // Lien pour forcer une actualisation immédiate du matériel Drive (sinon
-    // il se met à jour tout seul au bout de quelques minutes via le cache).
-    if (MATERIEL_ENDPOINT) {
-      const refreshWrap = document.createElement('div');
-      refreshWrap.style.cssText = 'margin:10px 0 4px;font-size:.85em;';
-      refreshWrap.innerHTML = '<a href="#" id="materiel-refresh-link">🔄 Actualiser le matériel (chansons ajoutées récemment)</a>';
-      container.insertBefore(refreshWrap, listEl);
-      const refreshLink = refreshWrap.querySelector('#materiel-refresh-link');
-      refreshLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        refreshLink.textContent = '⏳ Actualisation…';
-        fetchMateriel(true).then(({ songs, error }) => {
-          if (error) { console.error('fetchMateriel failed', error); }
-          if (songs && songs.length) {
-            parts = sortParts(songs);
-            if (!isAdmin) {
-              try { applyOverrides(parts, JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}')); } catch (e) {}
-            }
-            try { localStorage.setItem(MATERIEL_CACHE_KEY, JSON.stringify(songs)); } catch (e) {}
-            rerender();
-          }
-          refreshLink.textContent = '🔄 Actualiser le matériel (chansons ajoutées récemment)';
-        });
-      });
-    }
 
     if (isAdmin) {
       listEl.addEventListener('change', function(e) {
@@ -530,19 +491,16 @@
       rerender();
     });
 
-    // Matériel Drive : source de vérité, chargée en arrière-plan pour ne pas
-    // bloquer l'affichage initial (qui montre la dernière copie en cache).
     fetchMateriel().then(({ songs, error }) => {
       if (error) {
         console.error('fetchMateriel failed', error);
-        if (!parts.length) listEl.innerHTML = '<em>Impossible de charger les chansons pour le moment. Réessaie plus tard ou préviens le bureau.</em>';
+        listEl.innerHTML = '<em>Impossible de charger les chansons pour le moment. Réessaie plus tard ou préviens le bureau.</em>';
         return;
       }
       parts = sortParts(songs);
       if (!isAdmin) {
         try { applyOverrides(parts, JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}')); } catch (e) {}
       }
-      try { localStorage.setItem(MATERIEL_CACHE_KEY, JSON.stringify(songs)); } catch (e) {}
       rerender();
     });
   }

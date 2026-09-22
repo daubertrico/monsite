@@ -1,0 +1,49 @@
+name: Sync materiel chansons (Drive)
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-drive-materiel
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/package.json
+
+      - name: Install dependencies
+        working-directory: scripts
+        run: npm install
+
+      - name: Sync from Google Drive
+        working-directory: scripts
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        run: node sync_drive_materiel.mjs
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add materielchansons data/partitions.json data/materiel-sync-state.json
+          if git diff --cached --quiet; then
+            echo "Rien à synchroniser."
+          else
+            git commit -m "Sync automatique du materiel chansons depuis Drive"
+            git push
+          fi
