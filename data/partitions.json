@@ -30,7 +30,9 @@
       }
     ],
     "musicxml": null,
-    "interactive_link": null
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
   },
   {
     "title": "Shchedryk",
@@ -46,7 +48,9 @@
     ],
     "recordings": [],
     "musicxml": null,
-    "interactive_link": "https://flat.io/score/68dbb8d25bd7d13a94d51d39?sharingKey=6acd7207c1ca3e5924fefea39cf55c2f3d45f4a58353b81881871d61083095330a004d1a57d6d0a6e478318bc26f9a7d914c1841ee6eb6355f93118cfd16891a"
+    "interactive_link": "https://flat.io/score/68dbb8d25bd7d13a94d51d39?sharingKey=6acd7207c1ca3e5924fefea39cf55c2f3d45f4a58353b81881871d61083095330a004d1a57d6d0a6e478318bc26f9a7d914c1841ee6eb6355f93118cfd16891a",
+    "visible_lavoixlibre": true,
+    "visible_soul": false
   },
   {
     "title": "Spondo",
@@ -62,7 +66,9 @@
       }
     ],
     "musicxml": null,
-    "interactive_link": null
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
   },
   {
     "title": "Stand by Me",
@@ -79,24 +85,9 @@
       }
     ],
     "musicxml": null,
-    "interactive_link": null
-  },
-  {
-    "title": "Stand by Me",
-    "documents": [
-      {
-        "label": "stand by me paroles",
-        "file": "materielchansons/Stand by Me/stand by me paroles.pdf"
-      }
-    ],
-    "recordings": [
-      {
-        "label": "guide vocal 4 voix stand by me",
-        "file": "materielchansons/Stand by Me/guide vocal 4 voix stand by me.m4a"
-      }
-    ],
-    "musicxml": null,
-    "interactive_link": null
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
   },
   {
     "title": "szellö züg",
@@ -133,7 +124,9 @@
       }
     ],
     "musicxml": null,
-    "interactive_link": null
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
   },
   {
     "title": "Wade",
@@ -145,6 +138,8 @@
       }
     ],
     "musicxml": null,
-    "interactive_link": null
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
   }
 ]
