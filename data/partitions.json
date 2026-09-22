@@ -1,1 +1,150 @@
-[]
+[
+  {
+    "title": "Onissa",
+    "documents": [
+      {
+        "label": "canto de candomblé 2",
+        "file": "materielchansons/Onissa/canto de candomblé 2.pdf"
+      },
+      {
+        "label": "Canto de candomblé 1",
+        "file": "materielchansons/Onissa/Canto de candomblé 1.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "Onissa à 3 voix",
+        "file": "materielchansons/Onissa/Onissa à 3 voix.mp3"
+      },
+      {
+        "label": "voix principale et tutti",
+        "file": "materielchansons/Onissa/voix principale et tutti.m4a"
+      },
+      {
+        "label": "onissa femmes aigues et tutti",
+        "file": "materielchansons/Onissa/onissa-femmes aigues et tutti.m4a"
+      },
+      {
+        "label": "onissa femmes graves et tutti",
+        "file": "materielchansons/Onissa/onissa-femmes graves et tutti.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null
+  },
+  {
+    "title": "Shchedryk",
+    "documents": [
+      {
+        "label": "schedryk paroles par pupitres",
+        "file": "materielchansons/Shchedryk/schedryk paroles par pupitres.pdf"
+      },
+      {
+        "label": "Schedryk version anglaise carol of the bells   Feuille 1",
+        "file": "materielchansons/Shchedryk/Schedryk version anglaise carol of the bells - Feuille 1.pdf"
+      }
+    ],
+    "recordings": [],
+    "musicxml": null,
+    "interactive_link": "https://flat.io/score/68dbb8d25bd7d13a94d51d39?sharingKey=6acd7207c1ca3e5924fefea39cf55c2f3d45f4a58353b81881871d61083095330a004d1a57d6d0a6e478318bc26f9a7d914c1841ee6eb6355f93118cfd16891a"
+  },
+  {
+    "title": "Spondo",
+    "documents": [],
+    "recordings": [
+      {
+        "label": "couplet soprane",
+        "file": "materielchansons/Spondo/couplet soprane.ogg"
+      },
+      {
+        "label": "refrain voix par voix",
+        "file": "materielchansons/Spondo/refrain voix par voix.ogg"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null
+  },
+  {
+    "title": "Stand by Me",
+    "documents": [
+      {
+        "label": "stand by me paroles",
+        "file": "materielchansons/Stand by Me/stand by me paroles.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "guide vocal 4 voix stand by me",
+        "file": "materielchansons/Stand by Me/guide vocal 4 voix stand by me.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null
+  },
+  {
+    "title": "Stand by Me",
+    "documents": [
+      {
+        "label": "stand by me paroles",
+        "file": "materielchansons/Stand by Me/stand by me paroles.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "guide vocal 4 voix stand by me",
+        "file": "materielchansons/Stand by Me/guide vocal 4 voix stand by me.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null
+  },
+  {
+    "title": "szellö züg",
+    "documents": [
+      {
+        "label": "Szellö zug partition",
+        "file": "materielchansons/szellö züg/Szellö zug partition.pdf"
+      },
+      {
+        "label": "Szellö Zug   transcription phonétique et traduction",
+        "file": "materielchansons/szellö züg/Szellö Zug - transcription phonétique et traduction.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "Szellö Zug 3e voix (grave)",
+        "file": "materielchansons/szellö züg/Szellö Zug 3e voix (grave).MP3"
+      },
+      {
+        "label": "Szellö Zug chanté par Angela, Miuka et Pauline",
+        "file": "materielchansons/szellö züg/Szellö Zug chanté par Angela, Miuka et Pauline.MP3"
+      },
+      {
+        "label": "Szellö Zug lu par Hajni",
+        "file": "materielchansons/szellö züg/Szellö Zug lu par Hajni.MP3"
+      },
+      {
+        "label": "Szellö Zug 2e voix (médium)",
+        "file": "materielchansons/szellö züg/Szellö Zug 2e voix (médium).MP3"
+      },
+      {
+        "label": "Szellö Zug 1ère voix (aigüe)",
+        "file": "materielchansons/szellö züg/Szellö Zug 1ère voix (aigüe).MP3"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null
+  },
+  {
+    "title": "Wade",
+    "documents": [],
+    "recordings": [
+      {
+        "label": "Wade refrain 3 voix",
+        "file": "materielchansons/Wade/Wade refrain 3 voix.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null
+  }
+]
