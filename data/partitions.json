@@ -141,5 +141,14 @@
     "interactive_link": null,
     "visible_lavoixlibre": true,
     "visible_soul": false
+  },
+  {
+    "title": "walk on by",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/walk on by/walk_on_by_vincent_v8.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
   }
 ]
