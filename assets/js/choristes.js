@@ -8,6 +8,8 @@
   // lequel elle se trouve, voir visible_lavoixlibre/visible_soul ci-dessous.
   const MATERIEL_MANIFEST = 'data/partitions.json';
   const OSMD_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js';
+  const SOUNDFONT_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js';
+  const OSMD_PLAYER_SCRIPT_URL = 'assets/js/osmd-player.js';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
@@ -128,6 +130,34 @@
     return osmdLoadingPromise;
   }
 
+  let soundfontLoadingPromise = null;
+  function loadSoundfont() {
+    if (window.Soundfont) return Promise.resolve();
+    if (soundfontLoadingPromise) return soundfontLoadingPromise;
+    soundfontLoadingPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = SOUNDFONT_SCRIPT_URL;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Impossible de charger le synthétiseur audio.'));
+      document.head.appendChild(script);
+    });
+    return soundfontLoadingPromise;
+  }
+
+  let osmdPlayerLoadingPromise = null;
+  function loadOsmdPlayerEngine() {
+    if (window.OsmdPlayerEngine) return Promise.resolve();
+    if (osmdPlayerLoadingPromise) return osmdPlayerLoadingPromise;
+    osmdPlayerLoadingPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = OSMD_PLAYER_SCRIPT_URL;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Impossible de charger le lecteur de partition.'));
+      document.head.appendChild(script);
+    });
+    return osmdPlayerLoadingPromise;
+  }
+
   function showScoreModal(title, musicxmlUrl) {
     let overlay = document.getElementById('score-modal-overlay');
     if (overlay) overlay.remove();
@@ -140,22 +170,95 @@
           <strong>${escAttr(title)}</strong>
           <button type="button" id="score-modal-close" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:#3981FF;">✖</button>
         </div>
-        <div id="score-modal-body" style="overflow:auto;padding:12px 18px;"><em>Chargement de la partition…</em></div>
+        <div id="score-player-controls" style="display:none;padding:10px 18px;border-bottom:1px solid #e0e0e0;background:#f7f9fc;"></div>
+        <div id="score-modal-body" style="overflow:auto;padding:12px 18px;flex:1;"><em>Chargement de la partition…</em></div>
       </div>`;
     document.body.appendChild(overlay);
-    const close = () => overlay.remove();
+    let engine = null;
+    const close = () => { if (engine) { try { engine.stop(); } catch (e) {} } overlay.remove(); };
     overlay.querySelector('#score-modal-close').addEventListener('click', close);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 
     const body = overlay.querySelector('#score-modal-body');
+    const controls = overlay.querySelector('#score-player-controls');
     Promise.all([loadOSMD(), fetch(musicxmlUrl).then(res => res.text())]).then(([, musicxml]) => {
       body.innerHTML = '';
       const container = document.createElement('div');
       body.appendChild(container);
       const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, { autoResize: true });
-      return osmd.load(musicxml).then(() => osmd.render());
+      return osmd.load(musicxml).then(() => osmd.render()).then(() => osmd);
+    }).then(osmd => {
+      setupScorePlayer(osmd, controls).then(e => { engine = e; }).catch(err => {
+        controls.innerHTML = '<em>Lecture audio indisponible : ' + escAttr(err.message || String(err)) + '</em>';
+        controls.style.display = 'block';
+      });
     }).catch(err => {
       body.innerHTML = '<em>Erreur lors de l\'affichage de la partition : ' + escAttr(err.message || String(err)) + '</em>';
+    });
+  }
+
+  // Construit les contrôles de lecture (play/pause/stop, tempo, mute/solo par
+  // pupitre) sous la partition affichée, et retourne le moteur de lecture.
+  function setupScorePlayer(osmd, controls) {
+    return Promise.all([loadSoundfont(), loadOsmdPlayerEngine()]).then(() => {
+      const engine = new window.OsmdPlayerEngine();
+      return engine.loadScore(osmd).then(() => {
+        const voices = engine.getVoices();
+        const defaultBpm = Math.round(engine.playbackSettings.bpm);
+        const voiceRows = voices.map((v, i) => `
+          <label style="display:inline-flex;align-items:center;gap:4px;margin:2px 10px 2px 0;font-size:0.92em;">
+            <input type="checkbox" class="score-voice-mute" data-voice-id="${v.voiceId}" checked>
+            ${escAttr(v.label)}
+            <button type="button" class="score-voice-solo" data-voice-id="${v.voiceId}" style="font-size:0.85em;padding:1px 6px;border-radius:6px;border:1px solid #3981FF;background:#fff;color:#3981FF;cursor:pointer;">Solo</button>
+          </label>`).join('');
+        controls.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <button type="button" id="score-play-btn" style="background:#3981FF;color:#fff;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;">▶ Lire</button>
+            <button type="button" id="score-stop-btn" style="background:#eee;color:#333;border:none;border-radius:8px;padding:6px 14px;cursor:pointer;">■ Stop</button>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9em;">
+              Tempo
+              <input type="range" id="score-bpm-range" min="20" max="220" value="${defaultBpm}" style="width:120px;">
+              <span id="score-bpm-value">${defaultBpm}</span> bpm
+            </label>
+          </div>
+          ${voices.length ? `<div id="score-voice-rows">${voiceRows}</div>` : ''}
+        `;
+        controls.style.display = 'block';
+
+        const playBtn = controls.querySelector('#score-play-btn');
+        const stopBtn = controls.querySelector('#score-stop-btn');
+        const bpmRange = controls.querySelector('#score-bpm-range');
+        const bpmValue = controls.querySelector('#score-bpm-value');
+
+        playBtn.addEventListener('click', () => {
+          if (engine.state === 'PLAYING') { engine.pause(); } else { engine.play(); }
+        });
+        stopBtn.addEventListener('click', () => engine.stop());
+        bpmRange.addEventListener('input', () => {
+          bpmValue.textContent = bpmRange.value;
+          engine.setBpm(Number(bpmRange.value));
+        });
+        engine.on('state-change', state => {
+          playBtn.textContent = state === 'PLAYING' ? '⏸ Pause' : '▶ Lire';
+        });
+
+        controls.querySelectorAll('.score-voice-mute').forEach(cb => {
+          cb.addEventListener('change', () => {
+            engine.setVoiceMuted(Number(cb.getAttribute('data-voice-id')), !cb.checked);
+          });
+        });
+        controls.querySelectorAll('.score-voice-solo').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const voiceId = Number(btn.getAttribute('data-voice-id'));
+            const isSolo = btn.classList.toggle('active');
+            btn.style.background = isSolo ? '#3981FF' : '#fff';
+            btn.style.color = isSolo ? '#fff' : '#3981FF';
+            engine.setVoiceSolo(voiceId, isSolo);
+          });
+        });
+
+        return engine;
+      });
     });
   }
 
