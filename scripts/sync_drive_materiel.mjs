@@ -234,6 +234,19 @@ async function main() {
     }
   }
 
+  // Garde-fou : si aucune chanson n'a été trouvée (dossiers "La Voix Libre"/
+  // "Soul" créés mais pas encore de sous-dossier chanson dedans, erreur
+  // Drive transitoire, etc.), on n'efface rien du matériel déjà synchronisé.
+  if (songsByTitle.size === 0 && Object.keys(state.files).length > 0) {
+    throw new Error(
+      "Aucune chanson trouvée dans 'La Voix Libre' ou 'Soul' alors que du " +
+      "matériel était déjà synchronisé : par sécurité, rien n'a été modifié. " +
+      "Vérifie que les sous-dossiers de chansons sont bien déplacés à " +
+      "l'intérieur de 'La Voix Libre' / 'Soul' (pas seulement les dossiers " +
+      "eux-mêmes)."
+    );
+  }
+
   // Supprime les fichiers locaux qui ne correspondent plus à rien sur Drive
   // (fichier renommé/supprimé/archivé côté Drive depuis la dernière synchro).
   for (const [fileId, entry] of Object.entries(state.files)) {
