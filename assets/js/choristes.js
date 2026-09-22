@@ -457,18 +457,31 @@
       <div class="legal-warning" style="background:#fff3cd;color:#856404;border:1px solid #ffeeba;padding:10px 16px;margin-bottom:14px;border-radius:8px;font-size:.93em;">
         <strong>Usage interne.</strong> Ces arrangements sont réservés aux membres — merci de ne pas les diffuser.
       </div>
+      <div class="ensemble-selector">
+        <p class="ensemble-selector-label">Quelles chansons afficher ?</p>
+        <div class="ensemble-btns">
+          <button type="button" class="ensemble-btn chansons-ensemble-btn active" data-ensemble="lavoixlibre">
+            <span class="ens-icon">🎼</span>
+            <span class="ens-name">La Voix Libre</span>
+            <span class="ens-check">✓ Sélectionné</span>
+          </button>
+          <button type="button" class="ensemble-btn chansons-ensemble-btn" data-ensemble="soul">
+            <span class="ens-icon">🎤</span>
+            <span class="ens-name">SOUL</span>
+            <span class="ens-check">✓ Sélectionné</span>
+          </button>
+        </div>
+      </div>
       <div class="partition-search-bar">
         <input type="search" id="partition-search" placeholder="Rechercher une chanson…" autocomplete="off">
       </div>
       <div id="chansons-all" class="chansons-list"></div>
     `;
 
-    function renderTable(parts, role, ensembleHint){
-      // Le bureau et le chef de chœur voient tout ; les choristes ne voient que
-      // les chansons rendues visibles pour leur ensemble (par défaut : visibles).
-      const visibleParts = (role === 'member')
-        ? parts.filter(p => ensembleHint === 'soul' ? p.visible_soul === true : p.visible_lavoixlibre === true)
-        : parts;
+    function renderTable(parts, ensemble){
+      // Simple choix d'ensemble (comme pour le calendrier) : tout le monde a
+      // accès aux deux, on affiche juste les chansons du répertoire choisi.
+      const visibleParts = parts.filter(p => ensemble === 'soul' ? p.visible_soul === true : p.visible_lavoixlibre === true);
       if (!visibleParts || visibleParts.length===0) return '<em>Aucune chanson.</em>';
       window.__choristesScores = [];
       return '<table style="width:100%;border-collapse:collapse;"><tbody>' + visibleParts.map(partition => {
@@ -541,18 +554,33 @@
     }
 
     let parts = [];
-    const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
+    const savedEnsemble = localStorage.getItem('choristesChansonsEnsemble');
     const ensembleHint = localStorage.getItem('choristesEnsembleHint');
+    let chansonsEnsemble = savedEnsemble || (ensembleHint === 'soul' ? 'soul' : 'lavoixlibre');
     const listEl = document.getElementById('chansons-all');
+    const ensembleBtns = Array.from(container.querySelectorAll('.chansons-ensemble-btn'));
+
+    function updateEnsembleBtnStyles() {
+      ensembleBtns.forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-ensemble') === chansonsEnsemble));
+    }
+    ensembleBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        chansonsEnsemble = this.getAttribute('data-ensemble');
+        localStorage.setItem('choristesChansonsEnsemble', chansonsEnsemble);
+        updateEnsembleBtnStyles();
+        rerender();
+      });
+    });
+    updateEnsembleBtnStyles();
 
     function rerender() {
-      listEl.innerHTML = parts.length ? renderTable(parts, role, ensembleHint) : '<em>Chargement des chansons…</em>';
+      listEl.innerHTML = parts.length ? renderTable(parts, chansonsEnsemble) : '<em>Chargement des chansons…</em>';
       const searchInput = document.getElementById('partition-search');
       applySearchFilter(searchInput ? searchInput.value : '');
+      bindAudioClickOnce();
+      bindScoreClickOnce();
     }
     rerender();
-    bindAudioClickOnce();
-    bindScoreClickOnce();
 
     // Recherche en temps réel
     const searchInput = document.getElementById('partition-search');
