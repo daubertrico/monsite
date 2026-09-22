@@ -109,6 +109,13 @@ function _scanFolder() {
       const file = files.next();
       const name = file.getName();
       const ext = _extOf(name);
+      if (DOC_EXT.indexOf(ext) !== -1 || AUDIO_EXT.indexOf(ext) !== -1) {
+        // Sans ça, les liens directs (surtout audio, lu par la balise <audio>
+        // sans navigation ni session Google) redirigent vers une page de
+        // connexion pour les personnes non explicitement invitées sur le
+        // fichier, et échouent silencieusement.
+        try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e3) {}
+      }
       if (DOC_EXT.indexOf(ext) !== -1) {
         documents.push({ label: _labelFromFilename(name), file: _docUrl(file) });
       } else if (AUDIO_EXT.indexOf(ext) !== -1) {
