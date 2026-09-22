@@ -163,31 +163,54 @@
     if (overlay) overlay.remove();
     overlay = document.createElement('div');
     overlay.id = 'score-modal-overlay';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center;';
     overlay.innerHTML = `
-      <div style="background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #e0e0e0;">
+      <div style="background:#fff;width:100vw;height:100vh;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid #e0e0e0;flex-wrap:wrap;gap:10px;">
           <strong>${escAttr(title)}</strong>
-          <button type="button" id="score-modal-close" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:#3981FF;">✖</button>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button type="button" id="score-zoom-out" style="background:#eee;color:#333;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1em;">－</button>
+              <span id="score-zoom-value" style="min-width:3.5em;text-align:center;font-size:0.9em;">100%</span>
+              <button type="button" id="score-zoom-in" style="background:#eee;color:#333;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1em;">＋</button>
+            </div>
+            <button type="button" id="score-modal-close" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:#3981FF;">✖</button>
+          </div>
         </div>
         <div id="score-player-controls" style="display:none;padding:10px 18px;border-bottom:1px solid #e0e0e0;background:#f7f9fc;"></div>
         <div id="score-modal-body" style="overflow:auto;padding:12px 18px;flex:1;"><em>Chargement de la partition…</em></div>
       </div>`;
     document.body.appendChild(overlay);
     let engine = null;
+    let osmdRef = null;
+    let zoom = 1;
     const close = () => { if (engine) { try { engine.stop(); } catch (e) {} } overlay.remove(); };
     overlay.querySelector('#score-modal-close').addEventListener('click', close);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
 
     const body = overlay.querySelector('#score-modal-body');
     const controls = overlay.querySelector('#score-player-controls');
+    const zoomValue = overlay.querySelector('#score-zoom-value');
+    const applyZoom = (delta) => {
+      if (!osmdRef) return;
+      zoom = Math.min(2.5, Math.max(0.4, +(zoom + delta).toFixed(2)));
+      zoomValue.textContent = Math.round(zoom * 100) + '%';
+      osmdRef.zoom = zoom;
+      osmdRef.render();
+      if (engine) engine.cursor = osmdRef.cursor;
+    };
+    overlay.querySelector('#score-zoom-in').addEventListener('click', () => applyZoom(0.1));
+    overlay.querySelector('#score-zoom-out').addEventListener('click', () => applyZoom(-0.1));
+
     Promise.all([loadOSMD(), fetch(musicxmlUrl).then(res => res.text())]).then(([, musicxml]) => {
       body.innerHTML = '';
       const container = document.createElement('div');
+      container.style.cssText = 'display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;';
       body.appendChild(container);
       const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, { autoResize: true });
       return osmd.load(musicxml).then(() => osmd.render()).then(() => osmd);
     }).then(osmd => {
+      osmdRef = osmd;
       controls.innerHTML = '<em>Chargement du lecteur audio…</em>';
       controls.style.display = 'block';
       setupScorePlayer(osmd, controls).then(e => { engine = e; }).catch(err => {
