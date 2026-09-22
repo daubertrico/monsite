@@ -213,7 +213,7 @@
       if (!document.getElementById('score-pages-style')) {
         const style = document.createElement('style');
         style.id = 'score-pages-style';
-        style.textContent = '#score-pages-grid > div{max-width:100%;overflow:auto;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}';
+        style.textContent = '#score-pages-grid{position:relative;}#score-pages-grid > div{max-width:100%;position:relative;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}';
         document.head.appendChild(style);
       }
       body.appendChild(container);
