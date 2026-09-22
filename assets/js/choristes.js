@@ -464,7 +464,7 @@
     }
 
     function rerender() {
-      listEl.innerHTML = parts.length ? renderTable(parts, role, ensembleHint) : '<em>Chargement des chansons…</em>';
+      listEl.innerHTML = parts.length ? renderTable(parts, role, ensembleHint) : '<em>Chargement des chansons… (patience, ça peut prendre jusqu\'à une minute la première fois)</em>';
       const searchInput = document.getElementById('partition-search');
       applySearchFilter(searchInput ? searchInput.value : '');
     }
