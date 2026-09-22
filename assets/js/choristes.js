@@ -171,7 +171,7 @@
           <div style="display:flex;align-items:center;gap:14px;">
             <div style="display:flex;align-items:center;gap:6px;">
               <button type="button" id="score-zoom-out" style="background:#eee;color:#333;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1em;">－</button>
-              <span id="score-zoom-value" style="min-width:3.5em;text-align:center;font-size:0.9em;">100%</span>
+              <span id="score-zoom-value" style="min-width:3.5em;text-align:center;font-size:0.9em;">60%</span>
               <button type="button" id="score-zoom-in" style="background:#eee;color:#333;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:1.1em;">＋</button>
             </div>
             <button type="button" id="score-modal-close" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:#3981FF;">✖</button>
@@ -183,7 +183,7 @@
     document.body.appendChild(overlay);
     let engine = null;
     let osmdRef = null;
-    let zoom = 1;
+    let zoom = 0.6;
     const close = () => { if (engine) { try { engine.stop(); } catch (e) {} } overlay.remove(); };
     overlay.querySelector('#score-modal-close').addEventListener('click', close);
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
@@ -205,10 +205,26 @@
     Promise.all([loadOSMD(), fetch(musicxmlUrl).then(res => res.text())]).then(([, musicxml]) => {
       body.innerHTML = '';
       const container = document.createElement('div');
-      container.style.cssText = 'display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;';
+      // Grille à 2 colonnes : par défaut OSMD dessine la partition en une
+      // seule "page infinie" (pas de pagination) ; on force un format de
+      // page A4 pour obtenir de vraies pages, affichées 2 par 2.
+      container.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:24px;justify-items:center;align-items:start;';
+      container.id = 'score-pages-grid';
+      if (!document.getElementById('score-pages-style')) {
+        const style = document.createElement('style');
+        style.id = 'score-pages-style';
+        style.textContent = '#score-pages-grid > div{max-width:100%;overflow:auto;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}';
+        document.head.appendChild(style);
+      }
       body.appendChild(container);
-      const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, { autoResize: true });
-      return osmd.load(musicxml).then(() => osmd.render()).then(() => osmd);
+      const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
+        autoResize: false,
+        pageFormat: 'A4_P'
+      });
+      return osmd.load(musicxml).then(() => {
+        osmd.zoom = zoom;
+        return osmd.render();
+      }).then(() => osmd);
     }).then(osmd => {
       osmdRef = osmd;
       controls.innerHTML = '<em>Chargement du lecteur audio…</em>';
