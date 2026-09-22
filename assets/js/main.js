@@ -21,7 +21,6 @@ const ASSETS_BASE_URL = 'assets/';
 const DATA_BASE_URL = 'data/';
 let globalConfig = null;
 let pagesData = null;
-let partitionsData = null;
 let postsData = null;
 
 // Normalize image source: local asset filename, absolute URL, or Google Drive share link -> direct image URL
@@ -2804,14 +2803,12 @@ function injectEventsJsonLd(events, ensembleKey) {
 async function init() {
   // Parallelize the small JSON requests to avoid blocking sequential waits
   try {
-    const [g, p, part] = await Promise.all([
+    const [g, p] = await Promise.all([
       fetchJson('global_config.json'),
-      fetchJson('pages.json'),
-      fetchJson('partitions.json')
+      fetchJson('pages.json')
     ]);
     globalConfig = g;
     pagesData = p;
-    partitionsData = part;
     // --- Domain-specific overrides ---
     try {
       const hostname = (window.location && window.location.hostname) ? window.location.hostname.toLowerCase() : '';

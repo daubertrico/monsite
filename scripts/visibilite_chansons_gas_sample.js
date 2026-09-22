@@ -20,9 +20,8 @@
  * 6) Un classeur Google Sheet nommé "Visibilité des chansons" sera créé tout
  *    seul au premier réglage coché (onglet "visibilite_chansons").
  *
- * Cases décochées par défaut : si une chanson n'a jamais été réglée ici, le
- * site utilise les valeurs par défaut de data/partitions.json (généralement :
- * visible pour tout le monde).
+ * Cases décochées par défaut : si une chanson n'a jamais été réglée ici, elle
+ * est visible pour tout le monde.
  */
 
 const ADMIN_PASS = 'chefdechoeur'; // Doit correspondre à VISIBILITY_ADMIN_PASS côté site

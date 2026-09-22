@@ -6,10 +6,12 @@
   const VISIBILITY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz8oUrLwCIfGYctW0aF5gXYssDJFcfnHe84Bhd6qhgaD9wrKFWtHbOQ6vISViSQH4YBpg/exec';
   const VISIBILITY_ADMIN_PASS = 'chefdechoeur';
   // URL du Web App Google Apps Script (voir scripts/materiel_chansons_gas_sample.js
-  // pour le code à déployer). Il scanne un dossier Google Drive partagé avec le
-  // bureau : un sous-dossier = une chanson, les PDF/enregistrements dedans sont
-  // détectés automatiquement. Tant que c'est vide, seul data/partitions.json est utilisé.
-  const MATERIEL_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxsgakVg3j1qQNtT4w5Az6DbZZt_Ftw8D8l_J8sWbZY-nSuRkiEgjnTl9htNurwVSs/exec';
+  // pour le code à déployer). C'est l'UNIQUE source des chansons affichées :
+  // il scanne un dossier Google Drive partagé avec le bureau (un sous-dossier
+  // = une chanson) et détecte automatiquement PDF/audio/partition MusicXML/
+  // lien. Rien à modifier ici pour ajouter une chanson.
+  const MATERIEL_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyolBRSWNz67_aKpJwJv_2pu6ZBaU0jHTcUrmlY5wQeGjLv8SqROnC-r9nt91RCv0XO/exec';
+  const OSMD_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
@@ -113,6 +115,65 @@
       }
     }, { capture: false });
     window.__audioClickBound = true;
+  }
+
+  // ---- Visionneuse de partition MusicXML (chargée à la demande) ----
+  let osmdLoadingPromise = null;
+  function loadOSMD() {
+    if (window.opensheetmusicdisplay) return Promise.resolve();
+    if (osmdLoadingPromise) return osmdLoadingPromise;
+    osmdLoadingPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = OSMD_SCRIPT_URL;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Impossible de charger la visionneuse de partition.'));
+      document.head.appendChild(script);
+    });
+    return osmdLoadingPromise;
+  }
+
+  function showScoreModal(title, musicxml) {
+    let overlay = document.getElementById('score-modal-overlay');
+    if (overlay) overlay.remove();
+    overlay = document.createElement('div');
+    overlay.id = 'score-modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+      <div style="background:#fff;border-radius:12px;max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #e0e0e0;">
+          <strong>${escAttr(title)}</strong>
+          <button type="button" id="score-modal-close" style="background:none;border:none;font-size:1.3em;cursor:pointer;color:#3981FF;">✖</button>
+        </div>
+        <div id="score-modal-body" style="overflow:auto;padding:12px 18px;"><em>Chargement de la partition…</em></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.querySelector('#score-modal-close').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    const body = overlay.querySelector('#score-modal-body');
+    loadOSMD().then(() => {
+      body.innerHTML = '';
+      const container = document.createElement('div');
+      body.appendChild(container);
+      const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, { autoResize: true });
+      return osmd.load(musicxml).then(() => osmd.render());
+    }).catch(err => {
+      body.innerHTML = '<em>Erreur lors de l\'affichage de la partition : ' + escAttr(err.message || String(err)) + '</em>';
+    });
+  }
+
+  function bindScoreClickOnce() {
+    if (window.__scoreClickBound) return;
+    document.addEventListener('click', function(e) {
+      if (e.target.classList && e.target.classList.contains('score-link')) {
+        e.preventDefault();
+        const idx = e.target.getAttribute('data-score-idx');
+        const data = window.__choristesScores && window.__choristesScores[idx];
+        if (data) showScoreModal(data.title, data.musicxml);
+      }
+    }, { capture: false });
+    window.__scoreClickBound = true;
   }
 
   // ---- Tutoriel de bienvenue (une seule fois, après la première saisie du profil) ----
@@ -222,7 +283,8 @@
     return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  // Normalisation de clé alignée sur simplifyKey() côté api/save_visibility.php
+  // Normalisation de clé pour faire correspondre un titre de chanson à ses
+  // réglages de visibilité (accents/casse ignorés).
   function simplifyPartitionKey(s) {
     if (!s) return '';
     return s.toString().toLowerCase()
@@ -256,6 +318,7 @@
         ? parts.filter(p => ensembleHint === 'soul' ? p.visible_soul !== false : p.visible_lavoixlibre !== false)
         : parts;
       if (!visibleParts || visibleParts.length===0) return '<em>Aucune chanson.</em>';
+      window.__choristesScores = [];
       return '<table style="width:100%;border-collapse:collapse;"><tbody>' + visibleParts.map(partition => {
         // Build display title with suffixes when needed to distinguish arrangements
         let displayTitle = partition.title || '';
@@ -271,7 +334,14 @@
 
         const recordingsLinks = (partition.recordings||[]).map(r => `<a href="#" class="audio-link" data-src="${r.file}">${r.label}</a>`).join('<br>');
         const ressourcesLinks = (partition.documents||[]).map(d => `<a href="${d.file}" target="_blank">${d.label}</a>`).join('<br>');
-        const interactiveLink = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition interactive</a>` : (partition.flatio_link ? `<a href="${partition.flatio_link}" target="_blank">Partition interactive</a>` : '');
+        const interactiveLink = partition.interactive_link ? `<a href="${partition.interactive_link}" target="_blank">Partition en ligne</a>` : '';
+        let scoreLink = '';
+        if (partition.musicxml) {
+          const idx = window.__choristesScores.length;
+          window.__choristesScores.push({ title: partition.title, musicxml: partition.musicxml });
+          scoreLink = `<a href="#" class="score-link" data-score-idx="${idx}">🎼 Voir la partition</a>`;
+        }
+        const extraLinks = [interactiveLink, scoreLink].filter(Boolean).join('<br>');
 
         let adminControls = '';
         if (isAdmin) {
@@ -285,7 +355,7 @@
           </div>`;
         }
 
-        return `<tr><td style="padding:10px 0;"><strong>${displayTitle}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && interactiveLink ? '<br>' : ''}${interactiveLink}</div>${adminControls}</td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
+        return `<tr><td style="padding:10px 0;"><strong>${displayTitle}</strong><div style="margin-top:6px;">${recordingsLinks}${recordingsLinks && ressourcesLinks ? '<br>' : ''}${ressourcesLinks}${(recordingsLinks||ressourcesLinks) && extraLinks ? '<br>' : ''}${extraLinks}</div>${adminControls}</td></tr><tr><td><hr style='border:0;border-top:1.5px solid #e0e0e0;margin:0;'></td></tr>`;
       }).join('') + '</tbody></table>';
     }
 
@@ -312,35 +382,19 @@
         .catch(() => ({}));
     }
 
+    // Le Drive est l'unique source des chansons : chaque appel renvoie
+    // { ok, songs } ou { ok:false, error } si le scan a échoué côté script
+    // (dossier inaccessible pour le compte qui exécute le script, etc.).
     function fetchMateriel(forceRefresh) {
-      if (!MATERIEL_ENDPOINT) return Promise.resolve([]);
+      if (!MATERIEL_ENDPOINT) return Promise.resolve({ songs: [], error: 'MATERIEL_ENDPOINT non configuré.' });
       const url = MATERIEL_ENDPOINT + (forceRefresh ? '?refresh=1' : '');
       return fetch(url)
         .then(res => res.json())
-        .then(json => (json && json.ok && json.songs) ? json.songs : [])
-        .catch(() => []);
-    }
-
-    // Fusionne le matériel scanné depuis le Drive (source vivante, alimentée par le
-    // bureau) avec la liste de partitions.json : complète les chansons existantes et
-    // ajoute automatiquement les nouveaux dossiers-chansons.
-    function mergeMateriel(parts, materielSongs) {
-      const byKey = new Map();
-      parts.forEach(p => byKey.set(simplifyPartitionKey(p.title), p));
-      (materielSongs || []).forEach(song => {
-        const key = simplifyPartitionKey(song.title);
-        if (!key) return;
-        const existing = byKey.get(key);
-        if (existing) {
-          existing.documents = song.documents || [];
-          existing.recordings = song.recordings || [];
-        } else {
-          const newPart = { title: song.title, documents: song.documents || [], recordings: song.recordings || [] };
-          parts.push(newPart);
-          byKey.set(key, newPart);
-        }
-      });
-      return parts;
+        .then(json => {
+          if (json && json.ok) return { songs: json.songs || [] };
+          return { songs: [], error: (json && json.error) || 'Réponse invalide du script Drive.' };
+        })
+        .catch(e => ({ songs: [], error: e.message || String(e) }));
     }
 
     function applySearchFilter(q) {
@@ -375,13 +429,12 @@
       return parts;
     }
 
-    // Affiche d'abord la liste statique (data/partitions.json, quasi instantané),
-    // puis complète en arrière-plan avec les réglages de visibilité et le matériel
-    // Drive : ces deux appels passent par Google Apps Script, qui peut mettre
-    // plusieurs secondes (parfois 10-20s) à répondre. On ne bloque plus l'affichage
-    // en attendant — la liste apparaît tout de suite et se met à jour dès que
-    // ces données arrivent.
+    // Le Drive (via MATERIEL_ENDPOINT) est l'unique source des chansons. Pour
+    // un affichage instantané malgré la latence possible de Google Apps
+    // Script (parfois 10-20s à froid), on affiche d'abord la dernière copie
+    // connue localement, puis on met à jour dès que la réponse arrive.
     const VISIBILITY_CACHE_KEY = 'choristesVisibilityCache';
+    const MATERIEL_CACHE_KEY = 'choristesMaterielCache';
     function applyOverrides(parts, overrides) {
       parts.forEach(p => {
         const o = overrides[simplifyPartitionKey(p.title)];
@@ -392,91 +445,106 @@
       });
     }
 
-    fetch('data/partitions.json').then(res => res.json())
-      .then((data) => {
-        let parts = sortParts((data || []).filter(p => p && p.title));
-        const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
-        const ensembleHint = localStorage.getItem('choristesEnsembleHint');
-        const listEl = document.getElementById('chansons-all');
+    let parts = [];
+    try { parts = JSON.parse(localStorage.getItem(MATERIEL_CACHE_KEY) || '[]'); } catch (e) { parts = []; }
+    parts = sortParts((parts || []).filter(p => p && p.title));
+    const role = localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole');
+    const ensembleHint = localStorage.getItem('choristesEnsembleHint');
+    const listEl = document.getElementById('chansons-all');
 
-        // Pour un choriste (non-admin), on n'affiche jamais un instant les
-        // chansons masquées par le chef de chœur pendant que les réglages
-        // arrivent depuis Google : on applique d'abord la dernière copie connue
-        // (mémorisée localement) avant le tout premier affichage.
-        if (!isAdmin) {
-          try {
-            const cached = JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}');
-            applyOverrides(parts, cached);
-          } catch (e) {}
-        }
+    // Pour un choriste (non-admin), on n'affiche jamais un instant les
+    // chansons masquées par le chef de chœur pendant que les réglages
+    // arrivent depuis Google : on applique d'abord la dernière copie connue
+    // (mémorisée localement) avant le tout premier affichage.
+    if (!isAdmin) {
+      try {
+        const cached = JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}');
+        applyOverrides(parts, cached);
+      } catch (e) {}
+    }
 
-        function rerender() {
-          listEl.innerHTML = renderTable(parts, role, ensembleHint);
-          const searchInput = document.getElementById('partition-search');
-          applySearchFilter(searchInput ? searchInput.value : '');
-        }
-        rerender();
-        bindAudioClickOnce();
+    function rerender() {
+      listEl.innerHTML = parts.length ? renderTable(parts, role, ensembleHint) : '<em>Chargement des chansons…</em>';
+      const searchInput = document.getElementById('partition-search');
+      applySearchFilter(searchInput ? searchInput.value : '');
+    }
+    rerender();
+    bindAudioClickOnce();
+    bindScoreClickOnce();
 
-        // Lien pour forcer une actualisation immédiate du matériel Drive (sinon
-        // il se met à jour tout seul au bout de quelques minutes via le cache).
-        if (MATERIEL_ENDPOINT) {
-          const refreshWrap = document.createElement('div');
-          refreshWrap.style.cssText = 'margin:10px 0 4px;font-size:.85em;';
-          refreshWrap.innerHTML = '<a href="#" id="materiel-refresh-link">🔄 Actualiser le matériel (paroles / enregistrements ajoutés récemment)</a>';
-          container.insertBefore(refreshWrap, listEl);
-          const refreshLink = refreshWrap.querySelector('#materiel-refresh-link');
-          refreshLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            refreshLink.textContent = '⏳ Actualisation…';
-            fetchMateriel(true).then(songs => {
-              parts = mergeMateriel(parts, songs);
-              rerender();
-              refreshLink.textContent = '🔄 Actualiser le matériel (paroles / enregistrements ajoutés récemment)';
-            });
-          });
-        }
-
-        if (isAdmin) {
-          listEl.addEventListener('change', function(e) {
-            const cb = e.target;
-            if (!cb.classList || !cb.classList.contains('vis-toggle')) return;
-            const title = cb.getAttribute('data-title');
-            const partition = parts.find(p => p.title === title);
-            if (!partition) return;
-            if (cb.dataset.group === 'lv') partition.visible_lavoixlibre = cb.checked;
-            else partition.visible_soul = cb.checked;
-            saveVisibility(title, partition.visible_lavoixlibre !== false, partition.visible_soul !== false);
+    // Lien pour forcer une actualisation immédiate du matériel Drive (sinon
+    // il se met à jour tout seul au bout de quelques minutes via le cache).
+    if (MATERIEL_ENDPOINT) {
+      const refreshWrap = document.createElement('div');
+      refreshWrap.style.cssText = 'margin:10px 0 4px;font-size:.85em;';
+      refreshWrap.innerHTML = '<a href="#" id="materiel-refresh-link">🔄 Actualiser le matériel (chansons ajoutées récemment)</a>';
+      container.insertBefore(refreshWrap, listEl);
+      const refreshLink = refreshWrap.querySelector('#materiel-refresh-link');
+      refreshLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        refreshLink.textContent = '⏳ Actualisation…';
+        fetchMateriel(true).then(({ songs, error }) => {
+          if (error) { console.error('fetchMateriel failed', error); }
+          if (songs && songs.length) {
+            parts = sortParts(songs);
+            if (!isAdmin) {
+              try { applyOverrides(parts, JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}')); } catch (e) {}
+            }
+            try { localStorage.setItem(MATERIEL_CACHE_KEY, JSON.stringify(songs)); } catch (e) {}
             rerender();
-          });
-        }
-
-        // Recherche en temps réel
-        const searchInput = document.getElementById('partition-search');
-        if (searchInput) {
-          searchInput.addEventListener('input', function() { applySearchFilter(this.value); });
-          searchInput.focus();
-        }
-
-        // Réglages de visibilité (Google Sheet, via chef de chœur) : arrivent en
-        // arrière-plan et mettent à jour l'affichage dès que prêts. On mémorise
-        // aussi la réponse pour que la prochaine ouverture applique directement
-        // les bons réglages, sans attendre Google.
-        fetchVisibilityOverrides().then(overrides => {
-          if (!overrides || Object.keys(overrides).length === 0) return;
-          try { localStorage.setItem(VISIBILITY_CACHE_KEY, JSON.stringify(overrides)); } catch (e) {}
-          applyOverrides(parts, overrides);
-          rerender();
+          }
+          refreshLink.textContent = '🔄 Actualiser le matériel (chansons ajoutées récemment)';
         });
+      });
+    }
 
-        // Matériel Drive (paroles/enregistrements ajoutés par le bureau) : idem,
-        // fusionné dès qu'il arrive plutôt que de bloquer l'affichage initial.
-        fetchMateriel().then(materielSongs => {
-          if (!materielSongs || materielSongs.length === 0) return;
-          parts = sortParts(mergeMateriel(parts, materielSongs));
-          rerender();
-        });
-      }).catch(e=>{console.error('failed to load partitions.json',e);});
+    if (isAdmin) {
+      listEl.addEventListener('change', function(e) {
+        const cb = e.target;
+        if (!cb.classList || !cb.classList.contains('vis-toggle')) return;
+        const title = cb.getAttribute('data-title');
+        const partition = parts.find(p => p.title === title);
+        if (!partition) return;
+        if (cb.dataset.group === 'lv') partition.visible_lavoixlibre = cb.checked;
+        else partition.visible_soul = cb.checked;
+        saveVisibility(title, partition.visible_lavoixlibre !== false, partition.visible_soul !== false);
+        rerender();
+      });
+    }
+
+    // Recherche en temps réel
+    const searchInput = document.getElementById('partition-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() { applySearchFilter(this.value); });
+      searchInput.focus();
+    }
+
+    // Réglages de visibilité (Google Sheet, via chef de chœur) : arrivent en
+    // arrière-plan et mettent à jour l'affichage dès que prêts. On mémorise
+    // aussi la réponse pour que la prochaine ouverture applique directement
+    // les bons réglages, sans attendre Google.
+    fetchVisibilityOverrides().then(overrides => {
+      if (!overrides || Object.keys(overrides).length === 0) return;
+      try { localStorage.setItem(VISIBILITY_CACHE_KEY, JSON.stringify(overrides)); } catch (e) {}
+      applyOverrides(parts, overrides);
+      rerender();
+    });
+
+    // Matériel Drive : source de vérité, chargée en arrière-plan pour ne pas
+    // bloquer l'affichage initial (qui montre la dernière copie en cache).
+    fetchMateriel().then(({ songs, error }) => {
+      if (error) {
+        console.error('fetchMateriel failed', error);
+        if (!parts.length) listEl.innerHTML = '<em>Impossible de charger les chansons pour le moment. Réessaie plus tard ou préviens le bureau.</em>';
+        return;
+      }
+      parts = sortParts(songs);
+      if (!isAdmin) {
+        try { applyOverrides(parts, JSON.parse(localStorage.getItem(VISIBILITY_CACHE_KEY) || '{}')); } catch (e) {}
+      }
+      try { localStorage.setItem(MATERIEL_CACHE_KEY, JSON.stringify(songs)); } catch (e) {}
+      rerender();
+    });
   }
 
   function initChoristesPage(){
