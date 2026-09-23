@@ -1,5 +1,40 @@
 [
   {
+    "title": "Dock of the Bay",
+    "documents": [],
+    "recordings": [
+      {
+        "label": "dock of the bay tutti",
+        "file": "materielchansons/Dock of the Bay/dock of the bay tutti.m4a"
+      },
+      {
+        "label": "dock of the bay sopranes",
+        "file": "materielchansons/Dock of the Bay/dock of the bay sopranes.m4a"
+      },
+      {
+        "label": "dock of the bay hommes",
+        "file": "materielchansons/Dock of the Bay/dock of the bay hommes.m4a"
+      },
+      {
+        "label": "dock of the bay alti",
+        "file": "materielchansons/Dock of the Bay/dock of the bay alti.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  },
+  {
+    "title": "Lean on Me",
+    "documents": [],
+    "recordings": [],
+    "musicxml": null,
+    "interactive_link": "https://flat.io/score/68caaa79dabc548b706a6f42?sharingKey=743c0a78c50431e8063c1925d7ab590fba156dfa28ca1bb943d6b20c5b24e0e69bfeabc032c8e91d429a762a73a7b816717b8bb7928748ad568ff122c6b22795",
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  },
+  {
     "title": "Onissa",
     "documents": [
       {
