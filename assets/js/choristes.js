@@ -214,13 +214,14 @@
       if (!document.getElementById('score-pages-style')) {
         const style = document.createElement('style');
         style.id = 'score-pages-style';
-        style.textContent = '#score-pages-grid{position:relative;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}'
-          // OSMD donne au curseur un z-index négatif par défaut. Comme rien
-          // dans la modale ne crée de contexte d'empilement local, il remonte
-          // jusqu'au niveau de la fenêtre (z-index 10000) et se retrouve
-          // derrière tout le panneau blanc : invisible en permanence. On force
-          // ici un z-index positif (règle !important, seule façon de gagner
-          // sur le style inline que la librairie réapplique à chaque show()).
+        style.textContent = '#score-pages-grid{position:relative;}#score-pages-grid img:not([id^="cursorImg-"]),#score-pages-grid svg{max-width:100%;height:auto;}'
+          // La règle générique "img{max-width:100%;height:auto}" ci-dessus
+          // s'appliquait aussi à l'image du curseur (c'est un <img> comme les
+          // autres), ce qui écrasait sa taille en pixels calculée par OSMD et
+          // le rendait quasi invisible : c'était la vraie cause du bug. On
+          // l'exclut donc via ":not([id^=cursorImg-])" pour garder sa taille
+          // inline intacte, et on force en plus son z-index au-dessus de la
+          // partition (OSMD lui donne un z-index négatif par défaut).
           + '#score-pages-grid img[id^="cursorImg-"]{z-index:1000 !important;}'
           + '@media print{body>*:not(#score-modal-overlay){display:none !important;}#score-modal-overlay{position:static !important;background:none !important;}#score-modal-overlay>div{width:auto !important;height:auto !important;overflow:visible !important;}#score-modal-overlay #score-print-btn,#score-modal-overlay #score-zoom-out,#score-modal-overlay #score-zoom-in,#score-modal-overlay #score-zoom-value,#score-modal-overlay #score-modal-close,#score-player-controls{display:none !important;}#score-modal-body{overflow:visible !important;}}';
         document.head.appendChild(style);
