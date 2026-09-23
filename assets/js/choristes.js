@@ -9,7 +9,7 @@
   const MATERIEL_MANIFEST = 'data/partitions.json';
   const OSMD_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js';
   const SOUNDFONT_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js';
-  const OSMD_PLAYER_SCRIPT_URL = 'assets/js/osmd-player.js?v=20260922f';
+  const OSMD_PLAYER_SCRIPT_URL = 'assets/js/osmd-player.js?v=20260923a';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
@@ -207,22 +207,20 @@
     Promise.all([loadOSMD(), fetch(musicxmlUrl).then(res => res.text())]).then(([, musicxml]) => {
       body.innerHTML = '';
       const container = document.createElement('div');
-      // Grille à 2 colonnes : par défaut OSMD dessine la partition en une
-      // seule "page infinie" (pas de pagination) ; on force un format de
-      // page A4 pour obtenir de vraies pages, affichées 2 par 2.
-      container.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:24px;justify-items:center;align-items:start;';
+      // Page unique "infinie" (comportement par défaut d'OSMD) : la pagination
+      // A4 en grille 2 colonnes empêchait le curseur de lecture de s'afficher
+      // correctement, on revient donc à l'affichage simple.
       container.id = 'score-pages-grid';
       if (!document.getElementById('score-pages-style')) {
         const style = document.createElement('style');
         style.id = 'score-pages-style';
-        style.textContent = '#score-pages-grid{position:relative;}#score-pages-grid > div{max-width:100%;position:relative;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}'
-          + '@media print{body>*:not(#score-modal-overlay){display:none !important;}#score-modal-overlay{position:static !important;background:none !important;}#score-modal-overlay>div{width:auto !important;height:auto !important;overflow:visible !important;}#score-modal-overlay #score-print-btn,#score-modal-overlay #score-zoom-out,#score-modal-overlay #score-zoom-in,#score-modal-overlay #score-zoom-value,#score-modal-overlay #score-modal-close,#score-player-controls{display:none !important;}#score-modal-body{overflow:visible !important;}#score-pages-grid{grid-template-columns:1fr !important;}}';
+        style.textContent = '#score-pages-grid{position:relative;}#score-pages-grid img,#score-pages-grid svg{max-width:100%;height:auto;}'
+          + '@media print{body>*:not(#score-modal-overlay){display:none !important;}#score-modal-overlay{position:static !important;background:none !important;}#score-modal-overlay>div{width:auto !important;height:auto !important;overflow:visible !important;}#score-modal-overlay #score-print-btn,#score-modal-overlay #score-zoom-out,#score-modal-overlay #score-zoom-in,#score-modal-overlay #score-zoom-value,#score-modal-overlay #score-modal-close,#score-player-controls{display:none !important;}#score-modal-body{overflow:visible !important;}}';
         document.head.appendChild(style);
       }
       body.appendChild(container);
       const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
         autoResize: false,
-        pageFormat: 'A4_P',
         // Le curseur "image" par défaut d'OSMD ne se charge pas correctement
         // depuis un build CDN autonome (chemin relatif introuvable), ce qui le
         // rendait invisible même s'il avançait. On force un simple rectangle
@@ -286,6 +284,11 @@
               <input type="range" id="score-bpm-range" min="20" max="220" value="${defaultBpm}" style="width:120px;">
               <span id="score-bpm-value">${defaultBpm}</span> bpm
             </label>
+            <div style="display:flex;align-items:center;gap:6px;font-size:0.9em;">
+              Son
+              <button type="button" class="score-instrument-btn active" data-mode="piano" style="border:1px solid #3981FF;background:#3981FF;color:#fff;border-radius:6px 0 0 6px;padding:4px 10px;cursor:pointer;">🎹 Piano</button>
+              <button type="button" class="score-instrument-btn" data-mode="voix" style="border:1px solid #3981FF;border-left:none;background:#fff;color:#3981FF;border-radius:0 6px 6px 0;padding:4px 10px;cursor:pointer;">🗣️ Voix</button>
+            </div>
           </div>
           ${voices.length ? `<div id="score-voice-rows">${voiceRows}</div>` : ''}
         `;
@@ -294,6 +297,17 @@
         const playBtn = controls.querySelector('#score-play-btn');
         const stopBtn = controls.querySelector('#score-stop-btn');
         const bpmRange = controls.querySelector('#score-bpm-range');
+        controls.querySelectorAll('.score-instrument-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            controls.querySelectorAll('.score-instrument-btn').forEach(b => {
+              const active = b === btn;
+              b.classList.toggle('active', active);
+              b.style.background = active ? '#3981FF' : '#fff';
+              b.style.color = active ? '#fff' : '#3981FF';
+            });
+            engine.setInstrumentMode(btn.getAttribute('data-mode'));
+          });
+        });
         const bpmValue = controls.querySelector('#score-bpm-value');
 
         playBtn.addEventListener('click', () => {

@@ -151,6 +151,7 @@
       this.players.set(midiId, player);
     }
     stop(midiId) { if (this.players.has(midiId)) this.players.get(midiId).stop(); }
+    stopAll() { for (const player of this.players.values()) player.stop(); }
     schedule(midiId, time, notes) {
       if (!this.players.has(midiId)) return;
       for (const note of notes) {
@@ -183,6 +184,7 @@
       this.scoreInstruments = [];
       this.voiceVolumes = new Map();
       this.soloVoiceIds = new Set();
+      this.instrumentMode = 'piano';
       this.ready = false;
       this.setState(PlaybackState.INIT);
     }
@@ -214,6 +216,8 @@
       if (this.soloVoiceIds.size > 0 && !this.soloVoiceIds.has(voiceId)) return 0;
       return this.getVoiceVolume(voiceId);
     }
+    setInstrumentMode(mode) { this.instrumentMode = mode === 'voix' ? 'voix' : 'piano'; }
+    getMidiIdForVoice(voice) { return this.instrumentMode === 'voix' ? voice.__originalMidiId : 0; }
 
     async loadScore(osmd) {
       this.ready = false;
@@ -222,18 +226,20 @@
       this.cursor = osmd.cursor;
       if (this.sheet.HasBPMInfo) this.setBpm(this.sheet.DefaultStartTempoInBpm);
 
-      // Un seul identifiant MIDI (piano) pour toutes les voix : on veut un
-      // son de piano pour la répétition, pas les sons "voix/choeur" parfois
-      // déclarés dans la partition. Chaque voix reçoit aussi un identifiant
-      // unique (__playerUid) car plusieurs pupitres (soprano/alto/ténor/basse)
-      // partagent souvent le même VoiceId (1) dans un export MuseScore, ce qui
-      // faisait que couper/soloer un pupitre agissait sur tous les autres.
+      // Chaque voix reçoit un identifiant unique (__playerUid) car plusieurs
+      // pupitres (soprano/alto/ténor/basse) partagent souvent le même VoiceId
+      // (1) dans un export MuseScore, ce qui faisait que couper/soloer un
+      // pupitre agissait sur tous les autres. On précharge à la fois un son
+      // de piano (id MIDI 0) et le son "voix/choeur" déclaré par la partition
+      // pour chaque voix, afin de pouvoir basculer instantanément entre les
+      // deux via setInstrumentMode('piano' | 'voix').
       const midiIds = new Set([0]);
       let voiceUid = 0;
       for (const instrument of this.sheet.Instruments) {
         for (const voice of instrument.Voices) {
-          voice.midiInstrumentId = 0;
+          voice.__originalMidiId = instrument.MidiInstrumentId;
           voice.__playerUid = voiceUid++;
+          midiIds.add(instrument.MidiInstrumentId);
         }
       }
       await Promise.all([...midiIds].map(id => this.instrumentPlayer.load(id)));
@@ -303,7 +309,7 @@
         }
         if (duration === 0) continue;
 
-        const midiId = voice.midiInstrumentId;
+        const midiId = this.getMidiIdForVoice(voice);
         if (!scheduledNotes.has(midiId)) scheduledNotes.set(midiId, []);
         const fixedKey = (note.ParentVoiceEntry.ParentVoice.Parent.SubInstruments[0].fixedKey) || 0;
         scheduledNotes.get(midiId).push({
@@ -323,9 +329,7 @@
     }
     setState(state) { this.state = state; this.events.emit('state-change', state); }
     stopPlayers() {
-      for (const instrument of this.sheet.Instruments) {
-        for (const voice of instrument.Voices) this.instrumentPlayer.stop(voice.midiInstrumentId);
-      }
+      this.instrumentPlayer.stopAll();
     }
     clearTimeouts() { this.timeoutHandles.forEach(h => global.clearTimeout(h)); this.timeoutHandles = []; }
     iterationCallback() {
