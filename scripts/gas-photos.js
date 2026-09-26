@@ -100,6 +100,14 @@ function doGet(e) {
       if (pwd !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
       return syncFromAttendance(true);
     }
+    if (action === 'import_folder_photos') {
+      // Repêche dans la galerie les photos présentes dans le dossier Drive
+      // mais jamais passées par le formulaire d'envoi du site (donc absentes
+      // de la feuille de suivi) — admin uniquement.
+      const pwd = (e.parameter && e.parameter.adminPassword) || '';
+      if (pwd !== ADMIN_PASSWORD) return jsonOk({ error: 'Accès refusé' });
+      return importFolderPhotos();
+    }
 
     return jsonOk({ error: 'Action inconnue : ' + action });
   } catch (err) {
@@ -296,6 +304,71 @@ function getGalleryList(concertFilter) {
 
   photos.reverse(); // plus récent en premier
   return jsonOk({ photos });
+}
+
+// ------- Repêchage des photos déposées directement dans le dossier Drive -------
+// La galerie ne lit JAMAIS le dossier Drive : elle lit uniquement la feuille
+// "Photos" (remplie par uploadPhoto()). Une photo glissée à la main dans le
+// dossier Drive (au lieu de passer par "Partager mes souvenirs" sur le site)
+// n'a donc pas de ligne dans la feuille et n'apparaîtra jamais dans la
+// galerie, même si elle est bien visible dans le dossier. Cette fonction
+// scanne le dossier, ajoute une ligne "approved" pour chaque photo orpheline,
+// et force son partage public (nécessaire pour la miniature) — ce qui peut
+// échouer si la photo appartient à un compte Google différent de celui qui
+// exécute ce script (voir le commentaire d'installation en haut du fichier).
+function importFolderPhotos() {
+  const sheet = getOrCreateSheet();
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const fileCol = headers.indexOf('fileId');
+  const knownIds = new Set(values.slice(1).map(row => String(row[fileCol])));
+
+  const folder = DriveApp.getFolderById(PHOTO_FOLDER_ID);
+  const files = folder.getFiles();
+
+  const imported = [];
+  const sharingFailed = [];
+  let skipped = 0;
+
+  while (files.hasNext()) {
+    const file = files.next();
+    const mime = file.getMimeType() || '';
+    if (mime.indexOf('image/') !== 0) continue;
+
+    const id = file.getId();
+    if (knownIds.has(id)) { skipped++; continue; }
+
+    let ownerEmail = '';
+    try { ownerEmail = file.getOwner() && file.getOwner().getEmail() || ''; } catch (err) { ownerEmail = ''; }
+
+    try {
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (err) {
+      sharingFailed.push({ fileId: id, filename: file.getName(), owner: ownerEmail, error: err.toString() });
+      // On importe quand même la ligne : si le partage était déjà correct
+      // (juste posé par un autre compte), la miniature fonctionnera malgré
+      // l'échec de cet appel ; sinon ça confirmera le vrai problème.
+    }
+
+    const row = [];
+    headers.forEach(h => {
+      switch (h) {
+        case 'fileId':       row.push(id); break;
+        case 'filename':     row.push(file.getName()); break;
+        case 'concert':      row.push(''); break;
+        case 'uploaderName': row.push(ownerEmail || 'Import dossier Drive'); break;
+        case 'uploadDate':   row.push(file.getDateCreated().toISOString()); break;
+        case 'description':  row.push(''); break;
+        case 'eventId':      row.push(''); break;
+        case 'status':       row.push('approved'); break;
+        default:             row.push('');
+      }
+    });
+    sheet.appendRow(row);
+    imported.push({ fileId: id, filename: file.getName(), owner: ownerEmail });
+  }
+
+  return jsonOk({ success: true, imported, sharingFailed, skipped });
 }
 
 // ------- Liste des concerts (pour le filtre et le datalist) -------
