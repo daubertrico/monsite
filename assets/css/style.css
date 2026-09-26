@@ -2391,8 +2391,8 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
 /* === Holders organiques "La Voix Libre" (YouTube + Instagram) ===
    Formes de galets/pétales irrégulières, cadre dégradé rose→violet,
    bouton play en pastille dégradée avec halo, squelettes pastel avec note de musique. */
-.youtube-grid .yt-item,
-.youtube-skeleton {
+body:not(.page-soul) .youtube-grid .yt-item,
+body:not(.page-soul) .youtube-skeleton {
   --blob-a: 42% 58% 55% 45% / 48% 42% 58% 52%;
   --blob-b: 58% 42% 46% 54% / 44% 56% 44% 56%;
   --blob-c: 46% 54% 60% 40% / 56% 44% 56% 44%;
@@ -2400,21 +2400,21 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   box-shadow: 0 8px 22px rgba(136, 68, 170, 0.22), 0 0 0 3px #fff, 0 0 0 5px rgba(255, 102, 153, 0.45);
   transition: transform .35s cubic-bezier(.3, 1.4, .5, 1), border-radius .6s ease, box-shadow .3s ease;
 }
-.youtube-grid > :nth-child(3n+2) { border-radius: var(--blob-b); }
-.youtube-grid > :nth-child(3n) { border-radius: var(--blob-c); }
-.youtube-grid > :nth-child(even) { margin-top: 10px; }
+body:not(.page-soul) .youtube-grid > :nth-child(3n+2) { border-radius: var(--blob-b); }
+body:not(.page-soul) .youtube-grid > :nth-child(3n) { border-radius: var(--blob-c); }
+body:not(.page-soul) .youtube-grid > :nth-child(even) { margin-top: 10px; }
 
-.youtube-grid .yt-item { background: linear-gradient(135deg, #ffd6e6, #e6d2f5); }
-.youtube-grid .yt-item:hover,
-.youtube-grid .yt-item:focus-visible {
+body:not(.page-soul) .youtube-grid .yt-item { background: linear-gradient(135deg, #ffd6e6, #e6d2f5); }
+body:not(.page-soul) .youtube-grid .yt-item:hover,
+body:not(.page-soul) .youtube-grid .yt-item:focus-visible {
   transform: translateY(-4px) rotate(-1.5deg) scale(1.03);
   border-radius: var(--blob-b);
   box-shadow: 0 14px 30px rgba(136, 68, 170, 0.32), 0 0 0 3px #fff, 0 0 0 5px var(--accent-color-primary);
 }
-.youtube-grid .yt-item:hover img,
-.youtube-grid .yt-item:focus img { opacity: 0.9; }
+body:not(.page-soul) .youtube-grid .yt-item:hover img,
+body:not(.page-soul) .youtube-grid .yt-item:focus img { opacity: 0.9; }
 /* voile dégradé au bas de la vignette */
-.youtube-grid .yt-item::before {
+body:not(.page-soul) .youtube-grid .yt-item::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -2422,28 +2422,28 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   pointer-events: none;
   background: linear-gradient(180deg, rgba(136, 68, 170, 0) 55%, rgba(136, 68, 170, 0.35) 100%);
 }
-.youtube-grid .yt-play { z-index: 2; }
-.youtube-grid .yt-play::after {
+body:not(.page-soul) .youtube-grid .yt-play { z-index: 2; }
+body:not(.page-soul) .youtube-grid .yt-play::after {
   background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
   border: 2px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 0 rgba(255, 102, 153, 0.55);
   animation: ytHalo 2.6s ease-out infinite;
   transition: transform .25s ease;
 }
-.youtube-grid .yt-item:hover .yt-play::after { transform: scale(1.12); }
+body:not(.page-soul) .youtube-grid .yt-item:hover .yt-play::after { transform: scale(1.12); }
 @keyframes ytHalo {
   0%   { box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 0 rgba(255, 102, 153, 0.55); }
   70%  { box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 16px rgba(255, 102, 153, 0); }
   100% { box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 0 rgba(255, 102, 153, 0); }
 }
 /* Squelette : pastel rose/violet + note de musique qui respire */
-.youtube-skeleton {
+body:not(.page-soul) .youtube-skeleton {
   position: relative;
   background: linear-gradient(110deg, #ffe3ee 25%, #f1e6fa 50%, #ffe3ee 75%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
-.youtube-skeleton::after {
+body:not(.page-soul) .youtube-skeleton::after {
   content: '\266B';
   position: absolute;
   inset: 0;
@@ -2495,22 +2495,8 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   font-weight: 700;
   font-size: 0.95rem;
 }
-/* Variante SOUL : dorés/orangés au lieu de rose/violet */
-body.page-soul .youtube-grid .yt-item,
-body.page-soul .youtube-skeleton {
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35), 0 0 0 3px var(--soul-gold), 0 0 0 5px rgba(0, 0, 0, 0.25);
-}
-body.page-soul .youtube-grid .yt-item { background: linear-gradient(135deg, var(--soul-gold), var(--soul-orange)); }
-body.page-soul .youtube-grid .yt-item::before { background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.4) 100%); }
-body.page-soul .youtube-grid .yt-play::after {
-  background: linear-gradient(135deg, var(--soul-gold), var(--soul-orange));
-  color: var(--soul-vvd);
-  animation: none;
-}
-body.page-soul .youtube-skeleton { background: linear-gradient(110deg, rgba(255,255,255,.08) 25%, rgba(255,255,255,.18) 50%, rgba(255,255,255,.08) 75%); background-size: 200% 100%; }
-body.page-soul .youtube-skeleton::after { color: var(--soul-gold); }
 @media (prefers-reduced-motion: reduce) {
-  .youtube-grid .yt-play::after, .youtube-skeleton, .youtube-skeleton::after { animation: none; }
+  body:not(.page-soul) .youtube-grid .yt-play::after, body:not(.page-soul) .youtube-skeleton, body:not(.page-soul) .youtube-skeleton::after { animation: none; }
 }
 
 /* On garde 3 colonnes même sur mobile pour s'aligner avec Behold (Instagram) */
