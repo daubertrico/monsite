@@ -379,7 +379,7 @@
     "tile_overlay_title": "Nous rejoindre",
     "tile_overlay_subtitle": "Rejoignez l’aventure !",
     "page_title": "Rejoindre une chorale à Rennes",
-    "page_subtitle": "Chorale pop, ensemble a cappella, comédie musicale — pour tous les niveaux",
+    "page_subtitle": "Chorale pop, ensemble a cappella — pour tous les niveaux",
     "page_content": [],
     "specific_content": [
       {
@@ -396,18 +396,6 @@
               "Inscription : Il reste quelques places pour les basses et les ténors (session de recrutement bientôt terminée, n'hésitez pas à nous contacter)"
             ],
             "newsletter": true
-          },
-          
-          {
-            "title": "Comédie Musicale",
-            "image": "comediemusicale.jpg",
-            "description": "Des projets uniques et parfois sur plusieurs années (ex : La Furie des Mers), ouverts aux amateur·rice·s motivé·e·s qui souhaitent s’investir dans une expérience humaine et théâtrale intense.",
-            "details": [
-              "Lieu : ABE, rue Papu, Rennes",
-              "Horaires : Un week-end par mois sur un an",
-              "Inscription : Sur audition"
-            ],
-            "newsletter": true
           }
         ]
       },
@@ -416,7 +404,7 @@
         "title": "Questions fréquentes",
         "items": [
           "Je ne sais pas lire la musique, est-ce un problème ? Pas du tout ! On apprend ensemble, dans la bonne humeur.",
-          "Faut-il auditionner ? La grande chorale pop est ouverte à tou·te·s, sans audition ! Pour SOUL et les projets comédie musicale, une audition est demandée pour garantir l’équilibre des voix.",
+          "Faut-il auditionner ? La grande chorale pop est ouverte à tou·te·s, sans audition ! Pour SOUL, une audition est demandée pour garantir l’équilibre des voix.",
           "La grande chorale pop est-elle ouverte aux inscriptions ? Il reste quelques places, notamment pour les basses et les ténors ! La session de recrutement se termine bientôt, n'hésitez pas à nous contacter."
         ]
       }

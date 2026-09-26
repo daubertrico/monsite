@@ -960,7 +960,9 @@ async function fetchPostsFromCSV(csvUrl) {
       }
 
       // --- Comédie musicale ---
-      if (comediePage) {
+      // Masqué : la comédie musicale n'est plus d'actualité (repasser SHOW_COMEDIE à true pour la réafficher)
+      const SHOW_COMEDIE = false;
+      if (comediePage && SHOW_COMEDIE) {
         // Séparateur de section
         const divider = document.createElement('div');
         divider.className = 'home-section-divider';
@@ -1024,15 +1026,12 @@ async function fetchPostsFromCSV(csvUrl) {
       insta.setAttribute('aria-label', 'Actualités Instagram');
       insta.innerHTML = `
         <div class="home-section-divider"><h2>La Voix Libre sur Insta — Actualités</h2></div>
-        <div class="insta-embeds-grid">
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZp2XTqKloJ/" data-instgrm-version="14"></blockquote></div>
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DX873gbKLA3/" data-instgrm-version="14"></blockquote></div>
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DVoI2NkiiQL/" data-instgrm-version="14"></blockquote></div>
-          <div class="insta-embed-cell"><blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DSPzoknijA3/" data-instgrm-version="14"></blockquote></div>
-        </div>`;
+        <a class="insta-banner" href="https://www.instagram.com/chanterlavoixlibre/" target="_blank" rel="noopener noreferrer" aria-label="Suivre La Voix Libre sur Instagram">
+          <span class="insta-banner-title">Instagram</span>
+          <span class="insta-banner-handle">@chanterlavoixlibre</span>
+          <span class="insta-banner-cta">Nous suivre &rarr;</span>
+        </a>`;
       homeContent.appendChild(insta);
-      if (window.instgrm) window.instgrm.Embeds.process();
-      else window.addEventListener('load', () => { if (window.instgrm) window.instgrm.Embeds.process(); }, { once: true });
     }
 
     // === SECTION 4 : Nos enregistrements (playlist YouTube), sous la rubrique Insta ===
@@ -2699,7 +2698,7 @@ function ensureSeoMeta(currentPageId) {
     '@type': ['MusicSchool', 'LocalBusiness'],
     '@id': (origin || 'https://chanterlavoixlibre.fr') + '/#musicschool',
     name: 'La Voix Libre — chorale et cours de chant à Rennes',
-    description: "Association rennaise (loi 1901) proposant des chorales (La Voix Libre, S.O.U.L., comédie musicale) et des cours individuels de chant lyrique, jazz et pop avec Vincent T-Dauberlieu.",
+    description: "Association rennaise (loi 1901) proposant des chorales (La Voix Libre, S.O.U.L.) et des cours individuels de chant lyrique, jazz et pop avec Vincent T-Dauberlieu.",
     url: origin || 'https://chanterlavoixlibre.fr/',
     logo: logoAbs || undefined,
     image: logoAbs || undefined,

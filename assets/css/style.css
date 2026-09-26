@@ -2388,6 +2388,131 @@ a.home-cta-btn { display: inline-block; text-decoration: none; }
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+/* === Holders organiques "La Voix Libre" (YouTube + Instagram) ===
+   Formes de galets/pétales irrégulières, cadre dégradé rose→violet,
+   bouton play en pastille dégradée avec halo, squelettes pastel avec note de musique. */
+.youtube-grid .yt-item,
+.youtube-skeleton {
+  --blob-a: 42% 58% 55% 45% / 48% 42% 58% 52%;
+  --blob-b: 58% 42% 46% 54% / 44% 56% 44% 56%;
+  --blob-c: 46% 54% 60% 40% / 56% 44% 56% 44%;
+  border-radius: var(--blob-a);
+  box-shadow: 0 8px 22px rgba(136, 68, 170, 0.22), 0 0 0 3px #fff, 0 0 0 5px rgba(255, 102, 153, 0.45);
+  transition: transform .35s cubic-bezier(.3, 1.4, .5, 1), border-radius .6s ease, box-shadow .3s ease;
+}
+.youtube-grid > :nth-child(3n+2) { border-radius: var(--blob-b); }
+.youtube-grid > :nth-child(3n) { border-radius: var(--blob-c); }
+.youtube-grid > :nth-child(even) { margin-top: 10px; }
+
+.youtube-grid .yt-item { background: linear-gradient(135deg, #ffd6e6, #e6d2f5); }
+.youtube-grid .yt-item:hover,
+.youtube-grid .yt-item:focus-visible {
+  transform: translateY(-4px) rotate(-1.5deg) scale(1.03);
+  border-radius: var(--blob-b);
+  box-shadow: 0 14px 30px rgba(136, 68, 170, 0.32), 0 0 0 3px #fff, 0 0 0 5px var(--accent-color-primary);
+}
+.youtube-grid .yt-item:hover img,
+.youtube-grid .yt-item:focus img { opacity: 0.9; }
+/* voile dégradé au bas de la vignette */
+.youtube-grid .yt-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(136, 68, 170, 0) 55%, rgba(136, 68, 170, 0.35) 100%);
+}
+.youtube-grid .yt-play { z-index: 2; }
+.youtube-grid .yt-play::after {
+  background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-complementary));
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 0 rgba(255, 102, 153, 0.55);
+  animation: ytHalo 2.6s ease-out infinite;
+  transition: transform .25s ease;
+}
+.youtube-grid .yt-item:hover .yt-play::after { transform: scale(1.12); }
+@keyframes ytHalo {
+  0%   { box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 0 rgba(255, 102, 153, 0.55); }
+  70%  { box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 16px rgba(255, 102, 153, 0); }
+  100% { box-shadow: 0 4px 14px rgba(136, 68, 170, 0.5), 0 0 0 0 rgba(255, 102, 153, 0); }
+}
+/* Squelette : pastel rose/violet + note de musique qui respire */
+.youtube-skeleton {
+  position: relative;
+  background: linear-gradient(110deg, #ffe3ee 25%, #f1e6fa 50%, #ffe3ee 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+.youtube-skeleton::after {
+  content: '\266B';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: rgba(136, 68, 170, 0.35);
+  animation: noteBreath 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes noteBreath {
+  0%, 100% { transform: scale(0.9); opacity: 0.5; }
+  50%      { transform: scale(1.1); opacity: 1; }
+}
+/* Instagram : grande bannière cliquable (plus d'embeds) */
+.insta-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 34px 20px 28px;
+  text-align: center;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-color-primary) 0%, var(--accent-color-complementary) 100%);
+  border-radius: 46% 54% 52% 48% / 38% 42% 58% 62%;
+  box-shadow: 0 10px 28px rgba(136, 68, 170, 0.3), 0 0 0 3px #fff, 0 0 0 5px rgba(255, 102, 153, 0.45);
+  transition: transform .35s cubic-bezier(.3, 1.4, .5, 1), box-shadow .3s ease;
+}
+.insta-banner { position: relative; overflow: hidden; min-height: 210px; justify-content: center; }
+.insta-banner:hover, .insta-banner:focus-visible {
+  transform: translateY(-4px) rotate(-1deg) scale(1.02);
+  box-shadow: 0 16px 34px rgba(136, 68, 170, 0.4), 0 0 0 3px #fff, 0 0 0 5px var(--accent-color-primary);
+}
+.insta-banner-title {
+  font-family: 'Lobster', cursive;
+  font-size: clamp(2.4rem, 9vw, 3.6rem);
+  line-height: 1.1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.insta-banner-handle { font-size: 1rem; opacity: 0.92; letter-spacing: 0.02em; }
+.insta-banner-cta {
+  margin-top: 10px;
+  padding: 8px 22px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--accent-color-complementary);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+/* Variante SOUL : dorés/orangés au lieu de rose/violet */
+body.page-soul .youtube-grid .yt-item,
+body.page-soul .youtube-skeleton {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35), 0 0 0 3px var(--soul-gold), 0 0 0 5px rgba(0, 0, 0, 0.25);
+}
+body.page-soul .youtube-grid .yt-item { background: linear-gradient(135deg, var(--soul-gold), var(--soul-orange)); }
+body.page-soul .youtube-grid .yt-item::before { background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.4) 100%); }
+body.page-soul .youtube-grid .yt-play::after {
+  background: linear-gradient(135deg, var(--soul-gold), var(--soul-orange));
+  color: var(--soul-vvd);
+  animation: none;
+}
+body.page-soul .youtube-skeleton { background: linear-gradient(110deg, rgba(255,255,255,.08) 25%, rgba(255,255,255,.18) 50%, rgba(255,255,255,.08) 75%); background-size: 200% 100%; }
+body.page-soul .youtube-skeleton::after { color: var(--soul-gold); }
+@media (prefers-reduced-motion: reduce) {
+  .youtube-grid .yt-play::after, .youtube-skeleton, .youtube-skeleton::after { animation: none; }
+}
+
 /* On garde 3 colonnes même sur mobile pour s'aligner avec Behold (Instagram) */
 /* qui reste à 3 colonnes — sinon YT/photos paraissent plus gros qu'Insta sur téléphone */
 
