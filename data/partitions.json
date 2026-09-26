@@ -53,6 +53,15 @@
     "visible_soul": true
   },
   {
+    "title": "laissez moi danser",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/laissez moi danser/laissez moi danser vtd.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
     "title": "Lean on Me",
     "documents": [],
     "recordings": [],
