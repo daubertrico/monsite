@@ -840,6 +840,22 @@
         `<span class="stat"><strong>${uploaders.size}</strong> contributeur${uploaders.size > 1 ? 's' : ''}</span>`;
     }
 
+    // ---- Gestion des échecs de chargement de vignette ----
+    // L'endpoint drive.google.com/thumbnail échoue parfois de façon
+    // transitoire (limitation de débit côté Google quand beaucoup de
+    // vignettes se chargent d'un coup) : on retente 2 fois avant de masquer
+    // réellement la photo, pour éviter que des photos valides disparaissent.
+    function handleThumbError(img) {
+      const attempt = (parseInt(img.dataset.retry || '0', 10)) + 1;
+      img.dataset.retry = attempt;
+      if (attempt <= 2) {
+        const base = img.src.split('&r=')[0];
+        setTimeout(() => { img.src = base + '&r=' + Date.now(); }, attempt * 800);
+      } else {
+        img.parentElement.style.display = 'none';
+      }
+    }
+
     function renderGroupedGalleries() {
       const groupsEl = document.getElementById('gallery-groups');
       const groups = {};
@@ -883,7 +899,7 @@
             <figure class="${selectedCls.trim()}" style="--i:${i}" data-index="${idx}" data-file-id="${esc(photo.fileId)}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
               <span class="photo-check" aria-hidden="true">✓</span>
               <img src="${thumb}" alt="${altText}" loading="lazy" decoding="async"
-                onerror="this.parentElement.style.display='none'">
+                onerror="handleThumbError(this)">
               ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
             </figure>`;
         }).join('');
