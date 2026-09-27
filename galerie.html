@@ -893,6 +893,7 @@
     // Ensemble cible pour cette galerie : 'lvl' (chorale) — l'autre galerie est galerie-soul.html
     const GALLERY_ENSEMBLE = 'lvl';
     const soulEventIds = new Set();
+    const soulEventMap = {}; // événements SOUL (pour reconnaître les photos SOUL non rattachées)
 
     function formatConcertLabel(summary, date) {
       const mois  = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
@@ -930,45 +931,96 @@
           if (!start) return;
           eventMap[ev.id] = { name: ev.summary || 'Concert', date: new Date(start) };
         });
-        soulItems.forEach(ev => { if (ev.id) soulEventIds.add(ev.id); });
+        soulItems.forEach(ev => {
+          if (!ev.id) return;
+          soulEventIds.add(ev.id);
+          const start = ev.start && (ev.start.dateTime || ev.start.date);
+          if (start) soulEventMap[ev.id] = { name: ev.summary || 'Concert', date: new Date(start) };
+        });
       } catch (e) {
         console.warn('Calendar fetch failed', e);
       }
     }
 
-    // Index inverse : nom normalisé → eventId (construit après chargement de l'agenda)
-    let _eventByName = null;
-    function getEventByName() {
-      if (_eventByName) return _eventByName;
-      _eventByName = {};
-      Object.entries(eventMap).forEach(([id, ev]) => {
-        const k = normName(ev.name || '');
-        if (k && !_eventByName[k]) _eventByName[k] = id;
-      });
-      return _eventByName;
+    // ---- Photos non rattachées à l'agenda : nom de concert venant du Drive ----
+    // (colonne "concert" du tableur, sinon nom du fichier Drive, ex.
+    //  "Concert à la Guinguette du MEM  dim 16 juin 2024_1790521820000_22.jpg")
+    // Photos marquées "divers" dans la colonne concert : catégorie à part,
+    // affichée en bas, après tous les concerts.
+    const DIVERS_KEY = 'divers';
+    function isDivers(photo) { return normName(photo.concert) === DIVERS_KEY; }
+    function driveConcertName(photo) {
+      const stored = (photo.concert || '').trim();
+      if (stored && stored !== 'Non précisé') return stored;
+      const base = (photo.filename || '').replace(/\.[a-z0-9]+$/i, '').replace(/(_\d+)+$/, '').trim();
+      return base ? base.replace(/\s{2,}/g, ' – ') : 'Concert non précisé';
     }
-    // Résout l'eventId d'une photo : depuis son champ eventId, ou par correspondance de nom
+    const MOIS_PREFIXES = ['jan','fev','mar','avr','mai','juin','juil','aou','sep','oct','nov','dec'];
+    function dateFromConcertName(name) {
+      const m = normName(name).match(/(\d{1,2})(?:er)?\s+(jan|fev|mar|avr|mai|juin|juil|aou|sep|oct|nov|dec)[a-z]*\.?\s+(\d{4})/);
+      if (!m) return null;
+      const month = MOIS_PREFIXES.findIndex(p => m[2].startsWith(p));
+      return new Date(parseInt(m[3], 10), month, parseInt(m[1], 10));
+    }
+    function alnumKey(s) { return normName(s).replace(/[^a-z0-9]+/g, ''); }
+    function sameDay(a, b) {
+      return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    }
+    // Cherche l'événement d'agenda correspondant au nom de concert Drive :
+    // même titre (emoji/ponctuation ignorés) et même jour si le nom contient une date.
+    function matchEventByName(name, events = eventMap) {
+      const key = alnumKey(name);
+      if (!key) return null;
+      const date = dateFromConcertName(name);
+      let best = null, bestLen = 0;
+      Object.entries(events).forEach(([id, ev]) => {
+        const evKey = alnumKey(ev.name);
+        if (evKey.length < 4 || !key.startsWith(evKey)) return;
+        if (date && !sameDay(date, ev.date)) return;
+        if (evKey.length > bestLen) { best = id; bestLen = evKey.length; }
+      });
+      return best;
+    }
+    // Résout l'eventId La Voix Libre d'une photo : champ eventId, sinon nom de concert Drive
     function resolveEventId(photo) {
-      if (photo.eventId) return photo.eventId;
-      if (!photo.concert) return null;
-      return getEventByName()[normName(photo.concert)] || null;
+      if (isDivers(photo)) return null;
+      if (photo.eventId) return eventMap[photo.eventId] ? photo.eventId : null;
+      return matchEventByName(driveConcertName(photo));
+    }
+    // Photo SOUL (exclue ici, affichée dans galerie-soul.html) : rattachée à
+    // l'agenda SOUL, "soul" dans son nom, ou (sans rattachement) nom
+    // correspondant à un concert SOUL. Tout le reste apparaît ici.
+    const SOUL_MARKER = /\bsoul\b|s\.o\.u\.l/i;
+    function isSoulPhoto(photo) {
+      if (photo.eventId && soulEventIds.has(photo.eventId)) return true;
+      if (SOUL_MARKER.test(photo.filename || '') || SOUL_MARKER.test(photo.concert || '')) return true;
+      return !photo.eventId && !!matchEventByName(driveConcertName(photo), soulEventMap);
     }
 
     // Clé de regroupement : id d'événement si dispo ou trouvé par nom, sinon nom stocké (anciennes photos)
     function photoKey(photo) {
+      if (isDivers(photo)) return DIVERS_KEY;
       const evId = resolveEventId(photo);
-      return evId ? ('id:' + evId) : ('name:' + (photo.concert || 'Non précisé'));
+      return evId ? ('id:' + evId) : ('name:' + alnumKey(driveConcertName(photo)));
     }
     // Libellé affiché : nom courant de l'agenda, sinon nom stocké à l'envoi
     function photoLabel(photo) {
+      if (isDivers(photo)) return 'Divers';
       const evId = resolveEventId(photo);
       if (evId && eventMap[evId]) return formatConcertLabel(eventMap[evId].name, eventMap[evId].date);
-      return photo.concert || 'Non précisé';
+      return driveConcertName(photo);
     }
     // Date utilisée pour le tri des catégories
+    function uploadTime(photo) {
+      const t = photo.uploadDate ? new Date(photo.uploadDate).getTime() : 0;
+      return isNaN(t) ? 0 : t;
+    }
     function photoDate(photo) {
+      if (isDivers(photo)) return 0;
       const evId = resolveEventId(photo);
       if (evId && eventMap[evId]) return eventMap[evId].date.getTime();
+      const d = dateFromConcertName(driveConcertName(photo));
+      if (d) return d.getTime();
       return photo.uploadDate ? new Date(photo.uploadDate).getTime() : 0;
     }
 
@@ -994,13 +1046,9 @@
           return;
         }
 
-        // Filtre : on garde les photos liées au calendrier La Voix Libre (ou sans eventId — legacy).
-        // On exclut explicitement les photos rattachées au calendrier SOUL.
-        const photos = data.photos.filter(p => {
-          if (!p.eventId) return true; // legacy : pas de rattachement → visible ici
-          if (soulEventIds.has(p.eventId)) return false; // photo SOUL → exclue
-          return true; // soit dans LVL, soit dans un autre calendrier inconnu → visible
-        });
+        // Filtre : tout sauf les photos SOUL (voir isSoulPhoto), y compris
+        // les photos sans rattachement à l'agenda.
+        const photos = data.photos.filter(p => !isSoulPhoto(p));
 
         if (!photos.length) {
           groupsEl.innerHTML = EMPTY_STATE_HTML;
@@ -1038,12 +1086,30 @@
     // transitoire (limitation de débit côté Google quand beaucoup de
     // vignettes se chargent d'un coup) : on retente 2 fois avant de masquer
     // réellement la photo, pour éviter que des photos valides disparaissent.
+    // Vignettes à la taille réelle d'affichage : Drive renvoie la photo
+    // redimensionnée (sz=wN), le navigateur choisit dans le srcset selon la
+    // taille de la case et la densité de l'écran. Cases ≈ 125 px (8 colonnes
+    // sur 1000 px, 3-4 colonnes sur mobile), photo en tête ≈ 250 px.
+    const THUMB_WIDTHS = [200, 400, 800];
+    const THUMB_SIZES = '(max-width: 400px) 34vw, (max-width: 600px) 25vw, 125px';
+    const THUMB_SIZES_CENTER = '(max-width: 400px) 34vw, (max-width: 600px) 25vw, 250px';
+    function thumbUrl(fileId, w) {
+      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${w}`;
+    }
+    function thumbSrcset(fileId) {
+      return THUMB_WIDTHS.map(w => `${thumbUrl(fileId, w)} ${w}w`).join(', ');
+    }
+
     function handleThumbError(img) {
       const attempt = (parseInt(img.dataset.retry || '0', 10)) + 1;
       img.dataset.retry = attempt;
       if (attempt <= 2) {
-        const base = img.src.split('&r=')[0];
-        setTimeout(() => { img.src = base + '&r=' + Date.now(); }, attempt * 800);
+        const r = '&r=' + Date.now();
+        const bust = url => url.replace(/&r=\d+/g, '').replace(/(sz=w\d+)/g, '$1' + r);
+        setTimeout(() => {
+          if (img.srcset) img.srcset = bust(img.srcset);
+          img.src = bust(img.src);
+        }, attempt * 800);
       } else {
         img.parentElement.style.display = 'none';
       }
@@ -1053,76 +1119,50 @@
     function renderGroupedGalleries() {
       const groupsEl = document.getElementById('gallery-groups');
 
-      // Regroupe par clé concert
-      const groups = {};
-      allPhotos.forEach(p => {
-        if (!groups[p._key]) {
-          groups[p._key] = { key: p._key, label: p._label, date: photoDate(p), photos: [] };
-        }
-        groups[p._key].photos.push(p);
-      });
-      const list = Object.values(groups)
-        .filter(g => g.photos.length > 0)
-        .sort((a, b) => b.date - a.date);
+      // Galerie "en vrac" : plus de catégories, toutes les photos à la suite,
+      // de la plus récente (date du concert) à la plus ancienne, et les photos
+      // "Divers" toujours tout à la fin de la page.
+      // Le rattachement aux concerts reste utilisé par l'agenda (événements dépliés).
+      const photos = allPhotos.slice().sort((a, b) =>
+        (isDivers(a) - isDivers(b)) || (photoDate(b) - photoDate(a)) || (uploadTime(b) - uploadTime(a)));
 
-      // Mise à jour des stats du hero
-      updateHeroStats(list);
+      updateHeroStats(photos);
 
-      if (list.length === 0) {
+      if (photos.length === 0) {
         groupsEl.innerHTML = EMPTY_STATE_HTML;
         return;
       }
 
-      // Construit la liste à plat dans l'ordre d'affichage (pour les indices de lightbox).
-      filteredPhotos = list.flatMap(g => g.photos);
+      // Liste à plat dans l'ordre d'affichage (pour les indices de lightbox).
+      filteredPhotos = photos;
 
       const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c] || c));
 
-      let flatIndex = 0;
-      const html = list.map((g, gi) => {
-        const eventDate = g.date ? new Date(g.date) : null;
-        const emoji = seasonEmoji(eventDate);
-        const rel = relativeDate(eventDate);
-        const count = g.photos.length;
-
-        const figs = g.photos.map((photo, i) => {
-          const idx = flatIndex++;
-          const thumb = `https://drive.google.com/thumbnail?id=${photo.fileId}&sz=w600`;
-          const uploader = esc(photo.uploaderName || '');
-          const description = esc(photo.description || '');
-          const meta = uploader ? `par ${uploader}` : '';
-          const capHtml = [
-            description ? `<span class="cap-desc">${description}</span>` : '',
-            meta ? `<span class="cap-meta">${meta}</span>` : ''
-          ].filter(Boolean).join('');
-          const altText = description || esc(g.label);
-          const selectedCls = selectedIds.has(photo.fileId) ? ' selected' : '';
-          return `
-            <figure class="${selectedCls.trim()}" style="--i:${i}" data-index="${idx}" data-file-id="${esc(photo.fileId)}" role="button" tabindex="0" aria-label="Photo de ${esc(g.label)}">
-              <span class="photo-check" aria-hidden="true">✓</span>
-              <img src="${thumb}" alt="${altText}" loading="lazy" decoding="async"
-                onerror="handleThumbError(this)">
-              ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
-            </figure>`;
-        }).join('');
-
-        const groupHeader = `
-          <div class="gallery-group-header">
-            <span class="ggh-emoji" aria-hidden="true">${emoji}</span>
-            <h3 class="ggh-title">${esc(g.label)}</h3>
-            <div class="ggh-meta">
-              ${rel ? `<span class="ggh-chip">${rel}</span>` : ''}
-              <span class="ggh-chip ggh-chip-count">📷 ${count} photo${count > 1 ? 's' : ''}</span>
-            </div>
-          </div>`;
-
-        const sep = gi > 0 ? '<div class="gallery-group-sep" aria-hidden="true">♪</div>' : '';
-        return sep + `
-          <div class="gallery-group">
-            ${groupHeader}
-            ${figs ? `<div class="photo-mosaic">${figs}</div>` : ''}
-          </div>`;
+      const figs = photos.map((photo, idx) => {
+        const thumb = thumbUrl(photo.fileId, 400);
+        const uploader = esc(photo.uploaderName || '');
+        const description = esc(photo.description || '');
+        const meta = uploader ? `par ${uploader}` : '';
+        const capHtml = [
+          description ? `<span class="cap-desc">${description}</span>` : '',
+          meta ? `<span class="cap-meta">${meta}</span>` : ''
+        ].filter(Boolean).join('');
+        const altText = description || esc(photo._label);
+        const selectedCls = selectedIds.has(photo.fileId) ? ' selected' : '';
+        return `
+          <figure class="${selectedCls.trim()}" style="--i:${Math.min(idx, 30)}" data-index="${idx}" data-file-id="${esc(photo.fileId)}" role="button" tabindex="0" aria-label="Photo de ${esc(photo._label)}">
+            <span class="photo-check" aria-hidden="true">✓</span>
+            <img src="${thumb}" srcset="${thumbSrcset(photo.fileId)}" sizes="${idx === 0 ? THUMB_SIZES_CENTER : THUMB_SIZES}"
+              alt="${altText}" loading="lazy" decoding="async"
+              onerror="handleThumbError(this)">
+            ${capHtml ? `<figcaption>${capHtml}</figcaption>` : ''}
+          </figure>`;
       }).join('');
+
+      const html = `
+        <div class="gallery-group">
+          <div class="photo-mosaic">${figs}</div>
+        </div>`;
 
       groupsEl.innerHTML = html;
 
@@ -1141,7 +1181,7 @@
         });
       });
 
-      // ---- Layout "bouquet" : première photo de chaque groupe en centre + spans dynamiques ----
+      // ---- Layout "bouquet" : première photo (la plus récente) en centre + spans dynamiques ----
       groupsEl.querySelectorAll('.photo-mosaic').forEach(mosaic => {
         const figs = mosaic.querySelectorAll('figure');
         if (figs.length > 0) figs[0].classList.add('bouquet-center');
@@ -1192,13 +1232,13 @@
     function updateHeroStats(list) {
       const el = document.getElementById('gallery-hero-stats');
       if (!el) return;
-      const total = list.reduce((s, g) => s + g.photos.length, 0);
-      const concerts = list.length;
+      const total = list.length;
+      const concerts = new Set(list.filter(p => p._key !== DIVERS_KEY).map(p => p._key)).size;
       const uploaders = new Set();
-      list.forEach(g => g.photos.forEach(p => {
+      list.forEach(p => {
         const n = (p.uploaderName || '').trim().toLowerCase();
         if (n) uploaders.add(n);
-      }));
+      });
       el.innerHTML =
         `<span class="stat"><strong>${total}</strong> photo${total > 1 ? 's' : ''}</span>` +
         `<span class="stat"><strong>${concerts}</strong> concert${concerts > 1 ? 's' : ''}</span>` +
@@ -1462,11 +1502,7 @@
         if (data.error) throw new Error(data.error);
 
         // Filtre : on garde les photos LVL (pas SOUL) et les legacy sans eventId
-        let photos = (data.photos || []).filter(p => {
-          if (!p.eventId) return true;
-          if (soulEventIds.has(p.eventId)) return false;
-          return true;
-        });
+        let photos = (data.photos || []).filter(p => !isSoulPhoto(p));
         countEl.textContent = photos.length;
 
         if (photos.length === 0) {
@@ -1480,9 +1516,7 @@
           const desc  = p.description ? '<em>' + esc(p.description) + '</em>' : '';
           const d     = p.uploadDate ? new Date(p.uploadDate) : null;
           const dStr  = d && !isNaN(d) ? d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}) + ' à ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'}) : '';
-          const concertName = (p.eventId && eventMap[p.eventId])
-            ? formatConcertLabel(eventMap[p.eventId].name, eventMap[p.eventId].date)
-            : (p.concert || 'Concert non précisé');
+          const concertName = photoLabel(p);
           return '<div class="pending-card" data-file-id="' + esc(p.fileId) + '">'
             + '<img class="pc-img" src="' + thumb + '" alt="" loading="lazy">'
             + '<div class="pc-info">'
