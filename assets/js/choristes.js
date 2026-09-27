@@ -202,9 +202,21 @@
     };
     overlay.querySelector('#score-zoom-in').addEventListener('click', () => applyZoom(0.1));
     overlay.querySelector('#score-zoom-out').addEventListener('click', () => applyZoom(-0.1));
-    overlay.querySelector('#score-print-btn').addEventListener('click', () => window.print());
+    let musicxmlText = null;
+    const printBtn = overlay.querySelector('#score-print-btn');
+    printBtn.addEventListener('click', () => {
+      if (!musicxmlText || printBtn.disabled) return;
+      if (engine) engine.pause();
+      const label = printBtn.textContent;
+      printBtn.disabled = true;
+      printBtn.textContent = '⏳ Mise en page…';
+      printScore(title, musicxmlText)
+        .catch(err => alert('Impression impossible : ' + (err.message || err)))
+        .finally(() => { printBtn.disabled = false; printBtn.textContent = label; });
+    });
 
     Promise.all([loadOSMD(), fetch(musicxmlUrl).then(res => res.text())]).then(([, musicxml]) => {
+      musicxmlText = musicxml;
       body.innerHTML = '';
       const container = document.createElement('div');
       // Page unique "infinie" (comportement par défaut d'OSMD) : la pagination
@@ -223,7 +235,7 @@
           // inline intacte, et on force en plus son z-index au-dessus de la
           // partition (OSMD lui donne un z-index négatif par défaut).
           + '#score-pages-grid img[id^="cursorImg-"]{z-index:1000 !important;}'
-          + '@media print{body>*:not(#score-modal-overlay){display:none !important;}#score-modal-overlay{position:static !important;background:none !important;}#score-modal-overlay>div{width:auto !important;height:auto !important;overflow:visible !important;}#score-modal-overlay #score-print-btn,#score-modal-overlay #score-zoom-out,#score-modal-overlay #score-zoom-in,#score-modal-overlay #score-zoom-value,#score-modal-overlay #score-modal-close,#score-player-controls{display:none !important;}#score-modal-body{overflow:visible !important;}}';
+          + '@media print{body:not(.score-printing)>*:not(#score-modal-overlay){display:none !important;}#score-modal-overlay{position:static !important;background:none !important;}#score-modal-overlay>div{width:auto !important;height:auto !important;overflow:visible !important;}#score-modal-overlay #score-print-btn,#score-modal-overlay #score-zoom-out,#score-modal-overlay #score-zoom-in,#score-modal-overlay #score-zoom-value,#score-modal-overlay #score-modal-close,#score-player-controls{display:none !important;}#score-modal-body{overflow:visible !important;}}';
         document.head.appendChild(style);
       }
       body.appendChild(container);
@@ -257,6 +269,134 @@
       });
     }).catch(err => {
       body.innerHTML = '<em>Erreur lors de l\'affichage de la partition : ' + escAttr(err.message || String(err)) + '</em>';
+    });
+  }
+
+  // ---- Impression : mise en page A4 dédiée ----
+  // Au lieu d'imprimer l'affichage écran (page infinie coupée n'importe où,
+  // curseur, zoom écran), on refait un rendu OSMD séparé en pages A4 : les
+  // systèmes ne sont jamais coupés, avec titre, crédits, noms des pupitres et
+  // numéros de mesure, puis on imprime uniquement ces pages.
+  const PRINT_WIDTH_PX = 1000;
+  // Largeur de page en interlignes de portée : ~120 correspond à la taille
+  // standard d'une partition éditée (interligne ≈ 1,75 mm sur A4).
+  const PRINT_PAGE_WIDTH_UNITS = 125;
+  const PLACEHOLDER_CREDITS = /^(partition sans titre|compositeur\s*\/\s*arrangeur|untitled score|composer\s*\/\s*arranger|titre|subtitle|sous-titre)$/i;
+
+  function normCredit(s) {
+    return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  }
+
+  // Les métadonnées des fichiers MuseScore sont souvent des valeurs par
+  // défaut ("Partition sans titre"…) : on garde le titre du site, et comme
+  // sous-ligne les crédits texte utiles (auteur, "arr. …") hors titre.
+  function extractPrintCredits(musicxml, title) {
+    const doc = new DOMParser().parseFromString(musicxml, 'application/xml');
+    const titleKey = normCredit(title);
+    const seen = new Set();
+    const credits = [];
+    doc.querySelectorAll('credit-words, creator').forEach(el => {
+      let text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+      // "Day Dreaming - Aretha Franklin" → "Aretha Franklin"
+      if (titleKey && normCredit(text).startsWith(titleKey) && /\s[-–—:·]\s/.test(text)) {
+        text = text.replace(/^.*?\s[-–—:·]\s+/, '').trim();
+      }
+      const key = normCredit(text);
+      if (!text || !key || seen.has(key) || PLACEHOLDER_CREDITS.test(text)) return;
+      if (key === titleKey || titleKey.includes(key) || key.includes(titleKey)) return;
+      seen.add(key);
+      credits.push(text);
+    });
+    return credits.slice(0, 3).join(' · ');
+  }
+
+  function printTitleCase(title) {
+    const t = (title || '').trim();
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
+
+  function printScore(title, musicxml) {
+    document.getElementById('score-print-area')?.remove();
+    const area = document.createElement('div');
+    area.id = 'score-print-area';
+    // Hors écran mais mis en page (OSMD a besoin d'une largeur réelle).
+    area.style.cssText = `position:absolute;left:-20000px;top:0;width:${PRINT_WIDTH_PX}px;background:#fff;`;
+    document.body.appendChild(area);
+
+    if (!document.getElementById('score-print-style')) {
+      const style = document.createElement('style');
+      style.id = 'score-print-style';
+      style.textContent = `
+        @media print {
+          @page { size: A4 portrait; margin: 8mm 8mm 10mm 8mm;
+            @bottom-center { content: counter(page) " / " counter(pages); font: 9pt Georgia, serif; color: #666; } }
+          html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+          body.score-printing > *:not(#score-print-area) { display: none !important; }
+          body.score-printing #score-print-area { position: static !important; left: auto !important; width: auto !important; }
+          #score-print-area > div { break-after: page; page-break-after: always; break-inside: avoid; margin: 0 !important; }
+          #score-print-area > div:last-child { break-after: auto; page-break-after: auto; }
+          #score-print-area svg { display: block; width: 100% !important; height: auto !important; }
+        }`;
+      document.head.appendChild(style);
+    }
+
+    const osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(area, {
+      autoResize: false,
+      backend: 'svg',
+      pageFormat: 'A4_P',
+      pageBackgroundColor: '#FFFFFF',
+      drawingParameters: 'default',
+      drawCredits: true,
+      drawTitle: true,
+      drawSubtitle: false,
+      drawComposer: true,
+      drawLyricist: false,
+      drawPartNames: true,
+      drawPartAbbreviations: true,
+      drawMeasureNumbers: true,
+      followCursor: false
+    });
+    return osmd.load(musicxml).then(() => {
+      const sheet = osmd.Sheet;
+      const rules = osmd.EngravingRules;
+      // Numéro au début de chaque système (plus lisible qu'un numéro sur deux mesures).
+      rules.RenderMeasureNumbersOnlyAtSystemStart = true;
+      rules.PageTopMargin = 6;
+      rules.PageBottomMargin = 6;
+      rules.PageLeftMargin = 6;
+      rules.PageRightMargin = 6;
+      rules.TitleTopDistance = 6;
+      rules.SheetTitleHeight = 5;
+      rules.SheetComposerHeight = 2.4;
+      rules.SystemDistance = 9;
+      // Label d'OSMD non exporté : on reprend la classe d'un nom de pupitre.
+      const LabelCls = sheet.Instruments[0] && sheet.Instruments[0].NameLabel && sheet.Instruments[0].NameLabel.constructor;
+      if (LabelCls) {
+        sheet.Title = new LabelCls(printTitleCase(title));
+        const credits = extractPrintCredits(musicxml, title);
+        sheet.Composer = credits ? new LabelCls(credits) : undefined;
+        sheet.Subtitle = undefined;
+        sheet.Lyricist = undefined;
+      }
+      osmd.zoom = PRINT_WIDTH_PX / 10 / PRINT_PAGE_WIDTH_UNITS;
+      osmd.render();
+
+      document.body.classList.add('score-printing');
+      const cleanup = () => {
+        document.body.classList.remove('score-printing');
+        area.remove();
+        window.removeEventListener('afterprint', cleanup);
+      };
+      window.addEventListener('afterprint', cleanup);
+      // Laisse le navigateur peindre les pages avant d'ouvrir la boîte d'impression.
+      return new Promise(resolve => requestAnimationFrame(() => setTimeout(() => {
+        window.print();
+        resolve();
+      }, 50)));
+    }).catch(err => {
+      area.remove();
+      document.body.classList.remove('score-printing');
+      throw err;
     });
   }
 
