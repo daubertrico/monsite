@@ -46,19 +46,17 @@
     }
   }
 
+  // Une étape = une position du curseur OSMD (même ordre, même index), ce qui
+  // garde le curseur affiché synchronisé avec le son. Le tick de chaque étape
+  // vient du temps réel de la position dans la partition (voir loadScore).
+  // L'ancienne version déduisait ce tick en additionnant les durées des notes
+  // et en cherchant "la première étape vide" : avec des triolets (durées en
+  // 1/3), les arrondis flottants créaient des étapes fantômes et toute la
+  // suite de la partition se retrouvait compressée (lecture qui s'accélère
+  // jusqu'à devenir inaudible).
   class StepQueue {
     constructor() { this.steps = []; }
-    createStep(tick) {
-      let step = this.steps.find(s => s.tick === tick);
-      if (!step) { step = { tick, notes: [] }; this.steps.push(step); }
-      return step;
-    }
-    addNote(tick, note) {
-      const step = this.steps.find(s => s.tick === tick) || this.createStep(tick);
-      step.notes.push(note);
-    }
-    sort() { this.steps.sort((a, b) => a.tick - b.tick); return this; }
-    getFirstEmptyTick() { return this.sort().steps.filter(s => !s.notes.length)[0].tick; }
+    addStep(tick, notes, measure) { this.steps.push({ tick, notes, measure }); }
   }
 
   class PlaybackScheduler {
@@ -89,7 +87,6 @@
     }
     start() {
       this.playing = true;
-      this.stepQueue.sort();
       this.audioContextStartTime = this.audioContext.currentTime;
       this.currentTickTimestamp = this.audioContextTime;
       if (!this.schedulerIntervalHandle) {
@@ -110,16 +107,24 @@
       global.clearInterval(this.schedulerIntervalHandle);
       this.schedulerIntervalHandle = null;
     }
-    loadNotes(currentVoiceEntries) {
-      let thisTick = this.lastTickOffset;
-      if (this.stepQueue.steps.length > 0) thisTick = this.stepQueue.getFirstEmptyTick();
-      for (const entry of currentVoiceEntries) {
-        if (entry.IsGrace) continue;
-        for (const note of entry.Notes) {
-          this.stepQueue.addNote(thisTick, note);
-          this.stepQueue.createStep(thisTick + note.Length.RealValue * this.tickDenominator);
-        }
+    // Change le tempo sans saut : on fige d'abord la position courante avec
+    // l'ancienne durée de tick avant d'appliquer la nouvelle.
+    setWholeNoteLength(length) {
+      if (this.playing) {
+        this.currentTick = this.calculatedTick;
+        this.currentTickTimestamp = this.audioContextTime;
       }
+      this.wholeNoteLength = length;
+    }
+    // positionInWholeNotes : temps écoulé depuis le début de la partition, en rondes.
+    loadStep(positionInWholeNotes, currentVoiceEntries, measure) {
+      const tick = this.lastTickOffset + Math.round(positionInWholeNotes * this.tickDenominator * 1000) / 1000;
+      const notes = [];
+      for (const entry of currentVoiceEntries || []) {
+        if (entry.IsGrace) continue;
+        notes.push(...entry.Notes);
+      }
+      this.stepQueue.addStep(tick, notes, measure);
     }
     scheduleIterationStep() {
       if (!this.playing) return;
@@ -132,12 +137,16 @@
         let timeToTick = (step.tick - this.currentTick) * this.tickDuration;
         if (timeToTick < 0) timeToTick = 0;
         this.scheduledTicks.add(step.tick);
-        this.noteSchedulingCallback(timeToTick / 1000, step.notes);
+        this.noteSchedulingCallback(timeToTick / 1000, step.notes, this.stepQueueIndex);
         this.stepQueueIndex++;
         nextStep = this.stepQueue.steps[this.stepQueueIndex];
       }
       for (const tick of this.scheduledTicks) {
         if (tick <= this.currentTick) this.scheduledTicks.delete(tick);
+      }
+      if (!nextStep && this.onEnd) {
+        const last = this.stepQueue.steps[this.stepQueue.steps.length - 1];
+        if (!last || this.currentTick > last.tick) this.onEnd();
       }
     }
   }
@@ -178,6 +187,7 @@
       this.scheduler = null;
       this.iterationSteps = 0;
       this.currentIterationStep = 0;
+      this.cursorIndex = 0;
       this.timeoutHandles = [];
       this.defaultBpm = 100;
       this.playbackSettings = { bpm: this.defaultBpm };
@@ -244,26 +254,48 @@
       }
       await Promise.all([...midiIds].map(id => this.instrumentPlayer.load(id)));
 
-      this.scheduler = new PlaybackScheduler(this.wholeNoteLength, this.ac, (delay, notes) =>
-        this.notePlaybackCallback(delay, notes));
+      this.scheduler = new PlaybackScheduler(this.wholeNoteLength, this.ac, (delay, notes, stepIndex) =>
+        this.notePlaybackCallback(delay, notes, stepIndex));
+      this.scheduler.onEnd = () => this.onPlaybackEnd();
 
+      // Position de chaque étape = temps de la position du curseur dans la
+      // partition. Si le temps recule (reprise/renvoi), on continue d'avancer
+      // en ajoutant la fin de la mesure quittée puis le début de celle atteinte.
       this.cursor.reset();
+      const it = this.cursor.Iterator;
       let steps = 0;
-      while (!this.cursor.Iterator.EndReached) {
-        if (this.cursor.Iterator.CurrentVoiceEntries) this.scheduler.loadNotes(this.cursor.Iterator.CurrentVoiceEntries);
+      let position = 0;
+      let prevTs = null;
+      let prevMeasureEnd = null;
+      while (!it.EndReached) {
+        const measure = it.CurrentMeasure;
+        const ts = it.currentTimeStamp.RealValue;
+        if (prevTs !== null) {
+          if (ts >= prevTs) position += ts - prevTs;
+          else position += (prevMeasureEnd - prevTs) + (ts - measure.AbsoluteTimestamp.RealValue);
+        }
+        this.scheduler.loadStep(position, it.CurrentVoiceEntries, measure);
+        prevTs = ts;
+        prevMeasureEnd = measure.AbsoluteTimestamp.RealValue + measure.Duration.RealValue;
         this.cursor.next();
         steps++;
       }
       this.iterationSteps = steps;
       this.cursor.reset();
+      this.cursorIndex = 0;
 
       this.ready = true;
       this.setState(PlaybackState.STOPPED);
     }
 
     async play() {
+      if (this.state === PlaybackState.PLAYING) return;
       await this.ac.resume();
-      if (this.state === PlaybackState.INIT || this.state === PlaybackState.STOPPED) this.cursor.show();
+      // Reprend à l'étape courante : 0 après Stop, juste après la dernière
+      // note jouée après Pause, ou la mesure choisie par un clic.
+      this.scheduler.setIterationStep(this.currentIterationStep);
+      this.moveCursorTo(this.currentIterationStep);
+      this.cursor.show();
       this.setState(PlaybackState.PLAYING);
       this.scheduler.start();
     }
@@ -273,24 +305,72 @@
       this.clearTimeouts();
       this.scheduler.reset();
       this.cursor.reset();
+      this.cursorIndex = 0;
       this.currentIterationStep = 0;
       this.cursor.hide();
     }
     pause() {
+      if (this.state !== PlaybackState.PLAYING) return;
       this.setState(PlaybackState.PAUSED);
       this.ac.suspend();
       this.stopPlayers();
-      this.scheduler.setIterationStep(this.currentIterationStep);
       this.scheduler.pause();
       this.clearTimeouts();
+      this.scheduler.setIterationStep(this.currentIterationStep);
+    }
+    // Place la lecture au début de la mesure donnée (SourceMeasure d'OSMD) ;
+    // continue de jouer si on était en lecture.
+    seekToMeasure(sourceMeasure) {
+      const steps = this.scheduler ? this.scheduler.stepQueue.steps : [];
+      const index = steps.findIndex(s => s.measure === sourceMeasure);
+      if (index < 0) return false;
+      const wasPlaying = this.state === PlaybackState.PLAYING;
+      if (wasPlaying) {
+        this.stopPlayers();
+        this.clearTimeouts();
+        this.scheduler.pause();
+      }
+      this.currentIterationStep = index;
+      this.scheduler.setIterationStep(index);
+      this.moveCursorTo(index);
+      this.cursor.show();
+      if (wasPlaying) this.scheduler.start();
+      else this.setState(PlaybackState.PAUSED);
+      return true;
+    }
+    // Après un nouveau rendu (zoom), OSMD réinitialise son curseur : on le
+    // replace là où il était.
+    resyncCursor(cursor) {
+      const target = this.cursorIndex;
+      this.cursor = cursor;
+      this.cursor.reset();
+      this.cursorIndex = 0;
+      this.moveCursorTo(target);
+      if (this.state === PlaybackState.STOPPED || this.state === PlaybackState.INIT) this.cursor.hide();
+      else this.cursor.show();
+    }
+    moveCursorTo(index) {
+      if (index < this.cursorIndex) { this.cursor.reset(); this.cursorIndex = 0; }
+      while (this.cursorIndex < index && !this.cursor.Iterator.EndReached) {
+        this.cursor.next();
+        this.cursorIndex++;
+      }
+    }
+    onPlaybackEnd() {
+      if (this.state !== PlaybackState.PLAYING || this._endTimer) return;
+      // Laisse sonner la dernière note avant de revenir au début.
+      this._endTimer = global.setTimeout(() => {
+        this._endTimer = null;
+        if (this.state === PlaybackState.PLAYING) this.stop();
+      }, 1500);
     }
     setBpm(bpm) {
       this.playbackSettings.bpm = bpm;
-      if (this.scheduler) this.scheduler.wholeNoteLength = this.wholeNoteLength;
+      if (this.scheduler) this.scheduler.setWholeNoteLength(this.wholeNoteLength);
     }
     on(event, cb) { this.events.on(event, cb); }
 
-    notePlaybackCallback(audioDelay, notes) {
+    notePlaybackCallback(audioDelay, notes, stepIndex) {
       if (this.state !== PlaybackState.PLAYING) return;
       const scheduledNotes = new Map();
       for (const note of notes) {
@@ -323,7 +403,7 @@
         this.instrumentPlayer.schedule(midiId, this.ac.currentTime + audioDelay, ns);
       }
       this.timeoutHandles.push(
-        global.setTimeout(() => this.iterationCallback(), Math.max(0, audioDelay * 1000 - 35)),
+        global.setTimeout(() => this.iterationCallback(stepIndex), Math.max(0, audioDelay * 1000 - 35)),
         global.setTimeout(() => this.events.emit('iteration', notes), audioDelay * 1000)
       );
     }
@@ -331,11 +411,15 @@
     stopPlayers() {
       this.instrumentPlayer.stopAll();
     }
-    clearTimeouts() { this.timeoutHandles.forEach(h => global.clearTimeout(h)); this.timeoutHandles = []; }
-    iterationCallback() {
+    clearTimeouts() {
+      this.timeoutHandles.forEach(h => global.clearTimeout(h));
+      this.timeoutHandles = [];
+      if (this._endTimer) { global.clearTimeout(this._endTimer); this._endTimer = null; }
+    }
+    iterationCallback(stepIndex) {
       if (this.state !== PlaybackState.PLAYING) return;
-      if (this.currentIterationStep > 0) this.cursor.next();
-      this.currentIterationStep++;
+      this.moveCursorTo(stepIndex);
+      this.currentIterationStep = stepIndex + 1;
     }
   }
 

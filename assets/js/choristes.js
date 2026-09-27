@@ -9,7 +9,7 @@
   const MATERIEL_MANIFEST = 'data/partitions.json';
   const OSMD_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.4/build/opensheetmusicdisplay.min.js';
   const SOUNDFONT_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/soundfont-player@0.12.0/dist/soundfont-player.min.js';
-  const OSMD_PLAYER_SCRIPT_URL = 'assets/js/osmd-player.js?v=20260923a';
+  const OSMD_PLAYER_SCRIPT_URL = 'assets/js/osmd-player.js?v=20260927a';
   function setupSousOnglets() {
     const sousOnglets = document.querySelectorAll('.calendrier-sous-onglet');
     const sousOngletContents = {
@@ -198,7 +198,7 @@
       zoomValue.textContent = Math.round(zoom * 100) + '%';
       osmdRef.zoom = zoom;
       osmdRef.render();
-      if (engine) engine.cursor = osmdRef.cursor;
+      if (engine) engine.resyncCursor(osmdRef.cursor);
     };
     overlay.querySelector('#score-zoom-in').addEventListener('click', () => applyZoom(0.1));
     overlay.querySelector('#score-zoom-out').addEventListener('click', () => applyZoom(-0.1));
@@ -241,7 +241,16 @@
       osmdRef = osmd;
       controls.innerHTML = '<em>Chargement du lecteur audio…</em>';
       controls.style.display = 'block';
-      setupScorePlayer(osmd, controls).then(e => { engine = e; }).catch(err => {
+      setupScorePlayer(osmd, controls).then(e => {
+        engine = e;
+        // Clic sur une mesure = la lecture démarre (ou continue) à cet endroit.
+        const scoreEl = body.querySelector('#score-pages-grid');
+        scoreEl.style.cursor = 'pointer';
+        scoreEl.addEventListener('click', ev => {
+          const measure = findClickedMeasure(osmdRef, scoreEl, ev);
+          if (measure) engine.seekToMeasure(measure);
+        });
+      }).catch(err => {
         console.error('Lecture audio de la partition indisponible :', err);
         controls.innerHTML = '<em>Lecture audio indisponible : ' + escAttr(err.message || String(err)) + '</em>';
         controls.style.display = 'block';
@@ -249,6 +258,35 @@
     }).catch(err => {
       body.innerHTML = '<em>Erreur lors de l\'affichage de la partition : ' + escAttr(err.message || String(err)) + '</em>';
     });
+  }
+
+  // Retrouve la mesure (SourceMeasure OSMD) sous le clic : la mesure dont la
+  // largeur contient le point, sur la portée la plus proche verticalement
+  // (pour qu'un clic sur les paroles sous la portée compte aussi).
+  function findClickedMeasure(osmd, scoreEl, ev) {
+    const svg = scoreEl.querySelector('svg');
+    if (!svg || !svg.getScreenCTM() || !osmd.GraphicSheet) return null;
+    const pt = svg.createSVGPoint();
+    pt.x = ev.clientX;
+    pt.y = ev.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    // Le viewBox du SVG est en pixels non zoomés ; 1 unité OSMD = 10 px.
+    const x = p.x / 10, y = p.y / 10;
+    let best = null, bestDist = Infinity;
+    for (const row of osmd.GraphicSheet.MeasureList) {
+      for (const gm of row || []) {
+        if (!gm || !gm.PositionAndShape || !gm.parentSourceMeasure) continue;
+        const bb = gm.PositionAndShape;
+        const left = bb.AbsolutePosition.x + bb.BorderLeft;
+        const right = bb.AbsolutePosition.x + bb.BorderRight;
+        if (x < left || x > right) continue;
+        const top = bb.AbsolutePosition.y + bb.BorderTop;
+        const bottom = bb.AbsolutePosition.y + bb.BorderBottom;
+        const dist = y < top ? top - y : (y > bottom ? y - bottom : 0);
+        if (dist < bestDist) { bestDist = dist; best = gm.parentSourceMeasure; }
+      }
+    }
+    return bestDist <= 12 ? best : null;
   }
 
   function withTimeout(promise, ms, message) {
@@ -297,6 +335,7 @@
             </div>
           </div>
           ${voices.length ? `<div id="score-voice-rows">${voiceRows}</div>` : ''}
+          <div style="font-size:0.82em;color:#666;margin-top:4px;">Astuce : clique sur une mesure de la partition pour démarrer la lecture à cet endroit.</div>
         `;
         controls.style.display = 'block';
 
