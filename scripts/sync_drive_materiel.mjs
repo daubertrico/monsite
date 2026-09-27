@@ -180,6 +180,7 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
   const songDirName = sanitizeName(folder.name);
   const songDir = path.join(MATERIEL_DIR, songDirName);
   const children = await listChildren(auth, folder.id);
+  const childNames = new Set(children.map(f => f.name.toLowerCase()));
 
   const documents = [];
   const recordings = [];
@@ -190,6 +191,9 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
     if (file.mimeType === 'application/vnd.google-apps.folder') continue;
     const ext = extOf(file.name);
     const isGoogleDoc = GOOGLE_EXPORTABLE_MIME.includes(file.mimeType);
+    // Google Doc déjà exporté à la main en PDF dans le même dossier : on
+    // garde uniquement le PDF pour ne pas afficher la fiche en double.
+    if (isGoogleDoc && childNames.has(`${file.name}.pdf`.toLowerCase())) continue;
     const isDoc = DOC_EXT.includes(ext) || isGoogleDoc;
     const isAudio = AUDIO_EXT.includes(ext);
     const isMxl = SCORE_ZIP_EXT.includes(ext) && !musicxmlPath;
