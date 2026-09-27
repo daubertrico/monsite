@@ -125,7 +125,12 @@
   },
   {
     "title": "shout - isley brothers",
-    "documents": [],
+    "documents": [
+      {
+        "label": "Shout fiche synoptique",
+        "file": "materielchansons/shout - isley brothers/Shout_fiche_synoptique.pdf"
+      }
+    ],
     "recordings": [
       {
         "label": "voixprincipaleshout",
