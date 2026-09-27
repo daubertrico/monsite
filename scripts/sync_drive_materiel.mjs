@@ -96,6 +96,24 @@ async function driveDownload(auth, fileId, destPath) {
   await pipeline(res.data, createWriteStream(destPath));
 }
 
+// Les Google Docs/Slides/Sheets n'ont pas de contenu binaire : on les
+// exporte en PDF.
+const GOOGLE_EXPORTABLE_MIME = [
+  'application/vnd.google-apps.document',
+  'application/vnd.google-apps.presentation',
+  'application/vnd.google-apps.spreadsheet'
+];
+
+async function driveExportPdf(auth, fileId, destPath) {
+  const client = await auth.getClient();
+  const res = await client.request({
+    url: `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=application/pdf`,
+    responseType: 'stream'
+  });
+  await mkdir(path.dirname(destPath), { recursive: true });
+  await pipeline(res.data, createWriteStream(destPath));
+}
+
 async function driveDownloadText(auth, fileId) {
   const client = await auth.getClient();
   const res = await client.request({
@@ -171,7 +189,8 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
   for (const file of children) {
     if (file.mimeType === 'application/vnd.google-apps.folder') continue;
     const ext = extOf(file.name);
-    const isDoc = DOC_EXT.includes(ext);
+    const isGoogleDoc = GOOGLE_EXPORTABLE_MIME.includes(file.mimeType);
+    const isDoc = DOC_EXT.includes(ext) || isGoogleDoc;
     const isAudio = AUDIO_EXT.includes(ext);
     const isMxl = SCORE_ZIP_EXT.includes(ext) && !musicxmlPath;
     const isScore = (SCORE_EXT.includes(ext) || isMxl) && !musicxmlPath;
@@ -184,7 +203,11 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
       continue;
     }
 
-    const localFileName = sanitizeName(isMxl ? file.name.replace(/\.mxl$/i, '.musicxml') : file.name);
+    const localFileName = sanitizeName(
+      isGoogleDoc ? `${file.name}.pdf`
+        : isMxl ? file.name.replace(/\.mxl$/i, '.musicxml')
+        : file.name
+    );
     const localPath = path.join(songDir, localFileName);
     const relPath = path.relative(REPO_ROOT, localPath).split(path.sep).join('/');
     seenLocalPaths.add(relPath);
@@ -193,7 +216,10 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
     const prev = state.files[file.id];
     const needsDownload = !prev || prev.key !== changeKey || !existsSync(localPath);
     if (needsDownload) {
-      if (isMxl) {
+      if (isGoogleDoc) {
+        await driveExportPdf(auth, file.id, localPath);
+        console.log('Exporté en PDF :', relPath);
+      } else if (isMxl) {
         const buffer = await driveDownloadBuffer(auth, file.id);
         const xml = extractMusicXmlFromMxl(buffer);
         await mkdir(path.dirname(localPath), { recursive: true });
@@ -206,7 +232,7 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
     }
     newState.files[file.id] = { key: changeKey, path: relPath };
 
-    if (isDoc) documents.push({ label: labelFromFilename(file.name), file: relPath });
+    if (isDoc) documents.push({ label: labelFromFilename(localFileName), file: relPath });
     else if (isAudio) recordings.push({ label: labelFromFilename(file.name), file: relPath });
     else if (isScore) musicxmlPath = relPath;
   }
