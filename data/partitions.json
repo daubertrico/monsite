@@ -197,12 +197,12 @@
     ],
     "recordings": [
       {
-        "label": "Szellö Zug hommes",
-        "file": "materielchansons/szello zug/Szello Zug hommes.mp3"
-      },
-      {
         "label": "Szellö Zug alti",
         "file": "materielchansons/szello zug/Szello Zug alti.mp3"
+      },
+      {
+        "label": "Szello Zug hommes",
+        "file": "materielchansons/szello zug/Szello Zug hommes.mp3"
       },
       {
         "label": "Szellö Zug sopranes",
