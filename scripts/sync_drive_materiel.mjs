@@ -74,10 +74,21 @@ function categoryOf(folderName) {
   return null;
 }
 
-// Caractères invalides sous Windows (le dépôt est aussi utilisé en local sur
-// Windows) : \ / : * ? " < > |
+// Noms de fichiers/dossiers locaux en ASCII pur, extension en minuscules :
+// les accents (ö, é…) peuvent arriver encodés de deux façons (NFC/NFD, ex.
+// iPhone/Mac) et le serveur ne trouve alors pas le fichier, et certains
+// navigateurs refusent un .MP3 en majuscules. Les libellés affichés gardent
+// le nom Drive d'origine. Retire aussi les caractères invalides sous Windows
+// (le dépôt est aussi utilisé en local) : \ / : * ? " < > |
 function sanitizeName(name) {
-  return name.replace(/[\\/:*?"<>|]/g, '_').replace(/\s+$/, '').replace(/\.+$/, '') || 'sans-titre';
+  const ascii = name
+    .replace(/œ/g, 'oe').replace(/Œ/g, 'OE').replace(/æ/g, 'ae').replace(/Æ/g, 'AE').replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[’‘]/g, "'")
+    .replace(/[^\x20-\x7e]/g, '_')
+    .replace(/[\\/:*?"<>|#%]/g, '_')
+    .replace(/\.([A-Za-z0-9]+)$/, (_, ext) => '.' + ext.toLowerCase());
+  return ascii.replace(/\s+$/, '').replace(/\.+$/, '') || 'sans-titre';
 }
 
 async function driveFetch(auth, url) {
@@ -236,7 +247,7 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
     }
     newState.files[file.id] = { key: changeKey, path: relPath };
 
-    if (isDoc) documents.push({ label: labelFromFilename(localFileName), file: relPath });
+    if (isDoc) documents.push({ label: labelFromFilename(isGoogleDoc ? `${file.name}.pdf` : file.name), file: relPath });
     else if (isAudio) recordings.push({ label: labelFromFilename(file.name), file: relPath });
     else if (isScore) musicxmlPath = relPath;
   }

@@ -108,8 +108,19 @@
           document.getElementById('close-audio').onclick = function() { player.remove(); };
         }
         const audio = document.getElementById('audio-player');
+        const oldFallback = document.getElementById('audio-fallback');
+        if (oldFallback) oldFallback.remove();
+        audio.onerror = function() {
+          if (document.getElementById('audio-fallback')) return;
+          const fallback = document.createElement('div');
+          fallback.id = 'audio-fallback';
+          fallback.style.marginTop = '8px';
+          fallback.innerHTML = 'Lecture impossible dans ce navigateur : <a href="' + src + '" download target="_blank">télécharger le fichier</a>';
+          player.appendChild(fallback);
+        };
         audio.src = src;
-        audio.play();
+        const playing = audio.play();
+        if (playing && playing.catch) playing.catch(() => {});
       }
     }, { capture: false });
     window.__audioClickBound = true;

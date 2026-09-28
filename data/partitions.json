@@ -75,17 +75,17 @@
     "documents": [
       {
         "label": "canto de candomblé 2",
-        "file": "materielchansons/Onissa/canto de candomblé 2.pdf"
+        "file": "materielchansons/Onissa/canto de candomble 2.pdf"
       },
       {
         "label": "Canto de candomblé 1",
-        "file": "materielchansons/Onissa/Canto de candomblé 1.pdf"
+        "file": "materielchansons/Onissa/Canto de candomble 1.pdf"
       }
     ],
     "recordings": [
       {
         "label": "Onissa à 3 voix",
-        "file": "materielchansons/Onissa/Onissa à 3 voix.mp3"
+        "file": "materielchansons/Onissa/Onissa a 3 voix.mp3"
       },
       {
         "label": "voix principale et tutti",
@@ -188,33 +188,33 @@
     "documents": [
       {
         "label": "Szellö zug partition",
-        "file": "materielchansons/szellö züg/Szellö zug partition.pdf"
+        "file": "materielchansons/szello zug/Szello zug partition.pdf"
       },
       {
         "label": "Szellö Zug   transcription phonétique et traduction",
-        "file": "materielchansons/szellö züg/Szellö Zug - transcription phonétique et traduction.pdf"
+        "file": "materielchansons/szello zug/Szello Zug - transcription phonetique et traduction.pdf"
       }
     ],
     "recordings": [
       {
         "label": "Szellö Zug hommes",
-        "file": "materielchansons/szellö züg/Szellö Zug hommes.MP3"
+        "file": "materielchansons/szello zug/Szello Zug hommes.mp3"
       },
       {
         "label": "Szellö Zug alti",
-        "file": "materielchansons/szellö züg/Szellö Zug alti.MP3"
+        "file": "materielchansons/szello zug/Szello Zug alti.mp3"
       },
       {
         "label": "Szellö Zug sopranes",
-        "file": "materielchansons/szellö züg/Szellö Zug sopranes.MP3"
+        "file": "materielchansons/szello zug/Szello Zug sopranes.mp3"
       },
       {
         "label": "Szellö Zug chanté par Angela, Miuka et Pauline",
-        "file": "materielchansons/szellö züg/Szellö Zug chanté par Angela, Miuka et Pauline.MP3"
+        "file": "materielchansons/szello zug/Szello Zug chante par Angela, Miuka et Pauline.mp3"
       },
       {
         "label": "Szellö Zug lu par Hajni",
-        "file": "materielchansons/szellö züg/Szellö Zug lu par Hajni.MP3"
+        "file": "materielchansons/szello zug/Szello Zug lu par Hajni.mp3"
       }
     ],
     "musicxml": null,
