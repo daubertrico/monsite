@@ -35,7 +35,9 @@ const MATERIEL_DIR = path.join(REPO_ROOT, 'materielchansons');
 const MANIFEST_PATH = path.join(REPO_ROOT, 'data', 'partitions.json');
 const STATE_PATH = path.join(REPO_ROOT, 'data', 'materiel-sync-state.json');
 
-const AUDIO_EXT = ['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac'];
+// 'mpeg'/'mpga' = MP3 sous une autre extension (ex. audios WhatsApp) :
+// enregistrés en .mp3 côté site, voir localFileName.
+const AUDIO_EXT = ['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'mpeg', 'mpga'];
 const DOC_EXT = ['pdf'];
 // 'mxl' = MusicXML compressé (export par défaut de MuseScore) : décompressé
 // à la volée en .musicxml lors du téléchargement, voir extractMusicXmlFromMxl.
@@ -221,7 +223,8 @@ async function scanSongFolder(auth, folder, state, newState, seenLocalPaths) {
     const localFileName = sanitizeName(
       isGoogleDoc ? `${file.name}.pdf`
         : isMxl ? file.name.replace(/\.mxl$/i, '.musicxml')
-        : file.name
+        // .mpeg serait servi en video/mpeg : .mp3 pour que le lecteur audio le lise.
+        : file.name.replace(/\.(mpeg|mpga)$/i, '.mp3')
     );
     const localPath = path.join(songDir, localFileName);
     const relPath = path.relative(REPO_ROOT, localPath).split(path.sep).join('/');
