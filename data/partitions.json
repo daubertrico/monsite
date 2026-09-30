@@ -133,6 +133,18 @@
     ],
     "recordings": [
       {
+        "label": "alti   shout   when I was 9 years old",
+        "file": "materielchansons/shout - isley brothers/alti - shout - when I was 9 years old.mp3"
+      },
+      {
+        "label": "sopranes   shout   you make me wanna",
+        "file": "materielchansons/shout - isley brothers/sopranes - shout - you make me wanna.mp3"
+      },
+      {
+        "label": "hommes   shout   I want you to know",
+        "file": "materielchansons/shout - isley brothers/hommes - shout - I want you to know.mp3"
+      },
+      {
         "label": "voixprincipaleshout",
         "file": "materielchansons/shout - isley brothers/voixprincipaleshout.m4a"
       },
