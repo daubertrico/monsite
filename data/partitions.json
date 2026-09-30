@@ -1,0 +1,248 @@
+[
+  {
+    "title": "ain't no sunshine",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/ain't no sunshine/aint_no_sunshine_arr_VTD.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  },
+  {
+    "title": "be my husband",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/be my husband/be my husband.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  },
+  {
+    "title": "day dreaming",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/day dreaming/day dreaming.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  },
+  {
+    "title": "Dock of the Bay",
+    "documents": [],
+    "recordings": [
+      {
+        "label": "dock of the bay tutti",
+        "file": "materielchansons/Dock of the Bay/dock of the bay tutti.m4a"
+      },
+      {
+        "label": "dock of the bay sopranes",
+        "file": "materielchansons/Dock of the Bay/dock of the bay sopranes.m4a"
+      },
+      {
+        "label": "dock of the bay hommes",
+        "file": "materielchansons/Dock of the Bay/dock of the bay hommes.m4a"
+      },
+      {
+        "label": "dock of the bay alti",
+        "file": "materielchansons/Dock of the Bay/dock of the bay alti.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  },
+  {
+    "title": "laissez moi danser",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/laissez moi danser/laissez moi danser vtd.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "Lean on Me",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/Lean on Me/lean on me derniere version mercredi 17VTD.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  },
+  {
+    "title": "Onissa",
+    "documents": [
+      {
+        "label": "canto de candomblé 2",
+        "file": "materielchansons/Onissa/canto de candomble 2.pdf"
+      },
+      {
+        "label": "Canto de candomblé 1",
+        "file": "materielchansons/Onissa/Canto de candomble 1.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "Onissa à 3 voix",
+        "file": "materielchansons/Onissa/Onissa a 3 voix.mp3"
+      },
+      {
+        "label": "voix principale et tutti",
+        "file": "materielchansons/Onissa/voix principale et tutti.m4a"
+      },
+      {
+        "label": "onissa femmes aigues et tutti",
+        "file": "materielchansons/Onissa/onissa-femmes aigues et tutti.m4a"
+      },
+      {
+        "label": "onissa femmes graves et tutti",
+        "file": "materielchansons/Onissa/onissa-femmes graves et tutti.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "Shchedryk",
+    "documents": [
+      {
+        "label": "schedryk paroles par pupitres",
+        "file": "materielchansons/Shchedryk/schedryk paroles par pupitres.pdf"
+      },
+      {
+        "label": "Schedryk version anglaise carol of the bells   Feuille 1",
+        "file": "materielchansons/Shchedryk/Schedryk version anglaise carol of the bells - Feuille 1.pdf"
+      }
+    ],
+    "recordings": [],
+    "musicxml": null,
+    "interactive_link": "https://flat.io/score/68dbb8d25bd7d13a94d51d39?sharingKey=6acd7207c1ca3e5924fefea39cf55c2f3d45f4a58353b81881871d61083095330a004d1a57d6d0a6e478318bc26f9a7d914c1841ee6eb6355f93118cfd16891a",
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "shout - isley brothers",
+    "documents": [
+      {
+        "label": "Shout fiche synoptique",
+        "file": "materielchansons/shout - isley brothers/Shout_fiche_synoptique.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "voixprincipaleshout",
+        "file": "materielchansons/shout - isley brothers/voixprincipaleshout.m4a"
+      },
+      {
+        "label": "harmonie   les 3 voix  shout",
+        "file": "materielchansons/shout - isley brothers/harmonie - les 3 voix  shout.mp3"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "Spondo",
+    "documents": [],
+    "recordings": [
+      {
+        "label": "couplet soprane",
+        "file": "materielchansons/Spondo/couplet soprane.ogg"
+      },
+      {
+        "label": "refrain voix par voix",
+        "file": "materielchansons/Spondo/refrain voix par voix.ogg"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "Stand by Me",
+    "documents": [
+      {
+        "label": "stand by me paroles",
+        "file": "materielchansons/Stand by Me/stand by me paroles.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "guide vocal 4 voix stand by me",
+        "file": "materielchansons/Stand by Me/guide vocal 4 voix stand by me.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "szellö züg",
+    "documents": [
+      {
+        "label": "Szellö zug partition",
+        "file": "materielchansons/szello zug/Szello zug partition.pdf"
+      },
+      {
+        "label": "Szellö Zug   transcription phonétique et traduction",
+        "file": "materielchansons/szello zug/Szello Zug - transcription phonetique et traduction.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "Szellö Zug alti",
+        "file": "materielchansons/szello zug/Szello Zug alti.mp3"
+      },
+      {
+        "label": "Szello Zug hommes",
+        "file": "materielchansons/szello zug/Szello Zug hommes.mp3"
+      },
+      {
+        "label": "Szellö Zug sopranes",
+        "file": "materielchansons/szello zug/Szello Zug sopranes.mp3"
+      },
+      {
+        "label": "Szellö Zug chanté par Angela, Miuka et Pauline",
+        "file": "materielchansons/szello zug/Szello Zug chante par Angela, Miuka et Pauline.mp3"
+      },
+      {
+        "label": "Szellö Zug lu par Hajni",
+        "file": "materielchansons/szello zug/Szello Zug lu par Hajni.mp3"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "Wade",
+    "documents": [],
+    "recordings": [
+      {
+        "label": "Wade refrain 3 voix",
+        "file": "materielchansons/Wade/Wade refrain 3 voix.m4a"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
+    "title": "walk on by",
+    "documents": [],
+    "recordings": [],
+    "musicxml": "materielchansons/walk on by/walk_on_by_vincent_v8.musicxml",
+    "interactive_link": null,
+    "visible_lavoixlibre": false,
+    "visible_soul": true
+  }
+]
