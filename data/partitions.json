@@ -160,7 +160,16 @@
   },
   {
     "title": "Spondo",
-    "documents": [],
+    "documents": [
+      {
+        "label": "paroles spondo sopranes",
+        "file": "materielchansons/Spondo/paroles spondo sopranes.pdf"
+      },
+      {
+        "label": "spondo partition",
+        "file": "materielchansons/Spondo/spondo partition.pdf"
+      }
+    ],
     "recordings": [
       {
         "label": "couplet soprane",
