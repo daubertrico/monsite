@@ -1058,7 +1058,8 @@ async function fetchPostsFromCSV(csvUrl) {
   // Constantes Google Agenda — Grande Chorale uniquement
   const _HOME_CAL_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
   const _HOME_CAL_ID  = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
-  const _HOME_KW = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pique[- ]?nique)/i;
+  // Pages publiques (accueil, SOUL) : uniquement les événements avec « concert(s) » dans le titre
+  const _HOME_KW = /concerts?/i;
   const _JOURS   = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
   const _MOIS_L  = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   const _MOIS_C  = ['jan','fév','mar','avr','mai','jun','juil','août','sep','oct','nov','déc'];
@@ -1528,240 +1529,28 @@ async function fetchPostsFromCSV(csvUrl) {
         contentContainer.appendChild(intro);
       }
 
-      // ---- Auditions SOUL ----
+      // ---- Auditions SOUL : complet pour la saison ----
+      // (Le formulaire de réservation de créneaux a été retiré : voir l'historique git
+      // pour le réactiver lors de la prochaine session d'auditions en septembre.)
       (function() {
-        const AUDITION_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwnHOsGXoPiesDXlexMoKGscnEvnvOCyNmZzCND03KhU4dl5mDPzzbD5TNG318kodwk/exec';
-        // Créneaux d'1h, 4 places chacun (capacité volontairement non affichée aux visiteurs)
-        // start/end en ISO avec offset Europe/Paris (+02:00 en septembre, heure d'été) :
-        // utilisés côté serveur pour créer l'événement dans l'agenda Google du chef de chœur.
-        const AUDITION_SLOTS = [
-          { value: 'Lundi 7 septembre 2026, 17h-18h', label: 'Lundi 7 septembre — 17h-18h', start: '2026-09-07T17:00:00+02:00', end: '2026-09-07T18:00:00+02:00' },
-          { value: 'Lundi 7 septembre 2026, 18h-19h', label: 'Lundi 7 septembre — 18h-19h', start: '2026-09-07T18:00:00+02:00', end: '2026-09-07T19:00:00+02:00' },
-          { value: 'Lundi 7 septembre 2026, 19h-20h', label: 'Lundi 7 septembre — 19h-20h', start: '2026-09-07T19:00:00+02:00', end: '2026-09-07T20:00:00+02:00' },
-          { value: 'Mardi 8 septembre 2026, 17h-18h', label: 'Mardi 8 septembre — 17h-18h', start: '2026-09-08T17:00:00+02:00', end: '2026-09-08T18:00:00+02:00' },
-          { value: 'Mardi 8 septembre 2026, 18h-19h', label: 'Mardi 8 septembre — 18h-19h', start: '2026-09-08T18:00:00+02:00', end: '2026-09-08T19:00:00+02:00' },
-          { value: 'Mardi 8 septembre 2026, 19h-20h', label: 'Mardi 8 septembre — 19h-20h', start: '2026-09-08T19:00:00+02:00', end: '2026-09-08T20:00:00+02:00' }
-        ];
-        const AUDITION_CAPACITY = 4;
-        const AUDITION_LIEU = '14-16 rue Papu, Rennes';
-
         const auditionSection = document.createElement('section');
         auditionSection.className = 'soul-audition';
         auditionSection.id = 'auditions';
         auditionSection.style.cssText = 'scroll-margin-top:80px;margin:32px 0 40px;';
         auditionSection.innerHTML = `
-          <div class="home-section-divider"><h2>Auditions — Rentrée 2026</h2></div>
+          <div class="home-section-divider"><h2>Auditions</h2></div>
           <div class="soul-audition-card">
-            <p class="soul-audition-lead">Vu le nombre de demandes, les auditions se font désormais sur inscription, par créneau d'une heure.</p>
+            <p class="soul-audition-lead"><strong>Nous sommes complets pour la saison 2026-2027.</strong> Les auditions ont lieu chaque année au mois de septembre : inscrivez-vous à la newsletter pour être tenu·e au courant de la prochaine session.</p>
             <div class="soul-audition-details">
-              <div class="soul-audition-detail"><span aria-hidden="true">📍</span><div><strong>Répétitions</strong> : tous les mardis soir à 20h, ${AUDITION_LIEU} (centre-ville)</div></div>
+              <div class="soul-audition-detail"><span aria-hidden="true">📍</span><div><strong>Répétitions</strong> : tous les mardis soir à 20h, 14-16 rue Papu, Rennes (centre-ville)</div></div>
               <div class="soul-audition-detail"><span aria-hidden="true">🎤</span><div><strong>Concerts</strong> : de nombreux concerts, dont des festivals comme <em>Jazz sous les pommiers</em> en Normandie — on reste en général dans la région, mais on se déplace pour les projets qui en valent vraiment la peine</div></div>
               <div class="soul-audition-detail"><span aria-hidden="true">🎯</span><div><strong>Engagement demandé</strong> : travail personnel régulier, capacité à assumer un solo, mémorisation, bonne oreille et bonne concentration — on travaille par cœur, sans partition, pendant les répétitions</div></div>
               <div class="soul-audition-detail"><span aria-hidden="true">💶</span><div><strong>Cotisation</strong> : 550&nbsp;€/an, mensualisable (55&nbsp;€/mois sur 10 mois) — elle fait vivre le groupe : salle, chef de chœur, etc.</div></div>
               <div class="soul-audition-detail"><span aria-hidden="true">🏖️</span><div><strong>Week-ends de répétition</strong> : quelques week-ends supplémentaires dans l'année pour préparer un gros concert ou accueillir les nouveaux — des moments conviviaux, parfois dans une maison de bord de mer</div></div>
             </div>
-            <button type="button" class="home-cta-btn soul-audition-btn" id="open-audition-form">Réserver mon créneau d'audition →</button>
-            <p class="soul-audition-full" id="audition-full-msg" style="display:none;">Tous les créneaux affichés sont complets pour le moment — écrivez-nous directement par email, on trouvera une solution.</p>
+            <a href="#newsletter" class="home-cta-btn soul-audition-btn" style="color:var(--soul-vvd) !important;">S'inscrire à la newsletter →</a>
           </div>`;
         contentContainer.appendChild(auditionSection);
-
-        // ---- Confirmation persistante ----
-        const alreadyRegistered = (function(){ try { return localStorage.getItem('audition_registered'); } catch(e){ return null; } })();
-        if (alreadyRegistered) {
-          const btn = document.getElementById('open-audition-form');
-          if (btn) {
-            const confirm = document.createElement('div');
-            confirm.className = 'nr-essai-already';
-            confirm.innerHTML = `✅ <strong>Vous êtes déjà inscrit·e</strong> pour le créneau du <strong>${alreadyRegistered}</strong>. À très vite !
-              <button type="button" class="nr-essai-already-cancel">Me désinscrire / corriger</button>`;
-            btn.replaceWith(confirm);
-            confirm.querySelector('.nr-essai-already-cancel').addEventListener('click', function() {
-              try { localStorage.removeItem('audition_registered'); } catch(e) {}
-              confirm.replaceWith(btn);
-              btn.addEventListener('click', openAudition);
-            });
-          }
-        }
-
-        // ---- Créneaux disponibles (comptage silencieux, capacité jamais affichée) ----
-        let availableSlots = AUDITION_SLOTS.slice();
-        function refreshAvailableSlots() {
-          return fetch(AUDITION_ENDPOINT + '?action=audition_counts')
-            .then(r => r.json())
-            .then(data => {
-              const counts = (data && data.counts) || {};
-              availableSlots = AUDITION_SLOTS.filter(s => (counts[s.value] || 0) < AUDITION_CAPACITY);
-            })
-            .catch(() => { availableSlots = AUDITION_SLOTS.slice(); });
-        }
-
-        // ---- Modal formulaire ----
-        function buildAuditionModal() {
-          if (document.getElementById('audition-overlay')) return;
-          const overlay = document.createElement('div');
-          overlay.id = 'audition-overlay';
-          overlay.className = 'tryout-overlay';
-          overlay.setAttribute('role', 'dialog');
-          overlay.setAttribute('aria-modal', 'true');
-          overlay.setAttribute('aria-labelledby', 'audition-dialog-title');
-          overlay.innerHTML = `
-            <div class="tryout-dialog" id="audition-dialog">
-              <button type="button" class="tryout-close" id="audition-close" aria-label="Fermer">&times;</button>
-              <h3 id="audition-dialog-title" style="margin:0 0 16px 0;font-family:'Lobster',cursive;color:#8844aa;font-size:1.4rem;">Audition SOUL — La Voix Libre</h3>
-              <form id="audition-form" novalidate>
-                <div class="tryout-field-row">
-                  <div class="tryout-field">
-                    <label for="audition-prenom">Prénom <span aria-hidden="true">*</span></label>
-                    <input type="text" id="audition-prenom" name="prenom" required autocomplete="given-name">
-                  </div>
-                  <div class="tryout-field">
-                    <label for="audition-nom">Nom <span aria-hidden="true">*</span></label>
-                    <input type="text" id="audition-nom" name="nom" required autocomplete="family-name">
-                  </div>
-                </div>
-                <div class="tryout-field">
-                  <label for="audition-email">Email <span aria-hidden="true">*</span></label>
-                  <input type="email" id="audition-email" name="email" required autocomplete="email">
-                </div>
-                <div class="tryout-field">
-                  <label for="audition-telephone">Téléphone <span aria-hidden="true">*</span></label>
-                  <input type="tel" id="audition-telephone" name="telephone" required autocomplete="tel">
-                </div>
-                <div class="tryout-field">
-                  <label for="audition-creneau">Créneau souhaité <span aria-hidden="true">*</span></label>
-                  <select id="audition-creneau" name="creneau" required>
-                    <option value="" disabled selected>Choisir un créneau…</option>
-                  </select>
-                </div>
-                <div class="tryout-field">
-                  <label for="audition-message">Message (optionnel)</label>
-                  <textarea id="audition-message" name="message" rows="3" placeholder="Voix, expérience, une question…"></textarea>
-                </div>
-                <div id="audition-error" style="display:none;color:#c0392b;font-size:.9rem;margin-bottom:8px;" role="alert"></div>
-                <div class="egm-submit-row">
-                  <button type="submit" id="audition-submit" class="home-cta-btn">Envoyer ma demande</button>
-                  <span id="audition-spinner" style="display:none;font-size:.9rem;color:#888;">Envoi…</span>
-                </div>
-              </form>
-              <div id="audition-confirm" style="display:none;text-align:center;padding:20px 0;">
-                <p style="font-size:1.1rem;font-weight:600;color:#8844aa;">✅ Inscription enregistrée !</p>
-                <p style="color:#444;">Vous recevrez un email de confirmation. À très vite !</p>
-              </div>
-            </div>`;
-          document.body.appendChild(overlay);
-
-          const close = () => { overlay.style.display = 'none'; document.body.style.overflow = ''; };
-          overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
-          overlay.querySelector('#audition-close').addEventListener('click', close);
-          document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.style.display !== 'none') close(); });
-
-          overlay.querySelector('#audition-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const form = this;
-            const errEl = document.getElementById('audition-error');
-            const spinner = document.getElementById('audition-spinner');
-            const submitBtn = document.getElementById('audition-submit');
-            errEl.style.display = 'none';
-
-            const prenom    = form.prenom.value.trim();
-            const nom       = form.nom.value.trim();
-            const email     = form.email.value.trim();
-            const telephone = form.telephone.value.trim();
-            const creneau   = form.creneau.value;
-            if (!prenom || !nom || !email || !telephone || !creneau) {
-              errEl.textContent = 'Merci de remplir tous les champs obligatoires.';
-              errEl.style.display = 'block';
-              return;
-            }
-
-            spinner.style.display = 'inline';
-            submitBtn.disabled = true;
-
-            try {
-              const slotInfo = AUDITION_SLOTS.find(s => s.value === creneau) || {};
-              const payload = JSON.stringify({
-                action: 'audition',
-                prenom, nom, email,
-                telephone,
-                creneau,
-                start: slotInfo.start || '',
-                end: slotInfo.end || '',
-                message: form.message.value.trim(),
-                ts: new Date().toISOString()
-              });
-              await fetch(AUDITION_ENDPOINT, {
-                method: 'POST',
-                body: new URLSearchParams({ data: payload }),
-                mode: 'no-cors'
-              });
-              form.style.display = 'none';
-              document.getElementById('audition-confirm').style.display = 'block';
-              try { localStorage.setItem('audition_registered', creneau); } catch(e) {}
-              try { document.dispatchEvent(new CustomEvent('audition:success')); } catch(ex) {}
-            } catch(err) {
-              errEl.textContent = 'Une erreur est survenue. Réessayez ou contactez-nous par email.';
-              errEl.style.display = 'block';
-              submitBtn.disabled = false;
-              spinner.style.display = 'none';
-            }
-          });
-        }
-
-        function populateCreneauSelect() {
-          const select = document.getElementById('audition-creneau');
-          if (!select) return;
-          while (select.options.length > 1) select.remove(1);
-          availableSlots.forEach(s => {
-            const opt = document.createElement('option');
-            opt.value = s.value;
-            opt.textContent = s.label;
-            select.appendChild(opt);
-          });
-        }
-
-        function openAudition() {
-          refreshAvailableSlots().then(() => {
-            buildAuditionModal();
-            populateCreneauSelect();
-            const overlay = document.getElementById('audition-overlay');
-            overlay.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => { const f = overlay.querySelector('#audition-prenom'); if (f) f.focus(); }, 80);
-          });
-        }
-        const openBtn = document.getElementById('open-audition-form');
-        if (openBtn) openBtn.addEventListener('click', openAudition);
-
-        // Désactive proactivement le bouton si tous les créneaux affichés sont déjà complets
-        refreshAvailableSlots().then(() => {
-          const fullMsg = document.getElementById('audition-full-msg');
-          const btn = document.getElementById('open-audition-form');
-          if (availableSlots.length === 0 && btn && fullMsg) {
-            fullMsg.style.display = 'block';
-            btn.style.display = 'none';
-          }
-        });
-
-        // ---- Panneau admin (bureau uniquement) ----
-        const role = (function(){ try { return localStorage.getItem('choristesRole') || sessionStorage.getItem('choristesRole'); } catch(e){ return null; } })();
-        if (role === 'chef') {
-          const AUDITION_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1XdLI0vjHHTWfJ-cfQySQfMAHX3igGK_GZb00tU7Mbqo/edit';
-          const adminPanel = document.createElement('div');
-          adminPanel.className = 'tryout-admin-panel';
-          adminPanel.innerHTML = `
-            <div class="tryout-admin-header">
-              <span class="tryout-admin-icon" aria-hidden="true">🔐</span>
-              <strong>Inscriptions auditions — vue bureau</strong>
-            </div>
-            <div class="tryout-admin-sheet-link">
-              <p>Les inscriptions sont enregistrées dans l'onglet <strong>auditions_soul</strong> du même Google Sheet :</p>
-              <a href="${AUDITION_SHEET_URL}" target="_blank" rel="noopener noreferrer" class="tryout-admin-sheet-btn">
-                📊 Ouvrir le tableau des inscriptions
-              </a>
-              <p class="tryout-admin-hint">Colonnes : date · prénom · nom · email · téléphone · créneau · message · horodatage</p>
-            </div>`;
-          auditionSection.appendChild(adminPanel);
-        }
       })();
 
       // Calendrier des événements SOUL : prochaine date + derniers concerts (historique complet dépliable)
@@ -2170,58 +1959,19 @@ async function fetchPostsFromCSV(csvUrl) {
             contentContainer.appendChild(faqWrap);
           }
 
-          // Widget d'inscription HelloAsso — Saison 2026-2027
+          // Inscriptions closes : saison complète (le widget HelloAsso a été retiré,
+          // voir l'historique git pour le remettre en septembre).
           const inscriptionSection = document.createElement('section');
           inscriptionSection.className = 'nr-inscription';
           inscriptionSection.id = 'inscription';
           inscriptionSection.style.cssText = 'scroll-margin-top:80px;margin-top:40px;';
-
-          const inscriptionDivider = document.createElement('div');
-          inscriptionDivider.className = 'home-section-divider';
-          inscriptionDivider.innerHTML = '<h2>Inscription — Saison 2026-2027</h2>';
-          inscriptionSection.appendChild(inscriptionDivider);
-
-          const inscriptionBloc = document.createElement('div');
-          inscriptionBloc.className = 'reinscription-bloc';
-          inscriptionBloc.innerHTML = `
-            <div class="reinscription-promo">
-              <span class="reinscription-promo-icon" aria-hidden="true">🎁</span>
-              <div>
-                <strong>Membres actuels de la chorale :</strong> bénéficiez de <strong>5&nbsp;% de réduction</strong> en vous réinscrivant avant le <strong>13&nbsp;juillet</strong>.
-                Saisissez le code <strong class="reinscription-code">PREINSCRIP</strong> dans le formulaire ci-dessous.
-              </div>
-            </div>
-            <div class="reinscription-alerte">
-              <div class="reinscription-alerte-titre">⚠️ Important — Contribution HelloAsso : mettez-la à 0&nbsp;€</div>
-              <p>HelloAsso ajoute automatiquement une contribution à son financement (environ 11&nbsp;€) lors de votre paiement. <strong>La chorale verse déjà une contribution annuelle à HelloAsso</strong> — vous n'avez donc pas à payer cette somme en plus.</p>
-              <p><strong>Pour ne pas payer cette contribution supplémentaire, suivez ces 3 étapes au moment du paiement :</strong></p>
-              <ol class="reinscription-steps">
-                <li>Repérez la ligne <em>"Votre contribution au fonctionnement de HelloAsso"</em> en bas du formulaire.</li>
-                <li>Cliquez sur le lien <strong>"Modifier ma contribution"</strong>.</li>
-                <li>Saisissez <strong>0</strong> dans le champ ou décochez la case, puis validez.</li>
-              </ol>
-            </div>
-            <div class="reinscription-widget-wrap"></div>`;
-          inscriptionSection.appendChild(inscriptionBloc);
-
-          const haFrame = document.createElement('iframe');
-          haFrame.id = 'haWidget';
-          haFrame.allowTransparency = true;
-          haFrame.scrolling = 'auto';
-          haFrame.src = 'https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/la-voix-libre-2026-2027/widget';
-          haFrame.style.cssText = 'width:100%;height:750px;border:none;display:block;';
-          haFrame.title = 'Formulaire d\'inscription La Voix Libre 2026-2027';
-          haFrame.addEventListener('load', function() {
-            window.addEventListener('message', function(e) {
-              try {
-                const dataHeight = e.data && e.data.height;
-                if (dataHeight && dataHeight > parseFloat(haFrame.style.height || 0)) {
-                  haFrame.style.height = dataHeight + 'px';
-                }
-              } catch(err) {}
-            });
-          });
-          inscriptionBloc.querySelector('.reinscription-widget-wrap').appendChild(haFrame);
+          inscriptionSection.innerHTML = `
+            <div class="home-section-divider"><h2>Inscriptions</h2></div>
+            <div class="nr-card"><div class="nr-card-body" style="text-align:center;">
+              <p class="nr-card-desc"><strong>Nous sommes complets pour la saison 2026-2027.</strong></p>
+              <p class="nr-card-desc">Les recrutements se font chaque année au mois de septembre : inscrivez-vous à la newsletter pour être tenu·e au courant de la prochaine session.</p>
+              <div class="nr-card-actions" style="justify-content:center;"><a href="#newsletter" class="home-cta-btn">S'inscrire à la newsletter →</a></div>
+            </div></div>`;
           contentContainer.appendChild(inscriptionSection);
 
         } else {

@@ -3057,6 +3057,32 @@ body:not(.page-soul) .youtube-skeleton::after {
 .cal-event-card.cal-event-past .cal-event-date { color: #999; }
 .cal-event-title { font-size: 1rem; font-weight: 700; color: #1a2a3a; margin-bottom: 3px; }
 .cal-event-location { font-size: .84rem; color: #666; margin-bottom: 6px; }
+/* Événement « à confirmer » : carte normale + quadrillage oblique et filigrane droit */
+.cal-event-card.cal-event-tbc { position: relative; overflow: hidden; }
+.cal-event-card.cal-event-tbc::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    repeating-linear-gradient(45deg, rgba(46, 150, 75, .13) 0 2px, transparent 2px 16px),
+    repeating-linear-gradient(-45deg, rgba(46, 150, 75, .13) 0 2px, transparent 2px 16px);
+}
+.cal-event-card.cal-event-tbc::after {
+  content: 'À CONFIRMER'; position: absolute; inset: 0; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  font: 900 clamp(2rem, 9vw, 3.6rem)/1 'Arial Black', Arial, sans-serif; letter-spacing: .08em; white-space: nowrap;
+  color: rgba(46, 150, 75, .2); -webkit-text-stroke: 2px rgba(255, 255, 255, .7);
+}
+
+/* Listes du calendrier repliables (pliées par défaut, clic sur le titre) */
+.cal-fold { margin-bottom: 14px; }
+.cal-fold > summary { list-style: none; cursor: pointer; }
+.cal-fold > summary::-webkit-details-marker { display: none; }
+.cal-fold > summary .cal-section-title { margin-bottom: 0; }
+.cal-fold[open] > summary .cal-section-title { margin-bottom: 14px; }
+.cal-fold-arrow { display: inline-block; font-size: .9em; transition: transform .2s; }
+.cal-fold[open] .cal-fold-arrow { transform: rotate(90deg); }
+.cal-special-note { font-size: .88rem; color: #666; font-style: italic; margin: -6px 0 12px; }
+.cal-event-card.cal-event-special { padding: 10px 18px; background: #faf8fc; box-shadow: none; }
+.cal-event-card.cal-event-special .cal-event-title { font-weight: 600; margin-bottom: 0; }
 .cal-event-desc { font-size: .85rem; color: #555; line-height: 1.55; margin-bottom: 6px; }
 
 /* Boutons présence */

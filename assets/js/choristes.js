@@ -858,12 +858,6 @@
           window.showSurveyIfNeeded();
         }
       }
-      // Le formulaire de réinscription HelloAsso ne concerne que la Voix Libre,
-      // pas les choristes SOUL (autre formulaire, voir onglet Infos & liens).
-      const reinscriptionBloc = document.getElementById('reinscription-bloc');
-      if (reinscriptionBloc) {
-        reinscriptionBloc.style.display = (_hint === 'soul') ? 'none' : '';
-      }
     }
 
     // ---- Afficher l'étape profil ----

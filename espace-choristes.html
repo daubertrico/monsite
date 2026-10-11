@@ -613,7 +613,7 @@
   <link rel="canonical" href="https://chanterlavoixlibre.fr/espace-choristes.html" />
     <title>La Voix Libre - Espace Choristes</title>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20260926b">
+    <link rel="stylesheet" href="assets/css/style.css?v=20261011b">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-928718843"></script>
     <script>
@@ -674,63 +674,6 @@
 
       <div id="tabs-container" style="display:none;max-width:1100px;margin:0 auto;">
 
-        <!-- ===== BLOC REINSCRIPTION 2026-2027 ===== -->
-        <div class="reinscription-bloc collapsed" id="reinscription-bloc">
-          <div class="reinscription-header" id="reinscription-header">
-            <span class="reinscription-badge">Nouveau</span>
-            <h2 class="reinscription-titre">🎶 Réinscription — Saison 2026-2027</h2>
-            <span class="reinscription-chevron">▾</span>
-          </div>
-
-          <div class="reinscription-body">
-            <!-- Promo code -->
-            <div class="reinscription-promo">
-              <span class="reinscription-promo-icon">🎁</span>
-              <div>
-                <strong>5&nbsp;% de réduction</strong> pour les membres qui se réinscrivent avant le <strong>13&nbsp;juillet</strong>.
-                Saisissez le code <strong class="reinscription-code">PREINSCRIP</strong> dans le formulaire ci-dessous.
-              </div>
-            </div>
-
-            <!-- Avertissement HelloAsso -->
-            <div class="reinscription-alerte">
-              <div class="reinscription-alerte-titre">⚠️ Important — Contribution HelloAsso : mettez-la à 0&nbsp;€</div>
-              <p>HelloAsso ajoute automatiquement une contribution à son financement (environ 11&nbsp;€) lors de votre paiement. <strong>La chorale verse déjà une contribution annuelle à HelloAsso</strong> — vous n'avez donc pas à payer cette somme en plus.</p>
-              <p><strong>Pour ne pas payer cette contribution supplémentaire, suivez ces 3 étapes au moment du paiement :</strong></p>
-              <ol class="reinscription-steps">
-                <li>Repérez la ligne <em>"Votre contribution au fonctionnement de HelloAsso"</em> en bas du formulaire.</li>
-                <li>Cliquez sur le lien <strong>"Modifier ma contribution"</strong>.</li>
-                <li>Saisissez <strong>0</strong> dans le champ ou décochez la case, puis validez.</li>
-              </ol>
-            </div>
-
-            <!-- Widget HelloAsso -->
-            <div class="reinscription-widget-wrap">
-              <iframe
-                id="haWidgetChoristes"
-                allowtransparency="true"
-                scrolling="auto"
-                src="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/la-voix-libre-2026-2027/widget"
-                style="width:100%;height:750px;border:none;display:block;"
-                title="Formulaire de réinscription La Voix Libre 2026-2027"
-                onload="(function(fr){window.addEventListener('message',function(e){try{var h=e.data&&e.data.height;if(h&&h>parseFloat(fr.style.height||0))fr.style.height=h+'px';}catch(err){}});})(this)"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-        <!-- ===== FIN BLOC REINSCRIPTION ===== -->
-        <script>
-          (function() {
-            var bloc = document.getElementById('reinscription-bloc');
-            var header = document.getElementById('reinscription-header');
-            if (header && bloc) {
-              header.addEventListener('click', function() {
-                bloc.classList.toggle('collapsed');
-              });
-            }
-          })();
-        </script>
-
         <div class="choristes-tab-bar">
           <button class="choristes-tab active" data-tab="chansons">🎵 Chansons</button>
           <button class="choristes-tab" data-tab="calendrier">📅 Calendrier</button>
@@ -751,11 +694,7 @@
           </section>
 
           <section class="espace-section">
-            <h3>SOUL – Inscription & feuille d'engagement</h3>
-            <p style="font-size:1.05em;">
-              Inscription SOUL :
-              <a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/soul-2025-2026" target="_blank" rel="noopener">formulaire HelloAsso</a>
-            </p>
+            <h3>SOUL – Feuille d'engagement</h3>
             <details style="margin-top:10px;">
               <summary style="cursor:pointer;font-weight:600;color:#3981FF;">Feuille d'engagement 2025–2026 (SOUL)</summary>
               <div style="margin-top:12px;line-height:1.6;">
@@ -873,11 +812,7 @@
           </section>
 
           <section class="espace-section">
-            <h3>Grande Chorale – Inscription & feuille d'engagement</h3>
-            <p style="font-size:1.05em;">
-              Inscription Grande Chorale :
-              <a href="https://www.helloasso.com/associations/la-voix-libre-le-chant-incarne/adhesions/grande-chorale-de-la-voix-libre-2025-2026" target="_blank" rel="noopener">formulaire HelloAsso</a>
-            </p>
+            <h3>Grande Chorale – Feuille d'engagement</h3>
             <details style="margin-top:10px;">
               <summary style="cursor:pointer;font-weight:600;color:#3981FF;">Feuille d'engagement 2025–2026 (Grande Chorale)</summary>
               <div style="margin-top:12px;line-height:1.6;">
@@ -1198,111 +1133,108 @@
 
           <!-- GRANDE CHORALE -->
           <div id="sousonglet-grandechorale" class="calendrier-sousonglet-content">
-            <h3 class="cal-section-title">Prochains concerts &amp; événements</h3>
-            <div id="events-list-concerts" class="cal-events-list">
-              <p style="color:#aaa;font-style:italic;">Chargement…</p>
-            </div>
-            
-            <script>
-              (function() {
-                var CAL_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-                var CAL_ID  = '8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com';
-                var KW = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pique[- ]?nique)/i;
-                var tMin = new Date(Date.now()-30*24*3600*1000).toISOString();
-                var tMax = new Date(Date.now()+2*365*24*3600*1000).toISOString();
-                var box  = document.getElementById('events-list-concerts');
-                function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c;});}
-                fetch('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(CAL_ID)+'/events?key='+CAL_KEY+'&timeMin='+encodeURIComponent(tMin)+'&timeMax='+encodeURIComponent(tMax)+'&maxResults=100&orderBy=startTime&singleEvents=true')
-                  .then(function(r){return r.json();})
-                  .then(function(data){
-                    var now=new Date();
-                    var concerts=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
-                    var upcoming=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e>=now;});
-                    var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
-                    upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
-                    pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
-                    var items=upcoming;
-                    if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
-                    box.innerHTML=items.map(function(ev){
-                      var start=ev.start.dateTime||ev.start.date;
-                      var end=(ev.end&&(ev.end.dateTime||ev.end.date))||start;
-                      var isPast=new Date(end)<now;
-                      var d=new Date(start);
-                      var ds=d.toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-                      ds=ds.charAt(0).toUpperCase()+ds.slice(1);
-                      var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
-                      var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
-                      var desc='';
-                      var att=isPast?'':'<div class="att-controls" data-calendar="grandechorale" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
-                        +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
-                        +'<label class="att-chip"><input type="radio" name="att-gc-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
-                        +'<span class="att-status">Enregistré ✓</span><button type="button" class="att-stats-btn chef-only" data-action="show-stats">📊 Statistiques</button></div>';
-                      return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="grandechorale" data-eventid="'+eid+'">'
-                        +'<div class="cal-event-date">'+ds+'</div>'
-                        +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
-                        +loc+att
-                        +'<div class="event-stats chef-only" aria-hidden="true"></div>'
-                        +'</div>';
-                    }).join('');
-                  })
-                  .catch(function(){box.innerHTML='<p style="color:#b00;font-size:.9rem;">Impossible de charger les événements.</p>';});
-              })();
-            </script>
+            <details class="cal-fold">
+              <summary><h3 class="cal-section-title"><span class="cal-fold-arrow">▸</span>Prochains concerts &amp; événements</h3></summary>
+              <div id="events-list-concerts" class="cal-events-list">
+                <p style="color:#aaa;font-style:italic;">Chargement…</p>
+              </div>
+            </details>
+            <details class="cal-fold">
+              <summary><h3 class="cal-section-title"><span class="cal-fold-arrow">▸</span>Répétitions — jours particuliers</h3></summary>
+              <p class="cal-special-note">Nous suivons le calendrier des vacances scolaires de la zone B.</p>
+              <div id="events-list-special" class="cal-events-list">
+                <p style="color:#aaa;font-style:italic;">Chargement…</p>
+              </div>
+            </details>
           </div>
 
           <!-- SOUL -->
           <div id="sousonglet-soul" class="calendrier-sousonglet-content" style="display:none;">
-            <h3 class="cal-section-title">Prochains concerts &amp; événements SOUL</h3>
-            <div id="events-list-soul-concerts" class="cal-events-list">
-              <p style="color:#aaa;font-style:italic;">Chargement…</p>
-            </div>
-            
-            <script>
-              (function() {
-                var CAL_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
-                var CAL_ID  = '566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com';
-                var KW = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pique[- ]?nique)/i;
-                var tMin = new Date(Date.now()-30*24*3600*1000).toISOString();
-                var tMax = new Date(Date.now()+2*365*24*3600*1000).toISOString();
-                var box  = document.getElementById('events-list-soul-concerts');
-                function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c;});}
-                fetch('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(CAL_ID)+'/events?key='+CAL_KEY+'&timeMin='+encodeURIComponent(tMin)+'&timeMax='+encodeURIComponent(tMax)+'&maxResults=100&orderBy=startTime&singleEvents=true')
+            <details class="cal-fold">
+              <summary><h3 class="cal-section-title"><span class="cal-fold-arrow">▸</span>Prochains concerts &amp; événements SOUL</h3></summary>
+              <div id="events-list-soul-concerts" class="cal-events-list">
+                <p style="color:#aaa;font-style:italic;">Chargement…</p>
+              </div>
+            </details>
+            <details class="cal-fold">
+              <summary><h3 class="cal-section-title"><span class="cal-fold-arrow">▸</span>Répétitions — jours particuliers</h3></summary>
+              <p class="cal-special-note">Nous suivons le calendrier des vacances scolaires de la zone B.</p>
+              <div id="events-list-soul-special" class="cal-events-list">
+                <p style="color:#aaa;font-style:italic;">Chargement…</p>
+              </div>
+            </details>
+          </div>
+
+          <script>
+            // Calendrier des choristes : tous les événements de l'agenda, avec présence.
+            // Les jours particuliers (« Pas de chorale », « Chorale maintenue »…) vont
+            // dans une liste à part, sans présence.
+            window.CAL_SPECIAL_RE = /\b(pas de (chorale|répétition)|(chorale|répétition) maintenue?)\b/i;
+            (function() {
+              var CAL_KEY = 'AIzaSyDkjr4VKTHb1mzjUL_smPZslusM538Pbes';
+              function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c;});}
+              function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+              var TBC_RE=/[àa] confirmer/i;
+              var TBC_STRIP_RE=/[(\[]?\s*[àa] confirmer\s*[)\]]?\s*[-–:]?/ig;
+              var DAY={weekday:'long',day:'numeric',month:'long',year:'numeric'};
+              // Événement « journée entière » : date seule (fin exclusive côté Google) ; sinon date + heure
+              function fmtDate(ev){
+                if(ev.start.dateTime){
+                  return cap(new Date(ev.start.dateTime).toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}));
+                }
+                var s=new Date(ev.start.date+'T00:00:00');
+                var e=ev.end&&ev.end.date?new Date(ev.end.date+'T00:00:00'):s;
+                e.setDate(e.getDate()-1);
+                if(e<=s) return cap(s.toLocaleDateString('fr-FR',DAY));
+                return 'Du '+s.toLocaleDateString('fr-FR',DAY)+' au '+e.toLocaleDateString('fr-FR',DAY);
+              }
+              function load(o){
+                var box=document.getElementById(o.boxId), sbox=document.getElementById(o.specialBoxId);
+                var tMin=new Date().toISOString();
+                var tMax=new Date(Date.now()+2*365*24*3600*1000).toISOString();
+                fetch('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(o.calId)+'/events?key='+CAL_KEY+'&timeMin='+encodeURIComponent(tMin)+'&timeMax='+encodeURIComponent(tMax)+'&maxResults=250&orderBy=startTime&singleEvents=true')
                   .then(function(r){return r.json();})
                   .then(function(data){
-                    var now=new Date();
-                    var concerts=(data.items||[]).filter(function(ev){return KW.test(ev.summary||'');});
-                    var upcoming=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e>=now;});
-                    var pastAll=concerts.filter(function(ev){var e=new Date((ev.end&&(ev.end.dateTime||ev.end.date))||ev.start.dateTime||ev.start.date);return e<now;});
-                    upcoming.sort(function(a,b){return new Date(a.start.dateTime||a.start.date)-new Date(b.start.dateTime||b.start.date);});
-                    pastAll.sort(function(a,b){return new Date(b.start.dateTime||b.start.date)-new Date(a.start.dateTime||a.start.date);});
-                    var items=upcoming;
-                    if(!items.length){box.innerHTML='<p style="color:#888;font-style:italic;">Aucun concert annoncé pour le moment.</p>';return;}
-                    box.innerHTML=items.map(function(ev){
+                    var items=data.items||[];
+                    var events=items.filter(function(ev){return !CAL_SPECIAL_RE.test(ev.summary||'');});
+                    var special=items.filter(function(ev){return CAL_SPECIAL_RE.test(ev.summary||'');});
+
+                    box.innerHTML=!events.length?'<p style="color:#888;font-style:italic;">Aucun événement annoncé pour le moment.</p>':events.map(function(ev){
                       var start=ev.start.dateTime||ev.start.date;
                       var end=(ev.end&&(ev.end.dateTime||ev.end.date))||start;
-                      var isPast=new Date(end)<now;
-                      var d=new Date(start);
-                      var ds=d.toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
-                      ds=ds.charAt(0).toUpperCase()+ds.slice(1);
                       var eid=(ev.id||(ev.summary+'-'+start)).replace(/[^a-zA-Z0-9_-]/g,'');
                       var loc=ev.location?'<div class="cal-event-location">📍 '+esc(ev.location)+'</div>':'';
-                      var desc='';
-                      var att=isPast?'':'<div class="att-controls" data-calendar="soul" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
-                        +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
-                        +'<label class="att-chip"><input type="radio" name="att-soul-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
+                      var att='<div class="att-controls" data-calendar="'+o.calendar+'" data-eventid="'+eid+'" data-title="'+esc(ev.summary)+'" data-start="'+start+'" data-end="'+end+'" data-location="'+esc(ev.location||'')+'">'
+                        +'<label class="att-chip"><input type="radio" name="att-'+o.prefix+'-'+eid+'" value="present" onclick="submitAttendance(this)"> ✓ Je serai là</label>'
+                        +'<label class="att-chip"><input type="radio" name="att-'+o.prefix+'-'+eid+'" value="absent" onclick="submitAttendance(this)"> Je ne peux pas</label>'
                         +'<span class="att-status">Enregistré ✓</span><button type="button" class="att-stats-btn chef-only" data-action="show-stats">📊 Statistiques</button></div>';
-                      return '<div class="cal-event-card'+(isPast?' cal-event-past':'')+'" data-calendar="soul" data-eventid="'+eid+'">'
-                        +'<div class="cal-event-date">'+ds+'</div>'
-                        +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
+                      // « À confirmer » dans le titre : filigrane sur la carte, mention retirée du titre
+                      var tbc=TBC_RE.test(ev.summary||'');
+                      var title=tbc?(ev.summary||'').replace(TBC_STRIP_RE,' ').replace(/\s+/g,' ').trim():(ev.summary||'');
+                      return '<div class="cal-event-card'+(tbc?' cal-event-tbc':'')+'" data-calendar="'+o.calendar+'" data-eventid="'+eid+'">'
+                        +'<div class="cal-event-date">'+fmtDate(ev)+'</div>'
+                        +'<div class="cal-event-title">'+esc(title)+'</div>'
                         +loc+att
                         +'<div class="event-stats chef-only" aria-hidden="true"></div>'
                         +'</div>';
                     }).join('');
+
+                    sbox.innerHTML=!special.length?'<p style="color:#888;font-style:italic;">Aucun jour particulier à venir.</p>':special.map(function(ev){
+                      return '<div class="cal-event-card cal-event-special">'
+                        +'<div class="cal-event-date">'+fmtDate(ev)+'</div>'
+                        +'<div class="cal-event-title">'+esc(ev.summary||'')+'</div>'
+                        +'</div>';
+                    }).join('');
                   })
-                  .catch(function(){box.innerHTML='<p style="color:#b00;font-size:.9rem;">Impossible de charger les événements.</p>';});
-              })();
-            </script>
-          </div>
+                  .catch(function(){
+                    box.innerHTML='<p style="color:#b00;font-size:.9rem;">Impossible de charger les événements.</p>';
+                    sbox.innerHTML='';
+                  });
+              }
+              load({calId:'8d33f051731fd272256bc497e3167c610e09fcab8e8a022315bdf7d1aa9a282e@group.calendar.google.com', calendar:'grandechorale', prefix:'gc', boxId:'events-list-concerts', specialBoxId:'events-list-special'});
+              load({calId:'566b739a047c4ccbdfaef5b1c27f57bd9810a47c22294678e1ed5cb74fc2e5ce@group.calendar.google.com', calendar:'soul', prefix:'soul', boxId:'events-list-soul-concerts', specialBoxId:'events-list-soul-special'});
+            })();
+          </script>
         </div>
       </div>    </main>
     <script>
@@ -1727,8 +1659,8 @@
       });
     })();
   </script>
-  <script src="assets/js/choristes.js?v=20260928a"></script>
-  <script src="assets/js/main.js?v=20260926"></script>
+  <script src="assets/js/choristes.js?v=20261001"></script>
+  <script src="assets/js/main.js?v=20261001"></script>
 
   <!-- ============================================================ -->
   <!-- JS : Upload de photos                                         -->
@@ -1843,7 +1775,6 @@
       if (_concertsCache[ensemble]) return _concertsCache[ensemble];
       var calId = CAL_IDS[ensemble];
       if (!calId) return [];
-      var kw = /(concert|événement|evenement|déambulation|deambulation|spectacle|stage|pic[- ]?nic|pique[- ]?nique)/i;
       var timeMin = new Date(Date.now() - 2 * 365 * 24 * 3600 * 1000).toISOString();
       var timeMax = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
       var list = [];
@@ -1857,7 +1788,8 @@
         var res  = await fetch(url);
         var data = await res.json();
         (data.items || []).forEach(function(ev) {
-          if (!kw.test(ev.summary || '')) return;
+          // Même liste que le calendrier : tout sauf les jours particuliers
+          if (window.CAL_SPECIAL_RE && CAL_SPECIAL_RE.test(ev.summary || '')) return;
           var start = ev.start.dateTime || ev.start.date;
           var d = new Date(start);
           var label = formatConcertLabel(ev.summary, d);
