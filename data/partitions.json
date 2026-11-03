@@ -127,6 +127,10 @@
     "title": "shout - isley brothers",
     "documents": [
       {
+        "label": "Shout fiche synoptique corrigée",
+        "file": "materielchansons/shout - isley brothers/Shout_fiche_synoptique_corrigee.pdf"
+      },
+      {
         "label": "Shout fiche synoptique",
         "file": "materielchansons/shout - isley brothers/Shout_fiche_synoptique.pdf"
       }
@@ -143,14 +147,6 @@
       {
         "label": "hommes   shout   I want you to know",
         "file": "materielchansons/shout - isley brothers/hommes - shout - I want you to know.mp3"
-      },
-      {
-        "label": "voixprincipaleshout",
-        "file": "materielchansons/shout - isley brothers/voixprincipaleshout.m4a"
-      },
-      {
-        "label": "harmonie   les 3 voix  shout",
-        "file": "materielchansons/shout - isley brothers/harmonie - les 3 voix  shout.mp3"
       }
     ],
     "musicxml": null,
