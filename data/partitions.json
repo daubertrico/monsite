@@ -139,7 +139,7 @@
         "file": "materielchansons/Ou va le monde/tenors et j'espere.wav"
       }
     ],
-    "musicxml": null,
+    "musicxml": "materielchansons/Ou va le monde/ou-va-le-monde partition interactive.musicxml",
     "interactive_link": null,
     "visible_lavoixlibre": true,
     "visible_soul": false
