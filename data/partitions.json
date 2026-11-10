@@ -106,6 +106,45 @@
     "visible_soul": false
   },
   {
+    "title": "Où va le monde",
+    "documents": [
+      {
+        "label": "Où va le monde   texte brut",
+        "file": "materielchansons/Ou va le monde/Ou va le monde - texte brut.pdf"
+      }
+    ],
+    "recordings": [
+      {
+        "label": "alti graves 25 ans déjà",
+        "file": "materielchansons/Ou va le monde/alti graves 25 ans deja .wav"
+      },
+      {
+        "label": "alti aigues 25 ans deja",
+        "file": "materielchansons/Ou va le monde/alti aigues 25 ans deja .wav"
+      },
+      {
+        "label": "sopranes et je pleure parfois",
+        "file": "materielchansons/Ou va le monde/sopranes et je pleure parfois .wav"
+      },
+      {
+        "label": "ténors au matin je le leve",
+        "file": "materielchansons/Ou va le monde/tenors au matin je le leve .wav"
+      },
+      {
+        "label": "basses et j essaie",
+        "file": "materielchansons/Ou va le monde/basses et j essaie.wav"
+      },
+      {
+        "label": "ténors et j'espere",
+        "file": "materielchansons/Ou va le monde/tenors et j'espere.wav"
+      }
+    ],
+    "musicxml": null,
+    "interactive_link": null,
+    "visible_lavoixlibre": true,
+    "visible_soul": false
+  },
+  {
     "title": "Shchedryk",
     "documents": [
       {
