@@ -1548,28 +1548,13 @@ async function fetchPostsFromCSV(csvUrl) {
         contentContainer.appendChild(intro);
       }
 
-      // ---- Auditions SOUL : complet pour la saison ----
-      // (Le formulaire de réservation de créneaux a été retiré : voir l'historique git
-      // pour le réactiver lors de la prochaine session d'auditions en septembre.)
+      // ---- Rejoindre SOUL : simple invitation à nous contacter ----
       (function() {
-        const auditionSection = document.createElement('section');
-        auditionSection.className = 'soul-audition';
-        auditionSection.id = 'auditions';
-        auditionSection.style.cssText = 'scroll-margin-top:80px;margin:32px 0 40px;';
-        auditionSection.innerHTML = `
-          <div class="home-section-divider"><h2>Auditions</h2></div>
-          <div class="soul-audition-card">
-            <p class="soul-audition-lead"><strong>Nous sommes complets pour la saison 2026-2027.</strong> Les auditions ont lieu chaque année au mois de septembre : inscrivez-vous à la newsletter pour être tenu·e au courant de la prochaine session.</p>
-            <div class="soul-audition-details">
-              <div class="soul-audition-detail"><span aria-hidden="true">📍</span><div><strong>Répétitions</strong> : tous les mardis soir à 20h, 14-16 rue Papu, Rennes (centre-ville)</div></div>
-              <div class="soul-audition-detail"><span aria-hidden="true">🎤</span><div><strong>Concerts</strong> : de nombreux concerts, dont des festivals comme <em>Jazz sous les pommiers</em> en Normandie — on reste en général dans la région, mais on se déplace pour les projets qui en valent vraiment la peine</div></div>
-              <div class="soul-audition-detail"><span aria-hidden="true">🎯</span><div><strong>Engagement demandé</strong> : travail personnel régulier, capacité à assumer un solo, mémorisation, bonne oreille et bonne concentration — on travaille par cœur, sans partition, pendant les répétitions</div></div>
-              <div class="soul-audition-detail"><span aria-hidden="true">💶</span><div><strong>Cotisation</strong> : 550&nbsp;€/an, mensualisable (55&nbsp;€/mois sur 10 mois) — elle fait vivre le groupe : salle, chef de chœur, etc.</div></div>
-              <div class="soul-audition-detail"><span aria-hidden="true">🏖️</span><div><strong>Week-ends de répétition</strong> : quelques week-ends supplémentaires dans l'année pour préparer un gros concert ou accueillir les nouveaux — des moments conviviaux, parfois dans une maison de bord de mer</div></div>
-            </div>
-            <a href="#newsletter" class="home-cta-btn soul-audition-btn" style="color:var(--soul-vvd) !important;">S'inscrire à la newsletter →</a>
-          </div>`;
-        contentContainer.appendChild(auditionSection);
+        const joinP = document.createElement('p');
+        joinP.className = 'soul-join';
+        joinP.style.cssText = 'margin:32px 0 40px;text-align:center;';
+        joinP.innerHTML = 'Vous êtes intéressé·e pour nous rejoindre ? <a href="#footer">Contactez-nous</a> !';
+        contentContainer.appendChild(joinP);
       })();
 
       // Calendrier des événements SOUL : prochaine date + derniers concerts (historique complet dépliable)
@@ -2451,7 +2436,7 @@ function ensureSeoMeta(currentPageId) {
     '@id': 'https://soulrennes.fr/#musicgroup-soul',
     name: 'S.O.U.L.',
     alternateName: ['SOUL Rennes', 'Ensemble vocal SOUL Rennes', 'Chorale SOUL Rennes'],
-    description: "Ensemble vocal a cappella rennais fondé en 2019, sous la direction de Vincent T-Dauberlieu. Répertoire soul, funk, gospel, jazz, pop. Auditions chaque année en septembre.",
+    description: "Ensemble vocal a cappella rennais fondé en 2019, sous la direction de Vincent T-Dauberlieu. Répertoire soul, funk, gospel, jazz, pop.",
     genre: ['A cappella', 'Soul', 'Funk', 'Gospel', 'Jazz', 'Pop'],
     foundingDate: '2019',
     foundingLocation: PLACE_RENNES,
