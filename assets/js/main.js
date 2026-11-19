@@ -1251,12 +1251,24 @@ async function fetchPostsFromCSV(csvUrl) {
 
     // ---- Carte événement à venir ----
     // Les détails sont toujours visibles (pas de pli) — les visiteurs veulent voir tout de suite.
+    // Affiche de l'événement : 1re pièce jointe image (fichier Drive partagé « tout le monde avec le lien »)
+    function posterFileId(ev) {
+      const atts = Array.isArray(ev.attachments) ? ev.attachments : [];
+      const img = atts.find(a => a && a.fileId && /^image\//i.test(a.mimeType || ''))
+               || atts.find(a => a && a.fileId && /\.(png|jpe?g|webp)$/i.test(a.title || ''));
+      return img ? img.fileId : null;
+    }
+
     function createCardUp(ev) {
       const d    = evDate(ev);
       const div  = document.createElement('div');
       div.className = 'event-card event-card--upcoming';
       const loc  = ev.location    ? `<div class="event-card-loc">📍 ${esc(ev.location)}</div>` : '';
       const desc = ev.description ? `<div class="event-card-desc">${escDescHtml(ev.description)}</div>` : '';
+      const pid  = posterFileId(ev);
+      const poster = pid
+        ? `<img class="event-card-poster" src="https://drive.google.com/thumbnail?id=${encodeURIComponent(pid)}&sz=w800" alt="Affiche : ${esc(ev.summary||'')}" loading="lazy" style="display:block;width:100%;max-width:320px;height:auto;margin-top:12px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.15);cursor:zoom-in;">`
+        : '';
       div.innerHTML = `
         <div class="event-card-date">
           <div class="event-card-day">${d.getDate()}</div>
@@ -1265,8 +1277,15 @@ async function fetchPostsFromCSV(csvUrl) {
         <div class="event-card-body">
           <div class="event-card-fulldate">${esc(fullDate(ev))}</div>
           <div class="event-card-title">${esc(ev.summary||'')}</div>
-          ${loc}${desc}
+          ${loc}${desc}${poster}
         </div>`;
+      if (pid) {
+        const img = div.querySelector('.event-card-poster');
+        if (img) {
+          img.addEventListener('click', () => openPhoto(pid));
+          img.addEventListener('error', () => img.remove()); // fichier non partagé : on n'affiche rien
+        }
+      }
       return div;
     }
 
