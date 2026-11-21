@@ -2444,7 +2444,12 @@ function ensureSeoMeta(currentPageId) {
     url: 'https://soulrennes.fr/',
     logo: (origin || '') + '/assets/images/soullogo.png',
     image: (origin || '') + '/assets/images/soullogo.png',
-    director: PERSON_VINCENT
+    director: PERSON_VINCENT,
+    sameAs: [
+      'https://www.instagram.com/soul.rennes/',
+      'https://www.youtube.com/@soulrennes',
+      'https://www.facebook.com/profile.php?id=61584638320678'
+    ]
   };
 
   const MUSIC_SCHOOL = {
@@ -2587,6 +2592,7 @@ async function init() {
         setGlobalConfig('footer', 'email', 'contacter.soul@protonmail.com');
         setGlobalConfig('footer', 'facebook', 'https://www.facebook.com/profile.php?id=61584638320678');
         setGlobalConfig('footer', 'instagram', 'https://www.instagram.com/soul.rennes/');
+        setGlobalConfig('footer', 'youtube', 'https://www.youtube.com/@soulrennes');
         // Use soul logo and site title for SOUL
         setGlobalConfig('head', 'logo_url', '/assets/images/soullogo.png');
         setGlobalConfig('head', 'site_title', 'SOUL');
